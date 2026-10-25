@@ -1,10 +1,12 @@
+'use client';
 import Link from 'next/link';
 import type { CategoryPhoto, InventoryUnit, UnitCard } from '../../lib/api';
 import { Icon } from '../../components/icon';
 import { Tabs } from '../../components/tabs';
 import { Badge } from '../../components/ui';
 import { displayDate } from '../../lib/display-date';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { unitNow } from '../../lib/unit-now';
 import { housekeepingStatus } from '../../lib/status/housekeeping';
 import { UnitActions } from '../units/[code]/unit-actions';
@@ -29,11 +31,12 @@ function Row({
   children: React.ReactNode;
   testId?: string;
 }) {
+  const t = useT();
   return (
     <div className="unit-field">
       <dt>
         <Icon name={icon} width={16} height={16} aria-hidden="true" />
-        {label}
+        {t(label)}
       </dt>
       <dd data-testid={testId}>{children}</dd>
     </div>
@@ -68,44 +71,46 @@ export function UnitPanel({
   /** «Кто убирает» (22.10.2026): сотрудники гостиницы для выбора */
   housekeepers?: ReadonlyArray<{ id: string; name: string; active: boolean }> | undefined;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const { current, next } = unitNow(unit.stays, today);
   const block = unit.blocks.find((b) => b.dateFrom <= today && today < b.dateTo) ?? null;
-  const floorRoom = floorRoomText(unit);
-  const place = [unit.buildingName && buildingText(unit.buildingName), floorRoom]
+  const floorRoom = floorRoomText(unit, t);
+  const place = [unit.buildingName && buildingText(unit.buildingName, t), floorRoom]
     .filter(Boolean)
     .join(', ');
   const info = (
     <div className="unit-tab">
       <dl className="unit-fields">
-        <Row icon="inventory" label="Категория" testId="unit-category">
+        <Row icon="inventory" label={msg('Категория')} testId="unit-category">
           {unit.accommodationTypeName}
         </Row>
-        <Row icon="rates" label="Расположение" testId="unit-place">
+        <Row icon="rates" label={msg('Расположение')} testId="unit-place">
           {place ? (
             <span className="inventory-place">
-              {unit.buildingName && <span>{buildingText(unit.buildingName)}</span>}
+              {unit.buildingName && <span>{buildingText(unit.buildingName, t)}</span>}
               {floorRoom && <span className="inventory-state-note">{floorRoom}</span>}
             </span>
           ) : (
             '—'
           )}
         </Row>
-        <Row icon="guests" label="Вместимость" testId="unit-capacity">
-          {pluralRu(unit.capacity, ['гость', 'гостя', 'гостей'])}
+        <Row icon="guests" label={msg('Вместимость')} testId="unit-capacity">
+          {countLabel(locale, t, unit.capacity, [msg('гость'), msg('гостя'), msg('гостей')])}
         </Row>
-        <Row icon="check" label="Статус продажи" testId="unit-state">
+        <Row icon="check" label={msg('Статус продажи')} testId="unit-state">
           <UnitStateBadge
             active={unit.active}
             block={block && { dateTo: block.dateTo, type: block.type, reason: block.reason }}
           />
         </Row>
-        <Row icon="dirty" label="Состояние уборки" testId="unit-hk">
+        <Row icon="dirty" label={msg('Состояние уборки')} testId="unit-hk">
           <HousekeepingBadge status={unit.housekeepingStatus} />
         </Row>
-        <Row icon="guests" label="Кто убирает" testId="unit-hk-assignee">
-          {unit.housekeepingAssignee?.name ?? 'Не назначено'}
+        <Row icon="guests" label={msg('Кто убирает')} testId="unit-hk-assignee">
+          {unit.housekeepingAssignee?.name ?? t('Не назначено')}
         </Row>
-        <Row icon="channels" label="Каналы продаж" testId="unit-channels">
+        <Row icon="channels" label={msg('Каналы продаж')} testId="unit-channels">
           {channels.length ? (
             <span className="inv-channels">
               {channels.map((c) => (
@@ -118,14 +123,14 @@ export function UnitPanel({
             '—'
           )}
         </Row>
-        <Row icon="clock" label="Создан" testId="unit-created">
+        <Row icon="clock" label={msg('Создан')} testId="unit-created">
           {createdAt}
         </Row>
-        <Row icon="clock" label="Последнее изменение" testId="unit-updated">
+        <Row icon="clock" label={msg('Последнее изменение')} testId="unit-updated">
           {updatedAt}
         </Row>
       </dl>
-      <h3 className="unit-subhead">Быстрые действия</h3>
+      <h3 className="unit-subhead">{t('Быстрые действия')}</h3>
       <div className="unit-quick">
         {canEditCatalog && (
           <FundEditor categories={[]} room={{ code: unit.code, roomNumber: unit.roomNumber }} />
@@ -137,7 +142,7 @@ export function UnitPanel({
               href={`/reservations/new?unit=${encodeURIComponent(unit.code)}`}
             >
               <Icon name="booking" />
-              Создать бронь
+              {t('Создать бронь')}
             </Link>
           </>
         )}
@@ -146,16 +151,16 @@ export function UnitPanel({
           href={`/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`}
         >
           <Icon name="board" />
-          Показать в календаре
+          {t('Показать в календаре')}
         </Link>
         {/* обычная ссылка, не Link: мягкий переход снова попал бы в перехват и открыл панель */}
         <a className="btn btn--secondary" href={`/units/${encodeURIComponent(unit.code)}`}>
-          Полная карточка
+          {t('Полная карточка')}
         </a>
       </div>
       {canOperate && (
         <>
-          <h3 className="unit-subhead">Уборка и блокировки</h3>
+          <h3 className="unit-subhead">{t('Уборка и блокировки')}</h3>
           <UnitActions unit={unit} today={today} housekeepers={housekeepers} />
         </>
       )}
@@ -164,7 +169,7 @@ export function UnitPanel({
   const beds = (
     <div className="unit-tab">
       <p className="sub">
-        {unit.kind === 'BED' ? 'Койко-места этой комнаты' : `Места комнаты ${unit.roomNumber}`}
+        {unit.kind === 'BED' ? t('Койко-места этой комнаты') : t('Места комнаты {n}', { n: unit.roomNumber })}
       </p>
       <ul className="unit-list">
         {roomUnits.map((u) => (
@@ -172,11 +177,11 @@ export function UnitPanel({
             <Icon name={u.kind === 'BED' ? 'bed' : 'inventory'} width={16} height={16} />
             <strong>{u.code}</strong>
             {!u.active ? (
-              <Badge>В архиве</Badge>
+              <Badge>{t('В архиве')}</Badge>
             ) : u.block ? (
-              <Badge tone="danger">Недоступно</Badge>
+              <Badge tone="danger">{t('Недоступно')}</Badge>
             ) : (
-              <Badge tone="ok">В продаже</Badge>
+              <Badge tone="ok">{t('В продаже')}</Badge>
             )}
             <HousekeepingBadge status={u.housekeepingStatus} />
           </li>
@@ -189,23 +194,26 @@ export function UnitPanel({
       <time dateTime={s.startDate}>{displayDate(s.startDate, 'numeric')}</time>
       {' → '}
       <time dateTime={s.endDate}>{displayDate(s.endDate, 'numeric')}</time>
-      {`, ${s.guestLabel || 'гость'}`}
-      <span className="inventory-state-note"> бронь {s.confirmationNumber}</span>
+      {`, ${s.guestLabel || t('гость')}`}
+      <span className="inventory-state-note"> {t('бронь {n}', { n: s.confirmationNumber })}</span>
     </>
   );
   const guests = (
     <div className="unit-tab">
       <dl className="unit-fields">
-        <Row icon="guests" label="Сейчас" testId="unit-now">
+        <Row icon="guests" label={msg('Сейчас')} testId="unit-now">
           {current
-            ? `${current.status === 'CHECKED_IN' ? 'живёт' : 'ждём'} ${current.guestLabel || 'гость'}, выезд ${displayDate(current.endDate, 'numeric')}`
-            : 'свободно'}
+            ? t(current.status === 'CHECKED_IN' ? msg('живёт {guest}, выезд {date}') : msg('ждём {guest}, выезд {date}'), {
+                guest: current.guestLabel || t('гость'),
+                date: displayDate(current.endDate, 'numeric'),
+              })
+            : t('свободно')}
           {current && (
-            <span className="inventory-state-note"> бронь {current.confirmationNumber}</span>
+            <span className="inventory-state-note"> {t('бронь {n}', { n: current.confirmationNumber })}</span>
           )}
         </Row>
-        <Row icon="clock" label="Следующее проживание" testId="unit-next">
-          {next ? stayLine(next) : 'нет на 60 дней вперёд'}
+        <Row icon="clock" label={msg('Следующее проживание')} testId="unit-next">
+          {next ? stayLine(next) : t('нет на 60 дней вперёд')}
         </Row>
       </dl>
     </div>
@@ -213,15 +221,15 @@ export function UnitPanel({
   const history = (
     <div className="unit-tab">
       {unit.housekeepingHistory.length === 0 ? (
-        <p className="sub">Смен статуса уборки пока не было.</p>
+        <p className="sub">{t('Смен статуса уборки пока не было.')}</p>
       ) : (
-        <ul className="unit-list" aria-label="История уборки">
+        <ul className="unit-list" aria-label={t('История уборки')}>
           {unit.housekeepingHistory.map((e) => (
             <li key={e.at}>
               <time dateTime={e.at}>{displayDate(e.at.slice(0, 10), 'numeric')}</time>
-              {housekeepingStatus[e.from as keyof typeof housekeepingStatus]?.label ?? e.from}
+              {t(housekeepingStatus[e.from as keyof typeof housekeepingStatus]?.label ?? e.from)}
               {' → '}
-              {housekeepingStatus[e.to as keyof typeof housekeepingStatus]?.label ?? e.to}
+              {t(housekeepingStatus[e.to as keyof typeof housekeepingStatus]?.label ?? e.to)}
             </li>
           ))}
         </ul>
@@ -236,15 +244,15 @@ export function UnitPanel({
         photos={photos}
       />
       <p className="sub unit-panel-sub">
-        {unit.accommodationTypeName}, {unit.kind === 'BED' ? 'койко-место' : 'номер'}
+        {unit.accommodationTypeName}, {unit.kind === 'BED' ? t('койко-место') : t('номер')}
       </p>
       <Tabs
-        label="Разделы места"
+        label={t('Разделы места')}
         panels={[
-          { id: 'info', label: 'Информация', content: info },
-          { id: 'beds', label: 'Койко-места', content: beds, count: roomUnits.length },
-          { id: 'guests', label: 'Бронь / Гости', content: guests },
-          { id: 'history', label: 'История', content: history },
+          { id: 'info', label: t('Информация'), content: info },
+          { id: 'beds', label: t('Койко-места'), content: beds, count: roomUnits.length },
+          { id: 'guests', label: t('Бронь / Гости'), content: guests },
+          { id: 'history', label: t('История'), content: history },
         ]}
       />
     </div>

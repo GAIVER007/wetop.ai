@@ -4,6 +4,7 @@ import { parseBranchPaymentMethodSettings } from '@pms/domain';
 import { ApiError, authApi } from '../../lib/api';
 import { restaurantApi } from '../../lib/food-api';
 import type { DirectoryActionResult } from '../hotel-settings/actions';
+import { serverT } from '../../i18n/server';
 
 /** Тот же филиал, что был открыт: иначе сохранение ушло бы в филиал, выбранный в другой вкладке */
 async function sameScope(form: FormData): Promise<boolean> {
@@ -17,21 +18,22 @@ export async function saveBranchPaymentMethods(
   _prev: DirectoryActionResult | null,
   form: FormData,
 ): Promise<DirectoryActionResult> {
+  const t = await serverT();
   let methods: unknown;
   try {
     methods = JSON.parse(String(form.get('methods') ?? '[]'));
   } catch {
-    return { error: 'Список способов не прочитан, обновите страницу', message: null };
+    return { error: t('Список способов не прочитан, обновите страницу'), message: null };
   }
   const parsed = parseBranchPaymentMethodSettings({ methods });
-  if (!parsed.ok) return { error: parsed.reason, message: null };
+  if (!parsed.ok) return { error: t(parsed.reason), message: null };
   try {
     if (!(await sameScope(form)))
-      return { error: 'Выбран другой филиал. Откройте настройки нужного филиала.', message: null };
+      return { error: t('Выбран другой филиал. Откройте настройки нужного филиала.'), message: null };
     await restaurantApi.updatePaymentMethods(parsed.value);
   } catch (e) {
-    return { error: e instanceof ApiError ? e.message : 'Не удалось сохранить, попробуйте ещё раз', message: null };
+    return { error: e instanceof ApiError ? e.message : t('Не удалось сохранить, попробуйте ещё раз'), message: null };
   }
   revalidatePath('/branch-payment-methods');
-  return { error: null, message: 'Способы оплаты сохранены' };
+  return { error: null, message: t('Способы оплаты сохранены') };
 }

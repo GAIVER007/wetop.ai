@@ -83,7 +83,8 @@ test('напоминания гостям: настройки с предпро�
     await page.emulateMedia({ colorScheme: scheme });
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/table-reservations');
-    const box = page.getByTestId('food-reminders-today');
+    // потоковая отрисовка оставляет в DOM скрытую копию раздела: берём видимую, в main
+    const box = page.getByRole('main').getByTestId('food-reminders-today');
     await expect(box).toBeVisible({ timeout: 60_000 });
     await expect(box.getByRole('heading')).toHaveText('Напомнить сегодня (1)');
     await expect(box.getByTestId('food-reminder-row')).toContainText('Ерлан, бронь в');

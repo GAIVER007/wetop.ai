@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { Icon, type IconName } from './icon';
 import { Input, Select } from './ui';
+import { msg } from '../i18n';
+import { Labelled, T } from '../i18n/locale-provider';
 import '../app/journal-head.css';
 
 /**
@@ -47,17 +49,17 @@ export function JournalHead({
           </div>
           {subtitle && <p className="journal-head__subtitle" aria-hidden="true">{subtitle}</p>}
         </div>
-        <div className="journal-head__actions" role="group" aria-label="Период и действия журнала">
+        <Labelled className="journal-head__actions" role="group" label={msg('Период и действия журнала')}>
           {nav}
           {actions}
-        </div>
+        </Labelled>
       </div>
       {summary && <div className="journal-head__summary">{summary}</div>}
       {(filters || views) && (
-        <div className="journal-head__filters" role="group" aria-label="Отборы журнала">
+        <Labelled className="journal-head__filters" role="group" label={msg('Отборы журнала')}>
           {filters}
           {views && <div className="journal-head__views">{views}</div>}
-        </div>
+        </Labelled>
       )}
     </div>
   );
@@ -68,7 +70,13 @@ export function FiltersTitle({ active = 0 }: { active?: number }) {
   return (
     <>
       <Icon name="filter" aria-hidden="true" />
-      {active > 0 ? `Фильтры\nАктивных: ${active}` : 'Фильтры'}
+      <T text={msg('Фильтры')} />
+      {active > 0 && (
+        <>
+          {'\n'}
+          <T text={msg('Активных: {n}')} vars={{ n: active }} />
+        </>
+      )}
     </>
   );
 }

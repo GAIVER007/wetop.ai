@@ -5,10 +5,12 @@ import { Alert, Button } from '../../../components/ui';
 import { Overlay } from '../../../components/overlay';
 import { GuestProfileForm } from '../../guests/[id]/guest-forms';
 import { loadBookingGuest } from './guest-editor-actions';
+import { useT } from '../../../i18n/locale-provider';
 
 export function BookingGuestEditor({ id, scopeKey, canEdit, piiStorage }: {
   id: string; scopeKey: string; canEdit: boolean; piiStorage: 'real' | 'pseudonymized';
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [guest, setGuest] = useState<GuestCard | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -23,19 +25,19 @@ export function BookingGuestEditor({ id, scopeKey, canEdit, piiStorage }: {
     try {
       const result = await loadBookingGuest(id);
       if (request !== generation.current) return;
-      setGuest(result.guest); setError(result.error);
+      setGuest(result.guest); setError(result.error && t(result.error));
     } catch {
-      if (request === generation.current) setError('Не удалось загрузить гостя. Попробуйте снова.');
+      if (request === generation.current) setError(t('Не удалось загрузить гостя. Попробуйте снова.'));
     } finally {
       if (request === generation.current) setLoading(false);
     }
   };
   return <>
     <Button type="button" tone="secondary" size="sm" disabled={!canEdit}
-      onClick={() => { setOpen(true); void load(); }}>Изменить гостя</Button>
-    <Overlay open={open && canEdit} onClose={close} title="Данные гостя">
-      {loading ? <p role="status">Загружаем данные гостя…</p> : error ? <>
-        <Alert>{error}</Alert><Button type="button" onClick={() => void load()}>Повторить</Button>
+      onClick={() => { setOpen(true); void load(); }}>{t('Изменить гостя')}</Button>
+    <Overlay open={open && canEdit} onClose={close} title={t('Данные гостя')}>
+      {loading ? <p role="status">{t('Загружаем данные гостя…')}</p> : error ? <>
+        <Alert>{error}</Alert><Button type="button" onClick={() => void load()}>{t('Повторить')}</Button>
       </> : guest ? <GuestProfileForm key={`${scopeKey}:${guest.id}`} guest={guest} piiStorage={piiStorage} readOnly={!canEdit} onSaved={close} /> : null}
     </Overlay>
   </>;

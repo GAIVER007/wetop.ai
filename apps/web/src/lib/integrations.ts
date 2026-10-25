@@ -1,3 +1,4 @@
+import { msg, translator, type Translate } from '../i18n';
 import type { ChannelConnection, ChannelMappingRow, OutboxSummary, WebhookStatus } from './api';
 import type { PropertyClock } from './property-time';
 
@@ -18,10 +19,10 @@ export const settle = <T>(p: Promise<T>): Promise<Settled<T>> =>
 export type IntegrationHealth = 'ok' | 'attention' | 'unknown' | 'off';
 
 export const HEALTH_LABEL: Record<IntegrationHealth, string> = {
-  ok: 'Работает',
-  attention: 'Требует внимания',
-  unknown: 'Состояние неизвестно',
-  off: 'Не подключено',
+  ok: msg('Работает'),
+  attention: msg('Требует внимания'),
+  unknown: msg('Состояние неизвестно'),
+  off: msg('Не подключено'),
 };
 
 export const HEALTH_TONE: Record<IntegrationHealth, 'ok' | 'warn' | 'neutral'> = {
@@ -96,7 +97,10 @@ export function channexCard(input: {
   /** Сопоставление категорий; не загрузилось — остаётся прежнее правило «ни одной категории» */
   coverage?: CategoryCoverage | null;
   now: Date;
+  /** Язык текстов с числами внутри; постоянные фразы `msg` переводит `IssueList` при показе */
+  t?: Translate;
 }): ChannexCard {
+  const t = input.t ?? translator('ru');
   const webhook = input.webhook.ok ? input.webhook.value : null;
   const outbox = input.outbox.ok ? input.outbox.value : null;
   if (!input.connection.ok) {
@@ -112,7 +116,7 @@ export function channexCard(input: {
       };
     return {
       health: 'unknown',
-      issues: [{ text: 'Не удалось проверить менеджер каналов. Повторите проверку.' }],
+      issues: [{ text: msg('Не удалось проверить менеджер каналов. Повторите проверку.') }],
       connection: null,
       webhook,
       outbox,
@@ -132,17 +136,17 @@ export function channexCard(input: {
   const unknowns: HealthIssue[] = [];
   if (connection.state === 'NO_MAPPING') {
     problems.push({
-      text: 'Объект в менеджере каналов не создан',
+      text: msg('Объект в менеджере каналов не создан'),
       href: `${CHANNELS}/connections`,
-      action: 'Открыть настройку',
+      action: msg('Открыть настройку'),
     });
   } else if (connection.state !== 'READY') {
     problems.push({ text: connection.message });
   } else if (connection.mappedCategories === 0) {
     problems.push({
-      text: 'Категории не сопоставлены',
+      text: msg('Категории не сопоставлены'),
       href: `${CHANNELS}/mapping`,
-      action: 'Открыть сопоставление',
+      action: msg('Открыть сопоставление'),
     });
   } else if (
     input.coverage &&
@@ -152,35 +156,38 @@ export function channexCard(input: {
     // «ни одной» решает счётчик самого API: он и сопоставление читаются из одних строк
     // «mapping incomplete» из ТЗ INT1 §14: непроданная в каналах категория — то, что владелец должен увидеть
     problems.push({
-      text: `Не сопоставлено категорий: ${input.coverage.total - input.coverage.mapped} из ${input.coverage.total}`,
+      text: t('Не сопоставлено категорий: {n} из {total}', {
+        n: input.coverage.total - input.coverage.mapped,
+        total: input.coverage.total,
+      }),
       href: `${CHANNELS}/mapping`,
-      action: 'Открыть сопоставление',
+      action: msg('Открыть сопоставление'),
     });
   }
-  if (!webhook) unknowns.push({ text: 'Не удалось проверить webhook' });
+  if (!webhook) unknowns.push({ text: msg('Не удалось проверить webhook') });
   else if (!webhook.registered || !webhook.active)
     problems.push({
-      text: 'Webhook не включён',
+      text: msg('Webhook не включён'),
       href: `${CHANNELS}/connections`,
-      action: 'Открыть настройку',
+      action: msg('Открыть настройку'),
     });
-  else if (webhook.callbackReachable === false) problems.push({ text: 'Webhook не отвечает' });
-  if (!outbox) unknowns.push({ text: 'Не удалось проверить очередь в каналы' });
+  else if (webhook.callbackReachable === false) problems.push({ text: msg('Webhook не отвечает') });
+  if (!outbox) unknowns.push({ text: msg('Не удалось проверить очередь в каналы') });
   else {
     const stalled = outbox.oldestPendingAt
       ? Math.floor((input.now.getTime() - Date.parse(outbox.oldestPendingAt)) / 60_000)
       : 0;
     if (outbox.failed > 0)
       problems.push({
-        text: `Ошибок отправки в каналы: ${outbox.failed}`,
+        text: t('Ошибок отправки в каналы: {n}', { n: outbox.failed }),
         href: `${CHANNELS}/sync?queue=FAILED`,
-        action: 'Открыть очередь',
+        action: msg('Открыть очередь'),
       });
     else if (outbox.pending > 0 && stalled >= STALL_MINUTES)
       problems.push({
-        text: `Очередь в каналы стоит ${stalled} мин`,
+        text: t('Очередь в каналы стоит {n} мин', { n: stalled }),
         href: `${CHANNELS}/sync?queue=PENDING`,
-        action: 'Открыть очередь',
+        action: msg('Открыть очередь'),
       });
   }
   if (problems.length) return { ...base, health: 'attention', issues: problems };
@@ -189,17 +196,22 @@ export function channexCard(input: {
 }
 
 /** «2 мин назад», «сегодня, 19:46», «вчера, 19:46», раньше — «20.09 в 16:50»; события не было — «—» */
-export function exchangeLine(iso: string | null, clock: PropertyClock, now: Date): string {
+export function exchangeLine(
+  iso: string | null,
+  clock: PropertyClock,
+  now: Date,
+  t: Translate = translator('ru'),
+): string {
   if (!iso || !Number.isFinite(Date.parse(iso))) return '—';
   const minutes = Math.floor((now.getTime() - Date.parse(iso)) / 60_000);
-  if (minutes >= 0 && minutes < 1) return 'только что';
-  if (minutes >= 1 && minutes < 60) return `${minutes} мин назад`;
+  if (minutes >= 0 && minutes < 1) return t('только что');
+  if (minutes >= 1 && minutes < 60) return t('{n} мин назад', { n: minutes });
   const day = clock.date(iso);
   const today = clock.today(now);
   const yesterday = clock.date(
     new Date(Date.parse(`${today}T12:00:00Z`) - 86_400_000).toISOString(),
   );
-  if (day === today) return `сегодня, ${clock.clock(iso)}`;
-  if (day === yesterday) return `вчера, ${clock.clock(iso)}`;
-  return clock.when(iso);
+  if (day === today) return t('сегодня, {time}', { time: clock.clock(iso) });
+  if (day === yesterday) return t('вчера, {time}', { time: clock.clock(iso) });
+  return clock.when(iso, t);
 }

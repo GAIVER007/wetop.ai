@@ -35,6 +35,7 @@ import {
 } from '../../../lib/support-kb';
 import { KbDraftButton, KbEntryEditor } from './kb-forms';
 import { unstable_rethrow } from 'next/navigation';
+import { serverT } from '../../../i18n/server';
 
 const clock = propertyClock(PLATFORM_TIMEZONE);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -62,15 +63,16 @@ export async function KbView({ query }: { query: Record<string, string> }) {
     selected ? settle(supportApi.kbRead(selected)) : Promise.resolve(null),
   ]);
   const total = loaded.ok ? Object.values(loaded.value.counts).reduce((a, b) => a + b, 0) : null;
+  const t = await serverT();
   return (
     <Stack>
-      <nav className="chips support-chips" aria-label="Статусы знаний">
+      <nav className="chips support-chips" aria-label={t('Статусы знаний')}>
         <Link
           href={kbHref({ ...filter, status: '', id: '' })}
           prefetch={false}
           aria-current={filter.status === '' ? 'page' : undefined}
         >
-          Все
+          {t('Все')}
           {total !== null && <span className="chips__count">{total}</span>}
         </Link>
         {KB_STATUSES.map(([status, label]) => (
@@ -80,67 +82,67 @@ export async function KbView({ query }: { query: Record<string, string> }) {
             prefetch={false}
             aria-current={filter.status === status ? 'page' : undefined}
           >
-            {label}
+            {t(label)}
             {loaded.ok && <span className="chips__count">{loaded.value.counts[status] ?? 0}</span>}
           </Link>
         ))}
       </nav>
-      <form method="get" action="/platform/support/base" className="stack" aria-label="Поиск по знаниям">
+      <form method="get" action="/platform/support/base" className="stack" aria-label={t('Поиск по знаниям')}>
         {filter.status && <input type="hidden" name="status" value={filter.status} />}
         <Row>
-          <Field label="Поиск">
+          <Field label={t('Поиск')}>
             <Input name="q" defaultValue={filter.q} maxLength={200} />
           </Field>
-          <Field label="Категория">
+          <Field label={t('Категория')}>
             <Select name="category" defaultValue={filter.category}>
-              <option value="">Все</option>
+              <option value="">{t('Все')}</option>
               {KB_CATEGORIES.map(([value, label]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label="Видимость">
+          <Field label={t('Видимость')}>
             <Select name="visibility" defaultValue={filter.visibility}>
-              <option value="">Любая</option>
+              <option value="">{t('Любая')}</option>
               {KB_VISIBILITIES.map(([value, label]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </Select>
           </Field>
           <Button type="submit" tone="secondary">
-            Найти
+            {t('Найти')}
           </Button>
           <Link className="btn" href="/platform/support/base?new=1" prefetch={false}>
-            Добавить знание
+            {t('Добавить знание')}
           </Link>
         </Row>
       </form>
       <div className="stack">
-        <section aria-label="Знания">
+        <section aria-label={t('Знания')}>
           {!loaded.ok ? (
             <LoadError testId="kb-error-load" {...loadErrorProps(loaded.error)} />
           ) : loaded.value.items.length === 0 ? (
             <div data-testid="kb-empty">
-              <EmptyState icon={<Icon name="journal" width={32} height={32} />} title="Знаний пока нет">
+              <EmptyState icon={<Icon name="journal" width={32} height={32} />} title={t('Знаний пока нет')}>
                 {filter.status || filter.category || filter.visibility || filter.q
-                  ? 'По этому отбору ничего нет. Сбросьте отбор или добавьте знание.'
-                  : 'Добавьте первое знание: помощник отвечает только по опубликованным.'}
+                  ? t('По этому отбору ничего нет. Сбросьте отбор или добавьте знание.')
+                  : t('Добавьте первое знание: помощник отвечает только по опубликованным.')}
               </EmptyState>
             </div>
           ) : (
-            <Table aria-label="Управляемые знания" data-testid="kb-catalog">
+            <Table aria-label={t('Управляемые знания')} data-testid="kb-catalog">
               <thead>
                 <tr>
-                  <th>Название</th>
-                  <th>Категория</th>
-                  <th>Видимость</th>
-                  <th>Статус</th>
-                  <th>Версия</th>
-                  <th>Обновлено</th>
+                  <th>{t('Название')}</th>
+                  <th>{t('Категория')}</th>
+                  <th>{t('Видимость')}</th>
+                  <th>{t('Статус')}</th>
+                  <th>{t('Версия')}</th>
+                  <th>{t('Обновлено')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -151,10 +153,10 @@ export async function KbView({ query }: { query: Record<string, string> }) {
                         {item.title}
                       </Link>
                     </td>
-                    <td>{kbCategoryLabel(item.category)}</td>
-                    <td>{kbVisibilityLabel(item.visibility)}</td>
+                    <td>{t(kbCategoryLabel(item.category))}</td>
+                    <td>{t(kbVisibilityLabel(item.visibility))}</td>
                     <td>
-                      <Badge tone={kbStatusTone(item.status)}>{kbStatusLabel(item.status)}</Badge>
+                      <Badge tone={kbStatusTone(item.status)}>{t(kbStatusLabel(item.status))}</Badge>
                     </td>
                     <td>{item.version}</td>
                     <td>{clock.moment(item.updatedAt)}</td>
@@ -164,11 +166,11 @@ export async function KbView({ query }: { query: Record<string, string> }) {
             </Table>
           )}
         </section>
-        <section aria-label="Запись">
+        <section aria-label={t('Запись базы знаний')}>
           {isNew ? (
             <NewEntry filter={filter} />
           ) : !entry ? (
-            <p className="support-desk__hint">Выберите запись в списке или добавьте новую.</p>
+            <p className="support-desk__hint">{t('Выберите запись в списке или добавьте новую.')}</p>
           ) : entry.ok ? (
             <EntryPanel entry={entry.value} back={kbHref(filter)} saved={query.saved === '1'} />
           ) : (
@@ -183,15 +185,16 @@ export async function KbView({ query }: { query: Record<string, string> }) {
   );
 }
 
-function NewEntry({ filter }: { filter: ReturnType<typeof kbFilter> }) {
+async function NewEntry({ filter }: { filter: ReturnType<typeof kbFilter> }) {
+  const t = await serverT();
   return (
     <Panel data-testid="kb-entry">
       <Link href={kbHref(filter)} prefetch={false} className="support-dialog__back">
-        К списку
+        {t('К списку')}
       </Link>
-      <SectionTitle first>Новое знание</SectionTitle>
+      <SectionTitle first>{t('Новое знание')}</SectionTitle>
       <p className="settings-note">
-        Запись создаётся черновиком. Помощник начнёт отвечать по ней только после публикации.
+        {t('Запись создаётся черновиком. Помощник начнёт отвечать по ней только после публикации.')}
       </p>
       <KbEntryEditor
         entry={{ id: null, title: '', category: 'HOW_TO', visibility: 'PUBLIC_SUPPORT', content: '', status: null }}
@@ -200,32 +203,37 @@ function NewEntry({ filter }: { filter: ReturnType<typeof kbFilter> }) {
   );
 }
 
-function EntryPanel({ entry, back, saved }: { entry: SupportKbEntry; back: string; saved: boolean }) {
+async function EntryPanel({ entry, back, saved }: { entry: SupportKbEntry; back: string; saved: boolean }) {
+  const t = await serverT();
   const versions = entry.versions ?? [];
   return (
     <Panel data-testid="kb-entry" key={entry.id}>
       <Link href={back} prefetch={false} className="support-dialog__back">
-        К списку
+        {t('К списку')}
       </Link>
       <Row gap="lg" className="row--baseline">
         <SectionTitle first>{entry.title}</SectionTitle>
-        <Badge tone={kbStatusTone(entry.status)}>{kbStatusLabel(entry.status)}</Badge>
+        <Badge tone={kbStatusTone(entry.status)}>{t(kbStatusLabel(entry.status))}</Badge>
       </Row>
       <Grid min={160}>
-        <Fact label="Версия" value={`Версия ${entry.version}`} />
-        <Fact label="Источник" value={entry.source ?? '—'} />
-        <Fact label="Обновлено" value={clock.moment(entry.updatedAt)} />
+        <Fact label={t('Версия')} value={t('Версия {n}', { n: entry.version })} />
+        <Fact label={t('Источник')} value={entry.source ?? '—'} />
+        <Fact label={t('Обновлено')} value={clock.moment(entry.updatedAt)} />
         <Fact
-          label="Утверждение"
-          value={entry.approvedAt ? `Утвердил главный администратор, ${clock.moment(entry.approvedAt)}` : 'Не утверждено'}
+          label={t('Утверждение')}
+          value={
+            entry.approvedAt
+              ? t('Утвердил главный администратор, {at}', { at: clock.moment(entry.approvedAt) })
+              : t('Не утверждено')
+          }
         />
       </Grid>
       {entry.status === 'DRAFT' && (
-        <Notice tone="muted">Ответов по этой записи пока нет: опубликуйте её.</Notice>
+        <Notice tone="muted">{t('Ответов по этой записи пока нет: опубликуйте её.')}</Notice>
       )}
       {entry.status === 'ACTIVE' && entry.visibility === 'PLATFORM_ADMIN_ONLY' && (
         <Notice tone="muted">
-          Запись только для администратора платформы: клиенту помощник её не показывает и не пересказывает.
+          {t('Запись только для администратора платформы: клиенту помощник её не показывает и не пересказывает.')}
         </Notice>
       )}
       <KbEntryEditor
@@ -241,12 +249,12 @@ function EntryPanel({ entry, back, saved }: { entry: SupportKbEntry; back: strin
         }}
       />
       {versions.length > 0 && (
-        <section aria-label="История версий">
-          <SectionTitle>История версий</SectionTitle>
+        <section aria-label={t('История версий')}>
+          <SectionTitle>{t('История версий')}</SectionTitle>
           <ul className="settings-note">
             {versions.map((v) => (
               <li key={v.version}>
-                Версия {v.version}, {clock.moment(v.savedAt)}
+                {t('Версия {n}, {at}', { n: v.version, at: clock.moment(v.savedAt) })}
               </li>
             ))}
           </ul>
@@ -262,13 +270,14 @@ function EntryPanel({ entry, back, saved }: { entry: SupportKbEntry; back: strin
  */
 export async function KbSources({ conversationId, closed }: { conversationId: string; closed: boolean }) {
   const loaded = await settle(supportApi.conversationSources(conversationId));
+  const t = await serverT();
   return (
-    <section aria-label="На основании" data-testid="kb-sources" className="stack stack--sm">
-      <PanelTitle>На основании</PanelTitle>
+    <section aria-label={t('На основании')} data-testid="kb-sources" className="stack stack--sm">
+      <PanelTitle>{t('На основании')}</PanelTitle>
       {!loaded.ok ? (
-        <p className="settings-note">Не удалось узнать, на каких знаниях строились ответы.</p>
+        <p className="settings-note">{t('Не удалось узнать, на каких знаниях строились ответы.')}</p>
       ) : loaded.value.items.length === 0 ? (
-        <p className="settings-note">Знания в ответах не использовались.</p>
+        <p className="settings-note">{t('Знания в ответах не использовались.')}</p>
       ) : (
         <ul>
           {loaded.value.items.map((item) => (
@@ -276,7 +285,10 @@ export async function KbSources({ conversationId, closed }: { conversationId: st
               <Link href={kbHref({ id: item.knowledgeId ?? '' })} prefetch={false}>
                 {item.title}
               </Link>
-              , версия {item.version}, {kbVisibilityLabel(item.visibility).toLowerCase()}
+              {t(', версия {n}, {visibility}', {
+                n: item.version,
+                visibility: t(kbVisibilityLabel(item.visibility)).toLowerCase(),
+              })}
             </li>
           ))}
         </ul>

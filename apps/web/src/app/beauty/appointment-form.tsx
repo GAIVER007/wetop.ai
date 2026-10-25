@@ -645,13 +645,13 @@ export function AppointmentForm({
           </PickGroup>
         ) : null}
         <p className="beauty-note">
-          {t('Время филиала: {zone}. Доступность подтвердится при сохранении.', { zone: zoneLabel(day.location.timezone) })}
+          {t('Время филиала: {zone}. Доступность подтвердится при сохранении.', { zone: zoneLabel(day.location.timezone, t) })}
         </p>
         <p className="beauty-note sr-only" aria-live="polite">
           {t('Выбрано:')}
           <span className="beauty-selection-line">{t('Дата: {date}', { date })}</span>
           <span className="beauty-selection-line">
-            {t('Время: {time} ({zone})', { time: hour, zone: zoneLabel(day.location.timezone) })}
+            {t('Время: {time} ({zone})', { time: hour, zone: zoneLabel(day.location.timezone, t) })}
           </span>
         </p>
       </fieldset>

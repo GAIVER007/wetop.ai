@@ -7,7 +7,8 @@ import { deskShell } from '../../../../lib/desk-shell';
 import { formatMoney } from '../../../../lib/money';
 import { marketingCampaignsApi } from '../../../../lib/api';
 import { displayDate } from '../../../../lib/display-date';
-import { pluralRu } from '../../../../lib/plural';
+import { countLabel, msg } from '../../../../i18n';
+import { currentLocale, serverT } from '../../../../i18n/server';
 import { Page } from '../../../../components/page';
 import { Icon } from '../../../../components/icon';
 import { LoadError } from '../../../../components/load-error';
@@ -30,14 +31,15 @@ export default async function BudgetExpensesPage({
   searchParams: Promise<SearchParams>;
 }) {
   await requireFeature('/marketing/budget/expenses');
+  const [t, locale] = await Promise.all([serverT(), currentLocale()]);
   const sp = await searchParams;
   const [loaded, shell] = await Promise.all([loadBudget(sp), deskShell()]);
   const role = shell.access.role;
   const editable = !shell.readOnly && (role === null || can(role, 'marketing'));
-  const subtitle = 'Журнал всех расходов на продвижение за месяц.';
+  const subtitle = t('Журнал всех расходов на продвижение за месяц.');
   if (loaded.chooseLocation || loaded.error)
     return (
-      <Page crumbs={<BackToModules />} title={BUDGET_TITLE} subtitle={subtitle}>
+      <Page crumbs={<BackToModules />} title={t(BUDGET_TITLE)} subtitle={subtitle}>
         {loaded.error ? <LoadError testId="budget-error" {...loaded.error} /> : <ChooseLocation />}
       </Page>
     );
@@ -64,7 +66,7 @@ export default async function BudgetExpensesPage({
   return (
     <Page
       crumbs={<BackToModules />}
-      title={BUDGET_TITLE}
+      title={t(BUDGET_TITLE)}
       subtitle={subtitle}
       actions={editable ? <ExpenseButton primary defaults={defaults} /> : undefined}
     >
@@ -74,50 +76,53 @@ export default async function BudgetExpensesPage({
           <MonthNav base="/marketing/budget/expenses" month={view.month} />
         </div>
         <div className="budget-filter" data-testid="budget-filter">
-          <nav className="budget-filter__chips" aria-label="Фильтр по платформе">
-            {chip(`/marketing/budget/expenses?month=${view.month}`, 'Все', platform === null)}
+          <nav className="budget-filter__chips" aria-label={t('Фильтр по платформе')}>
+            {chip(`/marketing/budget/expenses?month=${view.month}`, t('Все'), platform === null)}
             {present.map((p) =>
               chip(
                 `/marketing/budget/expenses?month=${view.month}&platform=${p}`,
-                platformLabel(p),
+                t(platformLabel(p)),
                 platform === p,
               ),
             )}
           </nav>
           <div className="budget-filter__sum" data-testid="budget-filter-sum">
-            {pluralRu(rows.length, ['расход', 'расхода', 'расходов'])} на {formatMoney(total, rc)}
+            {t('{n} на {sum}', {
+              n: countLabel(locale, t, rows.length, [msg('расход'), 'расхода', msg('расходов')]), // kk-allow: форма склонения
+              sum: formatMoney(total, rc),
+            })}
           </div>
           <ExportCsvButton rows={rows} month={view.month} reportingCurrency={rc} />
           {editable && <ImportCsvButton reportingCurrency={rc} />}
         </div>
         {rows.length === 0 ? (
           <EmptyState
-            title={platform ? 'По этой платформе расходов нет' : 'Расходов ещё нет'}
+            title={platform ? t('По этой платформе расходов нет') : t('Расходов ещё нет')}
             data-testid="budget-empty"
             actions={editable && !platform ? <ExpenseButton primary defaults={defaults} /> : undefined}
           >
             {platform
-              ? 'Выберите «Все», чтобы увидеть весь журнал месяца.'
-              : 'Добавьте первый расход: дата, платформа, сумма и статья. Валюта и курс запишутся на дату операции.'}
+              ? t('Выберите «Все», чтобы увидеть весь журнал месяца.')
+              : t('Добавьте первый расход: дата, платформа, сумма и статья. Валюта и курс запишутся на дату операции.')}
           </EmptyState>
         ) : (
-          <div className="tbl-wrap" role="region" aria-label="Журнал расходов" tabIndex={0}>
-            <Table density="normal" aria-label="Журнал расходов месяца" data-testid="budget-table">
+          <div className="tbl-wrap" role="region" aria-label={t('Журнал расходов')} tabIndex={0}>
+            <Table density="normal" aria-label={t('Журнал расходов месяца')} data-testid="budget-table">
               <thead>
                 <tr>
-                  <th scope="col">Дата</th>
-                  <th scope="col">Платформа</th>
-                  <th scope="col">Кампания и статья</th>
+                  <th scope="col">{t('Дата')}</th>
+                  <th scope="col">{t('Платформа')}</th>
+                  <th scope="col">{t('Кампания и статья')}</th>
                   <th scope="col" className="budget-td-num">
-                    Сумма
+                    {t('Сумма')}
                   </th>
                   <th scope="col" className="budget-td-num">
-                    В {rc}
+                    {t('В {currency}', { currency: rc })}
                   </th>
-                  <th scope="col">В бюджете</th>
+                  <th scope="col">{t('В бюджете')}</th>
                   {editable && (
                     <th scope="col">
-                      <span className="visually-hidden">Действия</span>
+                      <span className="visually-hidden">{t('Действия')}</span>
                     </th>
                   )}
                 </tr>
@@ -126,7 +131,7 @@ export default async function BudgetExpensesPage({
                 {rows.map((e) => (
                   <tr key={e.id}>
                     <td>{displayDate(e.date)}</td>
-                    <td>{platformLabel(e.platform)}</td>
+                    <td>{t(platformLabel(e.platform))}</td>
                     <td>
                       <span className="budget-cell-main">{e.campaign ?? e.category}</span>
                       {e.campaign && <span className="budget-cell-sub">{e.category}</span>}
@@ -134,20 +139,20 @@ export default async function BudgetExpensesPage({
                       {(e.files?.length ?? 0) > 0 && (
                         <span className="budget-cell-sub budget-files__count" data-testid={`budget-files-count-${e.id}`}>
                           <Icon name="receipt" width={14} aria-hidden="true" />
-                          {pluralRu(e.files!.length, ['файл', 'файла', 'файлов'])}
+                          {countLabel(locale, t, e.files!.length, [msg('файл'), 'файла' /* kk-allow: форма склонения */, msg('файлов')])}
                         </span>
                       )}
                     </td>
                     <td className="budget-td-num">
                       {formatMoney(e.amount, e.currency)}
-                      {e.currency !== rc && <span className="budget-cell-sub">курс {e.fxRate}</span>}
+                      {e.currency !== rc && <span className="budget-cell-sub">{t('курс {rate}', { rate: e.fxRate })}</span>}
                     </td>
                     <td className="budget-td-num">{formatMoney(e.baseAmount, rc)}</td>
                     <td>
                       {e.countedInBudget ? (
-                        <Badge tone="ok">Да</Badge>
+                        <Badge tone="ok">{t('Да')}</Badge>
                       ) : (
-                        <Badge>Вне бюджета</Badge>
+                        <Badge>{t('Вне бюджета')}</Badge>
                       )}
                     </td>
                     {editable && (

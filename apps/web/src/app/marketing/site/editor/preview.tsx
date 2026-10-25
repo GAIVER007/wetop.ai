@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { inlineTextTargets, localizedText } from '@pms/domain';
 import { Button, Field, Select, cx } from '../../../../components/ui';
 import type { Spec } from './fields';
+import { msg } from '../../../../i18n';
+import { useT } from '../../../../i18n/locale-provider';
 
 /**
  * Живой сайт справа (MKT9.1, `plans/mkt9-1-editor-live-preview-2026-10-07.md`): документ на экране рисуется тем же
@@ -21,7 +23,7 @@ let renderer: Promise<Renderer> | null = null;
 const loadRenderer = () => (renderer ??= import('../../../../../../sites/src/draft-preview'));
 
 type Rec = Record<string, unknown>;
-const LOCALE_NAME: Record<string, string> = { ru: 'Русский', kk: 'Қазақша', en: 'English' };
+const LOCALE_NAME: Record<string, string> = { ru: 'Русский', kk: 'Қазақша', en: 'English' }; // kk-allow: название языка пишется на нём самом
 
 export function SitePreview({
   spec,
@@ -57,6 +59,7 @@ export function SitePreview({
 }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [html, setHtml] = useState<string | null>(null);
+  const t = useT();
   const [shownPage, setShownPage] = useState<string | null>(null);
   const [broken, setBroken] = useState(false);
   const [device, setDevice] = useState<'desktop' | 'tablet' | 'phone'>('desktop');
@@ -87,8 +90,8 @@ export function SitePreview({
     const el = e.target as HTMLElement | null;
     if (el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))) return;
     const key = e.key.toLowerCase();
-    if (key === 's' || key === 'ы') setMode('select');
-    else if ((key === 't' || key === 'е') && !readOnly) setMode('text');
+    if (key === 's' || key === 'ы') setMode('select'); // kk-allow: та же клавиша в русской раскладке
+    else if ((key === 't' || key === 'е') && !readOnly) setMode('text'); // kk-allow: та же клавиша в русской раскладке
   };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => hotkey.current(e);
@@ -141,7 +144,7 @@ export function SitePreview({
     el.setAttribute('contenteditable', 'plaintext-only');
     if (!el.isContentEditable) el.setAttribute('contenteditable', 'true');
     el.setAttribute('role', 'textbox');
-    el.setAttribute('aria-label', 'Текст на сайте');
+    el.setAttribute('aria-label', t('Текст на сайте'));
     el.focus();
     const range = doc.createRange();
     range.selectNodeContents(el);
@@ -215,14 +218,14 @@ export function SitePreview({
   };
 
   return (
-    <section className={cx('ed-preview', simple && 'ed-preview--simple')} aria-label="Просмотр сайта" data-testid="ed-preview-pane">
+    <section className={cx('ed-preview', simple && 'ed-preview--simple')} aria-label={t('Просмотр сайта')} data-testid="ed-preview-pane">
       <div className="ed-preview__bar">
         {!simple && (
-        <div className="ed-preview__tools" role="radiogroup" aria-label="Режим работы с сайтом" data-testid="ed-tools">
+        <div className="ed-preview__tools" role="radiogroup" aria-label={t('Режим работы с сайтом')} data-testid="ed-tools">
           {(
             [
-              ['select', 'Выбор', 'S'],
-              ['text', 'Текст', 'T'],
+              ['select', msg('Выбор'), 'S'],
+              ['text', msg('Текст'), 'T'],
             ] as const
           ).map(([key, label, hotkey]) => (
             <button
@@ -236,7 +239,7 @@ export function SitePreview({
               onClick={() => setMode(key)}
               data-testid={`ed-tool-${key}`}
             >
-              {label} <kbd>{hotkey}</kbd>
+              {t(label)} <kbd>{hotkey}</kbd>
             </button>
           ))}
         </div>
@@ -244,30 +247,30 @@ export function SitePreview({
         {(!simple || pages.length > 1) &&
           (simple ? (
             <Select
-              aria-label="Страница"
+              aria-label={t('Страница')}
               className="ed-preview__page"
               value={shownPage ?? pageId ?? ''}
               onChange={(e) => handlers.current.onPage(e.currentTarget.value)}
             >
               {pages.map((p) => (
                 <option key={String(p['id'])} value={String(p['id'])}>
-                  {localizedText(p['title'], defaultLocale) || 'Без названия'}
+                  {localizedText(p['title'], defaultLocale) || t('Без названия')}
                 </option>
               ))}
             </Select>
           ) : (
-            <Field label="Страница" controlId="ed-preview-page" className="ed-preview__field">
+            <Field label={t('Страница')} controlId="ed-preview-page" className="ed-preview__field">
               <Select value={shownPage ?? pageId ?? ''} onChange={(e) => handlers.current.onPage(e.currentTarget.value)}>
                 {pages.map((p) => (
                   <option key={String(p['id'])} value={String(p['id'])}>
-                    {localizedText(p['title'], defaultLocale) || 'Без названия'}
+                    {localizedText(p['title'], defaultLocale) || t('Без названия')}
                   </option>
                 ))}
               </Select>
             </Field>
           ))}
         {!simple && locales.length > 1 && (
-          <Field label="Язык" controlId="ed-preview-locale" className="ed-preview__field">
+          <Field label={t('Язык')} controlId="ed-preview-locale" className="ed-preview__field">
             <Select value={shownLocale} onChange={(e) => setLocale(e.currentTarget.value)}>
               {locales.map((l) => (
                 <option key={l} value={l}>
@@ -277,42 +280,42 @@ export function SitePreview({
             </Select>
           </Field>
         )}
-        <div className="ed-preview__device" role="group" aria-label="Ширина просмотра">
+        <div className="ed-preview__device" role="group" aria-label={t('Ширина просмотра')}>
           {(
             [
-              ['desktop', 'Компьютер'],
-              ['tablet', 'Планшет'],
-              ['phone', 'Телефон'],
+              ['desktop', msg('Компьютер')],
+              ['tablet', msg('Планшет')],
+              ['phone', msg('Телефон')],
             ] as const
           ).map(([key, label]) => (
             <button key={key} type="button" className={cx('ed-preview__device-btn', device === key && 'is-on')} aria-pressed={device === key} onClick={() => setDevice(key)}>
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>
         {!simple && (
           <Button type="button" tone="secondary" data-testid="ed-preview" onClick={onOpenSeparately}>
-            Открыть в новой вкладке
+            {t('Открыть в новой вкладке')}
           </Button>
         )}
       </div>
       {!simple && (
       <p className="muted ed-preview__hint" data-testid="ed-preview-hint">
         {both
-          ? 'Щёлкните текст на сайте, чтобы исправить его, или блок, чтобы попросить ИИ изменить именно его. Изменения сохраняются сами.'
+          ? t('Щёлкните текст на сайте, чтобы исправить его, или блок, чтобы попросить ИИ изменить именно его. Изменения сохраняются сами.')
           : textMode
-          ? 'Щёлкните текст на сайте и исправьте его. Enter сохраняет в черновике, Escape отменяет. Цены, контакты и ссылки так не меняются.'
-          : 'Щёлкните блок на сайте, чтобы изменить его. Бронирование и цены работают только на опубликованном сайте.'}
+          ? t('Щёлкните текст на сайте и исправьте его. Enter сохраняет в черновике, Escape отменяет. Цены, контакты и ссылки так не меняются.')
+          : t('Щёлкните блок на сайте, чтобы изменить его. Бронирование и цены работают только на опубликованном сайте.')}
       </p>
       )}
       {broken && (
         <p className="ed-preview__broken" role="status" data-testid="ed-preview-broken">
-          Сайт с этими правками пока не нарисовать: исправьте отмеченные поля. Показан последний удачный вид.
+          {t('Сайт с этими правками пока не нарисовать: исправьте отмеченные поля. Показан последний удачный вид.')}
         </p>
       )}
       <div className={cx('ed-preview__stage', device === 'phone' && 'is-phone', device === 'tablet' && 'is-tablet')}>
         {html !== null && (
-          <iframe ref={frame} className="ed-preview__frame" title="Сайт гостиницы, живой просмотр" sandbox="allow-same-origin" srcDoc={html} onLoad={onLoad} data-testid="ed-frame" />
+          <iframe ref={frame} className="ed-preview__frame" title={t('Сайт гостиницы, живой просмотр')} sandbox="allow-same-origin" srcDoc={html} onLoad={onLoad} data-testid="ed-frame" />
         )}
       </div>
     </section>

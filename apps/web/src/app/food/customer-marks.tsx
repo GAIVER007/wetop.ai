@@ -5,6 +5,7 @@ import { Overlay } from '../../components/overlay';
 import { Alert, Button, Field, Input } from '../../components/ui';
 import { Switch } from '../../components/switch';
 import { markCustomer } from './restaurant-actions';
+import { useT } from '../../i18n/locale-provider';
 
 /** Правка VIP-метки и даты рождения клиента (§36, ADR-166) */
 export function CustomerMarks({
@@ -17,6 +18,7 @@ export function CustomerMarks({
   /** своё сохранение направления (салон, §36); без него ресторанное */
   save?: (id: string, body: { isVip: boolean; birthDate: string | null }) => Promise<{ error: string | null }>;
 }) {
+  const t = useT();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState('');
@@ -36,22 +38,22 @@ export function CustomerMarks({
   return (
     <>
       <Button tone="ghost" onClick={() => setOpen(true)}>
-        Изменить
+        {t('Изменить')}
       </Button>
       {open && (
         <Overlay open onClose={() => setOpen(false)} title={customer.name} drawer className="food-drawer" trapFocus>
           <form className="food-form" action={submit} data-testid="customer-marks">
             {error && <Alert>{error}</Alert>}
-            <Switch name="isVip" label="VIP-гость" hint="Метку видно всей смене" defaultChecked={customer.isVip} />
-            <Field label="Дата рождения">
+            <Switch name="isVip" label={t('VIP-гость')} hint={t('Метку видно всей смене')} defaultChecked={customer.isVip} />
+            <Field label={t('Дата рождения')}>
               <Input type="date" lang="ru" name="birthDate" defaultValue={customer.birthDate ?? ''} />
             </Field>
             <div className="food-actions">
               <Button type="submit" disabled={pending}>
-                Сохранить
+                {t('Сохранить')}
               </Button>
               <Button tone="secondary" disabled={pending} onClick={() => setOpen(false)}>
-                Отмена
+                {t('Отмена')}
               </Button>
             </div>
           </form>

@@ -4,6 +4,7 @@ import { Page } from '../../components/page';
 import { Alert } from '../../components/ui';
 import { currentMe, deskShell } from '../../lib/desk-shell';
 import { TaskBoard } from './task-board';
+import { serverT } from '../../i18n/server';
 
 /**
  * «Задачи» (DATA_MODEL §22, ADR-143): что сделать смене, по срокам. Вход — из панели «Сегодня» календаря;
@@ -17,15 +18,16 @@ export default async function TasksPage({
   // гостиничный экран: салон и ресторан по прямому адресу уходят на свою стартовую (DS2 F1, как `/reports`)
   await requireFeature('/tasks');
   const { reservation } = await searchParams;
+  const t = await serverT();
   const [list, shell, me] = await Promise.all([
     tasksApi.list().catch(() => null),
     deskShell(),
     currentMe().catch(() => null),
   ]);
   return (
-    <Page title="Задачи" subtitle="Что сделать смене: срок, приоритет, ответственный">
+    <Page title={t('Задачи')} subtitle={t('Что сделать смене: срок, приоритет, ответственный')}>
       {list === null ? (
-        <Alert boxed>Не удалось загрузить задачи. Обновите страницу.</Alert>
+        <Alert boxed>{t('Не удалось загрузить задачи. Обновите страницу.')}</Alert>
       ) : (
         <TaskBoard
           list={list}

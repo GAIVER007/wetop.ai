@@ -509,7 +509,7 @@ export function JournalBoard({
                 <b>
                   {live.filter((a) => a.status === 'BOOKED' || a.status === 'CONFIRMED').length}
                 </b>
-                {`, ${t('в работе')} `}
+                {`, ${t('в работе@@запись')} `}
                 <b>{live.filter((a) => a.status === 'IN_PROGRESS').length}</b>
                 {`, ${t('завершено')} `}
                 <b>{live.filter((a) => a.status === 'DONE').length}</b>

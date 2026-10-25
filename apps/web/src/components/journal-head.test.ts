@@ -98,7 +98,13 @@ describe('единая шапка журнала: части и порядок',
 
   it('гостиница остаётся образцом: поиск, категория, статус, «Фильтры» в этом порядке', () => {
     const grid = source('app/chessboard/board-grid.tsx');
-    const at = (s: string) => grid.indexOf(s);
+    // подпись по-русски или через перевод: aria-label="X" либо aria-label={t('X')}
+    const at = (s: string) => {
+      const plain = grid.indexOf(s);
+      if (plain >= 0) return plain;
+      const m = /^aria-label="(.*)"$/.exec(s);
+      return m ? grid.indexOf(`aria-label={t('${m[1]}')}`) : -1;
+    };
     expect(at('aria-label="Поиск в календаре"')).toBeGreaterThan(0);
     expect(at('aria-label="Поиск в календаре"')).toBeLessThan(at('aria-label="Категория"'));
     expect(at('aria-label="Категория"')).toBeLessThan(at('aria-label="Статус места"'));

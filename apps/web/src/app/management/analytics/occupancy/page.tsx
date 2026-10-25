@@ -9,6 +9,7 @@ import { AnalyticsToolbar } from '../toolbar';
 import { parseAnalyticsQuery } from '../params';
 import { Occupancy, OccupancySkeleton } from './occupancy';
 import '../analytics.css';
+import { serverT } from '../../../../i18n/server';
 
 /**
  * «Аналитика → Загрузка» v2 (ТЗ владельца «Аналитика v2», срез AN2, ADR-114): бывшая «Статистика» в системе
@@ -25,15 +26,18 @@ export default async function OccupancyPage({
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseAnalyticsQuery(sp, today, 'occupancy');
+  const t = await serverT();
   return (
     <Page
-      title="Аналитика"
+      title={t('Аналитика')}
       className="analytics-page"
-      subtitle="Сколько мест занято, свободно и закрыто — за день или период."
+      subtitle={t('Сколько мест занято, свободно и закрыто — за день или период.')}
     >
       <AnalyticsTabs current="occupancy" fund={query.fund} />
       <AnalyticsToolbar query={query} today={today} />
-      {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
+      {query.period.error && (
+        <Alert boxed>{t('{error}. Показан сегодняшний день.', { error: t(query.period.error) })}</Alert>
+      )}
       <Suspense
         key={`${query.period.from}|${query.period.to}|${query.fund}|${query.compare}`}
         fallback={<OccupancySkeleton />}

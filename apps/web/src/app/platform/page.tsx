@@ -15,12 +15,9 @@ import {
 import { Icon } from '../../components/icon';
 import { ApiError, branchesApi, platformApi, type PlatformOrganization } from '../../lib/api';
 import { loadErrorProps } from '../../lib/load-error';
-import {
-  extensionFormDefaults,
-  extensionLine,
-  organizationSince,
-  organizationStatusLine,
-} from '../../lib/platform';
+import { extensionFormDefaults, organizationSince } from '../../lib/platform';
+import { sellerText, statusText } from './words';
+import { serverT } from '../../i18n/server';
 import { ArchiveForm, CreateOrganizationForm, ExtensionForm, OwnerLinkForm, RenameForm, StatusForm } from './forms';
 import { ClientsTable } from './clients-table';
 import { PlatformOverviewSection } from './overview';
@@ -45,15 +42,16 @@ export default async function PlatformPage({
   const query = await searchParams;
   const selected = typeof query.org === 'string' ? query.org : '';
   const showArchived = query.archived === '1';
+  const t = await serverT();
   return (
     <Page
       className="branches-page"
       width="full"
-      title="Организации"
-      subtitle="Ваша организация с филиалами и показателями, а ниже все организации платформы."
+      title={t('Организации')}
+      subtitle={t('Ваша организация с филиалами и показателями, а ниже все организации платформы.')}
       actions={<RefreshButton />}
     >
-      <Suspense fallback={<LoadingState label="Загружаем организации…" />}>
+      <Suspense fallback={<LoadingState label={t('Загружаем организации…')} />}>
         <Organizations selected={selected} showArchived={showArchived} query={query} />
       </Suspense>
     </Page>
@@ -84,16 +82,16 @@ async function Organizations({
     settle(branchesApi.list()),
     settle(platformApi.overview()),
   ]);
+  const t = await serverT();
   if (!organizations.ok) {
     if (organizations.error instanceof ApiError && organizations.error.status === 403)
       return (
         <EmptyState
           icon={<Icon name="shield" width={32} height={32} />}
-          title="Раздел главного администратора платформы"
+          title={t('Раздел главного администратора платформы')}
           data-testid="platform-forbidden"
         >
-          Организации и их расширения видит только главный администратор. Отметку ставит команда на
-          сервере.
+          {t('Организации и их расширения видит только главный администратор. Отметку ставит команда на сервере.')}
         </EmptyState>
       );
     return <LoadError testId="platform-error" {...loadErrorProps(organizations.error)} />;
@@ -116,7 +114,7 @@ async function Organizations({
         <LoadError testId="platform-overview-error" {...loadErrorProps(overview.error)} />
       )}
       {branches.ok ? (
-        <Suspense fallback={<LoadingState label="Считаем показатели филиалов…" />}>
+        <Suspense fallback={<LoadingState label={t('Считаем показатели филиалов…')} />}>
           <OwnOrganization data={branches.value} query={query} selected={selected} />
         </Suspense>
       ) : (
@@ -124,34 +122,34 @@ async function Organizations({
       )}
       <Panel aria-labelledby="all-organizations-title">
         <SectionTitle first id="all-organizations-title">
-          Все организации платформы
+          {t('Все организации платформы')}
         </SectionTitle>
         <details className="org-add">
-          <summary className="btn">Добавить организацию</summary>
+          <summary className="btn">{t('Добавить организацию')}</summary>
           <div className="stack" data-testid="platform-add-organization">
             <CreateOrganizationForm />
             <p className="settings-note">
-              Организация может зарегистрироваться и сама:{' '}
+              {t('Организация может зарегистрироваться и сама:')}{' '}
               <Link href={publicAuthUrl('register')} prefetch={false}>
-                страница регистрации
+                {t('страница регистрации')}
               </Link>
-              . После регистрации она появится в этой таблице с пробным периодом.
+              {t('. После регистрации она появится в этой таблице с пробным периодом.')}
             </p>
           </div>
         </details>
         {archivedCount > 0 && (
           <p>
             <Link href={toggleHref} prefetch={false}>
-              {showArchived ? 'Скрыть архивные' : `Показать архивные (${archivedCount})`}
+              {showArchived ? t('Скрыть архивные') : t('Показать архивные ({n})', { n: archivedCount })}
             </Link>
           </p>
         )}
         {visible.length === 0 ? (
           <EmptyState
             icon={<Icon name="inventory" width={32} height={32} />}
-            title="Организаций нет"
+            title={t('Организаций нет')}
           >
-            Здесь появятся организации, зарегистрированные на платформе.
+            {t('Здесь появятся организации, зарегистрированные на платформе.')}
           </EmptyState>
         ) : (
           <ClientsTable items={visible} ownId={ownId} selected={selected} archivedParam={archivedParam} />
@@ -159,8 +157,8 @@ async function Organizations({
         {card && <OrganizationCard organization={card} own={card.id === ownId} />}
       </Panel>
       <details className="panel">
-        <summary>Состояние системы</summary>
-        <Suspense fallback={<LoadingState label="Проверяем базу…" />}>
+        <summary>{t('Состояние системы')}</summary>
+        <Suspense fallback={<LoadingState label={t('Проверяем базу…')} />}>
           <SystemState />
         </Suspense>
       </details>
@@ -174,70 +172,72 @@ async function Organizations({
  */
 async function SystemState() {
   const connection = await hotelApi.connection().catch(() => null);
+  const t = await serverT();
   return (
     <section className="stack stack--sm" aria-labelledby="system-state-title">
-      <SectionTitle id="system-state-title">Состояние системы</SectionTitle>
+      <SectionTitle id="system-state-title">{t('Состояние системы')}</SectionTitle>
       <DataConnectionPanel connection={connection} />
     </section>
   );
 }
 
 /** Выбранная организация: кто она и форма расширения «ИИ-продавец» */
-function OrganizationCard({
+async function OrganizationCard({
   organization: o,
   own,
 }: {
   organization: PlatformOrganization;
   own: boolean;
 }) {
-  const seller = extensionLine(o.aiSeller);
+  const t = await serverT();
+  const seller = sellerText(o.aiSeller, t);
   const archived = o.status === 'SUSPENDED';
   return (
     <Panel id="organization" data-testid="platform-organization">
       <SectionTitle first>{o.name}</SectionTitle>
       <Grid min={180}>
-        <Fact label="Состояние" value={organizationStatusLine(o).label} />
-        <Fact label="Зарегистрирована" value={organizationSince(o.createdAt)} />
-        <Fact label="Людей" value={String(o.members)} />
-        <Fact label="ИИ-продавец" value={`${seller.label}, ${seller.detail}`} />
+        <Fact label={t('Состояние')} value={statusText(o, t)} />
+        <Fact label={t('Зарегистрирована')} value={organizationSince(o.createdAt)} />
+        <Fact label={t('Людей')} value={String(o.members)} />
+        <Fact label={t('ИИ-продавец')} value={`${seller.label}, ${seller.detail}`} />
       </Grid>
       {o.ownerPending && !archived && (
         <>
-          <SectionTitle>Доступ владельца</SectionTitle>
-          <OwnerLinkForm key={`owner-${o.id}`} organizationId={o.id} owner={o.owners[0] ?? 'организации'} />
+          <SectionTitle>{t('Доступ владельца')}</SectionTitle>
+          <OwnerLinkForm key={`owner-${o.id}`} organizationId={o.id} owner={o.owners[0] ?? t('организации')} />
         </>
       )}
-      <SectionTitle>Название</SectionTitle>
+      <SectionTitle>{t('Название')}</SectionTitle>
       <RenameForm key={o.id} organizationId={o.id} organizationName={o.name} />
       {!archived && (
         <>
-          <SectionTitle>Подписка</SectionTitle>
+          <SectionTitle>{t('Подписка')}</SectionTitle>
           <StatusForm
             key={`status-${o.id}`}
             organizationId={o.id}
             organizationName={o.name}
             status={o.status}
           />
-          <SectionTitle>ИИ-продавец</SectionTitle>
-          {o.aiSeller.note && <p className="settings-note">Заметка: {o.aiSeller.note}</p>}
+          <SectionTitle>{t('ИИ-продавец')}</SectionTitle>
+          {o.aiSeller.note && <p className="settings-note">{t('Заметка: {note}', { note: o.aiSeller.note })}</p>}
           <ExtensionForm
             key={o.id}
             organizationId={o.id}
             organizationName={o.name}
             initial={extensionFormDefaults(o.aiSeller)}
           />
-          <SectionTitle>Конструктор сайта</SectionTitle>
+          <SectionTitle>{t('Конструктор сайта')}</SectionTitle>
           <p className="settings-note">
-            Лицензия на каждый гостиничный филиал. Без неё сайт филиала доступен только для чтения: менять его, просить ИИ и
-            публиковать нельзя, опубликованный сайт продолжает работать. Пробному доступу нужен срок, у «Активировать»
-            пустой срок значит бессрочно.
+            {t(
+              'Лицензия на каждый гостиничный филиал. Без неё сайт филиала доступен только для чтения: менять его, просить ИИ и публиковать нельзя, опубликованный сайт продолжает работать. Пробному доступу нужен срок, у «Активировать» пустой срок значит бессрочно.',
+            )}
           </p>
-          <Suspense fallback={<LoadingState label="Загружаем филиалы…" />}>
+          <Suspense fallback={<LoadingState label={t('Загружаем филиалы…')} />}>
             <SiteBuilderLicenses organizationId={o.id} />
           </Suspense>
         </>
       )}
-      <SectionTitle>Архив</SectionTitle>
+      <SectionTitle>{t('Архив')}</SectionTitle>
       <ArchiveForm
         key={`archive-${o.id}`}
         organizationId={o.id}
@@ -259,7 +259,8 @@ async function SiteBuilderLicenses({ organizationId }: { organizationId: string 
     },
   );
   if (!loaded.ok) return <LoadError testId="platform-site-builder-load-error" {...loadErrorProps(loaded.error)} />;
-  if (loaded.value.items.length === 0) return <EmptyState title="У организации нет гостиничных филиалов" />;
+  const t = await serverT();
+  if (loaded.value.items.length === 0) return <EmptyState title={t('У организации нет гостиничных филиалов')} />;
   return (
     <Stack data-testid="platform-site-builder">
       {loaded.value.items.map((l) => (

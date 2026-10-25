@@ -4,6 +4,7 @@ import type { SellerAgentCard } from '../../../lib/api';
 import { WizardFields, INITIAL_CONFIG } from '../../create/wizard-fields';
 import { useRouter } from 'next/navigation';
 import { saveAgent, createAgent } from './actions';
+import { useT } from '../../../i18n/locale-provider';
 
 export function AgentEditor({
   agent,
@@ -13,6 +14,7 @@ export function AgentEditor({
   creating?: boolean;
 }) {
   const router = useRouter();
+  const t = useT();
   const creationId = useRef('');
   const [values, setValues] = useState({ ...INITIAL_CONFIG, ...agent.profile });
   const [saved, setSaved] = useState(JSON.stringify(values));
@@ -52,10 +54,10 @@ export function AgentEditor({
       if (result.ok) {
         setVersion(result.updatedAt);
         setSaved(snapshot);
-        setMessage('Настройки сохранены');
+        setMessage(t('Настройки сохранены'));
       } else setError(result.error);
     } catch {
-      setError('Не удалось сохранить. Проверьте соединение и повторите.');
+      setError(t('Не удалось сохранить. Проверьте соединение и повторите.'));
     } finally {
       saving.current = false;
       setBusy(false);
@@ -63,8 +65,8 @@ export function AgentEditor({
   }
   return (
     <section className="guest-wizard__card">
-      <h2>Настройки агента</h2>
-      <p>Черновик: {values.assistantName || values.businessName || 'Новый агент'}</p>
+      <h2>{t('Настройки агента')}</h2>
+      <p>{t('Черновик: {name}', { name: values.assistantName || values.businessName || t('Новый агент') })}</p>
       {error && <p role="alert">{error}</p>}
       <form
         onSubmit={(e) => {
@@ -84,18 +86,22 @@ export function AgentEditor({
             }}
           />
           <button className="btn" type="submit" disabled={!dirty && !creating}>
-            {creating ? 'Создать агента' : 'Сохранить настройки'}
+            {creating ? t('Создать агента') : t('Сохранить настройки')}
           </button>
         </fieldset>
       </form>
       <p role="status">
         {busy
-          ? 'Сохраняем…'
-          : message || (creating ? 'Заполните данные и создайте черновик' : dirty ? 'Есть несохранённые изменения' : 'Все изменения сохранены')}
+          ? t('Сохраняем…')
+          : message ||
+            (creating
+              ? t('Заполните данные и создайте черновик')
+              : dirty
+                ? t('Есть несохранённые изменения')
+                : t('Все изменения сохранены'))}
       </p>
       <p>
-        Сохранение не запускает агента. Подключение новых агентов к модели и каналам ещё в
-        разработке.
+        {t('Сохранение не запускает агента. Подключение новых агентов к модели и каналам ещё в разработке.')}
       </p>
     </section>
   );

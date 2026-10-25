@@ -1,17 +1,19 @@
 'use client';
 import qrcode from 'qrcode-generator';
+import { useT } from '../../i18n/locale-provider';
 
 /** Пять звёзд выбором (§39, §40): та же разметка на планшете смены и на телефоне гостя */
 export function StarsInput({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  const t = useT();
   return (
-    <div className="rest-stars" role="radiogroup" aria-label="Звёзды">
+    <div className="rest-stars" role="radiogroup" aria-label={t('Звёзды')}>
       {[1, 2, 3, 4, 5].map((n) => (
         <button
           key={n}
           type="button"
           role="radio"
           aria-checked={value === n}
-          aria-label={`${n} из 5`}
+          aria-label={t('{n} из 5', { n })}
           className="rest-star"
           data-on={n <= value}
           onClick={() => onChange(n)}

@@ -1,3 +1,4 @@
+import { translator, type Translate } from '../i18n';
 import type { MenuItemModifierGroup, MenuItemView, OrderItemInput, OrderItemView } from './food-types';
 
 /**
@@ -32,10 +33,17 @@ export function toggleChoice(selected: string[], group: MenuItemModifierGroup, i
 }
 
 /** Первая группа, где выбрано меньше минимума: текст для кнопки «Добавить» */
-export function choiceProblem(groups: MenuItemModifierGroup[], selected: string[]): string | null {
+export function choiceProblem(
+  groups: MenuItemModifierGroup[],
+  selected: string[],
+  t: Translate = translator('ru'),
+): string | null {
   for (const g of groups) {
     const n = g.modifiers.filter((m) => selected.includes(m.id)).length;
-    if (n < g.minSelect) return g.minSelect === 1 ? `Выберите: ${g.name}` : `${g.name}: выберите не меньше ${g.minSelect}`;
+    if (n < g.minSelect)
+      return g.minSelect === 1
+        ? t('Выберите: {group}', { group: g.name })
+        : t('{group}: выберите не меньше {n}', { group: g.name, n: g.minSelect });
   }
   return null;
 }

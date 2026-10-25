@@ -6,6 +6,8 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { Alert, Button, Field, Input, Notice, Row, Select, Stack, Textarea } from '../../../components/ui';
 import { useConfirm } from '../../../components/use-confirm';
 import { KB_CATEGORIES, KB_VISIBILITIES, kbActions, kbHref } from '../../../lib/support-kb';
+import { msg } from '../../../i18n';
+import { useT } from '../../../i18n/locale-provider';
 import {
   kbDraftAction,
   kbPublishAction,
@@ -62,9 +64,9 @@ export function kbPublishBlockReason({
   savedValues: KbEditorValues;
   busy: boolean;
 }): string | null {
-  if (busy) return 'Дождитесь завершения операции.';
-  if (!documentId || documentId !== savedDocumentId) return 'Документ изменился. Дождитесь загрузки.';
-  if (!kbValuesEqual(values, savedValues)) return 'Сначала сохраните изменения.';
+  if (busy) return msg('Дождитесь завершения операции.');
+  if (!documentId || documentId !== savedDocumentId) return msg('Документ изменился. Дождитесь загрузки.');
+  if (!kbValuesEqual(values, savedValues)) return msg('Сначала сохраните изменения.');
   return null;
 }
 
@@ -81,7 +83,7 @@ export function kbSaveCompletion(
       error: null,
       message: kbValuesEqual(submittedValues, currentValues)
         ? saved.message
-        : 'Сохранена отправленная версия. Сначала сохраните новые изменения.',
+        : msg('Сохранена отправленная версия. Сначала сохраните новые изменения.'),
     },
     savedValues: submittedValues,
   };
@@ -115,12 +117,13 @@ export function KbEntryEditor({ entry, saved = false }: { entry: KbEditable; sav
 
 function KbEntryEditorForm({ entry, saved }: { entry: KbEditable; saved: boolean }) {
   const router = useRouter();
+  const t = useT();
   const initialValues = kbEditorValues(entry);
   const [values, setValues] = useState(initialValues);
   const [savedValues, setSavedValues] = useState(initialValues);
   const [documentId, setDocumentId] = useState(entry.id);
   const [savedDocumentId, setSavedDocumentId] = useState(entry.id);
-  const [result, setResult] = useState<KbSimpleResult | null>(saved ? { error: null, message: 'Сохранено.' } : null);
+  const [result, setResult] = useState<KbSimpleResult | null>(saved ? { error: null, message: msg('Сохранено.') } : null);
   const [pending, start] = useTransition();
   const { ask, dialog } = useConfirm();
   const valuesRef = useRef(values);
@@ -194,10 +197,10 @@ function KbEntryEditorForm({ entry, saved }: { entry: KbEditable; saved: boolean
       return;
     }
     const ok = await ask({
-      title: 'Опубликовать знание?',
-      body: 'Помощник начнёт отвечать клиентам по этому тексту. Если в нём есть внутреннее или чужое — сначала поправьте.',
-      confirmLabel: 'Опубликовать',
-      cancelLabel: 'Не публиковать',
+      title: t('Опубликовать знание?'),
+      body: t('Помощник начнёт отвечать клиентам по этому тексту. Если в нём есть внутреннее или чужое — сначала поправьте.'),
+      confirmLabel: t('Опубликовать'),
+      cancelLabel: t('Не публиковать'),
     });
     if (!ok || !aliveRef.current) return;
     const confirmedDocumentId = documentIdRef.current;
@@ -218,7 +221,7 @@ function KbEntryEditorForm({ entry, saved }: { entry: KbEditable; saved: boolean
       try {
         const published = await kbPublishAction(confirmedDocumentId);
         if (aliveRef.current) setResult(published.error
-          ? { error: `Сохранено, но не опубликовано: ${published.error}`, message: null }
+          ? { error: t('Сохранено, но не опубликовано: {error}', { error: published.error }), message: null }
           : published);
       } finally {
         busyRef.current = false;
@@ -246,42 +249,42 @@ function KbEntryEditorForm({ entry, saved }: { entry: KbEditable; saved: boolean
           save();
         }}
       >
-        <Field label="Название">
+        <Field label={t('Название')}>
           <Input name="title" value={values.title} onChange={set('title')} maxLength={200} />
         </Field>
         <Row>
-          <Field label="Категория">
+          <Field label={t('Категория')}>
             <Select name="category" value={values.category} onChange={set('category')}>
               {KB_CATEGORIES.map(([value, label]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label="Видимость">
+          <Field label={t('Видимость')}>
             <Select name="visibility" value={values.visibility} onChange={set('visibility')}>
               {KB_VISIBILITIES.map(([value, label]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </Select>
           </Field>
         </Row>
-        <Field label="Текст знания">
+        <Field label={t('Текст знания')}>
           <Textarea name="content" rows={14} value={values.content} onChange={set('content')} maxLength={20_000} />
         </Field>
-        {result?.error && <Alert data-testid="kb-error">{result.error}</Alert>}
-        {result?.message && <Notice data-testid="kb-result">{result.message}</Notice>}
+        {result?.error && <Alert data-testid="kb-error">{t(result.error)}</Alert>}
+        {result?.message && <Notice data-testid="kb-result">{t(result.message)}</Notice>}
         {actions.includes('publish') && dirty && (
           <Notice tone="muted" data-testid="kb-save-before-publish">
-            Сначала сохраните изменения.
+            {t('Сначала сохраните изменения.')}
           </Notice>
         )}
         <Row>
           <Button type="submit" disabled={pending} aria-busy={pending}>
-            {pending ? 'Сохраняю…' : 'Сохранить'}
+            {pending ? t('Сохраняю…') : t('Сохранить')}
           </Button>
           {actions.includes('publish') && (
             <Button
@@ -290,22 +293,22 @@ function KbEntryEditorForm({ entry, saved }: { entry: KbEditable; saved: boolean
               onClick={publish}
               disabled={pending || dirty || documentId !== savedDocumentId}
             >
-              Опубликовать
+              {t('Опубликовать')}
             </Button>
           )}
           {actions.includes('outdated') && (
             <Button type="button" tone="secondary" onClick={() => move('OUTDATED')} disabled={pending}>
-              Пометить устаревшим
+              {t('Пометить устаревшим')}
             </Button>
           )}
           {actions.includes('draft') && (
             <Button type="button" tone="secondary" onClick={() => move('DRAFT')} disabled={pending}>
-              Вернуть в черновик
+              {t('Вернуть в черновик')}
             </Button>
           )}
           {actions.includes('archive') && (
             <Button type="button" tone="ghost" onClick={() => move('ARCHIVED')} disabled={pending}>
-              В архив
+              {t('В архив')}
             </Button>
           )}
         </Row>
@@ -319,6 +322,7 @@ function KbEntryEditorForm({ entry, saved }: { entry: KbEditable; saved: boolean
 export function KbDraftButton({ conversationId }: { conversationId: string }) {
   const [result, setResult] = useState<KbDraftResult | null>(null);
   const [pending, start] = useTransition();
+  const t = useT();
   return (
     <Stack gap="sm">
       <Row>
@@ -329,7 +333,7 @@ export function KbDraftButton({ conversationId }: { conversationId: string }) {
           aria-busy={pending}
           onClick={() => start(async () => setResult(await kbDraftAction(conversationId)))}
         >
-          {pending ? 'Создаю…' : 'Создать знание из обращения'}
+          {pending ? t('Создаю…') : t('Создать знание из обращения')}
         </Button>
       </Row>
       {result?.error && <Alert>{result.error}</Alert>}
@@ -338,7 +342,7 @@ export function KbDraftButton({ conversationId }: { conversationId: string }) {
           {result.message}{' '}
           {result.href && (
             <Link href={result.href} prefetch={false}>
-              Открыть черновик
+              {t('Открыть черновик')}
             </Link>
           )}
         </Notice>

@@ -8,6 +8,7 @@ import { UnitPanel } from '../../../unit-panel';
 import { deskShell } from '../../../../../lib/desk-shell';
 import { mayAccess } from '../../../../../lib/navigation';
 import { loadHousekeepers } from '../../../../../lib/hotel-housekeepers';
+import { serverT } from '../../../../../i18n/server';
 
 /**
  * Панель места (ADR-108, срез I2, ТЗ §13; вид по снимку владельца 09.10): вкладки, быстрые действия,
@@ -15,6 +16,7 @@ import { loadHousekeepers } from '../../../../../lib/hotel-housekeepers';
  */
 export default async function UnitDrawerPage({ params }: { params: Promise<{ code: string }> }) {
   await requireVertical(['HOSPITALITY']);
+  const t = await serverT();
   const { code } = await params;
   const unit = await unitsApi.card(decodeURIComponent(code)).catch(notFoundOn404);
   const clock = await hotelClock();
@@ -32,7 +34,7 @@ export default async function UnitDrawerPage({ params }: { params: Promise<{ cod
     .then((all) => all[unit.accommodationTypeCode] ?? [])
     .catch(() => []);
   return (
-    <DockedPanel title={`${unit.kind === 'BED' ? 'Койко-место' : 'Номер'} ${unit.code}`}>
+    <DockedPanel title={unit.kind === 'BED' ? t('Койко-место {code}', { code: unit.code }) : t('Номер {code}', { code: unit.code })}>
       <UnitPanel
         unit={unit}
         today={today}

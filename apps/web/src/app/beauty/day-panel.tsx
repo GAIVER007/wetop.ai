@@ -9,6 +9,7 @@ import { ACTION_WORD } from './appointment-status';
 import { dayMoney, quickAction, upcoming } from './journal-day';
 import { setAppointmentStatus } from './journal-actions';
 import { clock } from './time';
+import { useT } from '../../i18n/locale-provider';
 import './day-panel.css';
 
 const initials = (name: string) =>
@@ -41,9 +42,10 @@ export function DayPanel({
   onOpen: (row: BeautyAppointmentRow) => void;
   onDone: () => void;
 }) {
+  const t = useT();
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
-  const master = (id: string) => columns.find((c) => c.id === id)?.name ?? 'Специалист';
+  const master = (id: string) => columns.find((c) => c.id === id)?.name ?? t('Специалист');
   const change = (row: BeautyAppointmentRow, to: string) =>
     start(async () => {
       setError('');
@@ -57,26 +59,26 @@ export function DayPanel({
     (s) => s === 'IN_PROGRESS' || s === 'DONE' || s === 'CONFIRMED',
   );
   return (
-    <aside className="beauty-day-panel" aria-label="Панель дня">
+    <aside className="beauty-day-panel" aria-label={t('Панель дня')}>
       <section
         className="beauty-day-panel__card"
-        aria-label="Выбранная запись"
+        aria-label={t('Выбранная запись')}
         data-testid="day-panel-selected"
       >
         {selected ? (
           <>
             <h3>
-              Выбранная запись <small>{beautyStatus[selected.status].label}</small>
+              {t('Выбранная запись')} <small>{t(beautyStatus[selected.status].label)}</small>
             </h3>
             <p className="beauty-day-panel__time">
               {clock(selected.startMinutes)}–{clock(selected.endMinutes)}
             </p>
             <dl className="beauty-day-panel__facts">
-              <dt>Клиент</dt>
+              <dt>{t('Клиент')}</dt>
               <dd>{selected.customer.name}</dd>
               {selected.customer.phone && (
                 <>
-                  <dt>Телефон</dt>
+                  <dt>{t('Телефон')}</dt>
                   <dd>
                     <a href={`tel:${selected.customer.phone}`}>
                       {formatPhone(selected.customer.phone)}
@@ -84,15 +86,15 @@ export function DayPanel({
                   </dd>
                 </>
               )}
-              <dt>Услуга</dt>
+              <dt>{t('Услуга')}</dt>
               <dd>
                 {selected.items?.length
                   ? selected.items.map((i) => i.serviceName).join(', ')
                   : selected.serviceName}
               </dd>
-              <dt>Мастер</dt>
+              <dt>{t('Мастер')}</dt>
               <dd>{master(selected.employeeId)}</dd>
-              <dt>Сумма</dt>
+              <dt>{t('Сумма')}</dt>
               <dd>
                 {formatMoney(selected.priceMinor, selected.currency)}{' '}
                 <span
@@ -103,32 +105,32 @@ export function DayPanel({
                   }
                 >
                   {BigInt(selected.paidMinor || '0') >= BigInt(selected.priceMinor || '0')
-                    ? 'оплачено'
-                    : 'не оплачено'}
+                    ? t('оплачено')
+                    : t('не оплачено')}
                 </span>
               </dd>
             </dl>
             <div className="beauty-day-panel__actions">
               {canUpdate && first && (
                 <Button disabled={pending} onClick={() => change(selected, first)}>
-                  {ACTION_WORD[first]}
+                  {t(ACTION_WORD[first])}
                 </Button>
               )}
               <Button tone="secondary" onClick={() => onOpen(selected)}>
                 {selected.status === 'IN_PROGRESS' || selected.status === 'DONE'
-                  ? 'Оплата'
-                  : 'Открыть'}
+                  ? t('Оплата')
+                  : t('Открыть')}
               </Button>
               <Button tone="secondary" onClick={() => onOpen(selected)}>
-                Ещё
+                {t('Ещё')}
               </Button>
             </div>
           </>
         ) : (
           <>
-            <h3>Выбранная запись</h3>
+            <h3>{t('Выбранная запись')}</h3>
             <p className="beauty-note">
-              Нажмите на запись в сетке: здесь появятся клиент, сумма и действия.
+              {t('Нажмите на запись в сетке: здесь появятся клиент, сумма и действия.')}
             </p>
           </>
         )}
@@ -140,11 +142,12 @@ export function DayPanel({
       </section>
       <section
         className="beauty-day-panel__card"
-        aria-label="Ближайшие"
+        aria-label={t('Ближайшие')}
         data-testid="day-panel-upcoming"
       >
         <h3>
-          Ближайшие {nowMinutes !== null && <small>с {clock(Math.max(0, nowMinutes - 30))}</small>}
+          {t('Ближайшие')}{' '}
+          {nowMinutes !== null && <small>{t('с {time}', { time: clock(Math.max(0, nowMinutes - 30)) })}</small>}
         </h3>
         {soon.length ? (
           <ul className="beauty-day-panel__list">
@@ -167,10 +170,10 @@ export function DayPanel({
                       size="sm"
                       tone={act.to === 'IN_PROGRESS' ? 'success' : 'secondary'}
                       disabled={pending}
-                      aria-label={`${act.label}: ${r.customer.name}, ${clock(r.startMinutes)}`}
+                      aria-label={`${t(act.label)}: ${r.customer.name}, ${clock(r.startMinutes)}`}
                       onClick={() => change(r, act.to)}
                     >
-                      {act.label}
+                      {t(act.label)}
                     </Button>
                   )}
                 </li>
@@ -178,22 +181,22 @@ export function DayPanel({
             })}
           </ul>
         ) : (
-          <p className="beauty-note">Ожидаемых клиентов больше нет.</p>
+          <p className="beauty-note">{t('Ожидаемых клиентов больше нет.')}</p>
         )}
       </section>
       <section
         className="beauty-day-panel__card"
-        aria-label="Деньги за день"
+        aria-label={t('Деньги за день')}
         data-testid="day-panel-money"
       >
-        <h3>Деньги за день</h3>
+        <h3>{t('Деньги за день')}</h3>
         <div className="beauty-day-panel__money">
           <div>
-            <small>Получено</small>
+            <small>{t('Получено')}</small>
             <b>{formatMoney(money.received.toString(), money.currency)}</b>
           </div>
           <div>
-            <small>Ждём оплату</small>
+            <small>{t('Ждём оплату')}</small>
             <b className={money.waiting > 0n ? 'beauty-unpaid' : undefined}>
               {formatMoney(money.waiting.toString(), money.currency)}
             </b>

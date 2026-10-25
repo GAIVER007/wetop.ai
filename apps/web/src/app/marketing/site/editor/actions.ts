@@ -3,17 +3,22 @@ import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { ApiError, branchesApi, marketingSiteApi, siteAssetsApi, siteEditorApi, type EditorReply, type SiteAssetView } from '../../../../lib/api';
 import { selectBranch } from '../../../branches/actions';
+import { msg } from '../../../../i18n';
+import { serverT } from '../../../../i18n/server';
+
+/** Запасной текст отказа на языке человека; ответы API показываются как есть */
+const tr = async (text: string) => (await serverT())(text);
 
 /**
  * Действия редактора сайта (MKT9). Каждое зовёт API строгого scope филиала и возвращает стойке ответ как есть:
  * при отказе код и пути ошибок, чтобы ввод остался на экране, а поле подсветилось. Перезагрузки страницы до разбора
  * ошибки нет: несохранённый документ живёт только в браузере.
  */
-const failed = (e: unknown): EditorReply<never> => ({
+const failed = async (e: unknown): Promise<EditorReply<never>> => ({
   ok: false,
   status: e instanceof ApiError ? e.status : 0,
   code: null,
-  message: e instanceof Error ? e.message : 'Нет связи с сервером: изменения остались на экране',
+  message: e instanceof Error ? e.message : await tr(msg('Нет связи с сервером: изменения остались на экране')),
   errors: [],
   paths: [],
 });
@@ -41,7 +46,7 @@ export async function versionsAction() {
     const r = await siteEditorApi.versions();
     return { ok: true as const, versions: r.versions, bookmarks: r.bookmarks ?? [] };
   } catch (e) {
-    return { ok: false as const, message: e instanceof Error ? e.message : 'Не удалось загрузить историю' };
+    return { ok: false as const, message: e instanceof Error ? e.message : await tr(msg('Не удалось загрузить историю')) };
   }
 }
 
@@ -60,7 +65,7 @@ export async function editorPreviewAction(versionId: string): Promise<{ url: str
   try {
     return { url: (await marketingSiteApi.preview(versionId)).url, error: null };
   } catch (e) {
-    return { url: null, error: e instanceof Error ? e.message : 'Предпросмотр недоступен' };
+    return { url: null, error: e instanceof Error ? e.message : await tr(msg('Предпросмотр недоступен')) };
   }
 }
 
@@ -98,7 +103,7 @@ export async function createSiteAction(input: { briefHash: string | null; instru
         ok: false as const,
         siteCreated: true,
         status: e instanceof ApiError ? e.status : 0,
-        message: e instanceof Error ? e.message : 'Нет связи с сервером',
+        message: e instanceof Error ? e.message : await tr(msg('Нет связи с сервером')),
         code: null,
       };
     }
@@ -140,15 +145,15 @@ export async function chooseSiteLocationAction(locationId: string): Promise<{ ok
     const { items } = await branchesApi.list();
     branchId = items.find((b) => b.locationId === locationId)?.id ?? null;
   } catch (e) {
-    return { ok: false, message: e instanceof Error ? e.message : 'Не удалось загрузить филиалы' };
+    return { ok: false, message: e instanceof Error ? e.message : await tr(msg('Не удалось загрузить филиалы')) };
   }
-  if (!branchId) return { ok: false, message: 'Филиал недоступен. Обновите страницу.' };
+  if (!branchId) return { ok: false, message: await tr(msg('Филиал недоступен. Обновите страницу.')) };
   const form = new FormData();
   form.set('id', branchId);
   form.set('returnTo', '/marketing/site/editor');
   // `selectBranch` заканчивается переходом (redirect): он уходит наружу как есть
   await selectBranch(form);
-  return { ok: false, message: 'Не удалось переключить филиал' };
+  return { ok: false, message: await tr(msg('Не удалось переключить филиал')) };
 }
 
 /** MKT9.2: «Показать варианты оформления» на первом экране: сайт заводится, ИИ предлагает три направления */
@@ -217,17 +222,18 @@ export async function runAction(id: string) {
  */
 export async function uploadSitePhotoAction(form: FormData): Promise<{ ok: true; asset: SiteAssetView } | { ok: false; message: string }> {
   const file = form.get('file');
-  if (!(file instanceof File) || file.size === 0) return { ok: false, message: 'Выберите фото: JPEG, PNG или WebP' };
-  if (file.size > 10 * 1024 * 1024) return { ok: false, message: 'Фото больше 10 МБ' };
+  const t = await serverT();
+  if (!(file instanceof File) || file.size === 0) return { ok: false, message: t('Выберите фото: JPEG, PNG или WebP') };
+  if (file.size > 10 * 1024 * 1024) return { ok: false, message: t('Фото больше 10 МБ') };
   try {
     const { asset } = await siteAssetsApi.upload(file, 'IMAGE');
     revalidatePath('/marketing/site/assets');
     return { ok: true, asset };
   } catch (e) {
-    if (e instanceof ApiError && e.status === 413) return { ok: false, message: 'Фото больше 10 МБ' };
-    if (e instanceof ApiError && e.status === 429) return { ok: false, message: 'Лимит загрузок за час исчерпан, попробуйте позже' };
+    if (e instanceof ApiError && e.status === 413) return { ok: false, message: t('Фото больше 10 МБ') };
+    if (e instanceof ApiError && e.status === 429) return { ok: false, message: t('Лимит загрузок за час исчерпан, попробуйте позже') };
     if (e instanceof ApiError && e.status < 500) return { ok: false, message: e.message };
-    return { ok: false, message: 'Не удалось загрузить фото, попробуйте ещё раз' };
+    return { ok: false, message: t('Не удалось загрузить фото, попробуйте ещё раз') };
   }
 }
 
@@ -236,7 +242,7 @@ export async function templateFactsAction(locationId: string) {
   try {
     return { ok: true as const, facts: await marketingSiteApi.facts(locationId) };
   } catch (e) {
-    return { ok: false as const, message: e instanceof Error ? e.message : 'Нет данных филиала' };
+    return { ok: false as const, message: e instanceof Error ? e.message : await tr(msg('Нет данных филиала')) };
   }
 }
 
@@ -248,8 +254,8 @@ export async function publishSimpleAction(expectedVersionId: string): Promise<{ 
     revalidatePath('/marketing/site/editor');
     return { ok: true, url: r.site.url };
   } catch (e) {
-    const message = e instanceof Error ? e.message : 'Не удалось опубликовать';
-    const needsSetup = e instanceof ApiError && e.status === 409 && /тариф/i.test(message);
+    const message = e instanceof Error ? e.message : await tr(msg('Не удалось опубликовать'));
+    const needsSetup = e instanceof ApiError && e.status === 409 && /тариф/i.test(message); // kk-allow: сверка с текстом отказа API, он всегда русский
     return { ok: false, message, needsSetup };
   }
 }

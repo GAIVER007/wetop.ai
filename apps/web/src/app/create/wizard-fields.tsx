@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent } from 'react';
 import { NICHES, OTHER_NICHE, S } from './strings';
 import { Input, Select, Textarea } from '../../components/ui';
+import { useT } from '../../i18n/locale-provider';
 export const INITIAL_CONFIG = {
   assistantName: '',
   businessName: '',
@@ -23,13 +24,14 @@ export function WizardFields({
   values: WizardConfig;
   onChange: (key: keyof WizardConfig, value: string) => void;
 }) {
+  const t = useT();
   const change =
     (key: keyof WizardConfig) =>
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       onChange(key, e.target.value);
   const found = new Set(values.foundFields.split(',').filter(Boolean));
   const mark = (key: keyof WizardConfig) =>
-    found.has(key) ? <em className="guest-wizard__found">{S.review.found}</em> : null;
+    found.has(key) ? <em className="guest-wizard__found">{t(S.review.found)}</em> : null;
   const preset = (NICHES as readonly string[]).includes(values.niche);
   // «Другое» выбрано, пока ниша не из списка: пустая ниша без выбора остаётся «Выберите»
   const [other, setOther] = useState(values.niche !== '' && !preset);
@@ -37,17 +39,19 @@ export function WizardFields({
   return (
     <div className="guest-wizard__fields">
       <label>
-        <span>Имя ассистента</span>
+        <span>{t('Имя ассистента')}</span>
         <Input
           value={values.assistantName}
           onChange={change('assistantName')}
           maxLength={40}
-          placeholder="Например, Алина"
+          placeholder={t('Например, Алина')}
           autoComplete="off"
         />
       </label>
       <label>
-        <span>Название компании {mark('businessName')}</span>
+        <span>
+          {t('Название компании')} {mark('businessName')}
+        </span>
         <Input
           required
           value={values.businessName}
@@ -57,7 +61,9 @@ export function WizardFields({
         />
       </label>
       <label>
-        <span>Ниша {mark('niche')}</span>
+        <span>
+          {t('Ниша')} {mark('niche')}
+        </span>
         <Select
           required
           value={selectValue}
@@ -71,58 +77,64 @@ export function WizardFields({
             }
           }}
         >
-          <option value="">{S.review.nichePick}</option>
+          <option value="">{t(S.review.nichePick)}</option>
           {NICHES.map((name) => (
             <option key={name} value={name}>
-              {name}
+              {t(name)}
             </option>
           ))}
-          <option value={OTHER_NICHE}>{S.review.nicheOther}</option>
+          <option value={OTHER_NICHE}>{t(S.review.nicheOther)}</option>
         </Select>
       </label>
       {other && (
         <label>
-          <span>{S.review.nicheOwn}</span>
+          <span>{t(S.review.nicheOwn)}</span>
           <Input
             required
             value={values.niche}
             onChange={change('niche')}
             maxLength={200}
-            placeholder="Например, стоматология"
+            placeholder={t('Например, стоматология')}
           />
         </label>
       )}
       <label>
-        <span>Основная цель {mark('goal')}</span>
+        <span>
+          {t('Основная цель')} {mark('goal')}
+        </span>
         <Input
           value={values.goal}
           onChange={change('goal')}
           maxLength={1000}
-          placeholder={values.botType === 'support' ? S.review.supportGoal : S.review.salesGoal}
+          placeholder={t(values.botType === 'support' ? S.review.supportGoal : S.review.salesGoal)}
         />
       </label>
       <label className="guest-wizard__wide">
-        <span>Описание {mark('description')}</span>
+        <span>
+          {t('Описание')} {mark('description')}
+        </span>
         <Textarea
           value={values.description}
           onChange={change('description')}
           maxLength={10000}
           rows={3}
-          placeholder="Чем занимаетесь и что важно знать вашему агенту"
+          placeholder={t('Чем занимаетесь и что важно знать вашему агенту')}
         />
       </label>
       <label className="guest-wizard__wide">
-        <span>Ключевые преимущества {mark('advantages')}</span>
+        <span>
+          {t('Ключевые преимущества')} {mark('advantages')}
+        </span>
         <Textarea
           value={values.advantages}
           onChange={change('advantages')}
           maxLength={2000}
           rows={2}
-          placeholder="Укажите подтверждённые преимущества"
+          placeholder={t('Укажите подтверждённые преимущества')}
         />
       </label>
       <label>
-        <span>Валюта</span>
+        <span>{t('Валюта')}</span>
         <Select value={values.currency} onChange={change('currency')}>
           {['KZT', 'USD', 'EUR', 'RUB', 'GBP'].map((v) => (
             <option key={v}>{v}</option>
@@ -130,13 +142,13 @@ export function WizardFields({
         </Select>
       </label>
       <label>
-        <span>Часовой пояс</span>
+        <span>{t('Часовой пояс')}</span>
         <Select value={values.timezone} onChange={change('timezone')}>
           {/* tz-allow: вариант в списке поясов, человек выбирает сам */}
-          <option value="Asia/Almaty">Алматы / Астана (UTC+5)</option>
-          <option value="Europe/Moscow">Москва (UTC+3)</option>
+          <option value="Asia/Almaty">{t('Алматы / Астана (UTC+5)')}</option>
+          <option value="Europe/Moscow">{t('Москва (UTC+3)')}</option>
           <option value="UTC">UTC</option>
-          <option value="Asia/Dubai">Дубай (UTC+4)</option>
+          <option value="Asia/Dubai">{t('Дубай (UTC+4)')}</option>
         </Select>
       </label>
     </div>

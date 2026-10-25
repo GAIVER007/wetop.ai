@@ -6,12 +6,14 @@ import { formatMoney } from '../../lib/money';
 import { Button, Field, SectionTitle, Select, Table, Badge, cx } from '../../components/ui';
 import { CompetitorButton, OccupancyButton, RatesButton } from './drawers';
 import { competitorStatus, permilleText } from './competitor-status';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 
 /**
  * Список конкурентов (SALES2.3b): район, тип, загрузка на сегодня, средняя цена по окну, изменение цены и статус
  * свежести. Отбор по району и типу простой формой с адресом; таблица «По ночам» ниже отбору не подчиняется.
  */
-export function CompetitorsTable({
+export async function CompetitorsTable({
   view,
   rates,
   today,
@@ -29,6 +31,7 @@ export function CompetitorsTable({
   /** Остальные параметры адреса (период, сравнение): форма отбора их не теряет */
   keep: Array<[string, string]>;
 }) {
+  const t = await serverT();
   const byId = new Map(view.competitors.map((c) => [c.id, c]));
   const priceById = new Map(rates?.board.competitors.map((c) => [c.id, c]));
   const districts = [...new Set(view.competitors.flatMap((c) => (c.district ? [c.district] : [])))].sort();
@@ -43,16 +46,16 @@ export function CompetitorsTable({
     <section className="market-list" aria-labelledby="market-list-title" data-testid="market-competitors">
       <div className="market-list__head">
         <SectionTitle id="market-list-title" first>
-          Конкуренты
+          {t('Конкуренты')}
         </SectionTitle>
         {(districts.length > 0 || categories.length > 0) && (
           <form method="get" className="market-list__filters" data-testid="market-list-filters">
             {keep.map(([k, v]) => (
               <input key={k} type="hidden" name={k} value={v} />
             ))}
-            <Field inline label="Район">
+            <Field inline label={t('Район')}>
               <Select name="district" defaultValue={district} data-testid="market-filter-district">
-                <option value="">Все</option>
+                <option value="">{t('Все')}</option>
                 {districts.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -60,9 +63,9 @@ export function CompetitorsTable({
                 ))}
               </Select>
             </Field>
-            <Field inline label="Тип">
+            <Field inline label={t('Тип')}>
               <Select name="category" defaultValue={category} data-testid="market-filter-category">
-                <option value="">Все</option>
+                <option value="">{t('Все')}</option>
                 {categories.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -71,29 +74,29 @@ export function CompetitorsTable({
               </Select>
             </Field>
             <Button type="submit" tone="secondary" size="sm">
-              Показать
+              {t('Показать')}
             </Button>
             {filtered && (
               <Link href={`/market?${new URLSearchParams(keep)}`} className="market-reset">
-                Сбросить
+                {t('Сбросить')}
               </Link>
             )}
           </form>
         )}
       </div>
-      <Table size="sm" density="normal" className="market-list__table" aria-label="Загрузка и цены по каждому конкуренту" data-testid="market-list-table">
+      <Table size="sm" density="normal" className="market-list__table" aria-label={t('Загрузка и цены по каждому конкуренту')} data-testid="market-list-table">
         <thead>
           <tr>
-            <th scope="col">Отель</th>
-            <th scope="col">Район</th>
-            <th scope="col">Тип</th>
-            <th scope="col">Загрузка сегодня</th>
-            <th scope="col">Средняя цена</th>
-            <th scope="col">Изменение цены</th>
-            <th scope="col">Статус</th>
+            <th scope="col">{t('Отель')}</th>
+            <th scope="col">{t('Район')}</th>
+            <th scope="col">{t('Тип')}</th>
+            <th scope="col">{t('Загрузка сегодня')}</th>
+            <th scope="col">{t('Средняя цена')}</th>
+            <th scope="col">{t('Изменение цены')}</th>
+            <th scope="col">{t('Статус')}</th>
             {editable && (
               <th scope="col">
-                <span className="sr-only">Действия</span>
+                <span className="sr-only">{t('Действия')}</span>
               </th>
             )}
           </tr>
@@ -102,7 +105,7 @@ export function CompetitorsTable({
           {rows.length === 0 ? (
             <tr>
               <td colSpan={editable ? 8 : 7} data-testid="market-list-none">
-                По такому отбору конкурентов нет.
+                {t('По такому отбору конкурентов нет.')}
               </td>
             </tr>
           ) : (
@@ -114,18 +117,18 @@ export function CompetitorsTable({
               // снимок сборщика только уровнем: словом вместо прочерка (DATA_MODEL §23.1)
               const word =
                 now === null && cell?.level
-                  ? { SOLD_OUT: 'Нет мест', FEW_LEFT: 'Мало мест', AVAILABLE: 'Есть места' }[cell.level]
+                  ? t({ SOLD_OUT: msg('Нет мест'), FEW_LEFT: msg('Мало мест'), AVAILABLE: msg('Есть места') }[cell.level])
                   : null;
               const level = word
                 ? ({ SOLD_OUT: 'high', FEW_LEFT: 'mid', AVAILABLE: 'low' } as const)[cell!.level!]
                 : demandLevel(now);
-              const status = competitorStatus(today, c.lastObservedOn, price?.lastObservedOn ?? null);
+              const status = competitorStatus(today, c.lastObservedOn, price?.lastObservedOn ?? null, t);
               return (
                 <tr key={c.id} data-testid={`market-list-row-${c.id}`}>
                   <th scope="row">
                     <span className="market-name">{c.name}</span>
                     <span className="market-sub">
-                      {[full.address, c.distanceM !== null ? `${c.distanceM} м` : null].filter(Boolean).join(', ') || ' '}
+                      {[full.address, c.distanceM !== null ? t('{n} м', { n: c.distanceM }) : null].filter(Boolean).join(', ') || ' '}
                     </span>
                   </th>
                   <td>{full.district ?? '–'}</td>
@@ -141,7 +144,11 @@ export function CompetitorsTable({
                     <Badge tone={status.tone === 'success' ? 'ok' : status.tone === 'warning' ? 'warn' : 'neutral'}>
                       {status.label}
                     </Badge>
-                    {c.lastObservedOn && <span className="market-sub">загрузка от {displayDay(c.lastObservedOn)}</span>}
+                    {c.lastObservedOn && (
+                      <span className="market-sub">
+                        {t('загрузка от {date}', { date: displayDay(c.lastObservedOn) })}
+                      </span>
+                    )}
                   </td>
                   {editable && (
                     <td className="market-row-actions">

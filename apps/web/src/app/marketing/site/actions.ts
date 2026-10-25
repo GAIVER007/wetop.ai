@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { ApiError, marketingSiteApi } from '../../../lib/api';
+import { serverT } from '../../../i18n/server';
 
 /**
  * Действия страницы публикации сайта (MKT7). Каждое зовёт API строгого scope филиала; хост сайта и тариф по умолчанию
@@ -32,7 +33,8 @@ export async function previewAction(versionId: string): Promise<PublicationResul
 export async function publishAction(expectedVersionId: string, bookingRatePlanId: string): Promise<PublicationResult> {
   try {
     const result = await marketingSiteApi.publish(expectedVersionId, bookingRatePlanId || undefined);
-    return done(result.changed ? 'Версия опубликована' : 'Эта версия уже опубликована');
+    const t = await serverT();
+    return done(result.changed ? t('Версия опубликована') : t('Эта версия уже опубликована'));
   } catch (e) {
     return { error: describe(e), message: null };
   }
@@ -43,7 +45,8 @@ export async function lifecycleAction(kind: 'pause' | 'resume' | 'archive'): Pro
     if (kind === 'pause') await marketingSiteApi.pause();
     else if (kind === 'resume') await marketingSiteApi.resume();
     else await marketingSiteApi.archive();
-    return done(kind === 'pause' ? 'Сайт приостановлен' : kind === 'resume' ? 'Сайт снова открыт' : 'Сайт в архиве');
+    const t = await serverT();
+    return done(kind === 'pause' ? t('Сайт приостановлен') : kind === 'resume' ? t('Сайт снова открыт') : t('Сайт в архиве'));
   } catch (e) {
     return { error: describe(e), message: null };
   }
@@ -52,7 +55,8 @@ export async function lifecycleAction(kind: 'pause' | 'resume' | 'archive'): Pro
 export async function rollbackAction(versionId: string): Promise<PublicationResult> {
   try {
     await marketingSiteApi.rollback(versionId);
-    return done('Опубликована выбранная версия');
+    const t = await serverT();
+    return done(t('Опубликована выбранная версия'));
   } catch (e) {
     return { error: describe(e), message: null };
   }
@@ -61,7 +65,8 @@ export async function rollbackAction(versionId: string): Promise<PublicationResu
 export async function bookingSourceAction(trackedSiteId: string): Promise<PublicationResult> {
   try {
     await marketingSiteApi.setBookingSource(trackedSiteId || null);
-    return done(trackedSiteId ? 'Источник бронирования выбран' : 'Источник бронирования снят');
+    const t = await serverT();
+    return done(trackedSiteId ? t('Источник бронирования выбран') : t('Источник бронирования снят'));
   } catch (e) {
     return { error: describe(e), message: null };
   }

@@ -11,7 +11,8 @@ import type {
 import { Badge, Button, EmptyState, Input, Select, Table, cx } from '../../components/ui';
 import { ActionMenu } from '../../components/action-menu';
 import { Icon } from '../../components/icon';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 import { useToast } from '../../components/toast';
 import { bulkHousekeepingAction } from './actions';
 import { FundEditorDialog } from './fund-editor';
@@ -26,7 +27,8 @@ import { blockTypeLabel } from '../../lib/block-types';
  */
 /** Расположение одной строкой; комната — только когда она не повторяет код места (ТЗ §11) */
 function PlaceCell({ unit }: { unit: InventoryUnit }) {
-  const text = placeText(unit);
+  const t = useT();
+  const text = placeText(unit, t);
   return <span className="inventory-place">{text || '—'}</span>;
 }
 
@@ -34,12 +36,13 @@ type ChannelMark = { key: string; title: string; mark: string };
 
 /** Проживание или бронь на сегодня одной ячейкой: точка статуса, слово, гость */
 function OccupancyCell({ unit, occ }: { unit: InventoryUnit; occ: UnitOccupancy | undefined }) {
+  const t = useT();
   if (!unit.active || unit.block) return <span className="inventory-state-note">—</span>;
   if (!occ || occ.state === 'FREE')
     return (
       <span className="inv-occ">
         <i className="inv-dot inv-dot--free" aria-hidden="true" />
-        Свободно
+        {t('Свободно')}
       </span>
     );
   return (
@@ -49,7 +52,7 @@ function OccupancyCell({ unit, occ }: { unit: InventoryUnit; occ: UnitOccupancy 
         aria-hidden="true"
       />
       <span className="inv-occ-text">
-        <strong>{occ.state === 'STAYING' ? 'Проживает' : 'Заезд сегодня'}</strong>
+        <strong>{occ.state === 'STAYING' ? t('Проживает') : t('Заезд сегодня')}</strong>
         {occ.guest && <span>{occ.guest}</span>}
       </span>
     </span>
@@ -84,6 +87,8 @@ export function InventoryCatalog({
 }) {
   // Пока открыта панель места (адрес `/units/<код>`), список под ней держит фильтры фонда, а не пустые
   // параметры адреса панели — иначе он перерисовывался бы целиком и терял место прокрутки (ADR-108, I2)
+  const t = useT();
+  const locale = useLocale();
   const live = useSearchParams();
   const pathname = usePathname();
   const kept = useRef(live);
@@ -143,20 +148,24 @@ export function InventoryCatalog({
   }
   const capacity = new Map(categories.map((c) => [c.code, c.capacityAdults]));
   const guests = (unit: InventoryUnit) =>
-    pluralRu(
+    countLabel(
+      locale,
+      t,
       capacity.get(unit.accommodationTypeCode) ?? (unit.kind === 'BED' ? 1 : unit.roomCapacity),
-      ['гость', 'гостя', 'гостей'],
+      [msg('гость'), msg('гостя'), msg('гостей')],
     );
   /** Подпись заголовка группы: «36 койко-мест, 1 гость» — вместимость у категории одна */
   const groupMeta = (code: string, list: InventoryUnit[]) => {
-    const count = pluralRu(
+    const count = countLabel(
+      locale,
+      t,
       list.length,
       list[0]!.kind === 'BED'
-        ? ['койко-место', 'койко-места', 'койко-мест']
-        : ['номер', 'номера', 'номеров'],
+        ? [msg('койко-место'), msg('койко-места'), msg('койко-мест')]
+        : [msg('номер'), msg('номера'), msg('номеров')],
     );
     const cap = capacity.get(code);
-    return cap ? `${count}, ${pluralRu(cap, ['гость', 'гостя', 'гостей'])}` : count;
+    return cap ? `${count}, ${countLabel(locale, t, cap, [msg('гость'), msg('гостя'), msg('гостей')])}` : count;
   };
   const places = [
     ...new Map(
@@ -186,16 +195,16 @@ export function InventoryCatalog({
             ? ''
             : 'custom';
   const tabs: Array<[string, string, number]> = [
-    ['', 'Все', units.length],
-    ['ROOM', 'Номера', units.filter((u) => u.kind === 'ROOM').length],
-    ['BED', 'Койко-места', units.filter((u) => u.kind === 'BED').length],
-    ['blocked', 'Недоступные', units.filter((u) => u.active && u.block).length],
+    ['', msg('Все'), units.length],
+    ['ROOM', msg('Номера'), units.filter((u) => u.kind === 'ROOM').length],
+    ['BED', msg('Койко-места'), units.filter((u) => u.kind === 'BED').length],
+    ['blocked', msg('Недоступные'), units.filter((u) => u.active && u.block).length],
     [
       'dirty',
-      'Требуют уборки',
+      msg('Требуют уборки'),
       units.filter((u) => u.active && u.housekeepingStatus === 'DIRTY').length,
     ],
-    ['free', 'Свободные', units.filter(isFree).length],
+    ['free', msg('Свободные'), units.filter(isFree).length],
   ];
   /** Вкладка задаёт ровно свой фильтр и снимает остальные фильтры вкладок */
   function pickTab(id: string) {
@@ -208,7 +217,7 @@ export function InventoryCatalog({
     window.history.pushState(null, '', `/inventory${params.size ? `?${params}` : ''}`);
   }
   const label = (unit: InventoryUnit) =>
-    `Открыть ${unit.kind === 'BED' ? 'койко-место' : 'номер'} ${unit.code}`;
+    unit.kind === 'BED' ? t('Открыть койко-место {code}', { code: unit.code }) : t('Открыть номер {code}', { code: unit.code });
   const isFiltered = Boolean(
     category || kind || q || building || floor || state || housekeeping || occupancyFilter,
   );
@@ -243,8 +252,8 @@ export function InventoryCatalog({
       const r = await bulkHousekeepingAction(codes, status);
       toast({
         text: r.skipped
-          ? `${word}: ${r.done} из ${codes.length}. Не прошли ${r.skipped}${r.reason ? `: ${r.reason}` : ''}`
-          : `${word}: ${pluralRu(r.done, ['место', 'места', 'мест'])}`,
+          ? `${t('{word}: {done} из {total}. Не прошли {skipped}', { word: t(word), done: r.done, total: codes.length, skipped: r.skipped })}${r.reason ? `: ${r.reason}` : ''}`
+          : `${t(word)}: ${countLabel(locale, t, r.done, [msg('место'), msg('места'), msg('мест')])}`,
         tone: r.skipped ? 'warning' : 'success',
       });
       setSelected(new Set());
@@ -252,47 +261,47 @@ export function InventoryCatalog({
     });
   }
   return (
-    <section className="inventory-content" aria-label="Каталог размещения">
+    <section className="inventory-content" aria-label={t('Каталог размещения')}>
       <div className="inventory-toolbar">
         <div className="inventory-search">
           <Icon name="search" />
           <Input
             type="search"
-            aria-label="Поиск по номерному фонду"
-            placeholder="Поиск по номеру, койке, категории, корпусу..."
+            aria-label={t('Поиск по номерному фонду')}
+            placeholder={t('Поиск по номеру, койке, категории, корпусу...')}
             value={q}
             onChange={(e) => update('q', e.target.value, true)}
           />
         </div>
         <Select
-          aria-label="Категория размещения"
+          aria-label={t('Категория размещения')}
           className="inventory-filter"
           value={category}
           onChange={(e) => update('category', e.target.value)}
         >
-          <option value="">Все категории</option>
+          <option value="">{t('Все категории')}</option>
           {categories.map((c) => (
             <option key={c.code} value={c.code} data-testid="category-row">
               {c.name} ({c.units})
             </option>
           ))}
           {category && !categories.some((c) => c.code === category) && (
-            <option value={category}>Неизвестная категория</option>
+            <option value={category}>{t('Неизвестная категория')}</option>
           )}
         </Select>
         <Select
-          aria-label="Фильтр по состоянию"
+          aria-label={t('Фильтр по состоянию')}
           className="inventory-filter"
           value={state}
           onChange={(e) => update('state', e.target.value)}
         >
-          <option value="">Любой статус</option>
-          <option value="sale">В продаже</option>
-          <option value="blocked">Недоступны</option>
-          <option value="archived">В архиве</option>
+          <option value="">{t('Любой статус')}</option>
+          <option value="sale">{t('В продаже')}</option>
+          <option value="blocked">{t('Недоступны')}</option>
+          <option value="archived">{t('В архиве')}</option>
         </Select>
         <Select
-          aria-label="Фильтр по корпусу и этажу"
+          aria-label={t('Фильтр по корпусу и этажу')}
           className="inventory-filter"
           value={`${building}|${floor}`}
           onChange={(e) => {
@@ -308,58 +317,58 @@ export function InventoryCatalog({
             window.history.pushState(null, '', `/inventory${params.size ? `?${params}` : ''}`);
           }}
         >
-          <option value="|">Все корпуса / этажи</option>
+          <option value="|">{t('Все корпуса / этажи')}</option>
           {places.map(([b, f]) => (
             <option key={`${b}|${f}`} value={`${b}|${f}`}>
-              {[b && buildingText(b), f && floorText(f)].filter(Boolean).join(', ')}
+              {[b && buildingText(b, t), f && floorText(f, t)].filter(Boolean).join(', ')}
             </option>
           ))}
         </Select>
         <Select
-          aria-label="Фильтр по уборке"
+          aria-label={t('Фильтр по уборке')}
           className="inventory-filter"
           value={housekeeping}
           onChange={(e) => update('housekeeping', e.target.value)}
         >
-          <option value="">Любая уборка</option>
-          <option value="DIRTY">Требует уборки</option>
-          <option value="CLEAN">Убрано</option>
-          <option value="INSPECTED">Проверено</option>
+          <option value="">{t('Любая уборка')}</option>
+          <option value="DIRTY">{t('Требует уборки')}</option>
+          <option value="CLEAN">{t('Убрано')}</option>
+          <option value="INSPECTED">{t('Проверено')}</option>
         </Select>
         <Select
-          aria-label="Фильтр по занятости"
+          aria-label={t('Фильтр по занятости')}
           className="inventory-filter"
           value={occupancyFilter}
           onChange={(e) => update('occupancy', e.target.value)}
         >
-          <option value="">Любая занятость</option>
-          <option value="free">Свободно</option>
-          <option value="staying">Проживает</option>
-          <option value="arriving">Заезд сегодня</option>
+          <option value="">{t('Любая занятость')}</option>
+          <option value="free">{t('Свободно')}</option>
+          <option value="staying">{t('Проживает')}</option>
+          <option value="arriving">{t('Заезд сегодня')}</option>
         </Select>
       </div>
       <div className="inventory-filters">
-        <div className="inventory-kind" role="group" aria-label="Тип размещения">
+        <div className="inventory-kind" role="group" aria-label={t('Тип размещения')}>
           {tabs.map(([id, text, count]) => (
             <button
               type="button"
               key={id}
-              aria-label={text}
+              aria-label={t(text)}
               aria-pressed={tab === id}
               className={cx(tab === id && 'is-selected')}
               onClick={() => pickTab(id)}
             >
-              {text}
+              {t(text)}
               <span aria-hidden="true">{count}</span>
             </button>
           ))}
         </div>
         {isFiltered && (
           <Button tone="ghost" size="sm" onClick={reset}>
-            Сбросить фильтры
+            {t('Сбросить фильтры')}
           </Button>
         )}
-        <div className="seg" role="group" aria-label="Вид каталога">
+        <div className="seg" role="group" aria-label={t('Вид каталога')}>
           {(['list', 'cards'] as const).map((v) => (
             <button
               type="button"
@@ -369,22 +378,22 @@ export function InventoryCatalog({
               onClick={() => update('view', v === 'list' ? '' : v)}
             >
               <Icon name={v === 'cards' ? 'today' : 'menu'} width={16} height={16} />
-              {v === 'cards' ? 'Карточки' : 'Список'}
+              {v === 'cards' ? t('Карточки') : t('Список')}
             </button>
           ))}
         </div>
       </div>
       <div className="inventory-results" role="status" aria-live="polite">
-        Показано {filtered.length} из {units.length}
+        {t('Показано {n} из {total}', { n: filtered.length, total: units.length })}
       </div>
       {!filtered.length ? (
         <EmptyState
           icon={<Icon name="bed" />}
-          title={units.length ? 'Ничего не найдено' : 'Номерной фонд пока пуст'}
+          title={units.length ? t('Ничего не найдено') : t('Номерной фонд пока пуст')}
         >
           {units.length
-            ? 'Измените поиск или сбросьте фильтры.'
-            : 'Создайте категорию, затем добавьте номера или койки кнопкой «+ Добавить» — они сразу появятся в календаре.'}
+            ? t('Измените поиск или сбросьте фильтры.')
+            : t('Создайте категорию, затем добавьте номера или койки кнопкой «+ Добавить» — они сразу появятся в календаре.')}
         </EmptyState>
       ) : view === 'cards' ? (
         <div className="inventory-groups">
@@ -417,16 +426,16 @@ export function InventoryCatalog({
                           width={16}
                           height={16}
                         />
-                        {unit.kind === 'ROOM' ? 'Номер' : 'Койко-место'}
+                        {unit.kind === 'ROOM' ? t('Номер') : t('Койко-место')}
                       </span>
                       <strong>{unit.code}</strong>
                       <span className="inventory-card-meta">{guests(unit)}</span>
                       {unit.roomNumber !== unit.code && (
-                        <span className="inventory-card-room">Комната {unit.roomNumber}</span>
+                        <span className="inventory-card-room">{t('Комната {n}', { n: unit.roomNumber })}</span>
                       )}
                       <span className="inventory-card-state">
                         <HousekeepingBadge status={unit.housekeepingStatus} />
-                        {unit.block && <Badge tone="danger">заблокирована</Badge>}
+                        {unit.block && <Badge tone="danger">{t('заблокирована')}</Badge>}
                       </span>
                     </Link>
                   ))}
@@ -435,29 +444,29 @@ export function InventoryCatalog({
             ))}
         </div>
       ) : (
-        <Table className="inventory-table" aria-label="Номера и койко-места">
+        <Table className="inventory-table" aria-label={t('Номера и койко-места')}>
           <thead>
             <tr>
               {canHousekeeping && (
                 <th className="inv-check">
                   <input
                     type="checkbox"
-                    aria-label="Выбрать все показанные места"
+                    aria-label={t('Выбрать все показанные места')}
                     checked={allSelected}
                     onChange={() => setSelected(allSelected ? new Set() : new Set(visibleCodes))}
                   />
                 </th>
               )}
-              <th>Место</th>
-              <th>Тип</th>
-              <th>Расположение</th>
-              <th>Вместимость</th>
-              <th>Статус продажи</th>
-              <th>Проживание / бронь</th>
-              <th>Уборка</th>
-              <th>Каналы</th>
+              <th>{t('Место')}</th>
+              <th>{t('Тип')}</th>
+              <th>{t('Расположение')}</th>
+              <th>{t('Вместимость')}</th>
+              <th>{t('Статус продажи')}</th>
+              <th>{t('Проживание / бронь')}</th>
+              <th>{t('Уборка')}</th>
+              <th>{t('Каналы')}</th>
               <th>
-                <span className="sr-only">Действия</span>
+                <span className="sr-only">{t('Действия')}</span>
               </th>
             </tr>
           </thead>
@@ -505,7 +514,7 @@ export function InventoryCatalog({
                         <td className="inv-check">
                           <input
                             type="checkbox"
-                            aria-label={`Выбрать ${unit.code}`}
+                            aria-label={t('Выбрать {code}', { code: unit.code })}
                             checked={selected.has(unit.code)}
                             onChange={() => toggle(unit.code)}
                           />
@@ -528,7 +537,7 @@ export function InventoryCatalog({
                             width={16}
                             height={16}
                           />
-                          {unit.kind === 'ROOM' ? 'Номер' : 'Койко-место'}
+                          {unit.kind === 'ROOM' ? t('Номер') : t('Койко-место')}
                         </span>
                       </td>
                       <td>
@@ -537,16 +546,16 @@ export function InventoryCatalog({
                       <td className="inv-num">{unit.kind === 'BED' ? 1 : unit.roomCapacity}</td>
                       <td>
                         {!unit.active ? (
-                          <Badge>В архиве</Badge>
+                          <Badge>{t('В архиве')}</Badge>
                         ) : unit.block ? (
                           <Badge
                             tone="danger"
-                            title={`До ${displayDate(unit.block.dateTo, 'numeric')}, ${unit.block.reason || blockTypeLabel(unit.block.type)}`}
+                            title={t('До {date}, {reason}', { date: displayDate(unit.block.dateTo, 'numeric'), reason: unit.block.reason || t(blockTypeLabel(unit.block.type)) })}
                           >
-                            Недоступно
+                            {t('Недоступно')}
                           </Badge>
                         ) : (
-                          <Badge tone="ok">В продаже</Badge>
+                          <Badge tone="ok">{t('В продаже')}</Badge>
                         )}
                       </td>
                       <td>
@@ -571,20 +580,20 @@ export function InventoryCatalog({
                       <td className="inventory-actions">
                         <ActionMenu
                           size="sm"
-                          label={`Действия: ${unit.code}`}
+                          label={t('Действия: {code}', { code: unit.code })}
                           items={[
                             {
-                              label: 'Полная карточка',
+                              label: t('Полная карточка'),
                               href: `/units/${encodeURIComponent(unit.code)}`,
                             },
                             {
-                              label: 'Показать в календаре',
+                              label: t('Показать в календаре'),
                               href: `/chessboard?category=${encodeURIComponent(unit.accommodationTypeCode)}`,
                             },
                             ...(canEditCatalog
                               ? [
                                   {
-                                    label: 'Переименовать комнату',
+                                    label: t('Переименовать комнату'),
                                     onSelect: () => setEditRoom(unit),
                                   },
                                 ]
@@ -599,27 +608,27 @@ export function InventoryCatalog({
         </Table>
       )}
       {canHousekeeping && selected.size > 0 && (
-        <div className="inv-bulk" role="region" aria-label="Массовые действия">
-          <span>Выбрано {pluralRu(selected.size, ['объект', 'объекта', 'объектов'])}</span>
+        <div className="inv-bulk" role="region" aria-label={t('Массовые действия')}>
+          <span>{t('Выбрано {items}', { items: countLabel(locale, t, selected.size, [msg('объект'), msg('объекта'), msg('объектов')]) })}</span>
           <Button
             tone="secondary"
             size="sm"
             disabled={bulkPending}
-            onClick={() => bulkHousekeeping('DIRTY', 'Назначена уборка')}
+            onClick={() => bulkHousekeeping('DIRTY', msg('Назначена уборка'))}
           >
             <Icon name="dirty" width={16} height={16} />
-            Назначить уборку
+            {t('Назначить уборку')}
           </Button>
           <ActionMenu
-            text="Изменить статус уборки"
-            label="Изменить статус уборки выбранных мест"
+            text={msg('Изменить статус уборки')}
+            label={msg('Изменить статус уборки выбранных мест')}
             items={[
-              { label: 'Убрано', onSelect: () => bulkHousekeeping('CLEAN', 'Убрано') },
-              { label: 'Проверено', onSelect: () => bulkHousekeeping('INSPECTED', 'Проверено') },
+              { label: t('Убрано'), onSelect: () => bulkHousekeeping('CLEAN', msg('Убрано')) },
+              { label: t('Проверено'), onSelect: () => bulkHousekeeping('INSPECTED', msg('Проверено')) },
             ]}
           />
           <Button tone="ghost" size="sm" onClick={() => setSelected(new Set())}>
-            Снять выбор
+            {t('Снять выбор')}
           </Button>
         </div>
       )}

@@ -26,6 +26,8 @@ import { BuildProgress, errorText } from './ai-chat';
 import type { Spec } from './fields';
 import { SitePreview } from './preview';
 import { useGenerationRun } from './run';
+import { msg } from '../../../../i18n';
+import { useT } from '../../../../i18n/locale-provider';
 
 /**
  * Простой редактор сайта как у Lovable (SITE-1, поручение владельца 15.10.2026): слева чат с ИИ (лента разговора,
@@ -69,6 +71,10 @@ export function SimpleSiteEditor({
   conversation: SiteConversationItem[];
   readOnly: boolean;
 }) {
+  const t = useT();
+  // перевод внутри сохранения: ссылка, чтобы `save` оставался одним и тем же и не перезапускал таймер автосохранения
+  const tRef = useRef(t);
+  tRef.current = t;
   const copy = verticalCopy(vertical);
   const templates = useMemo(() => siteTemplatesFor(vertical), [vertical]);
   const [base, setBase] = useState<Base>(initialBase);
@@ -121,22 +127,27 @@ export function SimpleSiteEditor({
 
   /** Сохранение версией поверх головы; само после паузы в правках и перед просьбой к ИИ */
   const save = useCallback(async (): Promise<Base | null> => {
+    const t = tRef.current;
     const doc = specRef.current;
     const head = baseRef.current;
     if (canonicalJson(doc) === canonicalJson(head.spec)) return head;
     if (canonicalByteLength(doc) > SITE_SPEC_MAX_BYTES) {
-      setState({ kind: 'error', text: 'Сайт слишком большой: уберите часть текста' });
+      setState({ kind: 'error', text: t('Сайт слишком большой: уберите часть текста') });
       return null;
     }
     const local = validateSiteSpec(doc);
     if (!local.ok) {
-      setState({ kind: 'error', text: `Не сохранено: ${local.errors[0]?.message ?? 'проверьте последнюю правку'}` });
+      setState({ kind: 'error', text: t('Не сохранено: {reason}', { reason: local.errors[0]?.message ?? t('проверьте последнюю правку') }) });
       return null;
     }
     setState({ kind: 'saving' });
     const reply = await saveDraftAction(head.revision, doc);
     if (!reply.ok) {
-      setState(reply.status === 409 && reply.code === 'VERSION_CONFLICT' ? { kind: 'conflict' } : { kind: 'error', text: `Не сохранено: ${reply.message}` });
+      setState(
+        reply.status === 409 && reply.code === 'VERSION_CONFLICT'
+          ? { kind: 'conflict' }
+          : { kind: 'error', text: t('Не сохранено: {reason}', { reason: reply.message }) },
+      );
       return null;
     }
     const next = { id: reply.data.version.id, revision: reply.data.version.revision, spec: doc };
@@ -183,7 +194,7 @@ export function SimpleSiteEditor({
 
   const job = useGenerationRun(async (run) => {
     if (run.status === 'SUCCEEDED' && run.outputVersionId) await loadVersion(run.outputVersionId);
-    else setAiError(errorText(run.errorCode));
+    else setAiError(t(errorText(run.errorCode)));
     void refreshFeed();
   });
   // задача, начатая до обновления страницы, продолжает опрашиваться
@@ -198,12 +209,12 @@ export function SimpleSiteEditor({
     onError: setAiError,
   });
 
-  const labelOf = (t: { pageId: string; sectionId: string } | null, doc: Spec = spec) => {
-    if (!t) return null;
-    const page = pagesOf(doc).find((p) => String(p['id']) === t.pageId);
-    const section = sectionsOf(page).find((s) => String(s['id']) === t.sectionId);
+  const labelOf = (to: { pageId: string; sectionId: string } | null, doc: Spec = spec) => {
+    if (!to) return null;
+    const page = pagesOf(doc).find((p) => String(p['id']) === to.pageId);
+    const section = sectionsOf(page).find((s) => String(s['id']) === to.sectionId);
     if (!section) return null;
-    const type = SITE_EDITOR_SECTIONS[String(section['type'])]?.label ?? 'Блок';
+    const type = t(SITE_EDITOR_SECTIONS[String(section['type'])]?.label ?? msg('Блок'));
     const heading = localizedText(section['heading'], locale);
     return heading ? `${type}: ${heading}` : type;
   };
@@ -230,7 +241,11 @@ export function SimpleSiteEditor({
   /** «Вернуть как было»: версия до этой правки ИИ становится новой головой; опубликованный сайт не меняется */
   const revert = async (item: SiteConversationItem) => {
     if (!item.baseVersionId) return;
-    const ok = await ask({ title: 'Вернуть сайт как было до этой правки?', body: 'Изменения ИИ уйдут из черновика. Опубликованный сайт не изменится.', confirmLabel: 'Вернуть' });
+    const ok = await ask({
+      title: t('Вернуть сайт как было до этой правки?'),
+      body: t('Изменения ИИ уйдут из черновика. Опубликованный сайт не изменится.'),
+      confirmLabel: t('Вернуть'),
+    });
     if (!ok) return;
     const r = await restoreAction(item.baseVersionId, baseRef.current.revision);
     if (!r.ok) return setAiError(r.message);
@@ -254,16 +269,16 @@ export function SimpleSiteEditor({
 
   const status =
     state.kind === 'saving' || state.kind === 'pending'
-      ? 'Сохраняем…'
+      ? t('Сохраняем…')
       : state.kind === 'error'
         ? state.text
         : state.kind === 'conflict'
-          ? 'Сайт изменили в другой вкладке'
+          ? t('Сайт изменили в другой вкладке')
           : published && published.id === base.id
-            ? 'Сохранено, опубликовано'
+            ? t('Сохранено, опубликовано')
             : published
-              ? 'Сохранено, есть неопубликованные изменения'
-              : 'Сохранено, ещё не опубликован';
+              ? t('Сохранено, есть неопубликованные изменения')
+              : t('Сохранено, ещё не опубликован');
   const lastDone = [...items].reverse().find((i) => i.status === 'SUCCEEDED' && i.outputVersionId);
 
   return (
@@ -283,15 +298,22 @@ export function SimpleSiteEditor({
           {items.length === 0 ? (
             <div className="lov-ed__empty">
               <p>
-                <b>Напишите, что поменять на сайте.</b>
+                <b>{t('Напишите, что поменять на сайте.')}</b>
               </p>
-              <p className="muted">Например: «сделай тексты короче» или «добавь про парковку». Чтобы изменить один блок, щёлкните его на сайте справа. Текст на сайте можно исправить прямо там.</p>
+              <p className="muted">
+                {t(
+                  'Например: «сделай тексты короче» или «добавь про парковку». Чтобы изменить один блок, щёлкните его на сайте справа. Текст на сайте можно исправить прямо там.',
+                )}
+              </p>
             </div>
           ) : (
-            <ol className="lov-ed__feed" ref={feed} aria-label="Разговор с ИИ" data-testid="ed-feed">
+            <ol className="lov-ed__feed" ref={feed} aria-label={t('Разговор с ИИ')} data-testid="ed-feed">
               {items.map((item) => (
                 <li key={item.id} className="lov-ed__turn" data-testid="ed-feed-item">
-                  <p className="lov-ed__ask">{item.userText || (item.target ? `Обновить блок «${labelOf(item.target) ?? 'блок'}»` : 'Обновить сайт')}</p>
+                  <p className="lov-ed__ask">
+                    {item.userText ||
+                      (item.target ? t('Обновить блок «{name}»', { name: labelOf(item.target) ?? t('блок') }) : t('Обновить сайт'))}
+                  </p>
                   {running(item) && (
                     <div className="lov-ed__reply" role="status" data-testid="ed-ai-state">
                       <BuildProgress startedAt={startedAt || Date.parse(item.createdAt)} />
@@ -299,10 +321,10 @@ export function SimpleSiteEditor({
                   )}
                   {item.status === 'FAILED' && (
                     <div className="lov-ed__reply is-error" role="alert" data-testid="ed-ai-error">
-                      <p>{errorText(item.errorCode)}</p>
+                      <p>{t(errorText(item.errorCode))}</p>
                       {item.userText && (
                         <Button type="button" tone="ghost" size="sm" onClick={() => setText(item.userText ?? '')}>
-                          Повторить
+                          {t('Повторить')}
                         </Button>
                       )}
                     </div>
@@ -310,16 +332,16 @@ export function SimpleSiteEditor({
                   {item.status === 'SUCCEEDED' && (
                     <div className="lov-ed__result" data-testid="ed-ai-done">
                       <p>
-                        <b>Готово.</b> Сайт справа уже с правками.
+                        <b>{t('Готово.')}</b> {t('Сайт справа уже с правками.')}
                       </p>
                       {reverted.includes(item.id) && (
                         <p className="muted" data-testid="ed-ai-reverted">
-                          Возвращено как было.
+                          {t('Возвращено как было.')}
                         </p>
                       )}
                       {item.id === lastDone?.id && item.baseVersionId && !reverted.includes(item.id) && (
                         <Button type="button" tone="secondary" size="sm" disabled={readOnly || busy} onClick={() => void revert(item)} data-testid="ed-ai-revert">
-                          Вернуть как было
+                          {t('Вернуть как было')}
                         </Button>
                       )}
                     </div>
@@ -335,8 +357,8 @@ export function SimpleSiteEditor({
           )}
         </div>
 
-        <div className="lov-ed__chips" role="group" aria-label="Частые просьбы">
-          {copy.siteEditChips.map((chip) => (
+        <div className="lov-ed__chips" role="group" aria-label={t('Частые просьбы')}>
+          {copy.siteEditChips.map((ru) => t(ru)).map((chip) => (
             <Chip key={chip} size="sm" selected={text === chip} disabled={readOnly || busy} onClick={() => setText(chip)} data-testid="ed-chip">
               {chip}
             </Chip>
@@ -352,21 +374,21 @@ export function SimpleSiteEditor({
         >
           {where && (
             <p className="lov-ed__target" data-testid="ed-ai-target">
-              <span>Блок «{where}»</span>
-              <Button type="button" tone="ghost" size="sm" onClick={() => setTarget(null)} aria-label="Убрать блок: изменить весь сайт">
-                Весь сайт
+              <span>{t('Блок «{name}»', { name: where })}</span>
+              <Button type="button" tone="ghost" size="sm" onClick={() => setTarget(null)} aria-label={t('Убрать блок: изменить весь сайт')}>
+                {t('Весь сайт')}
               </Button>
             </p>
           )}
           <label htmlFor="lov-ai-text" className="sr-only">
-            Что изменить на сайте?
+            {t('Что изменить на сайте?')}
           </label>
           <textarea
             id="lov-ai-text"
             className="lov-ed__input"
             rows={3}
             maxLength={PATCH_INSTRUCTION_MAX}
-            placeholder={where ? 'Что изменить в этом блоке?' : 'Что изменить на сайте?'}
+            placeholder={where ? t('Что изменить в этом блоке?') : t('Что изменить на сайте?')}
             value={text}
             disabled={readOnly || busy}
             onChange={(e) => setText(e.currentTarget.value)}
@@ -379,7 +401,7 @@ export function SimpleSiteEditor({
           />
           <div className="lov-ed__tools">
             <Button type="button" tone="ghost" size="sm" disabled={readOnly || past.length === 0} onClick={undo} data-testid="ed-undo">
-              Отменить правку
+              {t('Отменить правку')}
             </Button>
             <span className="lov-ed__grow" />
             {dictation.supported && (
@@ -388,30 +410,30 @@ export function SimpleSiteEditor({
                 tone="secondary"
                 size="sm"
                 aria-pressed={dictation.listening}
-                aria-label={dictation.listening ? 'Остановить диктовку' : 'Надиктовать'}
+                aria-label={dictation.listening ? t('Остановить диктовку') : t('Надиктовать')}
                 disabled={readOnly || busy}
                 onClick={() => dictation.toggle()}
                 data-testid="ed-mic"
               >
-                {dictation.listening ? 'Стоп' : 'Голос'}
+                {dictation.listening ? t('Стоп') : t('Голос')}
               </Button>
             )}
             <Button type="submit" size="sm" disabled={readOnly || busy || (!text.trim() && !where)} data-testid="ed-ai-send">
-              {busy ? 'ИИ работает…' : 'Отправить'}
+              {busy ? t('ИИ работает…') : t('Отправить')}
             </Button>
           </div>
         </form>
       </section>
 
-      <section className="lov-ed__stage" aria-label="Сайт">
+      <section className="lov-ed__stage" aria-label={t('Сайт')}>
         <div className="lov-ed__bar" data-testid="ed-bar">
           <div className="lov-ed__tpl">
             <Button type="button" tone="secondary" aria-expanded={tplOpen} aria-controls="lov-tpl-list" onClick={() => setTplOpen((o) => !o)} data-testid="ed-template-open">
-              Шаблон: {current?.name ?? 'свой'}
+              {t('Шаблон: {name}', { name: current ? t(current.name) : t('свой') })}
             </Button>
             {tplOpen && (
-              <div id="lov-tpl-list" className="lov-ed__tpl-list" role="radiogroup" aria-label="Шаблон сайта" data-testid="ed-templates">
-                <p className="muted">Тексты, фото и цены останутся, поменяется оформление.</p>
+              <div id="lov-tpl-list" className="lov-ed__tpl-list" role="radiogroup" aria-label={t('Шаблон сайта')} data-testid="ed-templates">
+                <p className="muted">{t('Тексты, фото и цены останутся, поменяется оформление.')}</p>
                 {templates.map((tpl) => (
                   <button
                     key={tpl.id}
@@ -425,8 +447,8 @@ export function SimpleSiteEditor({
                     data-template={tpl.id}
                   >
                     <span className={cx('ed-design__swatch', `is-${tpl.direction.theme.preset.toLowerCase()}`)} aria-hidden="true" />
-                    <b>{tpl.name}</b>
-                    <span className="muted">{tpl.description}</span>
+                    <b>{t(tpl.name)}</b>
+                    <span className="muted">{t(tpl.description)}</span>
                   </button>
                 ))}
               </div>
@@ -434,20 +456,20 @@ export function SimpleSiteEditor({
           </div>
           <span className="lov-ed__grow" />
           <Link className="btn btn--ghost" href="/marketing/site/assets" data-testid="editor-assets-link">
-            Фото
+            {t('Фото')}
           </Link>
           <Link className="btn btn--ghost" href="/marketing/site/editor?full=1" data-testid="ed-advanced">
-            Расширенный режим
+            {t('Расширенный режим')}
           </Link>
           <Link className="btn" href="/marketing/site" data-testid="editor-publication-link">
-            Опубликовать
+            {t('Опубликовать')}
           </Link>
         </div>
         {state.kind === 'conflict' && (
           <Alert boxed data-testid="ed-conflict">
-            Сайт уже изменили в другой вкладке или ИИ.{' '}
+            {t('Сайт уже изменили в другой вкладке или ИИ.')}{' '}
             <Button type="button" size="sm" tone="secondary" onClick={() => window.location.reload()}>
-              Обновить
+              {t('Обновить')}
             </Button>
           </Alert>
         )}

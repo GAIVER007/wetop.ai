@@ -161,7 +161,7 @@ export async function FoodToday() {
                       </td>
                       <th scope="row">{u.guest}</th>
                       <td className="muted">{pluralRu(u.partySize, [t('гость'), t('гостя'), t('гостей')])}</td>
-                      <td className="muted">{u.table ? tableTitle(u.table) : t('Без стола')}</td>
+                      <td className="muted">{u.table ? tableTitle(u.table, t) : t('Без стола')}</td>
                       <td>
                         <Badge tone={BADGE_TONE[statusTone(foodStatus, u.status)]}>
                           {t(foodStatus[u.status].label)}
@@ -244,7 +244,7 @@ export async function FoodToday() {
               <div className="rest-latest" data-testid="today-latest-orders">
                 {report.latestOrders.map((o) => (
                   <div className="rest-latest-row" key={o.id}>
-                    <strong>{o.table ? tableTitle(o.table.name) : t('Заказ №{n}', { n: o.number })}</strong>
+                    <strong>{o.table ? tableTitle(o.table.name, t) : t('Заказ №{n}', { n: o.number })}</strong>
                     <time>{clock(o.openedAt)}</time>
                     <span className="rest-latest-sum">
                       <strong>{wholeTenge(o.totalMinor, o.currency)}</strong>

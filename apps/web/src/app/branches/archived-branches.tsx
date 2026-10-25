@@ -4,8 +4,10 @@ import { Icon } from '../../components/icon';
 import { Button } from '../../components/ui';
 import type { ArchivedBranch } from '../../lib/api';
 import { BranchArchiveButton } from './branch-archive-button';
+import { useT } from '../../i18n/locale-provider';
 export function ArchivedBranches({ items }: { items: ArchivedBranch[] | null }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const t = useT();
   return (
     <>
       <Button
@@ -14,18 +16,18 @@ export function ArchivedBranches({ items }: { items: ArchivedBranch[] | null }) 
         className="org-archive-open"
         onClick={() => dialog.current?.showModal()}
       >
-        Архив {items ? `(${items.length})` : ''}
+        {t('Архив')} {items ? `(${items.length})` : ''}
       </Button>
-      <dialog ref={dialog} className="org-archived org-create-dialog" aria-label="Архив объектов">
+      <dialog ref={dialog} className="org-archived org-create-dialog" aria-label={t('Архив объектов')}>
         <header>
-          <h2>Архив объектов</h2>
-          <button type="button" className="icon-button" aria-label="Закрыть архив" onClick={() => dialog.current?.close()}>
+          <h2>{t('Архив объектов')}</h2>
+          <button type="button" className="icon-button" aria-label={t('Закрыть архив')} onClick={() => dialog.current?.close()}>
             <Icon name="close" />
           </button>
         </header>
 
         {items === null ? (
-          <p>Архив сейчас недоступен. Повторите загрузку страницы.</p>
+          <p>{t('Архив сейчас недоступен. Повторите загрузку страницы.')}</p>
         ) : items.length ? (
           <ul>
             {items.map((item) => (
@@ -42,7 +44,7 @@ export function ArchivedBranches({ items }: { items: ArchivedBranch[] | null }) 
             ))}
           </ul>
         ) : (
-          <p>В архиве пока нет объектов. Данные архивных объектов сохраняются.</p>
+          <p>{t('В архиве пока нет объектов. Данные архивных объектов сохраняются.')}</p>
         )}
       </dialog>
     </>

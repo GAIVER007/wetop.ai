@@ -1,3 +1,4 @@
+import { intlLocale, msg, translator, type DeskLocale, type Translate } from '../i18n';
 import { displayDate } from './display-date';
 import { formatMoney } from './money';
 
@@ -34,34 +35,54 @@ const plural = (n: number, forms: [string, string, string]) => {
  * словами и целиком: «станет столько вместо столько». `null` — предпросмотр не ответил: действие
  * не запрещаем, но и молчать о деньгах нельзя.
  */
-export function previewLine(preview: ActionPreview | null): string {
-  if (!preview) return 'Сумму посчитать не удалось — проверьте счёт после действия.';
+export function previewLine(
+  preview: ActionPreview | null,
+  t: Translate = translator('ru'),
+  locale: DeskLocale = 'ru',
+): string {
+  if (!preview) return t('Сумму посчитать не удалось — проверьте счёт после действия.');
   const money = (minor: string) => formatMoney(minor, preview.currency);
 
   if (preview.action === 'cancel' || preview.action === 'no_show') {
     const voided = money(preview.voidedMinor ?? preview.currentPriceMinor);
     const penalty = BigInt(preview.penaltyMinor ?? '0');
     return penalty > 0n
-      ? `Начисление ${voided} сторнируется, вместо него штраф ${money(penalty.toString())}.`
-      : `Начисление ${voided} сторнируется, штрафа не будет.`;
+      ? t('Начисление {voided} сторнируется, вместо него штраф {penalty}.', { voided, penalty: money(penalty.toString()) })
+      : t('Начисление {voided} сторнируется, штрафа не будет.', { voided });
   }
 
   if (preview.action === 'extend') {
     const nights = preview.nights ?? 1;
-    const word = `${plural(nights, ['Новая ночь', 'Новые ночи', 'Новые ночи'])}`;
+    const forms: [string, string, string] = [msg('Новая ночь'), msg('Новые ночи'), msg('Новые ночи')];
+    // без числа в строке: русский склоняет, остальные языки отличают одну ночь от нескольких
+    const word = t(locale === 'ru' ? plural(nights, forms) : nights === 1 ? forms[0] : forms[2]);
     const added = money(preview.differenceMinor ?? '0');
     const total = money(preview.newPriceMinor ?? preview.currentPriceMinor);
     // `displayDate` уже даёт «19 сент.» с точкой — второй точки в строке быть не должно
-    const out = preview.departureDate ? `, выезд ${displayDate(preview.departureDate)}` : '.';
-    return `${word} — ${added}. Проживание станет ${total}${out}`;
+    const out = preview.departureDate
+      ? t(', выезд {date}', { date: displayDate(preview.departureDate, 'short', intlLocale(locale)) })
+      : '.';
+    return `${word} — ${added}. ${t('Проживание станет {total}', { total })}${out}`;
   }
 
-  if (!preview.changesCategory) return 'Цена не меняется: та же категория.';
+  if (!preview.changesCategory) return t('Цена не меняется: та же категория.');
   const diff = BigInt(preview.differenceMinor ?? '0');
   const abs = (diff < 0n ? -diff : diff).toString();
-  const direction = diff === 0n ? 'столько же' : diff > 0n ? `дороже на ${money(abs)}` : `дешевле на ${money(abs)}`;
-  const where = preview.categoryName ? ` (пересчёт по календарю категории «${preview.categoryName}»)` : '';
-  return `Цена проживания станет ${money(preview.newPriceMinor ?? preview.currentPriceMinor)} вместо ${money(preview.currentPriceMinor)} — ${direction}${where}.`;
+  const direction =
+    diff === 0n
+      ? t('столько же')
+      : diff > 0n
+        ? t('дороже на {sum}', { sum: money(abs) })
+        : t('дешевле на {sum}', { sum: money(abs) });
+  const where = preview.categoryName
+    ? t(' (пересчёт по календарю категории «{name}»)', { name: preview.categoryName })
+    : '';
+  return t('Цена проживания станет {price} вместо {before} — {direction}{where}.', {
+    price: money(preview.newPriceMinor ?? preview.currentPriceMinor),
+    before: money(preview.currentPriceMinor),
+    direction,
+    where,
+  });
 }
 
 /**

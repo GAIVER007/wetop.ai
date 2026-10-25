@@ -5,6 +5,8 @@ import { createBranch } from './actions';
 import type { BusinessCardView } from '../../lib/api';
 import type { WebVertical } from '../../lib/vertical-landing';
 import { Input, Select } from '../../components/ui';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 export function BranchForm({
   id,
   onPendingChange,
@@ -23,6 +25,7 @@ export function BranchForm({
   initialVertical?: WebVertical;
 }) {
   const [state, action, pending] = useActionState(createBranch, null);
+  const t = useT();
   const [mode, setMode] = useState<'BRANCH' | 'BUSINESS' | 'LEGACY'>(
     businesses === undefined
       ? 'LEGACY'
@@ -41,7 +44,7 @@ export function BranchForm({
       <input type="hidden" name="id" value={id} />
       {businesses !== undefined && (
         <fieldset className="branch-create__mode">
-          <legend>Что добавляем</legend>
+          <legend>{t('Что добавляем')}</legend>
           <label>
             <input
               type="radio"
@@ -51,7 +54,7 @@ export function BranchForm({
               disabled={pending || !businesses.length}
               onChange={() => setMode('BRANCH')}
             />
-            Филиал существующего бизнеса
+            {t('Филиал существующего бизнеса')}
           </label>
           <label>
             <input
@@ -62,13 +65,13 @@ export function BranchForm({
               disabled={pending}
               onChange={() => setMode('BUSINESS')}
             />
-            Новый бизнес или бренд
+            {t('Новый бизнес или бренд')}
           </label>
         </fieldset>
       )}
       {mode === 'BRANCH' && (
         <label>
-          Бизнес
+          {t('Бизнес')}
           <Select
             name="businessId"
             value={businessId}
@@ -82,19 +85,19 @@ export function BranchForm({
               </option>
             ))}
           </Select>
-          <small>Новый филиал будет добавлен именно в этот бизнес.</small>
+          <small>{t('Новый филиал будет добавлен именно в этот бизнес.')}</small>
         </label>
       )}
       {mode === 'BRANCH' ? (
         <input type="hidden" name="vertical" value={selected?.vertical ?? initialVertical} />
       ) : (
         <fieldset className="branch-create__vertical" disabled={pending}>
-          <legend>Направление бизнеса</legend>
+          <legend>{t('Направление бизнеса')}</legend>
           {(
             [
-              ['HOSPITALITY', 'Отель, хостел или апартаменты'],
-              ['BEAUTY', 'Салон красоты или студия'],
-              ['FOOD_SERVICE', 'Кафе или ресторан'],
+              ['HOSPITALITY', msg('Отель, хостел или апартаменты')],
+              ['BEAUTY', msg('Салон красоты или студия')],
+              ['FOOD_SERVICE', msg('Кафе или ресторан')],
             ] as const
           ).map(([value, label]) => (
             <label key={value}>
@@ -104,7 +107,7 @@ export function BranchForm({
                 value={value}
                 defaultChecked={initialVertical === value}
               />
-              {label}
+              {t(label)}
             </label>
           ))}
         </fieldset>
@@ -113,36 +116,36 @@ export function BranchForm({
         <>
           <input type="hidden" name="newBusinessId" value={newBusinessId} />
           <label>
-            Название бизнеса
+            {t('Название бизнеса')}
             <Input
               name="businessName"
               required
               maxLength={200}
               disabled={pending}
-              placeholder="Например, Luxx Hotels"
+              placeholder={t('Например, Luxx Hotels')}
             />
           </label>
         </>
       )}
       <label>
-        {mode === 'BUSINESS' ? 'Название первого объекта' : 'Название объекта'}
+        {mode === 'BUSINESS' ? t('Название первого объекта') : t('Название объекта')}
         <Input
           name="name"
           required={mode !== 'BUSINESS'}
           maxLength={200}
           disabled={pending}
-          placeholder={mode === 'BUSINESS' ? 'Можно оставить название бизнеса' : 'Например, Центр'}
+          placeholder={mode === 'BUSINESS' ? t('Можно оставить название бизнеса') : t('Например, Центр')}
         />
         {mode === 'BUSINESS' && (
-          <small>Если поле пустое, первый объект получит название бизнеса.</small>
+          <small>{t('Если поле пустое, первый объект получит название бизнеса.')}</small>
         )}
       </label>
       <label>
-        Адрес
+        {t('Адрес')}
         <Input name="address" maxLength={500} disabled={pending} />
       </label>
       <label>
-        Страна
+        {t('Страна')}
         <Select
           value={country}
           disabled={pending}
@@ -153,14 +156,14 @@ export function BranchForm({
         >
           {SUPPORTED_COUNTRIES.map((c) => (
             <option key={c.code} value={c.code}>
-              {c.label}
+              {t(c.label)}
             </option>
           ))}
         </Select>
       </label>
       <input type="hidden" name="timezone" value={countryOf({ code: country })?.zone ?? ''} />
       <label>
-        Валюта
+        {t('Валюта')}
         <Select
           name="currency"
           required
@@ -170,21 +173,21 @@ export function BranchForm({
         >
           {currencyOptions().map((o) => (
             <option key={o.value} value={o.value}>
-              {o.label}
+              {t(o.label)}
             </option>
           ))}
         </Select>
       </label>
-      <p className="muted">Часовой пояс задаёт страна: от него зависят даты записей и отчётов.</p>
+      <p className="muted">{t('Часовой пояс задаёт страна: от него зависят даты записей и отчётов.')}</p>
       <p className="muted">
         {mode === 'BUSINESS'
-          ? 'Создадим новый бизнес с первым объектом внутри вашей организации.'
-          : 'Настройки, сотрудники и данные других объектов не копируются.'}
+          ? t('Создадим новый бизнес с первым объектом внутри вашей организации.')
+          : t('Настройки, сотрудники и данные других объектов не копируются.')}
       </p>
       {state?.error && <p role="alert">{state.error}</p>}
       {state?.message && <p role="status">{state.message}</p>}
       <button className="btn" type="submit" disabled={pending || Boolean(state?.message)}>
-        {pending ? 'Создаём…' : mode === 'BUSINESS' ? 'Создать бизнес' : 'Добавить филиал'}
+        {pending ? t('Создаём…') : mode === 'BUSINESS' ? t('Создать бизнес') : t('Добавить филиал')}
       </button>
     </form>
   );

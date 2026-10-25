@@ -1,5 +1,6 @@
 import type { TrackedSite, TrackedSiteCard } from './api';
 import type { PropertyClock } from './property-time';
+import { msg, translator, type Translate } from '../i18n';
 
 /**
  * «Сайт и онлайн-бронирование» (ADR-117, WEB1): одно место для сайта объекта вместо трёх — «Аналитики сайта»,
@@ -10,13 +11,13 @@ import type { PropertyClock } from './property-time';
 
 export type WebsiteView = 'overview' | 'booking' | 'analytics' | 'settings';
 
-export const WEBSITE_TITLE = 'Сайт и онлайн-бронирование';
+export const WEBSITE_TITLE = msg('Сайт и онлайн-бронирование');
 
 export const WEBSITE_TABS: Array<{ view: WebsiteView; label: string; href: string }> = [
-  { view: 'overview', label: 'Обзор', href: '/website' },
-  { view: 'booking', label: 'Бронирование', href: '/website/booking' },
-  { view: 'analytics', label: 'Аналитика', href: '/website/analytics' },
-  { view: 'settings', label: 'Настройки', href: '/website/settings' },
+  { view: 'overview', label: msg('Обзор'), href: '/website' },
+  { view: 'booking', label: msg('Бронирование'), href: '/website/booking' },
+  { view: 'analytics', label: msg('Аналитика'), href: '/website/analytics' },
+  { view: 'settings', label: msg('Настройки'), href: '/website/settings' },
 ];
 
 /**
@@ -73,6 +74,7 @@ export function siteState(
   card: TrackedSiteCard,
   clock: PropertyClock,
   now = new Date(),
+  t: Translate = translator('ru'),
 ): SiteState {
   const { site, status } = card;
   const host = primaryHost(site);
@@ -80,60 +82,60 @@ export function siteState(
   const last = status.lastEventAt;
 
   const counter: SiteState['counter'] = !host
-    ? { state: 'blocked', value: 'Не принимает посещения', note: 'Нет адреса сайта', tone: 'warn' }
+    ? { state: 'blocked', value: t('Не принимает посещения'), note: t('Нет адреса сайта'), tone: 'warn' }
     : paused
       ? {
           state: 'paused',
-          value: 'Приостановлен',
-          note: 'Посещения не записываются',
+          value: t('Приостановлен'),
+          note: t('Посещения не записываются'),
           tone: 'warn',
         }
       : !last
         ? {
             state: 'waiting',
-            value: 'Ждём первое посещение',
-            note: 'Событий с сайта ещё не было',
+            value: t('Ждём первое посещение'),
+            note: t('Событий с сайта ещё не было'),
             tone: 'warn',
           }
         : clock.date(last) === clock.today(now)
           ? {
               state: 'today',
-              value: 'Работает',
-              note: `Последнее событие в ${clock.clock(last)}`,
+              value: t('Работает'),
+              note: t('Последнее событие в {time}', { time: clock.clock(last) }),
               tone: 'calm',
             }
           : {
               state: 'quiet',
-              value: 'Сегодня событий нет',
-              note: `Последнее — ${clock.when(last)}`,
+              value: t('Сегодня событий нет'),
+              note: t('Последнее — {when}', { when: clock.when(last, t) }),
               tone: 'warn',
             };
 
   const booking: SiteState['booking'] = !site.bookingEnabled
     ? {
         state: 'off',
-        value: 'Выключено',
+        value: t('Выключено'),
         // выключенный виджет ничего не объявляет: форма остаётся, на «Показать цены» гость получает отказ
-        note: 'Форма на сайте цены не покажет',
+        note: t('Форма на сайте цены не покажет'),
         tone: 'warn',
       }
     : !host
-      ? { state: 'blocked', value: 'Не принимает брони', note: 'Нет адреса сайта', tone: 'warn' }
+      ? { state: 'blocked', value: t('Не принимает брони'), note: t('Нет адреса сайта'), tone: 'warn' }
       : paused
-        ? { state: 'paused', value: 'Остановлено', note: 'Сайт приостановлен', tone: 'warn' }
+        ? { state: 'paused', value: t('Остановлено'), note: t('Сайт приостановлен'), tone: 'warn' }
         : !site.bookingRatePlan
-          ? { state: 'blocked', value: 'Не принимает брони', note: 'Не выбран тариф', tone: 'warn' }
+          ? { state: 'blocked', value: t('Не принимает брони'), note: t('Не выбран тариф'), tone: 'warn' }
           : {
               state: 'on',
-              value: 'Включено',
-              note: `Тариф «${site.bookingRatePlan.name}»`,
+              value: t('Включено'),
+              note: t('Тариф «{name}»', { name: site.bookingRatePlan.name }),
               tone: 'calm',
             };
 
   const overall: SiteState['overall'] = !host
-    ? { value: 'Не подключён', tone: 'warn' }
+    ? { value: t('Не подключён'), tone: 'warn' }
     : paused
-      ? { value: 'Приостановлен', tone: 'warn' }
+      ? { value: t('Приостановлен'), tone: 'warn' }
       : { value: counter.value, tone: counter.tone };
 
   return { connected: !!host, host, overall, counter, booking };
@@ -148,9 +150,12 @@ export const DOMAIN_EXAMPLE = 'myhotel.kz';
  * Адрес сайта из того, что вставил человек (WEB2): схема, путь, порт, `www` и точка в конце снимаются —
  * `https://www.myhotel.kz/rooms` → `myhotel.kz`. Неверный ввод — словами до запроса в API.
  */
-export function parseDomainInput(raw: string): { host: string } | { error: string } {
+export function parseDomainInput(
+  raw: string,
+  t: Translate = translator('ru'),
+): { host: string } | { error: string } {
   const text = raw.trim();
-  if (!text) return { error: `Впишите адрес сайта, например ${DOMAIN_EXAMPLE}` };
+  if (!text) return { error: t('Впишите адрес сайта, например {example}', { example: DOMAIN_EXAMPLE }) };
   const host = text
     .toLowerCase()
     .replace(/^[a-z][a-z0-9+.-]*:\/\//, '')
@@ -159,7 +164,7 @@ export function parseDomainInput(raw: string): { host: string } | { error: strin
     .replace(/\.$/, '')
     .replace(/^www\./, '');
   if (!HOST_RE.test(host))
-    return { error: `Не похоже на адрес сайта: впишите домен, например ${DOMAIN_EXAMPLE}` };
+    return { error: t('Не похоже на адрес сайта: впишите домен, например {example}', { example: DOMAIN_EXAMPLE }) };
   return { host };
 }
 
@@ -170,8 +175,9 @@ export function parseDomainInput(raw: string): { host: string } | { error: strin
 export function hostsAfterAdd(
   current: readonly string[],
   host: string,
+  t: Translate = translator('ru'),
 ): { hosts: string[]; dropped: string[] } | { error: string } {
-  if (current.includes(host)) return { error: `${host} уже в списке` };
+  if (current.includes(host)) return { error: t('{host} уже в списке', { host }) };
   const dropped = isPlaceholderHost(host) ? [] : current.filter(isPlaceholderHost);
   return { hosts: [...current.filter((h) => !dropped.includes(h)), host], dropped };
 }
@@ -180,10 +186,11 @@ export function hostsAfterAdd(
 export function hostsAfterRemove(
   current: readonly string[],
   host: string,
+  t: Translate = translator('ru'),
 ): { hosts: string[] } | { error: string } {
-  if (!current.includes(host)) return { error: `${host} уже нет в списке` };
+  if (!current.includes(host)) return { error: t('{host} уже нет в списке', { host }) };
   const hosts = current.filter((h) => h !== host);
-  if (!hosts.length) return { error: 'Сайту нужен хотя бы один адрес: сначала добавьте другой' };
+  if (!hosts.length) return { error: t('Сайту нужен хотя бы один адрес: сначала добавьте другой') };
   return { hosts };
 }
 

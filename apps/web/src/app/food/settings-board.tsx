@@ -8,18 +8,20 @@ import type { FoodWorkspace, ServicePeriod } from '../../lib/food-types';
 import type { BookingRules } from '@pms/domain';
 import { saveBookingRules, type BookingRulesCommand } from './actions';
 import { saveFoodCatalog } from './actions';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 export type SettingsSection = 'hours' | 'bookings' | 'reminders';
 
 /** Порядок недели с понедельника; в модели 0 это воскресенье (`getUTCDay`) */
 const WEEK: Array<[number, string]> = [
-  [1, 'Понедельник'],
-  [2, 'Вторник'],
-  [3, 'Среда'],
-  [4, 'Четверг'],
-  [5, 'Пятница'],
-  [6, 'Суббота'],
-  [0, 'Воскресенье'],
+  [1, msg('Понедельник')],
+  [2, msg('Вторник')],
+  [3, msg('Среда')],
+  [4, msg('Четверг')],
+  [5, msg('Пятница')],
+  [6, msg('Суббота')],
+  [0, msg('Воскресенье')],
 ];
 
 type NavItem = { label: string; icon: IconName } & (
@@ -28,15 +30,15 @@ type NavItem = { label: string; icon: IconName } & (
 // порядок хаба «Настройки» (21.10.2026): первым путь ко всем настройкам; пустого раздела «Уведомления» нет, у
 // ресторана не было ни одной его настройки, только текст
 const NAV: NavItem[] = [
-  { label: 'Все настройки', icon: 'settings', href: '/settings' },
-  { label: 'Основное', icon: 'inventory', href: '/branches' },
-  { label: 'Часы работы зала', icon: 'clock', section: 'hours' },
-  { label: 'Бронирования', icon: 'booking', section: 'bookings' },
+  { label: msg('Все настройки'), icon: 'settings', href: '/settings' },
+  { label: msg('Основное'), icon: 'inventory', href: '/branches' },
+  { label: msg('Часы работы зала'), icon: 'clock', section: 'hours' },
+  { label: msg('Бронирования'), icon: 'booking', section: 'bookings' },
   // §61 (миграция 152): напоминания гостям о брони, тот же вид, что у салона
-  { label: 'Напоминания гостям', icon: 'send', section: 'reminders' },
-  { label: 'Залы и столы', icon: 'board', href: '/dining-areas' },
+  { label: msg('Напоминания гостям'), icon: 'send', section: 'reminders' },
+  { label: msg('Залы и столы'), icon: 'board', href: '/dining-areas' },
   // `/website` гостиничный раздел; сайт ресторана собирается в «Продвижении» (аудит 17.10.2026, Д1)
-  { label: 'Публичный сайт', icon: 'globe', href: '/marketing/site/editor' },
+  { label: msg('Публичный сайт'), icon: 'globe', href: '/marketing/site/editor' },
 ];
 
 const minutes = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
@@ -66,15 +68,16 @@ export function RestaurantSettings({
   /** «Напоминания гостям» (§61): форма собирается страницей */
   reminders?: ReactNode;
 }) {
+  const t = useT();
   const write = data.canProperty && !data.readOnly;
   return (
     <div className="rest-settings">
-      <nav className="rest-settings__nav" aria-label="Разделы настроек">
+      <nav className="rest-settings__nav" aria-label={t('Разделы настроек')}>
         {NAV.map((item) =>
           'href' in item ? (
             <Link key={item.label} href={item.href}>
               <Icon name={item.icon} />
-              {item.label}
+              {t(item.label)}
             </Link>
           ) : (
             <Link
@@ -83,7 +86,7 @@ export function RestaurantSettings({
               aria-current={section === item.section ? 'page' : undefined}
             >
               <Icon name={item.icon} />
-              {item.label}
+              {t(item.label)}
             </Link>
           ),
         )}
@@ -113,14 +116,16 @@ function useSave(data: FoodWorkspace) {
 }
 
 function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
+  const t = useT();
   const { pending, error, save } = useSave(data);
   return (
     <>
-      <h2 id="rest-settings-title">Периоды приёма броней</h2>
-      <p className="muted">Эти периоды не определяют физические часы работы зала.</p>
+      <h2 id="rest-settings-title">{t('Периоды приёма броней')}</h2>
+      <p className="muted">{t('Эти периоды не определяют физические часы работы зала.')}</p>
       {error && <Alert>{error}</Alert>}
       <ul className="rest-hours rest-hours--editable" aria-busy={pending}>
-        {WEEK.map(([weekday, name]) => {
+        {WEEK.map(([weekday, dayKey]) => {
+          const name = t(dayKey);
           const day = data.periods
             .filter((p) => p.weekday === weekday)
             .sort((a, b) => a.timeFrom.localeCompare(b.timeFrom));
@@ -141,7 +146,7 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
           return (
             <li key={weekday} data-on={on || undefined}>
               <span className="rest-hours__day">{name}</span>
-              <Field className="rest-hours__from" label={<><span aria-hidden="true">С</span><span className="sr-only">{name}, начало</span></>}>
+              <Field className="rest-hours__from" label={<><span aria-hidden="true">{t('С')}</span><span className="sr-only">{t('{day}, начало', { day: name })}</span></>}>
                 <Input
                   type="time"
                   disabled={!write || !p}
@@ -155,7 +160,7 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
                 />
               </Field>
               <span aria-hidden="true">–</span>
-              <Field className="rest-hours__to" label={<><span aria-hidden="true">До</span><span className="sr-only">{name}, конец</span></>}>
+              <Field className="rest-hours__to" label={<><span aria-hidden="true">{t('До')}</span><span className="sr-only">{t('{day}, конец', { day: name })}</span></>}>
                 <Input
                   type="time"
                   disabled={!write || !p}
@@ -170,7 +175,7 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
               </Field>
               <label className="switch">
                 <span className="switch__text">
-                  <span className="switch__label sr-only">{name}: работаем</span>
+                  <span className="switch__label sr-only">{t('{day}: работаем', { day: name })}</span>
                 </span>
                 <input
                   className="switch__input"
@@ -182,7 +187,7 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
                     p
                       ? save(p.id, body({ active: !p.active }))
                       : save(undefined, {
-                          name: 'Весь день',
+                          name: 'Весь день', // kk-allow: название периода уходит в базу как данные
                           weekday,
                           timeFrom: '10:00',
                           timeTo: '23:00',
@@ -196,7 +201,7 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
               </label>
               {day.length > 1 && (
                 <small className="muted">
-                  ещё периодов: {day.length - 1}, <Link href="/dining-areas">все периоды</Link>
+                  {t('ещё периодов: {n},', { n: day.length - 1 })} <Link href="/dining-areas">{t('все периоды')}</Link>
                 </small>
               )}
             </li>
@@ -210,18 +215,19 @@ function Hours({ data, write }: { data: FoodWorkspace; write: boolean }) {
 const DURATIONS = [60, 90, 120, 150, 180, 240];
 
 function Bookings({ data, write }: { data: FoodWorkspace; write: boolean }) {
+  const t = useT();
   const { pending, error, save } = useSave(data);
   const periods = [...data.periods].sort(
     (a, b) => ((a.weekday + 6) % 7) - ((b.weekday + 6) % 7) || a.timeFrom.localeCompare(b.timeFrom),
   );
-  const dayName = (w: number) => WEEK.find(([d]) => d === w)?.[1] ?? '';
+  const dayName = (w: number) => t(WEEK.find(([d]) => d === w)?.[1] ?? '');
   return (
     <>
-      <h3>Длительность бронирований</h3>
-      <p className="muted">Длительность брони по умолчанию для каждого периода обслуживания.</p>
+      <h3>{t('Длительность бронирований')}</h3>
+      <p className="muted">{t('Длительность брони по умолчанию для каждого периода обслуживания.')}</p>
       {error && <Alert>{error}</Alert>}
       {periods.length === 0 ? (
-        <p className="muted">Сначала настройте периоды приёма броней выше.</p>
+        <p className="muted">{t('Сначала настройте периоды приёма броней выше.')}</p>
       ) : (
         <ul className="rest-hours" aria-busy={pending}>
           {periods.map((p) => {
@@ -235,7 +241,7 @@ function Bookings({ data, write }: { data: FoodWorkspace; write: boolean }) {
                 <span className="muted">
                   {p.timeFrom}–{p.timeTo}
                 </span>
-                <Field label={<span className="sr-only">Длительность брони, {dayName(p.weekday)}</span>}>
+                <Field label={<span className="sr-only">{t('Длительность брони, {day}', { day: dayName(p.weekday) })}</span>}>
                   <Select
                     disabled={!write || pending}
                     value={p.defaultDurationMinutes}
@@ -245,7 +251,7 @@ function Bookings({ data, write }: { data: FoodWorkspace; write: boolean }) {
                       .sort((a, b) => a - b)
                       .map((m) => (
                         <option key={m} value={m}>
-                          {m % 60 ? `${Math.floor(m / 60)} ч ${m % 60} мин` : `${m / 60} ч`}
+                          {m % 60 ? t('{h} ч {m} мин', { h: Math.floor(m / 60), m: m % 60 }) : t('{h} ч', { h: m / 60 })}
                         </option>
                       ))}
                   </Select>
@@ -264,6 +270,7 @@ const optionalNumber = (raw: FormDataEntryValue | null) => (String(raw ?? '').tr
 
 /** Правила брони столов (§43, ADR-177): буфер, горизонт, предел гостей и закрытые дни */
 function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write: boolean; booking: BookingSettings }) {
+  const t = useT();
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
@@ -280,7 +287,7 @@ function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write
   }
   return (
     <section className="rest-booking-rules" aria-labelledby="rest-booking-rules-title" data-testid="booking-rules">
-      <h3 id="rest-booking-rules-title">Правила брони</h3>
+      <h3 id="rest-booking-rules-title">{t('Правила брони')}</h3>
       {error && <Alert>{error}</Alert>}
       {saved && <p role="status">{saved}</p>}
       <form
@@ -297,22 +304,22 @@ function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write
                 maxPartySize: optionalNumber(f.get('party')),
               },
             },
-            'Правила сохранены',
+            t('Правила сохранены'),
           );
         }}
       >
-        <Field label="Перерыв между посадками за одним столом">
+        <Field label={t('Перерыв между посадками за одним столом')}>
           <Select name="buffer" defaultValue={booking.rules.bufferMinutes} disabled={!write || pending}>
             {[...new Set([...BUFFERS, booking.rules.bufferMinutes])]
               .sort((a, b) => a - b)
               .map((m) => (
                 <option key={m} value={m}>
-                  {m ? `${m} мин` : 'Без перерыва'}
+                  {m ? t('{n} мин', { n: m }) : t('Без перерыва')}
                 </option>
               ))}
           </Select>
         </Field>
-        <Field label="Бронировать вперёд не больше, дней" hint="Пусто: без ограничения" controlId="rest-rules-horizon">
+        <Field label={t('Бронировать вперёд не больше, дней')} hint={t('Пусто: без ограничения')} controlId="rest-rules-horizon">
           <Input
             name="horizon"
             type="number"
@@ -322,7 +329,7 @@ function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write
             disabled={!write || pending}
           />
         </Field>
-        <Field label="Гостей в одной брони не больше" hint="Пусто: по вместимости стола" controlId="rest-rules-party">
+        <Field label={t('Гостей в одной брони не больше')} hint={t('Пусто: по вместимости стола')} controlId="rest-rules-party">
           <Input
             name="party"
             type="number"
@@ -334,14 +341,14 @@ function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write
         </Field>
         {write && (
           <Button type="submit" disabled={pending}>
-            Сохранить правила
+            {t('Сохранить правила')}
           </Button>
         )}
       </form>
-      <h3>Закрытые дни</h3>
-      <p className="muted">В закрытый день новые брони не принимаются; уже сделанные остаются, отменяет их человек.</p>
+      <h3>{t('Закрытые дни')}</h3>
+      <p className="muted">{t('В закрытый день новые брони не принимаются; уже сделанные остаются, отменяет их человек.')}</p>
       {booking.closedDays.length === 0 ? (
-        <EmptyState title="Закрытых дней впереди нет" />
+        <EmptyState title={t('Закрытых дней впереди нет')} />
       ) : (
         <ul className="rest-closed-days">
           {booking.closedDays.map((d) => (
@@ -353,10 +360,10 @@ function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write
                   size="sm"
                   tone="secondary"
                   disabled={pending}
-                  aria-label={`Открыть день ${d.day.split('-').reverse().join('.')}`}
-                  onClick={() => run({ kind: 'open', id: d.id }, 'День снова открыт для броней')}
+                  aria-label={t('Открыть день {day}', { day: d.day.split('-').reverse().join('.') })}
+                  onClick={() => run({ kind: 'open', id: d.id }, t('День снова открыт для броней'))}
                 >
-                  Открыть
+                  {t('Открыть')}
                 </Button>
               )}
             </li>
@@ -371,19 +378,19 @@ function BookingRulesForm({ data, write, booking }: { data: FoodWorkspace; write
             const f = new FormData(e.currentTarget);
             run(
               { kind: 'close', day: String(f.get('day')), reason: String(f.get('reason') ?? '').trim() || null },
-              'День закрыт для броней',
+              t('День закрыт для броней'),
             );
             e.currentTarget.reset();
           }}
         >
-          <Field label="Закрыть день">
+          <Field label={t('Закрыть день')}>
             <Input name="day" type="date" required disabled={pending} />
           </Field>
-          <Field label="Причина">
+          <Field label={t('Причина')}>
             <Input name="reason" maxLength={200} disabled={pending} />
           </Field>
           <Button type="submit" tone="secondary" disabled={pending}>
-            Закрыть день
+            {t('Закрыть день')}
           </Button>
         </form>
       )}

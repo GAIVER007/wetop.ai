@@ -9,6 +9,8 @@ import type { SharedOnboardingState, OnboardingStatus } from '../../../lib/api';
 import { BeautyChecklist } from './beauty-checklist';
 import type { BookingPreview } from './setup-path';
 import { progressRequest, recoveryDecision, sameProgressScope, type Command, type ProgressReply } from './command';
+import { msg } from '../../../i18n';
+import { useT } from '../../../i18n/locale-provider';
 
 export function OnboardingShell(props: {
   initial: SharedOnboardingState;
@@ -30,6 +32,7 @@ function LegacyOnboardingShell({
   hotel: OnboardingStatus | null;
 }) {
   const router = useRouter();
+  const t = useT();
   const edited = useRef(false);
   const active = useRef(true);
   const busy = useRef(false);
@@ -47,12 +50,12 @@ function LegacyOnboardingShell({
     if (!active.current) return;
     if (reply.status === 401 && reply.loginUrl) { window.location.assign(reply.loginUrl); return; }
     if (reply.status >= 400 || !reply.state) {
-      setError(reply.error || 'Не удалось проверить настройку. Данные остались в форме.');
+      setError(reply.error || msg('Не удалось проверить настройку. Данные остались в форме.'));
       if (reply.status === 409) setConflict(true);
       return;
     }
     if (!sameProgressScope(initial, reply.state)) {
-      setError('Контекст настройки изменился. Данные остались в форме. Откройте нужный филиал заново.');
+      setError(msg('Контекст настройки изменился. Данные остались в форме. Откройте нужный филиал заново.'));
       setConflict(true);
       return;
     }
@@ -62,7 +65,7 @@ function LegacyOnboardingShell({
     setState(reply.state);
     if (!preserveDraft) setDraft(reply.state.draft);
     setFailed(null); setConflict(false); setReloadFailed(false); setError(null);
-    setNotice(preserveDraft ? 'Сохранён предыдущий запрос. В форме есть новые изменения.' : 'Сохранено');
+    setNotice(preserveDraft ? msg('Сохранён предыдущий запрос. В форме есть новые изменения.') : msg('Сохранено'));
   };
   useEffect(() => {
     active.current = true;
@@ -91,7 +94,7 @@ function LegacyOnboardingShell({
             accept(latest, JSON.stringify(draft) !== JSON.stringify(failed.command.draft)); return;
           }
           if (decision === 'conflict') {
-            accept({ status: 409, error: 'Настройка изменена. Введённые данные остались в форме. Загрузите сохранённую версию.' }); return;
+            accept({ status: 409, error: msg('Настройка изменена. Введённые данные остались в форме. Загрузите сохранённую версию.') }); return;
           }
         }
         const reply = await progressRequest(command);
@@ -109,7 +112,7 @@ function LegacyOnboardingShell({
     });
   };
   const field = (key: string, label: string, maxLength: number) => (
-    <Field label={label}>
+    <Field label={t(label)}>
       <Input
         value={String(draft[key] ?? '')}
         maxLength={maxLength}
@@ -117,7 +120,7 @@ function LegacyOnboardingShell({
         onChange={(e) => {
           edited.current = true;
           setDraft({ ...draft, [key]: e.target.value });
-          setNotice('Есть несохранённые изменения');
+          setNotice(msg('Есть несохранённые изменения'));
         }}
       />
     </Field>
@@ -125,39 +128,38 @@ function LegacyOnboardingShell({
   return (
     <main id="main-content" className="onboarding setup-shell">
       <header className="onboarding__head">
-        <p>Настройка рабочего пространства</p>
+        <p>{t('Настройка рабочего пространства')}</p>
         <h1>
           {state.completedAt
-            ? 'Настройка сохранена'
+            ? t('Настройка сохранена')
             : flow.vertical === 'HOSPITALITY'
-              ? 'Настройте отель'
+              ? t('Настройте отель')
               : flow.vertical === 'BEAUTY'
-                ? 'Настройте Beauty'
-                : 'Настройте Food Service'}
+                ? t('Настройте Beauty')
+                : t('Настройте Food Service')}
         </h1>
-        <ol className="onboarding__steps" aria-label="Прогресс настройки">
+        <ol className="onboarding__steps" aria-label={t('Прогресс настройки')}>
           {flow.steps.map((step, i) => (
             <li
               key={step.id}
               aria-current={!state.completedAt && i === index ? 'step' : undefined}
               className={state.completedAt || i < index ? 'is-done' : undefined}
             >
-              {step.label}
+              {t(step.label)}
             </li>
           ))}
         </ol>
       </header>
       {state.completedAt ? (
-        <section aria-label="Завершение">
-          <p role="status">{flow.completion}</p>
-          <a href="https://wetop.ai">На главную WETOP</a>
+        <section aria-label={t('Завершение')}>
+          <p role="status">{t(flow.completion)}</p>
+          <a href="https://wetop.ai">{t('На главную WETOP')}</a>
         </section>
       ) : (
         <>
           {!state.canEdit && (
             <p role="status">
-              Настройку выполняет владелец или управляющий. Сохранённые данные доступны для
-              просмотра.
+              {t('Настройку выполняет владелец или управляющий. Сохранённые данные доступны для просмотра.')}
             </p>
           )}
           {hotel ? (
@@ -169,33 +171,33 @@ function LegacyOnboardingShell({
               onRowsChange={(rows) => {
                 edited.current = true;
                 setDraft({ rows });
-                setNotice('Есть несохранённые изменения');
+                setNotice(msg('Есть несохранённые изменения'));
               }}
               readOnly={!state.canEdit || pending}
             />
           ) : (
-            <section className="onboarding__section" aria-label={flow.steps[index]!.label}>
-              <h2>{flow.steps[index]!.label}</h2>
-              {state.currentStep === 'business' && field('businessName', 'Название бизнеса', 200)}
+            <section className="onboarding__section" aria-label={t(flow.steps[index]!.label)}>
+              <h2>{t(flow.steps[index]!.label)}</h2>
+              {state.currentStep === 'business' && field('businessName', msg('Название бизнеса'), 200)}
               {state.currentStep === 'location' && (
                 <div className="setup-fields">
-                  {field('locationName', 'Название филиала', 200)}
-                  {field('timezone', 'Часовой пояс IANA', 50)}
-                  {field('currency', 'Валюта', 3)}
+                  {field('locationName', msg('Название филиала'), 200)}
+                  {field('timezone', msg('Часовой пояс IANA'), 50)}
+                  {field('currency', msg('Валюта'), 3)}
                 </div>
               )}
               {state.currentStep === 'review' && (
                 <dl>
                   {(
                     [
-                      ['businessName', 'Бизнес'],
-                      ['locationName', 'Филиал'],
-                      ['timezone', 'Часовой пояс'],
-                      ['currency', 'Валюта'],
+                      ['businessName', msg('Бизнес')],
+                      ['locationName', msg('Филиал')],
+                      ['timezone', msg('Часовой пояс')],
+                      ['currency', msg('Валюта')],
                     ] as const
                   ).map(([key, label]) => (
                     <div key={key}>
-                      <dt>{label}</dt>
+                      <dt>{t(label)}</dt>
                       <dd>{String(draft[key] ?? '')}</dd>
                     </div>
                   ))}
@@ -203,31 +205,33 @@ function LegacyOnboardingShell({
               )}
             </section>
           )}
-          {error && <Alert boxed>{error}</Alert>}
-          {reloadFailed && <Button disabled={pending} onClick={loadSaved}>Повторить загрузку</Button>}
-          {failed && !conflict && state.canEdit && <Button disabled={pending} onClick={() => save(failed.command.action)}>Повторить</Button>}
-          {conflict && <Button disabled={pending} onClick={loadSaved}>Загрузить сохранённую версию</Button>}
+          {error && <Alert boxed>{t(error)}</Alert>}
+          {reloadFailed && <Button disabled={pending} onClick={loadSaved}>{t('Повторить загрузку')}</Button>}
+          {failed && !conflict && state.canEdit && <Button disabled={pending} onClick={() => save(failed.command.action)}>{t('Повторить')}</Button>}
+          {conflict && <Button disabled={pending} onClick={loadSaved}>{t('Загрузить сохранённую версию')}</Button>}
           <p role="status" aria-live="polite">
             {pending
-              ? 'Сохраняем…'
-              : notice || 'Нажмите «Сохранить», чтобы продолжить после перезагрузки.'}
+              ? t('Сохраняем…')
+              : notice
+                ? t(notice)
+                : t('Нажмите «Сохранить», чтобы продолжить после перезагрузки.')}
           </p>
           {state.canEdit && (
             <div className="onboarding__actions">
               {index > 0 && (
                 <Button tone="ghost" disabled={pending || conflict} onClick={() => save('back')}>
-                  Назад
+                  {t('Назад')}
                 </Button>
               )}
               <Button tone="ghost" disabled={pending || conflict} onClick={() => save('save')}>
-                Сохранить
+                {t('Сохранить')}
               </Button>
               {!hotel && (
                 <Button
                   disabled={pending || conflict}
                   onClick={() => save(index === flow.steps.length - 1 ? 'complete' : 'next')}
                 >
-                  {index === flow.steps.length - 1 ? 'Завершить настройку' : 'Продолжить'}
+                  {index === flow.steps.length - 1 ? t('Завершить настройку') : t('Продолжить')}
                 </Button>
               )}
             </div>

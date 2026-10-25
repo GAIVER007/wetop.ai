@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { Alert, Button, Notice, Row, Stack, Select } from '../../components/ui';
 import { channelAction, retryEventAction, type ChannelActionResult } from './actions';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Ручные действия по каналам.
@@ -31,6 +32,7 @@ export function ChannelButtons({
   ratePlans?: Array<{ code: string; name: string }>;
   canMutate: boolean;
 }) {
+  const t = useT();
   const [result, setResult] = useState<ChannelActionResult | null>(null);
   const [pending, start] = useTransition();
   const [ratePlanCode, setRatePlanCode] = useState('');
@@ -42,16 +44,16 @@ export function ChannelButtons({
     <Stack gap="sm">
       {group !== 'setup' && !connected && (
         // без подключения две выключенные кнопки ничего не объясняли (аудит 22.10.2026 P1-19): один путь подключить
-        <section className="channel-actions" aria-label="Обмен с каналами">
+        <section className="channel-actions" aria-label={t('Обмен с каналами')}>
           <p className="note">
-            Каналы ещё не подключены, поэтому обмен вручную недоступен.{' '}
-            <Link href="/connections/channex">Подключить каналы</Link>
+            {t('Каналы ещё не подключены, поэтому обмен вручную недоступен.')}{' '}
+            <Link href="/connections/channex">{t('Подключить каналы')}</Link>
           </p>
         </section>
       )}
       {group !== 'setup' && connected && (
-        <section className="channel-actions" aria-label="Обмен с каналами">
-          <h3 className="channel-actions__title">Обмен прямо сейчас</h3>
+        <section className="channel-actions" aria-label={t('Обмен с каналами')}>
+          <h3 className="channel-actions__title">{t('Обмен прямо сейчас')}</h3>
           <Row>
             <Button
               type="button"
@@ -59,7 +61,7 @@ export function ChannelButtons({
               onClick={() => run('flush')}
               disabled={!canMutate || pending || !connected}
             >
-              Отправить очередь сейчас
+              {t('Отправить очередь сейчас')}
             </Button>
             <Button
               tone="secondary"
@@ -68,18 +70,18 @@ export function ChannelButtons({
               onClick={() => run('pull')}
               disabled={!canMutate || pending || !connected}
             >
-              Забрать брони из каналов
+              {t('Забрать брони из каналов')}
             </Button>
           </Row>
         </section>
       )}
       {group !== 'exchange' && (
-        <section className="channel-actions" id="channel-setup" aria-label="Настройка подключения">
-          <h2 className="channel-actions__title">Настройка подключения</h2>
+        <section className="channel-actions" id="channel-setup" aria-label={t('Настройка подключения')}>
+          <h2 className="channel-actions__title">{t('Настройка подключения')}</h2>
           <label className="field">
-            <span>Тариф для продажи в каналах</span>
+            <span>{t('Тариф для продажи в каналах')}</span>
             <Select value={ratePlanCode} onChange={(event) => setRatePlanCode(event.target.value)}>
-              <option value="">Выберите тариф</option>
+              <option value="">{t('Выберите тариф')}</option>
               {ratePlans.map((plan) => (
                 <option key={plan.code} value={plan.code}>
                   {plan.name}
@@ -95,7 +97,7 @@ export function ChannelButtons({
               onClick={() => run('setup')}
               disabled={!canMutate || pending || !configured || !ratePlanCode}
             >
-              Создать объект и категории
+              {t('Создать объект и категории')}
             </Button>
             <Button
               type="button"
@@ -104,7 +106,7 @@ export function ChannelButtons({
               onClick={() => run('webhook-register')}
               disabled={!canMutate || pending || !connected || !webhookReady}
             >
-              Зарегистрировать webhook
+              {t('Зарегистрировать webhook')}
             </Button>
             <Button
               type="button"
@@ -113,7 +115,7 @@ export function ChannelButtons({
               onClick={() => run('webhook-test')}
               disabled={!canMutate || pending || !connected || !webhookReady}
             >
-              Проверить webhook
+              {t('Проверить webhook')}
             </Button>
             <Button
               type="button"
@@ -122,17 +124,16 @@ export function ChannelButtons({
               onClick={() => run('sync')}
               disabled={!canMutate || pending || !connected}
             >
-              Полная выгрузка (500 дней)
+              {t('Полная выгрузка (500 дней)')}
             </Button>
           </Row>
           <p className="note">
             {!configured &&
-              'Ключ менеджера каналов не задан на сервере — объект и категории создать нельзя. '}
+              `${t('Ключ менеджера каналов не задан на сервере, объект и категории создать нельзя.')} `}
             {!webhookReady &&
-              'Для webhook нужны публичный HTTPS-адрес (PUBLIC_API_URL) и секрет на сервере. '}
-            {ratePlans.length === 0 && 'Сначала создайте активный тариф для этого филиала. '}
-            Полная выгрузка отправляет цены и остатки за 500 дней по всем категориям: это долго и
-            нужно после смены тарифов или первой настройки.
+              `${t('Для webhook нужны публичный HTTPS-адрес (PUBLIC_API_URL) и секрет на сервере.')} `}
+            {ratePlans.length === 0 && `${t('Сначала создайте активный тариф для этого филиала.')} `}
+            {t('Полная выгрузка отправляет цены и остатки за 500 дней по всем категориям: это долго и нужно после смены тарифов или первой настройки.')}
           </p>
         </section>
       )}
@@ -146,6 +147,7 @@ export function ChannelButtons({
  * которую мы не умеем разобрать, падала бы на каждом опросе, а человек ничего бы не заметил.
  */
 export function RetryEventButton({ revisionId, canMutate }: { revisionId: string; canMutate: boolean }) {
+  const t = useT();
   const [result, setResult] = useState<ChannelActionResult | null>(null);
   const [pending, start] = useTransition();
   return (
@@ -158,7 +160,7 @@ export function RetryEventButton({ revisionId, canMutate }: { revisionId: string
         onClick={() => canMutate && start(async () => setResult(await retryEventAction(revisionId)))}
         disabled={!canMutate || pending}
       >
-        Обработать заново
+        {t('Обработать заново')}
       </Button>
       {result?.message && <Notice className="small">{result.message}</Notice>}
       {result?.error && <Alert className="small">{result.error}</Alert>}

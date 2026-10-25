@@ -45,7 +45,7 @@ export function SalonHoursForm({
       <h2>{t('Режим работы салона')}</h2>
       <p>
         {t('Время: {zone}. Запись должна попадать в часы салона и график мастера.', {
-          zone: zoneLabel(initial.location.timezone),
+          zone: zoneLabel(initial.location.timezone, t),
         })}
       </p>
       {!data.configured && (

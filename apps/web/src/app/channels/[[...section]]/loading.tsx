@@ -1,12 +1,14 @@
 import { Page } from '../../../components/page';
 import { LoadingState, Skeleton } from '../../../components/ui';
+import { serverT } from '../../../i18n/server';
 
 /** Ожидание «Каналов продаж» (D4): заголовок сразу, под ним плитки состояния и строки таблиц. */
-export default function Loading() {
+export default async function Loading() {
+  const t = await serverT();
   return (
-    <Page title="Каналы продаж">
+    <Page title={t('Каналы продаж')}>
       <LoadingState
-        label="Загружаем состояние обмена с каналами…"
+        label={t('Загружаем состояние обмена с каналами…')}
         data-testid="channels-loading"
       >
         <div className="stats">

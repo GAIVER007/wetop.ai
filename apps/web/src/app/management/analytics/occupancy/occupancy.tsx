@@ -6,7 +6,8 @@ import { LoadError } from '../../../../components/load-error';
 import { EmptyState, Help, LoadingState, Panel, Skeleton, Table } from '../../../../components/ui';
 import { deltaPoints, formatInt, formatPercent } from '../../../../lib/dashboard-format';
 import { displayDate } from '../../../../lib/display-date';
-import { pluralRu } from '../../../../lib/plural';
+import { countLabel, intlLocale, msg, type DeskLocale, type Translate } from '../../../../i18n';
+import { currentLocale, serverT } from '../../../../i18n/server';
 import { analyticsHref, type AnalyticsQuery } from '../params';
 import { OccupancyTiles } from '../occupancy-tiles';
 import { DeltaMark, NO_BASE, Tile, countDelta } from '../tiles';
@@ -31,74 +32,82 @@ export function chessboardHref(
   return `/chessboard?${sp}`;
 }
 
-const places = (kind: DashboardCategory['kind'], n: number) =>
+const places = (kind: DashboardCategory['kind'], n: number, locale: DeskLocale, t: Translate) =>
   kind === 'BED'
-    ? pluralRu(n, ['койка', 'койки', 'коек'])
-    : pluralRu(n, ['номер', 'номера', 'номеров']);
+    ? countLabel(locale, t, n, [msg('койка'), 'койки', msg('коек')]) // kk-allow: форма склонения
+    : countLabel(locale, t, n, [msg('номер'), 'номера', msg('номеров')]); // kk-allow: форма склонения
 
 /**
  * Пять плиток «Загрузки» (ТЗ AN2): загрузка, занято, свободно, заблокировано, без размещения. На одном дне
  * числа — места; за период — ночи (место × ночь), как у «Проданных ночей» «Обзора». Блокировки — в фонде.
  */
-function OccupancyKpis({ c, p }: { c: DashboardPeriod; p: DashboardPeriod | null }) {
+function OccupancyKpis({ c, p, t }: { c: DashboardPeriod; p: DashboardPeriod | null; t: Translate }) {
   const single = c.nights === 1;
   const prev = p ?? c;
   const compare = p !== null;
   const o = c.occupancy;
-  const unit = single ? 'мест' : 'ночей';
   return (
     <section
       className="kpi-grid pa-kpis pa-kpis--occupancy"
-      aria-label="Загрузка фонда"
+      aria-label={t('Загрузка фонда')}
       data-testid="pa-occupancy-kpis"
     >
       <OccupancyTiles
         c={c}
         p={p}
+        t={t}
         hint={(k) =>
-          `занято ${formatInt(k.occupiedNights)} из ${formatInt(k.sellableNights)} ${unit}, доступных к продаже`
+          single
+            ? t('занято {n} из {total} мест, доступных к продаже', {
+                n: formatInt(k.occupiedNights),
+                total: formatInt(k.sellableNights),
+              })
+            : t('занято {n} из {total} ночей, доступных к продаже', {
+                n: formatInt(k.occupiedNights),
+                total: formatInt(k.sellableNights),
+              })
         }
       />
       <Tile
         id="occupied"
-        label="Занято"
+        label={t('Занято')}
         value={formatInt(o.occupiedNights)}
-        hint={single ? 'мест по размещениям в календаре' : 'ночей по размещениям в календаре'}
+        hint={single ? t('мест по размещениям в календаре') : t('ночей по размещениям в календаре')}
         delta={countDelta(o.occupiedNights, prev.occupancy.occupiedNights)}
         compare={compare}
       />
       <Tile
         id="free"
-        label="Свободно"
+        label={t('Свободно')}
         value={formatInt(o.freeNights)}
-        hint={single ? 'мест можно продать' : 'ночей можно было продать'}
+        hint={single ? t('мест можно продать') : t('ночей можно было продать')}
         delta={countDelta(o.freeNights, prev.occupancy.freeNights)}
         inverse
         compare={compare}
       />
       <Tile
         id="blocked"
-        label="Заблокировано"
+        label={t('Заблокировано')}
         value={formatInt(o.blockedNights)}
-        hint={`закрыты для продажи, из загрузки вычтены`}
+        hint={t('закрыты для продажи, из загрузки вычтены')}
         delta={countDelta(o.blockedNights, prev.occupancy.blockedNights)}
         inverse
         compare={compare}
       />
       <Tile
         id="unassigned"
-        label="Без размещения"
+        label={t('Без размещения')}
         value={formatInt(c.unassigned)}
         hint={
           c.unassigned > 0 ? (
             <>
-              проживаний без номера, в загрузку не входят;{' '}
+              {t('проживаний без номера, в загрузку не входят;')}{' '}
               <Link href="/reservations?allocation=missing" className="pa-kpi-link">
-                разместить
+                {t('разместить')}
               </Link>
             </>
           ) : (
-            'все проживания размещены'
+            t('все проживания размещены')
           )
         }
         delta={countDelta(c.unassigned, prev.unassigned)}
@@ -117,15 +126,19 @@ function CategoryTable({
   c,
   p,
   query,
+  t,
+  locale,
 }: {
   c: DashboardPeriod;
   p: DashboardPeriod | null;
   query: AnalyticsQuery;
+  t: Translate;
+  locale: DeskLocale;
 }) {
   const single = c.nights === 1;
   const before = new Map((p?.categories ?? []).map((cat) => [cat.code, cat]));
   return (
-    <Panel title="Загрузка по категориям" className="dash-panel dash-panel--table">
+    <Panel title={t('Загрузка по категориям')} className="dash-panel dash-panel--table">
       <Table
         className="dash-table dash-table--categories pa-occupancy-table"
         nowrap
@@ -133,14 +146,14 @@ function CategoryTable({
       >
         <thead>
           <tr>
-            <th>Категория</th>
-            <th className="num">{single ? 'Мест' : 'Ночей фонда'}</th>
-            <th className="num">Занято</th>
-            <th className="num">Свободно</th>
-            <th className="num">Блок</th>
-            <th className="num">Без места</th>
-            <th>Загрузка</th>
-            {p && <th>К прошлому</th>}
+            <th>{t('Категория')}</th>
+            <th className="num">{single ? t('Мест') : t('Ночей фонда')}</th>
+            <th className="num">{t('Занято')}</th>
+            <th className="num">{t('Свободно')}</th>
+            <th className="num">{t('Блок')}</th>
+            <th className="num">{t('Без места')}</th>
+            <th>{t('Загрузка')}</th>
+            {p && <th>{t('К прошлому')}</th>}
           </tr>
         </thead>
         <tbody>
@@ -150,26 +163,26 @@ function CategoryTable({
               <tr key={cat.code}>
                 <td className="dash-table__name">
                   <Link href={chessboardHref(c.from, c.to, query.fund, cat.code)}>{cat.name}</Link>
-                  <div className="muted">{places(cat.kind, cat.units)}</div>
+                  <div className="muted">{places(cat.kind, cat.units, locale, t)}</div>
                 </td>
                 <td className="num">
-                  <span className="dash-cell-word">{single ? 'мест ' : 'ночей фонда '}</span>
+                  <span className="dash-cell-word">{single ? t('мест') : t('ночей фонда')} </span>
                   {formatInt(cat.unitNights)}
                 </td>
                 <td className="num">
-                  <span className="dash-cell-word">занято </span>
+                  <span className="dash-cell-word">{t('занято')} </span>
                   {formatInt(cat.occupiedNights)}
                 </td>
                 <td className="num">
-                  <span className="dash-cell-word">свободно </span>
+                  <span className="dash-cell-word">{t('свободно')} </span>
                   {formatInt(cat.freeNights)}
                 </td>
                 <td className="num">
-                  <span className="dash-cell-word">блок </span>
+                  <span className="dash-cell-word">{t('блок')} </span>
                   {formatInt(cat.blockedNights)}
                 </td>
                 <td className="num">
-                  <span className="dash-cell-word">без места </span>
+                  <span className="dash-cell-word">{t('без места')} </span>
                   {formatInt(cat.unassigned)}
                 </td>
                 <td className="dash-table__occupancy">
@@ -178,14 +191,14 @@ function CategoryTable({
                       min="0"
                       max="100"
                       value={cat.percent}
-                      aria-label={`Загрузка ${formatPercent(cat.percent)}`}
+                      aria-label={t('Загрузка {percent}', { percent: formatPercent(cat.percent) })}
                     />
                     <span>{formatPercent(cat.percent)}</span>
                   </span>
                 </td>
                 {p && (
                   <td className="pa-occupancy-table__delta">
-                    <span className="dash-cell-word">к прошлому </span>
+                    <span className="dash-cell-word">{t('к прошлому')} </span>
                     <DeltaMark
                       delta={
                         was && was.occupiedNights > 0
@@ -206,13 +219,15 @@ function CategoryTable({
           href={chessboardHref(c.from, c.to, query.fund)}
           data-testid="pa-open-chessboard"
         >
-          Открыть календарь
+          {t('Открыть календарь')}
         </Link>
         <span className="muted">
           {single
-            ? 'на этот день'
-            : `на ${c.nights > MAX_CHESSBOARD_DAYS ? `первые ${MAX_CHESSBOARD_DAYS} дней` : 'этот период'}`}
-          ; название категории открывает её строки
+            ? t('на этот день')
+            : c.nights > MAX_CHESSBOARD_DAYS
+              ? t('на первые {n} дней', { n: MAX_CHESSBOARD_DAYS })
+              : t('на этот период')}
+          {t('; название категории открывает её строки')}
         </span>
       </div>
     </Panel>
@@ -224,14 +239,14 @@ function CategoryTable({
  * Число справа — отличие от средней в п.п.; сама загрузка категории — в таблице выше (одно число —
  * один раз на экране). Одной категории сравнивать не с чем — панели нет.
  */
-function CategoryComparison({ c }: { c: DashboardPeriod }) {
+function CategoryComparison({ c, t }: { c: DashboardPeriod; t: Translate }) {
   if (c.categories.length < 2) return null;
   const avg = c.occupancy.percent;
   const ranked = [...c.categories].sort(
     (a, b) => b.percent - a.percent || a.name.localeCompare(b.name, 'ru'),
   );
   return (
-    <Panel title="Сравнение категорий" className="dash-panel">
+    <Panel title={t('Сравнение категорий')} className="dash-panel">
       <ul className="hbars pa-rank" data-testid="pa-category-rank">
         {ranked.map((cat) => {
           const diff = deltaPoints(cat.percent, avg);
@@ -245,14 +260,16 @@ function CategoryComparison({ c }: { c: DashboardPeriod }) {
               <span
                 className={`hbars__value pa-rank__diff pa-rank__diff--${diff.direction ?? 'flat'}`}
               >
-                {diff.direction === 'flat' ? 'как в среднем' : `${diff.text} к среднему`}
+                {diff.direction === 'flat' ? t('как в среднем') : t('{diff} к среднему', { diff: diff.text })}
               </span>
             </li>
           );
         })}
       </ul>
       <p className="muted dash-note">
-        Полоса — загрузка категории, черта — средняя по выбранному фонду: {formatPercent(avg)}.
+        {t('Полоса — загрузка категории, черта — средняя по выбранному фонду: {percent}.', {
+          percent: formatPercent(avg),
+        })}
       </p>
     </Panel>
   );
@@ -265,6 +282,8 @@ function CategoryComparison({ c }: { c: DashboardPeriod }) {
  */
 export async function Occupancy({ query }: { query: AnalyticsQuery }) {
   const { period, fund } = query;
+  const [t, locale] = await Promise.all([serverT(), currentLocale()]);
+  const lang = intlLocale(locale);
   const view = await dashboardApi
     .period(period.from, period.to, fund)
     .catch((error: unknown) => (error instanceof ApiError ? error : Promise.reject(error)));
@@ -279,22 +298,24 @@ export async function Occupancy({ query }: { query: AnalyticsQuery }) {
         data-testid="pa-empty"
         title={
           fund === 'all'
-            ? 'В номерном фонде нет мест'
-            : `В фонде нет ${fund === 'rooms' ? 'номеров' : 'коек'}`
+            ? t('В номерном фонде нет мест')
+            : fund === 'rooms'
+              ? t('В фонде нет номеров')
+              : t('В фонде нет коек')
         }
         actions={
           fund === 'all' ? (
             <Link className="btn btn--secondary" href="/inventory">
-              Номера и койки
+              {t('Номера и койки')}
             </Link>
           ) : (
             <Link className="btn btn--secondary" href={analyticsHref(query, { fund: 'all' })}>
-              Весь фонд
+              {t('Весь фонд')}
             </Link>
           )
         }
       >
-        Загрузка считается по номерам и койкам из раздела «Номера и койки».
+        {t('Загрузка считается по номерам и койкам из раздела «Номера и койки».')}
       </EmptyState>
     );
   return (
@@ -304,36 +325,39 @@ export async function Occupancy({ query }: { query: AnalyticsQuery }) {
         <span>
           {single ? (
             <>
-              Загрузка на <time dateTime={c.from}>{displayDate(c.from, 'numeric')}</time> по
-              размещениям в календаре
+              {t('Загрузка на')} <time dateTime={c.from}>{displayDate(c.from, 'numeric')}</time>{' '}
+              {t('по размещениям в календаре')}
             </>
           ) : (
             <>
-              Загрузка с <time dateTime={c.from}>{displayDate(c.from, 'numeric')}</time> по{' '}
-              <time dateTime={c.to}>{displayDate(c.to, 'numeric')}</time> по размещениям в
-              календаре, в ночах: место × ночь
+              {t('Загрузка с')} <time dateTime={c.from}>{displayDate(c.from, 'numeric')}</time>{' '}
+              {t('по')} <time dateTime={c.to}>{displayDate(c.to, 'numeric')}</time>{' '}
+              {t('по размещениям в календаре, в ночах: место × ночь')}
             </>
           )}
         </span>
       </p>
-      <OccupancyKpis c={c} p={p} />
+      <OccupancyKpis c={c} p={p} t={t} />
       {p && (
         <p className="kpi-compare muted" data-testid="pa-compare">
-          Сравнение с {displayDate(p.from)}
-          {p.from !== p.to && ` — ${displayDate(p.to)}`}: тот же расчёт за столько же дней вплотную
-          до начала периода. Где «—», в прошлом периоде данных нет.
+          {t('Сравнение с {range}: тот же расчёт за столько же дней вплотную до начала периода. Где «—», в прошлом периоде данных нет.', {
+            range:
+              displayDate(p.from, 'short', lang) +
+              (p.from !== p.to ? ` — ${displayDate(p.to, 'short', lang)}` : ''),
+          })}
         </p>
       )}
       <div className="dash-grid">
-        <CategoryTable c={c} p={p} query={query} />
-        <CategoryComparison c={c} />
+        <CategoryTable c={c} p={p} query={query} t={t} locale={locale} />
+        <CategoryComparison c={c} t={t} />
       </div>
-      <Help title="Расчёт загрузки">
-        Загрузка = занятые места / места, доступные к продаже: закрытое для продажи место в
-        знаменателе не учитывается и показано отдельной строкой. Номер считается одним местом, койка
-        — одним. За период считаются ночи: место × ночь. Проживания без номера не занимают место в
-        календаре и в загрузку не входят —{' '}
-        {c.unassigned > 0 ? `сейчас их ${formatInt(c.unassigned)}.` : 'сейчас таких нет.'}
+      <Help title={msg('Расчёт загрузки')}>
+        {t(
+          'Загрузка = занятые места / места, доступные к продаже: закрытое для продажи место в знаменателе не учитывается и показано отдельной строкой. Номер считается одним местом, койка — одним. За период считаются ночи: место × ночь. Проживания без номера не занимают место в календаре и в загрузку не входят —',
+        )}{' '}
+        {c.unassigned > 0
+          ? t('сейчас их {n}.', { n: formatInt(c.unassigned) })
+          : t('сейчас таких нет.')}
       </Help>
     </>
   );
@@ -342,7 +366,7 @@ export async function Occupancy({ query }: { query: AnalyticsQuery }) {
 /** Ожидание чисел под полосой периода: пять плиток и строки категорий */
 export function OccupancySkeleton() {
   return (
-    <LoadingState label="Считаем загрузку по календарю…" data-testid="statistics-loading">
+    <LoadingState label={msg('Считаем загрузку по календарю…')} data-testid="statistics-loading">
       <div className="kpi-grid pa-kpis pa-kpis--occupancy">
         {Array.from({ length: 5 }, (_, i) => (
           <Skeleton key={i} variant="stat" />

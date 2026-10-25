@@ -1,4 +1,5 @@
 import type { ChessboardCell } from '../../lib/api';
+import { msg, translator, type Translate } from '../../i18n';
 import { SOURCES } from '../reservations/sources';
 import { sourceStatus } from '../../lib/status/source';
 
@@ -25,7 +26,7 @@ export function stayLabels(
 
 /** Только точные форматы служебных псевдонимов, в обоих порядках имени и фамилии. */
 export function isGuestPseudonym(label: string): boolean {
-  return /^(?:Гость\s+(?:Стойка|Канал)-[0-9a-f]{6}|(?:Стойка|Канал)-[0-9a-f]{6}\s+Гость)$/i.test(
+  return /^(?:Гость\s+(?:Стойка|Канал)-[0-9a-f]{6}|(?:Стойка|Канал)-[0-9a-f]{6}\s+Гость)$/i.test( // kk-allow: формат псевдонима из данных API
     label.trim(),
   );
 }
@@ -34,26 +35,27 @@ export function guestNames(
   label: string,
   source?: string,
   channel?: string | null,
+  t: Translate = translator('ru'),
 ): { full: string; short: string; initials: string } {
   if (isGuestPseudonym(label)) {
     // status-hint: откуда бронь без имени гостя, фраза для подписи плашки, а не имя источника
     const titles: Record<string, string> = {
-      DESK: 'со стойки',
-      WALK_IN: 'со стойки',
-      PHONE: 'по телефону',
-      WEBSITE: 'с сайта',
-      VOICE: 'от голосового агента',
-      WHATSAPP: 'из WhatsApp',
-      INSTAGRAM: 'из Instagram',
-      OTA: 'из канала',
+      DESK: msg('со стойки'),
+      WALK_IN: msg('со стойки'),
+      PHONE: msg('по телефону'),
+      WEBSITE: msg('с сайта'),
+      VOICE: msg('от голосового агента'),
+      WHATSAPP: msg('из WhatsApp'),
+      INSTAGRAM: msg('из Instagram'),
+      OTA: msg('из канала'),
     };
-    const origin = channel ? `· ${channel}` : (titles[source ?? ''] ?? 'без имени');
+    const origin = channel ? `· ${channel}` : t(titles[source ?? ''] ?? msg('без имени'));
     return {
-      full: `Бронь ${origin}`,
+      full: `${t('Бронь')} ${origin}`,
       short:
         channel ??
-        (titles[source ?? ''] ? origin.charAt(0).toUpperCase() + origin.slice(1) : 'Бронь'),
-      initials: 'Бронь',
+        (titles[source ?? ''] ? origin.charAt(0).toUpperCase() + origin.slice(1) : t('Бронь')),
+      initials: t('Бронь'),
     };
   }
   const words = label.trim().split(/\s+/).filter(Boolean);

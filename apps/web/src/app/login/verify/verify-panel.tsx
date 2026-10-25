@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { AuthShell } from '../../../components/auth-shell';
 import { Icon } from '../../../components/icon';
 import { verifyEmailAction } from '../actions';
+import { msg } from '../../../i18n';
+import { useT } from '../../../i18n/locale-provider';
 
 /**
  * Подтверждение почты по ссылке из письма. Раньше здесь была кнопка «Подтвердить почту и войти»:
@@ -14,8 +16,9 @@ import { verifyEmailAction } from '../actions';
  * человека не сработает (ADR-060). Кнопка остаётся лишь как повтор, если что-то не заладилось.
  */
 export function VerifyPanel({ token }: { token: string }) {
+  const t = useT();
   const [error, setError] = useState<string | null>(
-    token ? null : 'Ссылка неполная: откройте её из письма целиком',
+    token ? null : msg('Ссылка неполная: откройте её из письма целиком'),
   );
   const [pending, start] = useTransition();
   const started = useRef(false);
@@ -38,37 +41,37 @@ export function VerifyPanel({ token }: { token: string }) {
   return (
     <AuthShell
       story={{
-        eyebrow: 'Подтверждение почты',
+        eyebrow: t('Подтверждение почты'),
         title: (
           <>
-            Почти <br /> готово.
+            {t('Почти')} <br /> {t('готово.')}
           </>
         ),
-        text: 'Подтверждаем вашу почту — и сразу откроем рабочее место.',
+        text: t('Подтверждаем вашу почту — и сразу откроем рабочее место.'),
       }}
     >
       <span className="round-icon">
         <Icon name="shield" />
       </span>
-      <h2>Подтверждение почты</h2>
+      <h2>{t('Подтверждение почты')}</h2>
       {error ? (
         <>
           <p className="alert" role="alert">
-            {error}
+            {t(error)}
           </p>
           {token && (
             <button className="btn" type="button" disabled={pending} onClick={confirm}>
-              {pending ? 'Подтверждаем…' : 'Подтвердить ещё раз'}
+              {pending ? t('Подтверждаем…') : t('Подтвердить ещё раз')}
               <Icon name="arrow" width={16} />
             </button>
           )}
           <div className="login-preview">
-            <span>Ссылка не сработала?</span>
-            <Link href="/login">Войти и запросить письмо заново</Link>
+            <span>{t('Ссылка не сработала?')}</span>
+            <Link href="/login">{t('Войти и запросить письмо заново')}</Link>
           </div>
         </>
       ) : (
-        <p role="status">Подтверждаем почту и открываем рабочее место…</p>
+        <p role="status">{t('Подтверждаем почту и открываем рабочее место…')}</p>
       )}
     </AuthShell>
   );

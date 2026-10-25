@@ -1,3 +1,4 @@
+import { translator, type Translate } from '../../i18n';
 import { SummaryLine } from '../../lib/summary-line';
 
 /**
@@ -14,6 +15,7 @@ export function DayLine({
   free,
   attention,
   availabilityHref,
+  t = translator('ru'),
 }: {
   today: string;
   counts: { arrivals: number; departures: number; inHouse: number };
@@ -23,23 +25,25 @@ export function DayLine({
   free: number | null;
   attention: number;
   availabilityHref: string;
+  /** язык страницы (серверный `serverT`); без него русский */
+  t?: Translate;
 }) {
   const dayHref = (date: string) => `/reservations?from=${today}&to=${today}&date=${date}`;
   const n = (value: number | null) => (value == null ? '–' : String(value));
   return (
     <SummaryLine
-      label="Сегодня на объекте"
+      label={t('Сегодня на объекте')}
       className="board-dayline"
       parts={[
         {
           key: 'occupied',
-          label: 'Занято',
+          label: t('Занято'),
           value: n(occupied),
           testId: 'day-occupied',
           after:
             units !== null && occupied !== null ? (
               <>
-                {` из ${units}`}
+                {` ${t('из {n}', { n: units })}`}
                 {occupancy !== null && (
                   <>
                     {', '}
@@ -49,31 +53,31 @@ export function DayLine({
               </>
             ) : null,
         },
-        { key: 'free', label: 'свободно', value: n(free), testId: 'day-free', href: availabilityHref },
+        { key: 'free', label: t('свободно'), value: n(free), testId: 'day-free', href: availabilityHref },
         {
           key: 'arrivals',
-          label: 'заезд',
+          label: t('заезд'),
           value: counts.arrivals,
           testId: 'day-arrivals',
           href: dayHref('arrival'),
         },
         {
           key: 'departures',
-          label: 'выезд',
+          label: t('выезд'),
           value: counts.departures,
           testId: 'day-departures',
           href: dayHref('departure'),
         },
         {
           key: 'in-house',
-          label: 'проживают',
+          label: t('проживают'),
           value: counts.inHouse,
           testId: 'day-in-house',
           href: dayHref('stay'),
         },
         {
           key: 'attention',
-          label: 'требует внимания',
+          label: t('требует внимания'),
           value: attention,
           testId: 'day-attention',
           href: '/chessboard?stays=debt',

@@ -11,6 +11,8 @@ import { Icon } from '../../components/icon';
 import { BarTabs } from '../bar/tabs';
 import { stockStatusOf, STATUS_LABEL, STATUS_TONE } from '../bar/stock-status';
 import { WarehouseSummary, type WarehouseCard } from '../bar/warehouse-summary';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 import '../bar/bar.css';
 
 const settle = <T,>(promise: Promise<T>) =>
@@ -40,8 +42,11 @@ interface LowRow {
 export default async function WarehousePage() {
   const me = await requireFeature('/warehouse');
   const vertical = me.context?.vertical ?? 'HOSPITALITY';
+  const t = await serverT();
   const words = stockWords(vertical);
-  const kitchenName = words.materials;
+  // слова склада живут в lib по-русски, переводятся здесь при показе
+  const goodsName = t(words.goods);
+  const kitchenName = t(words.materials);
   const kitchenHref = vertical === 'FOOD_SERVICE' ? '/stock' : '/bar/consumables';
   const [bar, kitchen] = await Promise.all([settle(barApi.stock()), settle(stockApi.products())]);
   const barItems = bar.ok ? bar.value.filter((item) => item.active) : null;
@@ -52,9 +57,9 @@ export default async function WarehousePage() {
   const cards: WarehouseCard[] = [
     {
       id: 'bar',
-      title: words.goods,
+      title: goodsName,
       href: '/bar',
-      noun: ['товар', 'товара', 'товаров'],
+      noun: [msg('товар'), 'товара', msg('товаров')], // kk-allow: форма склонения
       items: barItems ? barItems.length : null,
       lowNames: (barLow ?? []).map((item) => item.name),
       value: barItems ? formatMoney(barItems.reduce((sum, item) => sum + BigInt(item.stockCostMinor), 0n), currency) : null,
@@ -76,11 +81,11 @@ export default async function WarehousePage() {
       .filter((item) => stockStatusOf(item) !== 'ok')
       .map((item) => ({
         key: `bar-${item.id}`,
-        warehouse: words.goods,
+        warehouse: goodsName,
         href: `/bar?product=${item.id}`,
         name: item.name,
-        onHand: `${item.availableUnits} шт.`,
-        minimum: `${item.minimumStockUnits} шт.`,
+        onHand: t('{n} шт.', { n: item.availableUnits }),
+        minimum: t('{n} шт.', { n: item.minimumStockUnits }),
         out: stockStatusOf(item) === 'out',
       })),
     ...(kitchenItems ?? [])
@@ -96,26 +101,26 @@ export default async function WarehousePage() {
       })),
   ];
   return (
-    <Page width="wide" className="bar-subpage" title="Склад" subtitle={words.overviewSubtitle}>
+    <Page width="wide" className="bar-subpage" title={t('Склад')} subtitle={t(words.overviewSubtitle)}>
       <BarTabs current="warehouse" />
       <WarehouseSummary cards={cards} />
       <section className="panel bar-low" aria-labelledby="warehouse-low-title">
         <h2 id="warehouse-low-title" className="bar-panel-title">
-          Что заканчивается
+          {t('Что заканчивается')}
         </h2>
         {bar.ok && kitchen.ok && low.length === 0 ? (
-          <EmptyState icon={<Icon name="stock" />} title="Всё в норме">
-            {words.overviewOk}
+          <EmptyState icon={<Icon name="stock" />} title={t('Всё в норме')}>
+            {t(words.overviewOk)}
           </EmptyState>
         ) : (
-          <Table density="compact" aria-label="Позиции, которые заканчиваются" plain>
+          <Table density="compact" aria-label={t('Позиции, которые заканчиваются')} plain>
             <thead>
               <tr>
-                <th>Склад</th>
-                <th>Позиция</th>
-                <th>Остаток</th>
-                <th>Минимум</th>
-                <th>Статус</th>
+                <th>{t('Склад')}</th>
+                <th>{t('Позиция')}</th>
+                <th>{t('Остаток')}</th>
+                <th>{t('Минимум')}</th>
+                <th>{t('Статус')}</th>
               </tr>
             </thead>
             <tbody>
@@ -130,7 +135,7 @@ export default async function WarehousePage() {
                   <td>{row.onHand}</td>
                   <td>{row.minimum}</td>
                   <td>
-                    <Badge tone={STATUS_TONE[row.out ? 'out' : 'low']}>{STATUS_LABEL[row.out ? 'out' : 'low']}</Badge>
+                    <Badge tone={STATUS_TONE[row.out ? 'out' : 'low']}>{t(STATUS_LABEL[row.out ? 'out' : 'low'])}</Badge>
                   </td>
                 </tr>
               ))}
@@ -139,8 +144,8 @@ export default async function WarehousePage() {
         )}
         {(!bar.ok || !kitchen.ok) && (
           <p className="bar-muted">
-            {!bar.ok ? `Остатки склада «${words.goods}» не загрузились. ` : ''}
-            {!kitchen.ok ? `Остатки склада «${kitchenName}» не загрузились.` : ''}
+            {!bar.ok ? `${t('Остатки склада «{name}» не загрузились.', { name: goodsName })} ` : ''}
+            {!kitchen.ok ? t('Остатки склада «{name}» не загрузились.', { name: kitchenName }) : ''}
           </p>
         )}
       </section>

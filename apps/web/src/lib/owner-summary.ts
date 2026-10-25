@@ -1,3 +1,5 @@
+import { msg, translator, type Translate } from '../i18n';
+
 export type OwnerPeriod = 'today' | 'week' | 'month';
 export function ownerPeriod(value: unknown): OwnerPeriod {
   return value === 'week' || value === 'month' ? value : 'today';
@@ -94,25 +96,27 @@ export function formatOwnerMoney(minor: string, currency: string): string {
   return `${amount < 0n ? '−' : ''}${whole}${tail} ${currency === 'KZT' ? '₸' : currency}`;
 }
 export const ownerSummaryEnabled = (value: string | undefined) => value === 'true';
-export function ownerReason(reason: string | null | undefined): string {
+export function ownerReason(reason: string | null | undefined, t: Translate = translator('ru')): string {
   const words: Record<string, string> = {
-    UNKNOWN_SOURCE_CURRENCY: 'Валюта части операций неизвестна. Показана только известная часть.',
-    PAYMENT_LEDGER_NOT_AVAILABLE: 'Реестр оплат не подключён',
-    NO_MONEY_DATA: 'Нет денежных операций за выбранный период',
-    COMPARABLE_PROJECTION_NOT_CONNECTED: 'Нет сопоставимых данных',
-    PREVIOUS_PERIOD_UNAVAILABLE: 'Нет данных за предыдущий период',
-    PREVIOUS_AMOUNT_ZERO: 'Предыдущая сумма равна нулю',
-    EXPENSE_DOCUMENT_LINKS_NOT_CONNECTED: 'Статьи расходов не подключены',
-    UNCLASSIFIED_EXPENSE_SOURCES: 'Часть расходов без статьи',
-    INCOMPLETE_PERIOD_COVERAGE: 'Неполное покрытие периода',
-    CAPTURE_DISABLED: 'Сбор истории загрузки отключён',
-    CAPTURE_DISABLED_OR_NO_PROPERTY: 'Сбор истории отключён или объект не связан',
-    HISTORY_NOT_CAPTURED: 'История не накоплена',
-    OBSERVED_SOURCE_NOT_COMPLETE_HISTORY: 'Наблюдения не подтверждают полную историю периода',
-    NO_SCHEDULE: 'Нет сохранённого расписания',
-    NO_AVAILABLE_CAPACITY_OR_SCHEDULE: 'Нет доступной мощности или расписания',
-    UNSUPPORTED_SOURCE: 'Источник не поддерживается',
-    UNSUPPORTED_VERTICAL: 'Направление не поддерживается',
+    UNKNOWN_SOURCE_CURRENCY: msg('Валюта части операций неизвестна. Показана только известная часть.'),
+    PAYMENT_LEDGER_NOT_AVAILABLE: msg('Реестр оплат не подключён'),
+    NO_MONEY_DATA: msg('Нет денежных операций за выбранный период'),
+    COMPARABLE_PROJECTION_NOT_CONNECTED: msg('Нет сопоставимых данных'),
+    PREVIOUS_PERIOD_UNAVAILABLE: msg('Нет данных за предыдущий период'),
+    PREVIOUS_AMOUNT_ZERO: msg('Предыдущая сумма равна нулю'),
+    EXPENSE_DOCUMENT_LINKS_NOT_CONNECTED: msg('Статьи расходов не подключены'),
+    UNCLASSIFIED_EXPENSE_SOURCES: msg('Часть расходов без статьи'),
+    INCOMPLETE_PERIOD_COVERAGE: msg('Неполное покрытие периода'),
+    CAPTURE_DISABLED: msg('Сбор истории загрузки отключён'),
+    CAPTURE_DISABLED_OR_NO_PROPERTY: msg('Сбор истории отключён или объект не связан'),
+    HISTORY_NOT_CAPTURED: msg('История не накоплена'),
+    OBSERVED_SOURCE_NOT_COMPLETE_HISTORY: msg('Наблюдения не подтверждают полную историю периода'),
+    NO_SCHEDULE: msg('Нет сохранённого расписания'),
+    NO_AVAILABLE_CAPACITY_OR_SCHEDULE: msg('Нет доступной мощности или расписания'),
+    UNSUPPORTED_SOURCE: msg('Источник не поддерживается'),
+    UNSUPPORTED_VERTICAL: msg('Направление не поддерживается'),
   };
-  return reason ? (words[reason] ?? `Данные недоступны: ${reason}`) : '';
+  if (!reason) return '';
+  const known = words[reason];
+  return known ? t(known) : t('Данные недоступны: {reason}', { reason });
 }

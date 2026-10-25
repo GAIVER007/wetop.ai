@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { ApiError, supportApi, type SupportKbEntry } from '../../../lib/api';
 import { kbHref } from '../../../lib/support-kb';
+import { serverT } from '../../../i18n/server';
 
 /**
  * Действия «Платформа → Техподдержка → База знаний» (S3): всё через API платформы. Автора и утверждающего ставит
@@ -32,7 +33,8 @@ export async function kbSaveAction(id: string | null, values: KbValues): Promise
       ? await supportApi.kbUpdate(id, { ...values })
       : await supportApi.kbCreate({ ...values });
     revalidatePath('/platform/support/base');
-    return { error: null, message: 'Сохранено.', createdId: id ? null : saved.id };
+    const t = await serverT();
+    return { error: null, message: t('Сохранено.'), createdId: id ? null : saved.id };
   } catch (e) {
     return { error: describe(e), message: null, createdId: null };
   }
@@ -47,7 +49,8 @@ export async function kbPublishAction(id: string): Promise<KbSimpleResult> {
   try {
     await supportApi.kbPublish(id);
     revalidatePath('/platform/support/base');
-    return { error: null, message: 'Опубликовано: помощник начнёт отвечать по этой записи.' };
+    const t = await serverT();
+    return { error: null, message: t('Опубликовано: помощник начнёт отвечать по этой записи.') };
   } catch (e) {
     return { error: describe(e), message: null };
   }
@@ -57,14 +60,15 @@ export async function kbStatusAction(id: string, status: string): Promise<KbSimp
   try {
     await supportApi.kbStatus(id, status);
     revalidatePath('/platform/support/base');
+    const t = await serverT();
     return {
       error: null,
       message:
         status === 'OUTDATED'
-          ? 'Помечено устаревшим: помощник по записи не отвечает.'
+          ? t('Помечено устаревшим: помощник по записи не отвечает.')
           : status === 'ARCHIVED'
-            ? 'Запись в архиве.'
-            : 'Запись возвращена в черновик.',
+            ? t('Запись в архиве.')
+            : t('Запись возвращена в черновик.'),
     };
   } catch (e) {
     return { error: describe(e), message: null };
@@ -80,9 +84,10 @@ export async function kbDraftAction(conversationId: string): Promise<KbDraftResu
   try {
     const draft = await supportApi.knowledgeDraft(conversationId);
     revalidatePath('/platform/support/base');
+    const t = await serverT();
     return {
       error: null,
-      message: 'Черновик создан. Дополните его и опубликуйте, если согласны.',
+      message: t('Черновик создан. Дополните его и опубликуйте, если согласны.'),
       href: draft.id ? kbHref({ id: draft.id }) : null,
     };
   } catch (e) {

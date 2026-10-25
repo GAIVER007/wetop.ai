@@ -5,6 +5,8 @@ import { Icon } from '../../components/icon';
 import { hotelClock } from '../../lib/hotel-api';
 import { RetryEventButton } from './buttons';
 import { EVENT_STATUS_RU, EVENT_STATUS_TONE, EVENT_TYPE_RU, VIA_RU, eventTime } from './format';
+import { msg } from '../../i18n';
+import { serverT } from '../../i18n/server';
 
 export interface EventsFilter {
   status: string;
@@ -32,6 +34,7 @@ export async function EventsTable({
   canRetry: boolean;
 }) {
   const clock = await hotelClock();
+  const t = await serverT();
   const shown = data?.rows.length ?? 0;
   const total = data?.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / EVENTS_PAGE));
@@ -42,46 +45,46 @@ export async function EventsTable({
         <Select
           name="status"
           defaultValue={filter.status}
-          aria-label="Статус события"
+          aria-label={t('Статус события')}
           className="filter-chip"
         >
-          <option value="">все статусы</option>
-          <option value="PROCESSED">обработано</option>
-          <option value="FAILED">ошибка</option>
-          <option value="RECEIVED">получено</option>
-          <option value="PROCESSING">в работе</option>
+          <option value="">{t('все статусы')}</option>
+          <option value="PROCESSED">{t('обработано')}</option>
+          <option value="FAILED">{t('ошибка')}</option>
+          <option value="RECEIVED">{t('получено')}</option>
+          <option value="PROCESSING">{t('в работе')}</option>
         </Select>
         <Select
           name="type"
           defaultValue={filter.type}
-          aria-label="Тип события"
+          aria-label={t('Тип события')}
           className="filter-chip"
         >
-          <option value="">все типы</option>
-          <option value="booking_new">новая бронь</option>
-          <option value="booking_modification">изменение</option>
-          <option value="booking_cancellation">отмена</option>
+          <option value="">{t('все типы')}</option>
+          <option value="booking_new">{t('новая бронь')}</option>
+          <option value="booking_modification">{t('изменение')}</option>
+          <option value="booking_cancellation">{t('отмена')}</option>
         </Select>
         <label className="search-field">
           <Icon name="search" width={16} height={16} />
           <Input
             name="q"
             defaultValue={filter.q}
-            placeholder="номер брони"
-            aria-label="Поиск по номеру брони или unique_id"
+            placeholder={t('номер брони')}
+            aria-label={t('Поиск по номеру брони или unique_id')}
             data-testid="events-search"
           />
         </label>
         <Button type="submit" tone="secondary" size="sm">
-          Найти
+          {t('Найти')}
         </Button>
       </form>
       {failed && (
         <div className="callout callout--warn" data-testid="events-callout">
           <Icon name="incidents" width={16} height={16} />
           <span>
-            <b>Входящая бронь требует разбора.</b> {failed.lastError} Порядок разбора — CUTOVER.md,
-            «Процедура на канал».
+            <b>{t('Входящая бронь требует разбора.')}</b> {failed.lastError}{' '}
+            {t('Порядок разбора: CUTOVER.md, «Процедура на канал».')}
           </span>
           {canRetry && <RetryEventButton revisionId={failed.externalEventId} canMutate />}
         </div>
@@ -89,8 +92,8 @@ export async function EventsTable({
       <Table size="sm" className="dir-table dir-table--events" data-testid="events-table">
         <thead>
           <tr>
-            {['Событие', 'Тип', 'Как дошло', 'Статус', 'Получено', 'Бронь', ''].map((h) => (
-              <th key={h}>{h}</th>
+            {[msg('Событие'), msg('Тип'), msg('Как дошло'), msg('Статус'), msg('Получено'), msg('Бронь'), ''].map((h) => (
+              <th key={h}>{h && t(h)}</th>
             ))}
           </tr>
         </thead>
@@ -98,9 +101,8 @@ export async function EventsTable({
           {data === null && (
             <tr>
               <td colSpan={7} className="empty-state" data-testid="events-failed">
-                События не загрузились: API не ответил. Брони из каналов при этом принимаются
-                отдельно; обновите страницу или откройте{' '}
-                <Link href="/incidents">неисправности</Link>.
+                {t('События не загрузились: API не ответил. Брони из каналов при этом принимаются отдельно; обновите страницу или откройте')}{' '}
+                <Link href="/incidents">{t('неисправности')}</Link>.
               </td>
             </tr>
           )}
@@ -109,13 +111,13 @@ export async function EventsTable({
               <td colSpan={7} className="empty-state" data-testid="events-empty">
                 {filter.q || filter.status || filter.type ? (
                   <>
-                    По этим условиям ничего не найдено.{' '}
+                    {t('По этим условиям ничего не найдено.')}{' '}
                     <Link href={hrefFor({ q: '', status: '', type: '', page: 1 })}>
-                      Сбросить фильтры событий
+                      {t('Сбросить фильтры событий')}
                     </Link>
                   </>
                 ) : (
-                  'Событий пока нет: каналы ещё не присылали броней. Когда пришлёт, событие появится здесь, а бронь — в календаре.'
+                  t('Событий пока нет: каналы ещё не присылали броней. Когда пришлёт, событие появится здесь, а бронь в календаре.')
                 )}
               </td>
             </tr>
@@ -131,13 +133,13 @@ export async function EventsTable({
                 </Link>
                 {e.otaName && <div className="cell-sub">{e.otaName}</div>}
               </td>
-              <td>{EVENT_TYPE_RU[e.type] ?? e.type}</td>
-              <td>{VIA_RU[e.receivedVia ?? 'PULL'] ?? e.receivedVia}</td>
+              <td>{EVENT_TYPE_RU[e.type] ? t(EVENT_TYPE_RU[e.type]!) : e.type}</td>
+              <td>{VIA_RU[e.receivedVia ?? 'PULL'] ? t(VIA_RU[e.receivedVia ?? 'PULL']!) : e.receivedVia}</td>
               <td>
                 <Badge tone={EVENT_STATUS_TONE[e.status] ?? 'neutral'}>
-                  {EVENT_STATUS_RU[e.status] ?? e.status}
+                  {EVENT_STATUS_RU[e.status] ? t(EVENT_STATUS_RU[e.status]!) : e.status}
                 </Badge>
-                <div className="cell-sub">попыток: {e.attempts}</div>
+                <div className="cell-sub">{t('попыток: {n}', { n: e.attempts })}</div>
               </td>
               <td className="nowrap">{eventTime(e.receivedAt, clock)}</td>
               <td>
@@ -160,7 +162,7 @@ export async function EventsTable({
         </tbody>
       </Table>
       <div className="row row--between pager" data-testid="events-pager">
-        <span className="muted">{total > 0 ? `показано ${shown} из ${total}` : ''}</span>
+        <span className="muted">{total > 0 ? t('показано {shown} из {total}', { shown, total }) : ''}</span>
         {pages > 1 && (
           <span className="row row--inline">
             {filter.page > 1 ? (
@@ -168,26 +170,26 @@ export async function EventsTable({
                 href={hrefFor({ page: filter.page - 1 })}
                 className="btn btn--secondary btn--sm"
               >
-                Назад
+                {t('Назад')}
               </Link>
             ) : (
               <span className="btn btn--secondary btn--sm is-disabled" aria-disabled="true">
-                Назад
+                {t('Назад')}
               </span>
             )}
             <span className="muted">
-              страница {filter.page} из {pages}
+              {t('страница {page} из {pages}', { page: filter.page, pages })}
             </span>
             {filter.page < pages ? (
               <Link
                 href={hrefFor({ page: filter.page + 1 })}
                 className="btn btn--secondary btn--sm"
               >
-                Дальше
+                {t('Дальше')}
               </Link>
             ) : (
               <span className="btn btn--secondary btn--sm is-disabled" aria-disabled="true">
-                Дальше
+                {t('Дальше')}
               </span>
             )}
           </span>

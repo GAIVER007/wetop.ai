@@ -3,6 +3,7 @@ import type { FoodPage, RestaurantReservation } from '../../../../lib/food-types
 import { completeFoodList, validFoodReservation } from '../../../../lib/food-data';
 import { localInput } from '../../../beauty/time';
 import { beautyPeriod, foodPeriod } from './metrics';
+import { msg } from '../../../../i18n';
 export async function loadBranchPeriod(
   branch: Pick<BranchItem, 'id' | 'locationId' | 'vertical' | 'name' | 'timezone' | 'location'>,
   dates: string[],
@@ -19,10 +20,10 @@ export async function loadBranchPeriod(
         day.location.timezone !== branch.timezone ||
         !Array.isArray(day.appointments)
       )
-        throw new Error('Контекст отчёта изменился. Обновите страницу.');
+        throw new Error(msg('Контекст отчёта изменился. Обновите страницу.'));
       for (const row of day.appointments) {
         if (localInput(row.startsAt, branch.timezone).slice(0, 10) !== date)
-          throw new Error('Некорректная дата записи');
+          throw new Error(msg('Некорректная дата записи'));
         beautyRows.push(row);
       }
     } else if (branch.vertical === 'FOOD_SERVICE') {
@@ -32,12 +33,12 @@ export async function loadBranchPeriod(
         validFoodReservation,
       );
       if (rows.some((row) => row.locationId !== branch.locationId))
-        throw new Error('Контекст отчёта изменился. Обновите страницу.');
+        throw new Error(msg('Контекст отчёта изменился. Обновите страницу.'));
       // Food day reads include overlaps. Period counts belong to the reservation's local start date.
       foodRows.push(
         ...rows.filter((row) => localInput(row.startsAt, branch.timezone).slice(0, 10) === date),
       );
-    } else throw new Error('Нет адаптера отчёта');
+    } else throw new Error(msg('Нет адаптера отчёта'));
   }
   if (branch.vertical === 'BEAUTY') return { ...beautyPeriod(beautyRows), food: null };
   return {

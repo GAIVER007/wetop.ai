@@ -5,11 +5,12 @@ import { redirect } from 'next/navigation';
 import { branchesApi, ApiError, authApi } from '../../lib/api';
 import { SHARED_BRANCH_DESTINATIONS, branchDestination } from '../../lib/branch-destination';
 import { setScopeCookie } from '../../lib/session';
+import { serverT } from '../../i18n/server';
 
 export async function selectBranch(form: FormData) {
   const { items } = await branchesApi.list();
   const branch = items.find((item) => item.id === String(form.get('id')));
-  if (!branch) throw new Error('Филиал недоступен. Обновите список.');
+  if (!branch) throw new Error('Филиал недоступен. Обновите список.'); // kk-allow: исключение уходит в границу ошибок Next, на экран его текст не выводится
   await setScopeCookie(`business=${branch.location.businessId};location=${branch.locationId}`);
   revalidatePath('/', 'layout');
   // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
@@ -52,18 +53,20 @@ export async function createBranch(
     });
     revalidatePath('/branches');
     revalidatePath('/platform');
+    const t = await serverT();
     return {
       message:
         vertical === 'FOOD_SERVICE'
-          ? 'Ресторан создан. Откройте его, чтобы настроить зал и меню.'
+          ? t('Ресторан создан. Откройте его, чтобы настроить зал и меню.')
           : vertical === 'BEAUTY'
-            ? 'Салон создан. Откройте его, чтобы увидеть, что в нём уже работает.'
-            : 'Филиал создан. Откройте его, чтобы добавить категории и номера.',
+            ? t('Салон создан. Откройте его, чтобы увидеть, что в нём уже работает.')
+            : t('Филиал создан. Откройте его, чтобы добавить категории и номера.'),
     };
   } catch (e) {
+    const t = await serverT();
     return {
       error:
-        e instanceof ApiError ? e.message : 'Не удалось сохранить. Обновите список перед повтором.',
+        e instanceof ApiError ? e.message : t('Не удалось сохранить. Обновите список перед повтором.'),
     };
   }
 }
@@ -82,7 +85,8 @@ export async function branchChoices() {
       currentId,
     };
   } catch {
-    return { error: 'Не удалось загрузить филиалы. Попробуйте ещё раз.' };
+    const t = await serverT();
+    return { error: t('Не удалось загрузить филиалы. Попробуйте ещё раз.') };
   }
 }
 
@@ -99,11 +103,12 @@ export async function saveBusinessCard(form: FormData) {
     revalidatePath('/branches');
     return { business };
   } catch (error) {
+    const t = await serverT();
     return {
       error:
         error instanceof ApiError
           ? error.message
-          : 'Не удалось сохранить карточку. Повторите попытку.',
+          : t('Не удалось сохранить карточку. Повторите попытку.'),
     };
   }
 }
@@ -118,7 +123,8 @@ export async function archiveBranch(form: FormData) {
     revalidatePath('/branches');
     return {};
   } catch (error) {
-    return { error: error instanceof ApiError ? error.message : 'Не удалось архивировать объект.' };
+    const t = await serverT();
+    return { error: error instanceof ApiError ? error.message : t('Не удалось архивировать объект.') };
   }
 }
 export async function restoreBranch(form: FormData) {
@@ -129,6 +135,7 @@ export async function restoreBranch(form: FormData) {
     revalidatePath('/branches');
     return {};
   } catch (error) {
-    return { error: error instanceof ApiError ? error.message : 'Не удалось восстановить объект.' };
+    const t = await serverT();
+    return { error: error instanceof ApiError ? error.message : t('Не удалось восстановить объект.') };
   }
 }

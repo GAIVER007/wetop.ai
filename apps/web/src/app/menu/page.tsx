@@ -1,5 +1,6 @@
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
+import { serverT } from '../../i18n/server';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { restaurantApi, stockApi } from '../../lib/food-api';
@@ -15,6 +16,7 @@ import '../food/restaurant.css';
 
 /** «Меню и техкарты» по макету владельца (ADR-159): категории, блюда, калькуляция */
 export default async function MenuPage() {
+  const t = await serverT();
   try {
     const shell = await restaurantShell();
     const [categories, items, stock, branch, modifierGroups, costing] = await Promise.all([
@@ -33,7 +35,7 @@ export default async function MenuPage() {
       shell.canDesk ? restaurantApi.menuCosting().catch(() => null) : Promise.resolve(null),
     ]);
     return (
-      <Page title="Меню">
+      <Page title={t('Меню')}>
         <div key={shell.scopeKey}>
           <MenuBoard
             ctx={{
@@ -53,7 +55,7 @@ export default async function MenuPage() {
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Меню">
+      <Page title={t('Меню')}>
         <LoadError testId="menu-load-error" {...loadErrorProps(error)} />
       </Page>
     );

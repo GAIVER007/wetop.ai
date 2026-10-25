@@ -75,7 +75,8 @@ for (const width of [390, 1440])
       data: { delayPath: '/chessboard', delayMs: 6000 },
     });
     await page.goto('/today', { waitUntil: 'commit' });
-    await expect(page.getByTestId('owner-dashboard')).toBeVisible();
+    // пока идёт потоковая отрисовка, Next держит в DOM и скрытую копию страницы: берём ту, что в main
+    await expect(page.getByRole('main').getByTestId('owner-dashboard')).toBeVisible();
     const loading = page.getByRole('status', { name: 'Загружаем загрузку…', exact: true });
     await expect(loading).toBeVisible({ timeout: 2000 });
     // слот карточки измеряем сам по себе: заглушку может успеть сменить настоящая карточка

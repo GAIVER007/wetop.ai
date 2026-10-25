@@ -9,6 +9,7 @@ import { AnalyticsToolbar } from '../toolbar';
 import { parseAnalyticsQuery } from '../params';
 import { UnitsReport, UnitsSkeleton } from './units';
 import '../analytics.css';
+import { serverT } from '../../../../i18n/server';
 
 /**
  * «Аналитика → По номерам» (REP3, план `plans/reports-hub-2026-10-02.md` §3): занятость каждого места
@@ -19,15 +20,18 @@ export default async function UnitsPage({ searchParams }: { searchParams: Promis
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
   const query = parseAnalyticsQuery(sp, today, 'units');
+  const t = await serverT();
   return (
     <Page
-      title="Аналитика"
+      title={t('Аналитика')}
       className="analytics-page"
-      subtitle="Сколько ночей занято и сколько заездов было у каждого места."
+      subtitle={t('Сколько ночей занято и сколько заездов было у каждого места.')}
     >
       <AnalyticsTabs current="units" fund={query.fund} />
       <AnalyticsToolbar query={query} today={today} noCompare />
-      {query.period.error && <Alert boxed>{query.period.error}. Показан сегодняшний день.</Alert>}
+      {query.period.error && (
+        <Alert boxed>{t('{error}. Показан сегодняшний день.', { error: t(query.period.error) })}</Alert>
+      )}
       <Suspense
         key={`${query.period.from}|${query.period.to}|${query.fund}`}
         fallback={<UnitsSkeleton />}

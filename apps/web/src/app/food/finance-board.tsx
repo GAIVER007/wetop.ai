@@ -7,6 +7,8 @@ import { Icon } from '../../components/icon';
 import { METHOD_RU, wholeTenge } from '../../lib/dashboard-format';
 import type { FoodCashView } from '../../lib/food-types';
 import { localInput } from '../beauty/time';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 type Tab = 'revenue' | 'refunds' | 'expenses' | 'income';
 interface Row {
@@ -33,6 +35,7 @@ export function FinanceBoard({
   from: string;
   to: string;
 }) {
+  const t = useT();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('revenue');
   // период грузит сервер целиком (ADR-181): смена даты перечитывает страницу с новыми параметрами
@@ -41,30 +44,30 @@ export function FinanceBoard({
     router.push(`?from=${nextFrom}&to=${nextTo}`);
   };
   const day = (iso: string) => localInput(iso, timezone).slice(0, 10);
-  const method = (m: string) => METHOD_RU[m] ?? m;
+  const method = (m: string) => (METHOD_RU[m] ? t(METHOD_RU[m]) : m);
   const rows: Record<Tab, Row[]> = {
     revenue: cash.payments
       .filter((p) => p.status === 'COMPLETED')
       .map((p) => ({
         id: p.id,
         at: p.paidAt,
-        kind: 'Выручка',
+        kind: t('Выручка'),
         minor: BigInt(p.amountMinor),
-        note: `Оплата заказа №${p.orderNumber}, ${method(p.method)}`,
+        note: t('Оплата заказа №{number}, {method}', { number: p.orderNumber, method: method(p.method) }),
       })),
     // возвраты гостям отдельной вкладкой, не в расходах (как ADR-176 у гостиницы)
     refunds: cash.operations
       .filter((o) => o.status === 'COMPLETED' && o.kind === 'EXPENSE' && o.refund)
-      .map((o) => ({ id: o.id, at: o.occurredAt, kind: 'Возврат', minor: -BigInt(o.amountMinor), note: o.note || method(o.method) })),
+      .map((o) => ({ id: o.id, at: o.occurredAt, kind: t('Возврат'), minor: -BigInt(o.amountMinor), note: o.note || method(o.method) })),
     expenses: cash.operations
       .filter((o) => o.status === 'COMPLETED' && o.kind === 'EXPENSE' && !o.refund)
       .map((o) => ({
         id: o.id,
         at: o.occurredAt,
-        kind: 'Расход',
+        kind: t('Расход'),
         minor: -BigInt(o.amountMinor),
         note:
-          [o.employee && `Выплата: ${o.employee}${o.period ? `, ${o.period}` : ''}`, o.note]
+          [o.employee && t('Выплата: {name}', { name: `${o.employee}${o.period ? `, ${o.period}` : ''}` }), o.note]
             .filter(Boolean)
             .join(', ') || method(o.method),
       })),
@@ -73,7 +76,7 @@ export function FinanceBoard({
       .map((o) => ({
         id: o.id,
         at: o.occurredAt,
-        kind: 'Поступление',
+        kind: t('Поступление'),
         minor: BigInt(o.amountMinor),
         note: o.note || method(o.method),
       })),
@@ -89,7 +92,7 @@ export function FinanceBoard({
   };
   function exportCsv() {
     const lines = [
-      ['Дата', 'Тип', 'Сумма', 'Описание'],
+      [t('Дата'), t('Тип'), t('Сумма'), t('Описание')],
       ...shown.map((r) => [date(r.at), r.kind, (Number(r.minor) / 100).toFixed(2), r.note]),
     ].map((line) => line.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(';'));
     const blob = new Blob([`\uFEFF${lines.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
@@ -100,15 +103,15 @@ export function FinanceBoard({
     URL.revokeObjectURL(a.href);
   }
   const TABS: Array<[Tab, string]> = [
-    ['revenue', 'Выручка'],
-    ['refunds', 'Возвраты'],
-    ['expenses', 'Расходы'],
-    ['income', 'Поступления'],
+    ['revenue', msg('Выручка')],
+    ['refunds', msg('Возвраты')],
+    ['expenses', msg('Расходы')],
+    ['income', msg('Поступления')],
   ];
   return (
     <div className="food-workspace rest-ws" data-testid="finance-board">
       <div className="rest-bar">
-        <nav className="tabs" aria-label="Финансы">
+        <nav className="tabs" aria-label={t('Финансы')}>
           {TABS.map(([id, label]) => (
             <button className="tabs__item"
               key={id}
@@ -116,41 +119,41 @@ export function FinanceBoard({
               aria-current={tab === id ? 'page' : undefined}
               onClick={() => setTab(id)}
             >
-              {label}
+              {t(label)}
             </button>
           ))}
-          <Link className="tabs__item" href="/management/analytics">Отчёты</Link>
+          <Link className="tabs__item" href="/management/analytics">{t('Отчёты')}</Link>
         </nav>
         <Button onClick={exportCsv} disabled={shown.length === 0}>
           <Icon name="file" />
-          Экспорт
+          {t('Экспорт')}
         </Button>
       </div>
       <div className="rest-card">
         <div className="rest-card__tools">
-          <Field label={<span className="sr-only">С даты</span>}>
+          <Field label={<span className="sr-only">{t('С даты')}</span>}>
             <Input type="date" value={from} max={to} onChange={(e) => setPeriod(e.target.value, to)} />
           </Field>
           <span aria-hidden="true">–</span>
-          <Field label={<span className="sr-only">По дату</span>}>
+          <Field label={<span className="sr-only">{t('По дату')}</span>}>
             <Input type="date" value={to} min={from} onChange={(e) => setPeriod(from, e.target.value)} />
           </Field>
           <span className="rest-finance-total" data-testid="finance-total">
-            Итого: <strong>{money(total)}</strong>
+            {t('Итого:')} <strong>{money(total)}</strong>
           </span>
         </div>
         {shown.length === 0 ? (
-          <p className="muted">За выбранный период записей нет</p>
+          <p className="muted">{t('За выбранный период записей нет')}</p>
         ) : (
-          <Table density="compact" caption="Операции за период" captionHidden>
+          <Table density="compact" caption={t('Операции за период')} captionHidden>
             <thead>
               <tr>
-                <th scope="col">Дата</th>
-                <th scope="col">Тип</th>
+                <th scope="col">{t('Дата')}</th>
+                <th scope="col">{t('Тип')}</th>
                 <th scope="col" className="num">
-                  Сумма
+                  {t('Сумма')}
                 </th>
-                <th scope="col">Описание</th>
+                <th scope="col">{t('Описание')}</th>
               </tr>
             </thead>
             <tbody>

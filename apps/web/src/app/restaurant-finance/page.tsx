@@ -10,6 +10,7 @@ import '../food/restaurant.css';
 
 import { financeDateRange } from '../../lib/finance-period';
 import type { SearchParams } from '../../lib/search-params';
+import { serverT } from '../../i18n/server';
 
 /** «Финансы» ресторана по макету владельца (экран 12): выручка, расходы и поступления из кассы (§35).
  * Период считает сервер (ADR-181): фильтр последних 100 строк в браузере занижал итоги. */
@@ -19,13 +20,14 @@ export default async function RestaurantFinancePage({
   searchParams: Promise<SearchParams>;
 }) {
   const params = await searchParams;
+  const t = await serverT();
   try {
     const shell = await restaurantShell();
     // Тот же предел, что в RestaurantService.cash: не смешиваем его с гостиничным годом.
     const { from, to } = financeDateRange(params, shell.date, { period: 'month', maxDays: 93 });
     const cash = await restaurantApi.cash({ from, to });
     return (
-      <Page title="Финансы">
+      <Page title={t('Финансы')}>
         <div key={shell.scopeKey}>
           <FinanceBoard cash={cash} timezone={shell.timezone} from={from} to={to} />
         </div>
@@ -34,7 +36,7 @@ export default async function RestaurantFinancePage({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title="Финансы">
+      <Page title={t('Финансы')}>
         <LoadError testId="restaurant-finance-error" {...loadErrorProps(error)} />
       </Page>
     );

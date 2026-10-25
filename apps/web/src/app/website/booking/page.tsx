@@ -11,6 +11,7 @@ import { BookingSettings, InstallWidgetButton } from '../forms';
 import { ManagedSitesNotice, MarketingCrumb, WebsiteNotConnected, WebsiteTabs } from '../parts';
 import '../website.css';
 import { bookingDemoHref } from '../../../lib/booking-demo';
+import { serverT } from '../../../i18n/server';
 
 /**
  * «Сайт и онлайн-бронирование → Бронирование» (ADR-117, WEB1; WEB3 — состояние, демо, «Что увидит гость», окно
@@ -20,6 +21,7 @@ import { bookingDemoHref } from '../../../lib/booking-demo';
 export default async function WebsiteBookingPage() {
   // сайт и онлайн-бронь гостиницы; у салона и ресторана сайт в «Продвижении» (аудит 17.10.2026, Д11)
   await requireFeature('/website/booking');
+  const t = await serverT();
   const sites = await analyticsApi.sites();
   const [all, plans, settings] = await Promise.all([
     Promise.all(sites.map((s) => analyticsApi.card(s.id))),
@@ -32,8 +34,8 @@ export default async function WebsiteBookingPage() {
   return (
     <Page
       crumbs={<MarketingCrumb />}
-      title={WEBSITE_TITLE}
-      subtitle="Виджет на сайте объекта: свободные места, цены и бронь сразу в PMS."
+      title={t(WEBSITE_TITLE)}
+      subtitle={t('Виджет на сайте объекта: свободные места, цены и бронь сразу в PMS.')}
     >
       <WebsiteTabs current="booking" />
       <ManagedSitesNotice cards={managed} />
@@ -52,7 +54,7 @@ export default async function WebsiteBookingPage() {
   );
 }
 
-function SiteBooking({
+async function SiteBooking({
   card,
   plans,
   settings,
@@ -61,8 +63,9 @@ function SiteBooking({
   plans: Array<{ code: string; name: string }> | null;
   settings: HotelSettings | null;
 }) {
+  const t = await serverT();
   const { site, snippet } = card;
-  const state = siteState(card, propertyClock(site.timezone));
+  const state = siteState(card, propertyClock(site.timezone), undefined, t);
   const working = state.booking.state === 'on';
   const demo = working && isOpenableUrl(snippet.bookingDemoUrl);
   const planName = site.bookingRatePlan?.name;
@@ -72,16 +75,16 @@ function SiteBooking({
       <StateBar
         className="state-bar--wide"
         tone={state.booking.tone}
-        label="Онлайн-бронирование"
+        label={t('Онлайн-бронирование')}
         value={state.booking.value}
-        summary={working ? 'Бронь сразу в PMS, оплата при заселении' : state.booking.note}
+        summary={working ? t('Бронь сразу в PMS, оплата при заселении') : state.booking.note}
         data-testid="website-booking-state"
         data-state={state.booking.state}
       >
-        <StateFact label="Основной домен" value={state.host ?? 'не указан'} />
-        <StateFact label="Объект" value={settings?.property.name ?? '—'} />
-        <StateFact label="Валюта" value={currency ?? '—'} />
-        <StateFact label="Тариф" value={planName ?? 'не выбран'} />
+        <StateFact label={t('Основной домен')} value={state.host ?? t('не указан')} />
+        <StateFact label={t('Объект')} value={settings?.property.name ?? '—'} />
+        <StateFact label={t('Валюта')} value={currency ?? '—'} />
+        <StateFact label={t('Тариф')} value={planName ?? t('не выбран')} />
       </StateBar>
       {/* WEB3: демо и код — только у работающего бронирования; живой вид виджета — демо, а не макет в стойке */}
       {site.bookingEnabled && (
@@ -94,7 +97,7 @@ function SiteBooking({
               rel="noreferrer"
               data-testid="site-card-booking-demo"
             >
-              Открыть демо <Icon name="external" width={14} />
+              {t('Открыть демо')} <Icon name="external" width={14} />
             </a>
           )}
           <InstallWidgetButton code={snippet.bookingCode} demoUrl={snippet.bookingDemoUrl} />
@@ -102,41 +105,40 @@ function SiteBooking({
       )}
 
       <p className="hint--lg" data-testid="booking-explained">
-        Когда гость выбирает даты на вашем сайте, WETOP показывает свободные места и цены по тарифу
-        сайта и создаёт бронь сразу в PMS — с источником «сайт», как в календаре и в «Бронях».
+        {t('Когда гость выбирает даты на вашем сайте, WETOP показывает свободные места и цены по тарифу сайта и создаёт бронь сразу в PMS — с источником «сайт», как в календаре и в «Бронях».')}
       </p>
       {!state.connected && (
         <Alert tone="warning" data-testid="booking-domain-missing">
-          Основной домен не настроен: виджет примет брони только с адреса сайта.{' '}
-          <Link href="/website/settings">Добавить домен</Link>
+          {t('Основной домен не настроен: виджет примет брони только с адреса сайта.')}{' '}
+          <Link href="/website/settings">{t('Добавить домен')}</Link>
         </Alert>
       )}
       {state.booking.state === 'paused' && (
         <Alert tone="warning" data-testid="booking-site-paused">
-          Сайт приостановлен: виджет не принимает брони.{' '}
-          <Link href="/website/settings">Возобновить в «Настройках»</Link>
+          {t('Сайт приостановлен: виджет не принимает брони.')}{' '}
+          <Link href="/website/settings">{t('Возобновить в «Настройках»')}</Link>
         </Alert>
       )}
 
       <Panel size="lg" data-testid="booking-guest-view">
-        <h2>Что увидит гость</h2>
+        <h2>{t('Что увидит гость')}</h2>
         {/* По шагам настоящего виджета (`apps/api/src/web-booking/widget.js`); меняется виджет — меняется и список */}
         <ol className="list hint--lg list--gap">
-          <li>Даты заезда и выезда, число гостей — от 1 до 4 — и промокод, если он есть.</li>
+          <li>{t('Даты заезда и выезда, число гостей — от 1 до 4 — и промокод, если он есть.')}</li>
           <li data-testid="booking-guest-plan">
-            Свободные категории тарифа «{planName ?? 'не выбран'}» с ценой за весь период
-            {currency ? `, ${currency}` : ''}. Занятые и не проданные в тарифе — с пометкой.
+            {currency
+              ? t('Свободные категории тарифа «{plan}» с ценой за весь период, {currency}. Занятые и не проданные в тарифе — с пометкой.', { plan: planName ?? t('не выбран'), currency })
+              : t('Свободные категории тарифа «{plan}» с ценой за весь период. Занятые и не проданные в тарифе — с пометкой.', { plan: planName ?? t('не выбран') })}
           </li>
-          <li>Имя, фамилия и телефон; почта и комментарий по желанию.</li>
-          <li>Номер брони и «К оплате при заселении»: бронь сразу подтверждена.</li>
+          <li>{t('Имя, фамилия и телефон; почта и комментарий по желанию.')}</li>
+          <li>{t('Номер брони и «К оплате при заселении»: бронь сразу подтверждена.')}</li>
           <li data-testid="booking-guest-letter">
-            Если гость оставил почту, письмо с подтверждением брони на его языке.
+            {t('Если гость оставил почту, письмо с подтверждением брони на его языке.')}
           </li>
         </ol>
         {/* ADR-144: языки и письмо-подтверждение сделаны; дети и SMS не решены, предоплата — срез платёжных ссылок */}
         <p className="hint" data-testid="booking-guest-limits">
-          Языки формы: русский, казахский, английский, китайский. Пока не умеет: детей, SMS гостю,
-          предоплату. Скидка тарифа и промокода не суммируется: гостю применяется большая.
+          {t('Языки формы: русский, казахский, английский, китайский. Пока не умеет: детей, SMS гостю, предоплату. Скидка тарифа и промокода не суммируется: гостю применяется большая.')}
         </p>
       </Panel>
 
@@ -146,7 +148,7 @@ function SiteBooking({
         data-testid="site-card"
         data-key={site.publicKey}
       >
-        <h2>Настройки бронирования</h2>
+        <h2>{t('Настройки бронирования')}</h2>
         {plans ? (
           <BookingSettings
             id={site.id}
@@ -155,7 +157,7 @@ function SiteBooking({
             plans={plans}
           />
         ) : (
-          <Alert>Не удалось загрузить тарифы. Обновите страницу.</Alert>
+          <Alert>{t('Не удалось загрузить тарифы. Обновите страницу.')}</Alert>
         )}
       </Panel>
     </Stack>

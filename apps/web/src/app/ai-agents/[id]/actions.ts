@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { unstable_rethrow } from 'next/navigation';
 import { ApiError, businessAgentsApi } from '../../../lib/api';
+import { serverT } from '../../../i18n/server';
 
 export async function saveAgentInstruction(id: string, text: string) {
   try {
@@ -10,14 +11,16 @@ export async function saveAgentInstruction(id: string, text: string) {
     return { ok: true as const, value };
   } catch (error) {
     unstable_rethrow(error);
-    return { ok: false as const, error: error instanceof ApiError ? error.message : 'Не удалось сохранить. Введённый текст остался в редакторе.' };
+    const t = await serverT();
+    return { ok: false as const, error: error instanceof ApiError ? error.message : t('Не удалось сохранить. Введённый текст остался в редакторе.') };
   }
 }
 export async function generateAgentInstruction(id: string, story: string) {
   try { return { ok: true as const, value: await businessAgentsApi.generateInstruction(id, story) }; }
   catch (error) {
     unstable_rethrow(error);
-    return { ok: false as const, error: error instanceof ApiError ? error.message : 'Генерация недоступна. Можно написать инструкцию самостоятельно.' };
+    const t = await serverT();
+    return { ok: false as const, error: error instanceof ApiError ? error.message : t('Генерация недоступна. Можно написать инструкцию самостоятельно.') };
   }
 }
 
@@ -29,6 +32,7 @@ export async function telegramAction(id: string, action: 'status' | 'check' | 'c
     return {ok: true as const, value};
   } catch (error) {
     unstable_rethrow(error);
-    return {ok: false as const, error: 'Не удалось подтвердить подключение. Проверьте готовность сервера, токен и повторите.'};
+    const t = await serverT();
+    return {ok: false as const, error: t('Не удалось подтвердить подключение. Проверьте готовность сервера, токен и повторите.')};
   }
 }

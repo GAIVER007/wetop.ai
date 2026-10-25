@@ -2,6 +2,8 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { kk, shell } from './kk';
+import { en, enShell } from './en';
+import { EN_PARTS } from './en-parts';
 import { AREAS } from './kk-parts';
 
 /**
@@ -55,7 +57,12 @@ describe('KK2: экраны на казахском целиком', () => {
       // допишите перевод в apps/web/src/i18n/kk-parts/<область>.ts
       const leftovers = found.flatMap((f) => f.leftovers);
       if (leftovers.length) expect.fail(`русский мимо t(…)/msg(…), ${leftovers.length}:\n${leftovers.join('\n')}`);
-      const missing = [...new Set(found.flatMap((f) => f.phrases))].filter((phrase) => !kk[phrase]);
+      const phrases = [...new Set(found.flatMap((f) => f.phrases))];
+      const missing = [
+        ...phrases.filter((phrase) => !kk[phrase]).map((phrase) => `kk: ${phrase}`),
+        // EN1: английский словарь apps/web/src/i18n/en-parts/<область>.ts, ключ тот же
+        ...phrases.filter((phrase) => !en[phrase]).map((phrase) => `en: ${phrase}`),
+      ];
       if (missing.length) expect.fail(`нет перевода, ${missing.length}:\n${missing.join('\n')}`);
     });
 
@@ -64,6 +71,18 @@ describe('KK2: экраны на казахском целиком', () => {
     const conflicts: string[] = [];
     for (const [area, part] of Object.entries(AREAS))
       for (const [ru, value] of Object.entries(part.phrases)) {
+        const before = seen.get(ru);
+        if (before !== undefined && before !== value) conflicts.push(`${area}: «${ru}» = «${value}», раньше «${before}»`);
+        seen.set(ru, value);
+      }
+    expect(conflicts).toEqual([]);
+  });
+
+  it('английский тоже не спорит: одна фраза, один перевод; разный смысл разводит контекст `фраза@@контекст`', () => {
+    const seen = new Map<string, string>(Object.entries(enShell));
+    const conflicts: string[] = [];
+    for (const [area, part] of Object.entries(EN_PARTS))
+      for (const [ru, value] of Object.entries(part)) {
         const before = seen.get(ru);
         if (before !== undefined && before !== value) conflicts.push(`${area}: «${ru}» = «${value}», раньше «${before}»`);
         seen.set(ru, value);

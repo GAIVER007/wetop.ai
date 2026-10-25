@@ -72,7 +72,7 @@ export function OwnerDailyChart({ metrics }: { metrics: Metric[] }) {
     </div>
     <div role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-tab-${selected}`} tabIndex={0}>
       {currencies.length > 1 && <label className="owner-chart-currency">{t('Валюта:')} <select value={currency} onChange={event => setCurrency(event.target.value)}>{currencies.map(c => <option key={c}>{c}</option>)}</select></label>}
-      {daily?.state !== 'READY' && <p role="status">{metric?.label}: {daily ? t(ownerReason(daily.reason)) || t('Данные периода неполные') : t('Временной ряд не подключён')}{daily?.unresolvedSources ? ` ${t('Не определена валюта операций: {n}.', { n: daily.unresolvedSources })}` : ''}</p>}
+      {daily?.state !== 'READY' && <p role="status">{metric?.label}: {daily ? ownerReason(daily.reason, t) || t('Данные периода неполные') : t('Временной ряд не подключён')}{daily?.unresolvedSources ? ` ${t('Не определена валюта операций: {n}.', { n: daily.unresolvedSources })}` : ''}</p>}
       {previous?.state === 'PARTIAL' && <p role="status">{t('Предыдущий период: данные неполные')}</p>}
       {hasPoints ? <>
         <svg ref={plot} className="owner-chart-plot" viewBox={`0 0 ${plotWidth} ${PLOT_H}`} width="100%" role="img" aria-label={t('{metric} по дням, {currency}', { metric: String(metric?.label), currency: String(currency) })}>

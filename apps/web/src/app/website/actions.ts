@@ -3,6 +3,7 @@ import { formValues } from '../../lib/form-values';
 import { revalidatePath } from 'next/cache';
 import { ApiError, analyticsApi, type TrackedSiteCard } from '../../lib/api';
 import { hostsAfterAdd, hostsAfterRemove, parseDomainInput } from '../../lib/website';
+import { serverT } from '../../i18n/server';
 
 export interface SiteActionResult {
   error: string | null;
@@ -19,9 +20,10 @@ export async function createSiteAction(
   _prev: SiteActionResult | null,
   form: FormData,
 ): Promise<SiteActionResult> {
+  const t = await serverT();
   const name = String(form.get('name') ?? '').trim();
   // WEB2: один адрес, почищенный так же, как в «Добавить домен»; ещё адреса — списком после подключения
-  const parsed = parseDomainInput(String(form.get('hosts') ?? ''));
+  const parsed = parseDomainInput(String(form.get('hosts') ?? ''), t);
   if ('error' in parsed)
     return {
       error: parsed.error,
@@ -34,7 +36,7 @@ export async function createSiteAction(
     refreshSiteViews();
     return {
       error: null,
-      message: `Сайт «${card.site.name}» добавлен, ключ ${card.site.publicKey}`,
+      message: t('Сайт «{name}» добавлен, ключ {key}', { name: card.site.name, key: card.site.publicKey }),
       card,
     };
   } catch (e) {
@@ -51,24 +53,28 @@ export async function siteAction(
   id: string,
   kind: 'pause' | 'resume' | 'delete' | 'check',
 ): Promise<SiteActionResult> {
+  const t = await serverT();
   try {
     let message: string;
     let card: TrackedSiteCard | undefined;
     if (kind === 'delete') {
       await analyticsApi.remove(id);
-      message = 'Сайт удалён вместе с накопленной статистикой';
+      message = t('Сайт удалён вместе с накопленной статистикой');
     } else if (kind === 'check') {
       card = await analyticsApi.card(id);
       message = card.status.lastEventAt
-        ? `Счётчик жив: последнее событие ${new Date(card.status.lastEventAt).toLocaleString('ru-RU', { timeZone: card.site.timezone })}, сегодня сессий ${card.status.sessionsToday}`
-        : 'Событий ещё не было: откройте сайт с установленным кодом и нажмите «Проверить» снова';
+        ? t('Счётчик жив: последнее событие {when}, сегодня сессий {n}', {
+            when: new Date(card.status.lastEventAt).toLocaleString('ru-RU', { timeZone: card.site.timezone }),
+            n: card.status.sessionsToday,
+          })
+        : t('Событий ещё не было: откройте сайт с установленным кодом и нажмите «Проверить» снова');
     } else {
       card = await analyticsApi.update(id, { status: kind === 'pause' ? 'PAUSED' : 'ACTIVE' });
       // Пауза сайта останавливает и приёмник счётчика, и виджет (collect.service, web-booking.service)
       message =
         kind === 'pause'
-          ? 'Сайт приостановлен: посещения не записываются, брони с сайта не принимаются'
-          : 'Сайт снова принимает посещения и брони';
+          ? t('Сайт приостановлен: посещения не записываются, брони с сайта не принимаются')
+          : t('Сайт снова принимает посещения и брони');
     }
     refreshSiteViews();
     return { error: null, message, card };
@@ -82,6 +88,7 @@ export async function bookingSettingsAction(
   id: string,
   input: { enabled: boolean; ratePlanCode: string },
 ): Promise<SiteActionResult> {
+  const t = await serverT();
   try {
     const card = await analyticsApi.update(id, {
       bookingEnabled: input.enabled,
@@ -91,8 +98,10 @@ export async function bookingSettingsAction(
     return {
       error: null,
       message: card.site.bookingEnabled
-        ? `Бронирование с сайта включено, тариф «${card.site.bookingRatePlan?.name ?? '—'}». Код для сайта — в «Установке виджета»`
-        : 'Бронирование с сайта выключено: форма на сайте останется, но цены и брони не покажет',
+        ? t('Бронирование с сайта включено, тариф «{plan}». Код для сайта — в «Установке виджета»', {
+            plan: card.site.bookingRatePlan?.name ?? '—',
+          })
+        : t('Бронирование с сайта выключено: форма на сайте останется, но цены и брони не покажет'),
       card,
     };
   } catch (e) {
@@ -105,16 +114,19 @@ export async function bookingSettingsAction(
  * могла устареть. Настоящий домен вытесняет заглушку, в ответе это названо.
  */
 export async function addDomainAction(id: string, raw: string): Promise<SiteActionResult> {
-  const parsed = parseDomainInput(raw);
+  const t = await serverT();
+  const parsed = parseDomainInput(raw, t);
   if ('error' in parsed) return { error: parsed.error, message: null };
   try {
     const { site } = await analyticsApi.card(id);
-    const next = hostsAfterAdd(site.hosts, parsed.host);
+    const next = hostsAfterAdd(site.hosts, parsed.host, t);
     if ('error' in next) return { error: next.error, message: null };
     const card = await analyticsApi.update(id, { hosts: next.hosts });
     refreshSiteViews();
-    const replaced = next.dropped.length ? `, заглушка ${next.dropped.join(', ')} убрана` : '';
-    return { error: null, message: `Домен ${parsed.host} добавлен${replaced}`, card };
+    const message = next.dropped.length
+      ? t('Домен {host} добавлен, заглушка {dropped} убрана', { host: parsed.host, dropped: next.dropped.join(', ') })
+      : t('Домен {host} добавлен', { host: parsed.host });
+    return { error: null, message, card };
   } catch (e) {
     return { error: describe(e), message: null };
   }
@@ -122,15 +134,16 @@ export async function addDomainAction(id: string, raw: string): Promise<SiteActi
 
 /** «Убрать» домен (WEB2): последний не убирается — API требует хотя бы один адрес */
 export async function removeDomainAction(id: string, host: string): Promise<SiteActionResult> {
+  const t = await serverT();
   try {
     const { site } = await analyticsApi.card(id);
-    const next = hostsAfterRemove(site.hosts, host);
+    const next = hostsAfterRemove(site.hosts, host, t);
     if ('error' in next) return { error: next.error, message: null };
     const card = await analyticsApi.update(id, { hosts: next.hosts });
     refreshSiteViews();
     return {
       error: null,
-      message: `Домен ${host} убран: с него WETOP больше не принимает посещения и брони`,
+      message: t('Домен {host} убран: с него WETOP больше не принимает посещения и брони', { host }),
       card,
     };
   } catch (e) {

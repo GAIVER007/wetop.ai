@@ -30,7 +30,7 @@ export function Labelled({
   as = 'div',
   label,
   ...rest
-}: HTMLAttributes<HTMLElement> & { as?: 'div' | 'nav'; label: string }) {
+}: HTMLAttributes<HTMLElement> & { as?: 'div' | 'nav' | 'main'; label: string }) {
   const t = useT();
   return createElement(as, { ...rest, 'aria-label': t(label) });
 }

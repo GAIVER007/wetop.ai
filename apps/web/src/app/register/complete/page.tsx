@@ -7,6 +7,8 @@ import { signedInUser } from '../../login/signed-in';
 import { confirmRegistrationContext } from './actions';
 import { AuthShell } from '../../../components/auth-shell';
 import '../../login/login.css';
+import { translator } from '../../../i18n';
+import { cookieLocale } from '../../../i18n/server';
 
 export default async function RegistrationCompletePage() {
   if (!(await signedInUser())) redirect(publicAuthUrl());
@@ -17,21 +19,22 @@ export default async function RegistrationCompletePage() {
   const selected =
     verified?.businessId === context.businessId && verified?.locationId === context.locationId;
   if (selected) redirect('/register/setup');
+  const t = translator(await cookieLocale());
   return (
     <AuthShell>
       <h1>{context.businessName}</h1>
-      <p>{verticalDefinition(context.vertical).label}</p>
-      <p>Филиал: {context.locationName}</p>
+      <p>{t(verticalDefinition(context.vertical).label)}</p>
+      <p>{t('Филиал: {name}', { name: context.locationName })}</p>
       {!selected || context.vertical === 'HOSPITALITY' ? (
         <form action={confirmRegistrationContext}>
           <button className="btn btn--primary" type="submit">
-            Продолжить
+            {t('Продолжить')}
           </button>
         </form>
       ) : (
-        <p>Рабочее пространство подтверждено.</p>
+        <p>{t('Рабочее пространство подтверждено.')}</p>
       )}
-      <Link href={publicAuthUrl()}>На главную WETOP</Link>
+      <Link href={publicAuthUrl()}>{t('На главную WETOP')}</Link>
     </AuthShell>
   );
 }

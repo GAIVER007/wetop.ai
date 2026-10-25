@@ -2,13 +2,14 @@ import 'server-only';
 import { ApiError } from '../../../lib/api-error';
 import { clientInfo } from '../../../lib/session';
 import type { BeautyReviewDraft, BeautyReviewPreview } from './review-types';
+import { msg } from '../../../i18n';
 
 const endpoint = () =>
   (process.env.APP_API_URL?.trim() || 'http://127.0.0.1:3001').replace(/\/$/, '');
 
 async function messageOf(response: Response): Promise<string> {
   const body = (await response.json().catch(() => null)) as { message?: unknown } | null;
-  return typeof body?.message === 'string' ? body.message : 'Не удалось открыть форму отзыва.';
+  return typeof body?.message === 'string' ? body.message : msg('Не удалось открыть форму отзыва.');
 }
 
 async function visitorHeaders(): Promise<Record<string, string>> {

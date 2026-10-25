@@ -49,6 +49,20 @@ describe('даты на языке человека', () => {
     expect(f.formatRange(new Date('2026-10-28T00:00:00Z'), new Date('2026-11-02T00:00:00Z'))).toBe('28 қаз. – 2 қар.');
   });
 
+  it('английский: Intl en-GB (данные en есть в каждом браузере), день перед месяцем, 24 часа', () => {
+    expect(dateFormat('en', { ...UTC, day: 'numeric', month: 'long' }).format(day)).toBe('24 October');
+    expect(dateFormat('en-GB', { ...UTC, day: 'numeric', month: 'short' }).format(day)).toBe('24 Oct');
+    expect(dateFormat('en', { timeZone: 'Asia/Almaty', hour: '2-digit', minute: '2-digit' }).format(new Date('2026-10-24T20:30:00Z'))).toBe('01:30');
+  });
+
+  it('английский отрезок: обычные пробелы (тонкий у ICU Node и браузера разный, гидратация расходилась)', () => {
+    const range = dateFormat('en', { ...UTC, day: 'numeric', month: 'long', year: 'numeric' }).formatRange(
+      new Date('2026-10-19T00:00:00Z'),
+      new Date('2026-10-25T00:00:00Z'),
+    );
+    expect(range).toMatch(/^19 – 25 October 2026$/);
+  });
+
   it('язык стойки можно передать и словом ru/kk', () => {
     expect(dateFormat('kk', { ...UTC, month: 'long' }).format(day)).toBe('қазан');
     expect(dateFormat('ru', { ...UTC, month: 'long' }).format(day)).toBe(

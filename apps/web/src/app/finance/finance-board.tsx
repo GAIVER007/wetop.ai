@@ -192,7 +192,7 @@ export function FinanceDynamics({
   flow: DayFlow[];
   currency: string;
   t?: Translate;
-  locale?: 'ru-RU' | 'kk-KZ';
+  locale?: 'ru-RU' | 'kk-KZ' | 'en-GB';
 }) {
   const shortDay = dateFormat(locale, { day: 'numeric', month: 'short', timeZone: 'UTC' });
   const labels = flow.map((d) => shortDay.format(new Date(`${d.date}T00:00:00Z`)));

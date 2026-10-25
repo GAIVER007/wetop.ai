@@ -42,6 +42,8 @@ import '../channels.css';
 import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
 import { CHANNEL_TABS, ChannelTabs } from '../tabs';
+import { msg, type Translate } from '../../../i18n';
+import { currentLocale, serverT } from '../../../i18n/server';
 
 /**
  * Модуль «Каналы продаж» (ADR-112, поручение владельца 27.09.2026): один вход вместо пунктов
@@ -53,12 +55,12 @@ import { CHANNEL_TABS, ChannelTabs } from '../tabs';
  * не менялись — на них стоит запись показа для сертификации Channex.
  */
 const subtitles: Record<string, string> = {
-  '': 'Состояние обмена с каналами и брони по источникам.',
-  list: 'Подключённые каналы, брони за 30 дней и все каналы, которые можно подключить.',
-  connections: 'Подключение менеджера каналов и настройка обмена.',
-  mapping: 'Категории и тарифы WETOP в менеджере каналов.',
-  sync: 'Что уходит в каналы и что приходит обратно.',
-  events: 'Входящие события каналов: новые брони, изменения, отмены.',
+  '': msg('Состояние обмена с каналами и брони по источникам.'),
+  list: msg('Подключённые каналы, брони за 30 дней и все каналы, которые можно подключить.'),
+  connections: msg('Подключение менеджера каналов и настройка обмена.'),
+  mapping: msg('Категории и тарифы WETOP в менеджере каналов.'),
+  sync: msg('Что уходит в каналы и что приходит обратно.'),
+  events: msg('Входящие события каналов: новые брони, изменения, отмены.'),
 };
 
 /** Ответ API как есть или причина отказа: экран остаётся, вместо данных — сбой со следующим шагом (D4) */
@@ -75,8 +77,8 @@ const settle = <T,>(p: Promise<T>) =>
  * «, проверено 14:22 по Алматы» — время последней пробы адреса webhook по часам объекта (С-13: сервер стойки
  * может стоять не в поясе объекта); без пробы подпись не нужна
  */
-const checkedAt = (iso: string | null | undefined, clock: PropertyClock) =>
-  iso ? `, проверено ${clock.clock(iso)} по времени объекта` : '';
+const checkedAt = (iso: string | null | undefined, clock: PropertyClock, t: Translate) =>
+  iso ? t(', проверено {time} по времени объекта', { time: clock.clock(iso) }) : '';
 
 export default async function ChannelSalesPage({
   params,
@@ -102,12 +104,13 @@ export default async function ChannelSalesPage({
   if (!tab) notFound();
   const shell = await deskShell();
   const canMutate = mayAccess(shell.access, 'channels') && !shell.readOnly;
+  const t = await serverT();
   return (
     <Page
-      title={view ? tab.label : 'Каналы продаж'}
-      subtitle={view ? subtitles[view] : undefined}
-      crumbs={view ? <BackCrumb href="/channels">Каналы продаж</BackCrumb> : undefined}
-      actions={view === 'connections' ? <RefreshButton label="Проверить соединение" /> : undefined}
+      title={view ? t(tab.label) : t('Каналы продаж')}
+      subtitle={view && subtitles[view] ? t(subtitles[view]!) : undefined}
+      crumbs={view ? <BackCrumb href="/channels">{t('Каналы продаж')}</BackCrumb> : undefined}
+      actions={view === 'connections' ? <RefreshButton label={t('Проверить соединение')} /> : undefined}
     >
       <ChannelTabs current={view} />
       {view === '' && <Overview sp={sp} canMutate={canMutate} />}
@@ -133,6 +136,8 @@ async function Overview({
   canMutate: boolean;
 }) {
   const clock = await hotelClock();
+  const t = await serverT();
+  const locale = await currentLocale();
   const [
     connection,
     webhook,
@@ -168,33 +173,33 @@ async function Overview({
     (outbox?.failed ?? 0) > 0 || stalledMinutes >= 10 || (failedEvents ?? 0) > 0 || oversold;
   const tone = alarm ? 'alarm' : !outbox || notConnected || outbox.pending > 0 ? 'warn' : 'calm';
   const word = notConnected
-    ? 'не подключены'
+    ? t('не подключены')
     : alarm
-      ? 'требует внимания'
+      ? t('требует внимания')
       : !outbox
-        ? 'неизвестно'
+        ? t('неизвестно')
         : connection?.environment === 'staging'
-          ? 'тестовый контур'
+          ? t('тестовый контур')
           : !webhook?.registered || !webhook?.active
-            ? 'настройка не завершена'
-            : 'API доступен';
+            ? t('настройка не завершена')
+            : t('API доступен');
   const summary = notConnected
-    ? connectionSummary(connection?.state, connection?.message)
+    ? connectionSummary(connection?.state, connection?.message, t)
     : !outbox
-      ? 'Сводка очереди не загрузилась — обновите страницу.'
+      ? t('Сводка очереди не загрузилась, обновите страницу.')
       : outbox.failed > 0
-        ? `Ошибок отправки ${outbox.failed} — каналы продают по старому остатку.`
+        ? t('Ошибок отправки {n}: каналы продают по старому остатку.', { n: outbox.failed })
         : stalledMinutes >= 10
-          ? `Очередь стоит ${stalledMinutes} мин — каналы продают по старому остатку.`
+          ? t('Очередь стоит {n} мин: каналы продают по старому остатку.', { n: stalledMinutes })
           : (failedEvents ?? 0) > 0
-            ? 'Входящая бронь требует разбора — откройте «События».'
+            ? t('Входящая бронь требует разбора: откройте «События».')
             : oversold
-              ? 'Канал видит больше мест, чем есть: сторож запустил полную выгрузку остатков.'
+              ? t('Канал видит больше мест, чем есть: сторож запустил полную выгрузку остатков.')
               : outbox.pending > 0
-                ? 'Изменения ждут отправки в каналы.'
+                ? t('Изменения ждут отправки в каналы.')
                 : connection?.environment === 'staging'
-                  ? 'Менеджер каналов: тестовое подключение.'
-                  : 'Доступ к объекту проверен. Получение броней — в журнале событий.';
+                  ? t('Менеджер каналов: тестовое подключение.')
+                  : t('Доступ к объекту проверен. Получение броней: в журнале событий.');
   const lastExchange =
     [outbox?.lastSentAt, connection?.lastWebhookAt, connection?.lastPullAt]
       .filter((x): x is string => !!x)
@@ -202,7 +207,7 @@ async function Overview({
       .at(-1) ?? null;
   const failedTotal = (outbox?.failed ?? 0) + (failedEvents ?? 0);
   // X3 (ADR-144): ежедневная сверка остатков с каналом видна владельцу, не только сторожу
-  const reconcile = reconciliationView(reconciliation, clock);
+  const reconcile = reconciliationView(reconciliation, clock, Date.now(), t, locale);
   /**
    * Наблюдаемые OTA (Q-205, дополнение владельца к ADR-112): «Booking.com — работает» запрещено,
    * пока backend не может это подтвердить — показываем только факты из последних событий Channex:
@@ -228,11 +233,11 @@ async function Overview({
       <StateBar
         className="state-bar--wide"
         tone={tone}
-        label="Обмен с каналами"
+        label={t('Обмен с каналами')}
         value={<span data-testid="channels-state">{word}</span>}
         summary={summary}
       >
-        <StateFact label="Последний обмен" value={eventTime(lastExchange, clock)}>
+        <StateFact label={t('Последний обмен')} value={eventTime(lastExchange, clock)}>
           {/* X3 (ADR-144): ежедневная сверка остатков с каналом видна владельцу; подробности в подсказке */}
           {!notConnected && (
             <span
@@ -240,7 +245,7 @@ async function Overview({
               title={reconcile.sub}
               data-testid="channels-reconcile-sub"
             >
-              сверка:{' '}
+              {t('сверка:')}{' '}
               <span data-testid="channels-reconcile" data-tone={reconcile.tone}>
                 {reconcile.value}
               </span>
@@ -248,15 +253,15 @@ async function Overview({
           )}
         </StateFact>
         <StateFact
-          label="Очередь"
+          label={t('Очередь')}
           value={outbox ? <span data-testid="outbox-pending">{String(outbox.pending)}</span> : '—'}
         >
           {outbox && outbox.pending === 0 && (
-            <span className="state-bar__sub">нет ожидающих отправки</span>
+            <span className="state-bar__sub">{t('нет ожидающих отправки')}</span>
           )}
         </StateFact>
         <StateFact
-          label="Ошибки"
+          label={t('Ошибки')}
           value={
             outbox || failedEvents !== null ? (
               <span
@@ -272,64 +277,65 @@ async function Overview({
         >
           {failedTotal > 0 && (
             <span className="state-bar__sub danger-text">
-              в отправке {outbox?.failed ?? 0}, во входящих {failedEvents ?? 0}
+              {t('в отправке {sent}, во входящих {inbound}', {
+                sent: outbox?.failed ?? 0,
+                inbound: failedEvents ?? 0,
+              })}
             </span>
           )}
         </StateFact>
         <StateFact
-          label="Приём броней"
+          label={t('Приём броней')}
           value={
-            <span data-testid="webhook-status">{webhookWord(webhook)}</span>
+            <span data-testid="webhook-status">{webhookWord(webhook, t)}</span>
           }
         >
           {webhook?.registered &&
             webhook.expectedUrl &&
             webhook.callbackUrl !== webhook.expectedUrl && (
               <span className="state-bar__sub danger-text">
-                зарегистрирован не постоянный адрес PMS — проверьте на «Подключениях»
+                {t('зарегистрирован не постоянный адрес PMS: проверьте на «Подключениях»')}
               </span>
             )}
           {webhook?.registered && webhook.callbackReachable === false && (
             <span className="state-bar__sub danger-text">
-              адрес не отвечает{checkedAt(webhook.callbackCheckedAt, clock)}
+              {t('адрес не отвечает{checked}', { checked: checkedAt(webhook.callbackCheckedAt, clock, t) })}
             </span>
           )}
         </StateFact>
       </StateBar>
       {outbox && alarm && (
         <Alert boxed data-testid="overbooking-alarm">
-          {oversold && <div>Сверка: {reconcile.sub}.</div>}
+          {oversold && <div>{t('Сверка: {details}.', { details: reconcile.sub })}</div>}
           <div>
-            Остатки могут быть неактуальны. <Link href="/channels/sync">Проверить очередь</Link> ·{' '}
-            <Link href="/channels/events?status=FAILED">Ошибки входящих</Link>
+            {t('Остатки могут быть неактуальны.')} <Link href="/channels/sync">{t('Проверить очередь')}</Link> ·{' '}
+            <Link href="/channels/events?status=FAILED">{t('Ошибки входящих')}</Link>
           </div>
         </Alert>
       )}
       <ChannelReport sp={sp} />
       <details className="context-help" data-testid="channels-activity">
-        <summary>Активность каналов и ручной обмен</summary>
+        <summary>{t('Активность каналов и ручной обмен')}</summary>
         <section className="stack stack--sm" aria-labelledby="observed-title">
-          <SectionTitle id="observed-title">Каналы</SectionTitle>
+          <SectionTitle id="observed-title">{t('Каналы')}</SectionTitle>
           <p className="note">
-            Наблюдаются по входящим событиям каналов — это последняя активность источника, а не
-            состояние его подключения.
+            {t('Наблюдаются по входящим событиям каналов: это последняя активность источника, а не состояние его подключения.')}
           </p>
           {recentEvents === null ? (
             <p className="note" data-testid="observed-failed">
-              События не загрузились: API не ответил. Обновите страницу или откройте{' '}
-              <Link href="/incidents">неисправности</Link>.
+              {t('События не загрузились: API не ответил. Обновите страницу или откройте')}{' '}
+              <Link href="/incidents">{t('неисправности')}</Link>.
             </p>
           ) : observedRows.length === 0 ? (
             <p className="note" data-testid="observed-empty">
-              Событий от каналов ещё не было. Канал появится здесь, когда придёт его бронь,
-              изменение или отмену.
+              {t('Событий от каналов ещё не было. Канал появится здесь, когда придёт его бронь, изменение или отмену.')}
             </p>
           ) : (
             <Table size="sm" className="dir-table" data-testid="channels-observed">
               <thead>
                 <tr>
-                  {['Канал', 'Последнее событие', 'Событий с ошибкой'].map((h) => (
-                    <th key={h}>{h}</th>
+                  {[msg('Канал'), msg('Последнее событие'), msg('Событий с ошибкой')].map((h) => (
+                    <th key={h}>{t(h)}</th>
                   ))}
                 </tr>
               </thead>
@@ -357,16 +363,22 @@ async function Overview({
           {mappedCategories !== null &&
             (mappingGap ? (
               <p className="note danger-text" data-testid="mapping-gap">
-                Сопоставлены не все категории: {mappedCategories} из {fundCategories} — по остальным
-                цены и остатки в каналы не уходят. Проверить —{' '}
-                <Link href="/channels/mapping">«Сопоставление»</Link>.
+                {t('Сопоставлены не все категории: {mapped} из {total}, по остальным цены и остатки в каналы не уходят. Проверить:', {
+                  mapped: mappedCategories,
+                  total: fundCategories ?? 0,
+                })}{' '}
+                <Link href="/channels/mapping">«{t('Сопоставление')}»</Link>.
               </p>
             ) : (
               <p className="note" data-testid="mapping-note">
-                Сопоставление общее для всех каналов: категорий {mappedCategories}
-                {fundCategories !== null ? ` из ${fundCategories}` : ''}, тарифных планов{' '}
-                {connection?.mappedLocalRatePlans ?? 'неизвестно'}, сопоставлений тарифов{' '}
-                {connection?.mappedRatePlans ?? 'неизвестно'}.
+                {t('Сопоставление общее для всех каналов: категорий {categories}, тарифных планов {plans}, сопоставлений тарифов {mappings}.', {
+                  categories:
+                    fundCategories !== null
+                      ? t('{mapped} из {total}', { mapped: mappedCategories, total: fundCategories })
+                      : mappedCategories,
+                  plans: connection?.mappedLocalRatePlans ?? t('неизвестно'),
+                  mappings: connection?.mappedRatePlans ?? t('неизвестно'),
+                })}
               </p>
             ))}
         </section>
@@ -375,29 +387,29 @@ async function Overview({
         )}
       </details>
       <details className="context-help" data-testid="channels-tech">
-        <summary>Технические детали</summary>
+        <summary>{t('Технические детали')}</summary>
         <div>
           <Grid min={200}>
             <Fact
-              label="Объект в менеджере каналов"
+              label={t('Объект в менеджере каналов')}
               value={
                 connection?.propertyId ? (
                   <span className="mono break-all">{connection.propertyId}</span>
                 ) : (
-                  'не создан'
+                  t('не создан')
                 )
               }
             />
             <Fact
-              label="Последняя задача"
+              label={t('Последняя задача')}
               value={
                 <span className="mono break-all" data-testid="outbox-last-task">
-                  {outbox ? (outbox.lastTaskId ?? '—') : 'не загрузилось'}
+                  {outbox ? (outbox.lastTaskId ?? '—') : t('не загрузилось')}
                 </span>
               }
             />
             <Fact
-              label="Адрес webhook"
+              label={t('Адрес webhook')}
               value={
                 webhook?.registered && webhook.callbackUrl ? (
                   <span className="mono break-all">{webhook.callbackUrl}</span>
@@ -408,8 +420,8 @@ async function Overview({
             />
           </Grid>
           <p className="note">
-            Очередь отправки — на вкладке <Link href="/channels/sync">«Синхронизация»</Link>, журнал
-            входящих — в <Link href="/channels/events">«Событиях»</Link>.
+            {t('Очередь отправки: на вкладке')} <Link href="/channels/sync">«{t('Синхронизация')}»</Link>
+            {t(', журнал входящих: в')} <Link href="/channels/events">«{t('Событиях')}»</Link>.
           </p>
         </div>
       </details>
@@ -427,6 +439,7 @@ async function Overview({
  * Правила «что ошибка, а что нет» — в `../mapping.ts`.
  */
 async function Mapping() {
+  const t = await serverT();
   const [loadedMapping, summary, loadedOptions, names] = await Promise.all([
     settle(channelsApi.mapping()),
     // сводка фонда — список категорий: без неё страница остаётся, категории — кодами
@@ -451,16 +464,15 @@ async function Mapping() {
         {!summary && <InventoryFailed />}
         <EmptyState
           icon={<Icon name="channels" />}
-          title="Сопоставлений пока нет"
+          title={t('Сопоставлений пока нет')}
           data-testid="mapping-empty"
           actions={
             <Link href="/channels/connections" className="btn btn--secondary">
-              Открыть подключения
+              {t('Открыть подключения')}
             </Link>
           }
         >
-          Категории и тарифы появятся здесь, когда владелец организации нажмёт «Создать объект и
-          категории» на вкладке «Подключения». Пока их нет, цены и остатки в каналы не уходят.
+          {t('Категории и тарифы появятся здесь, когда владелец организации нажмёт «Создать объект и категории» на вкладке «Подключения». Пока их нет, цены и остатки в каналы не уходят.')}
         </EmptyState>
       </div>
     );
@@ -485,26 +497,28 @@ async function Mapping() {
       {!summary && <InventoryFailed />}
       {unmapped.length > 0 && (
         <Alert boxed tone="warning" data-testid="mapping-warning">
-          Без сопоставления: {unmapped.map((c) => c.name).join(', ')}. Остатки и цены по{' '}
-          {unmapped.length === 1 ? 'этой категории' : 'этим категориям'} в каналы не уходят.
-          Недостающее создаёт владелец организации кнопкой «Создать объект и категории» на вкладке{' '}
-          <Link href="/channels/connections">«Подключения»</Link>; уже сопоставленное повтор не
-          трогает.
+          {t('Без сопоставления: {names}.', { names: unmapped.map((c) => c.name).join(', ') })}{' '}
+          {unmapped.length === 1
+            ? t('Остатки и цены по этой категории в каналы не уходят.')
+            : t('Остатки и цены по этим категориям в каналы не уходят.')}{' '}
+          {t('Недостающее создаёт владелец организации кнопкой «Создать объект и категории» на вкладке')}{' '}
+          <Link href="/channels/connections">«{t('Подключения')}»</Link>
+          {t('; уже сопоставленное повтор не трогает.')}
         </Alert>
       )}
       <section className="stack stack--sm" aria-labelledby="mapping-categories-title">
-        <SectionTitle id="mapping-categories-title">Категории</SectionTitle>
+        <SectionTitle id="mapping-categories-title">{t('Категории')}</SectionTitle>
         <Table
           size="sm"
           className="dir-table dir-table--mapping"
           data-testid="mapping-categories"
-          aria-label="Сопоставление категорий"
+          aria-label={t('Сопоставление категорий')}
         >
           <thead>
             <tr>
-              <th>Категория WETOP</th>
-              <th>Номер в каналах</th>
-              <th>Статус</th>
+              <th>{t('Категория WETOP')}</th>
+              <th>{t('Номер в каналах')}</th>
+              <th>{t('Статус')}</th>
             </tr>
           </thead>
           <tbody>
@@ -516,7 +530,7 @@ async function Mapping() {
                 <td>
                   {c.roomTypeId ? (
                     (c.channexName ?? (
-                      <span className="cell-sub">название в каналах недоступно</span>
+                      <span className="cell-sub">{t('название в каналах недоступно')}</span>
                     ))
                   ) : (
                     <span className="cell-sub">—</span>
@@ -524,7 +538,7 @@ async function Mapping() {
                 </td>
                 <td>
                   <Badge tone={c.roomTypeId ? 'ok' : 'warn'}>
-                    {c.roomTypeId ? 'Сопоставлена' : 'Не сопоставлена'}
+                    {c.roomTypeId ? t('Сопоставлена') : t('Не сопоставлена')}
                   </Badge>
                 </td>
               </tr>
@@ -533,19 +547,19 @@ async function Mapping() {
         </Table>
       </section>
       <section className="stack stack--sm" aria-labelledby="mapping-rate-plans-title">
-        <SectionTitle id="mapping-rate-plans-title">Тарифы</SectionTitle>
+        <SectionTitle id="mapping-rate-plans-title">{t('Тарифы')}</SectionTitle>
         {plans ? (
           <Table
             size="sm"
             className="dir-table dir-table--mapping"
             data-testid="mapping-rate-plans"
-            aria-label="Сопоставление тарифов"
+            aria-label={t('Сопоставление тарифов')}
           >
             <thead>
               <tr>
-                <th>Тариф WETOP</th>
-                <th>Сопоставлен в категориях</th>
-                <th>Статус</th>
+                <th>{t('Тариф WETOP')}</th>
+                <th>{t('Сопоставлен в категориях')}</th>
+                <th>{t('Статус')}</th>
               </tr>
             </thead>
             <tbody>
@@ -555,17 +569,17 @@ async function Mapping() {
                     <strong>{p.name}</strong>
                     <div className="cell-sub">
                       {p.currency}
-                      {p.active ? '' : ', не действует'}
+                      {p.active ? '' : t(', не действует')}
                     </div>
                   </td>
                   <td className="num">
-                    {p.mappedIn} из {categories.length}
+                    {t('{mapped} из {total}', { mapped: p.mappedIn, total: categories.length })}
                   </td>
                   <td>
                     <Badge
                       tone={p.status === 'none' ? 'neutral' : p.status === 'full' ? 'ok' : 'warn'}
                     >
-                      {PLAN_STATUS[p.status]}
+                      {t(PLAN_STATUS[p.status])}
                     </Badge>
                   </td>
                 </tr>
@@ -578,27 +592,23 @@ async function Mapping() {
           )
         )}
         <p className="note">
-          Сопоставлено тарифов:{' '}
-          {
-            new Set(
+          {t('Сопоставлено тарифов: {n}. Покрытие категорий показано отдельно для каждого тарифа. Тарифы без сопоставлений доступны только в WETOP. Сопоставление само по себе не подтверждает подключение OTA или успешную передачу цен.', {
+            n: new Set(
               mapping
                 .filter((m) => m.providerRatePlanId && m.localRatePlanId)
                 .map((m) => m.localRatePlanId),
-            ).size
-          }
-          . Покрытие категорий показано отдельно для каждого тарифа. Тарифы без сопоставлений
-          доступны только в WETOP. Сопоставление само по себе не подтверждает подключение OTA или
-          успешную передачу цен.
+            ).size,
+          })}
         </p>
       </section>
       <details className="context-help" data-testid="mapping-tech">
-        <summary>Технические детали</summary>
+        <summary>{t('Технические детали')}</summary>
         <div>
           <Table size="sm" className="dir-table dir-table--mapping">
             <thead>
               <tr>
-                {['Категория', 'Номер в каналах', 'Тариф в каналах'].map((h) => (
-                  <th key={h}>{h}</th>
+                {[msg('Категория'), msg('Номер в каналах'), msg('Тариф в каналах')].map((h) => (
+                  <th key={h}>{t(h)}</th>
                 ))}
               </tr>
             </thead>
@@ -621,16 +631,16 @@ async function Mapping() {
 }
 
 const PLAN_STATUS = {
-  full: 'Выгружается',
-  partial: 'Не во всех категориях',
-  none: 'В каналы не выгружается',
+  full: msg('Выгружается'),
+  partial: msg('Не во всех категориях'),
+  none: msg('В каналы не выгружается'),
 } as const;
 
-function InventoryFailed() {
+async function InventoryFailed() {
+  const t = await serverT();
   return (
     <Alert boxed tone="warning" data-testid="inventory-failed">
-      Сводка фонда не загрузилась: категории ниже подписаны кодами, несопоставленные не видны.
-      Сопоставления читаются отдельно и верны.
+      {t('Сводка фонда не загрузилась: категории ниже подписаны кодами, несопоставленные не видны. Сопоставления читаются отдельно и верны.')}
     </Alert>
   );
 }
@@ -638,12 +648,13 @@ function InventoryFailed() {
 /* ── Синхронизация: актуальны ли остатки, цены и брони; техника — раскрывашкой ── */
 
 const SYNC_KINDS = [
-  ['AVAILABILITY', 'Остатки'],
-  ['RESTRICTIONS', 'Цены и ограничения'],
+  ['AVAILABILITY', msg('Остатки')],
+  ['RESTRICTIONS', msg('Цены и ограничения')],
 ] as const;
 
 async function Sync({ queue, canMutate }: { queue: OutboxRowStatus | ''; canMutate: boolean }) {
   const clock = await hotelClock();
+  const t = await serverT();
   const [loadedOutbox, allRows, filteredRows, connection, failedEvents, summary] =
     await Promise.all([
       settle(channelsApi.outbox()),
@@ -673,34 +684,34 @@ async function Sync({ queue, canMutate }: { queue: OutboxRowStatus | ''; canMuta
           ? 'warn'
           : 'calm';
   const summaryWord = !connection
-    ? 'Не удалось проверить подключение каналов.'
+    ? t('Не удалось проверить подключение каналов.')
     : notConnected
-      ? 'Каналы не подключены. Обмен с OTA не подтверждён.'
+      ? t('Каналы не подключены. Обмен с OTA не подтверждён.')
       : !outbox
-        ? 'Сводка очереди не загрузилась.'
+        ? t('Сводка очереди не загрузилась.')
         : outbox.failed > 0
-          ? `Ошибок отправки: ${outbox.failed}. Проверьте журнал.`
+          ? t('Ошибок отправки: {n}. Проверьте журнал.', { n: outbox.failed })
           : stalledMinutes >= 10
-            ? `Очередь ожидает ${stalledMinutes} мин. Проверьте отправку.`
+            ? t('Очередь ожидает {n} мин. Проверьте отправку.', { n: stalledMinutes })
             : outbox.pending > 0
-              ? 'Изменения ждут отправки в менеджер каналов.'
+              ? t('Изменения ждут отправки в менеджер каналов.')
               : connection.environment !== 'production'
-                ? 'Тестовый контур. Ожидающих заданий нет; обмен с рабочими OTA не подтверждён.'
-                : 'Ожидающих заданий нет. Результаты обмена смотрите в журнале.';
+                ? t('Тестовый контур. Ожидающих заданий нет; обмен с рабочими OTA не подтверждён.')
+                : t('Ожидающих заданий нет. Результаты обмена смотрите в журнале.');
   const lastInbound =
     [connection?.lastWebhookAt, connection?.lastPullAt]
       .filter((x): x is string => !!x)
       .sort()
       .at(-1) ?? null;
   const inboundLabel = !connection
-    ? 'Не проверено'
+    ? t('Не проверено')
     : notConnected
-      ? 'Не подключено'
+      ? t('Не подключено')
       : connection.environment !== 'production'
-        ? 'Тестовый контур'
+        ? t('Тестовый контур')
         : lastInbound
-          ? 'События получены'
-          : 'Событий ещё нет';
+          ? t('События получены')
+          : t('Событий ещё нет');
   const kindState = (kind: OutboxRow['kind']) => {
     const ofKind = (allRows ?? []).filter((r) => r.kind === kind);
     const failed = ofKind.filter((r) => r.status === 'FAILED').length;
@@ -718,51 +729,53 @@ async function Sync({ queue, canMutate }: { queue: OutboxRowStatus | ''; canMuta
       {!loadedOutbox.ok && <LoadError testId="outbox-error" {...loadErrorProps(loadedOutbox.e)} />}
       <StateBar
         tone={tone}
-        label="В очереди"
+        label={t('В очереди')}
         value={
-          outbox ? <span data-testid="sync-pending">{String(outbox.pending)}</span> : 'Неизвестно'
+          outbox ? <span data-testid="sync-pending">{String(outbox.pending)}</span> : t('Неизвестно')
         }
         summary={summaryWord}
       >
         <StateFact
-          label="Отправлено"
+          label={t('Отправлено')}
           value={
             outbox ? (
               <>
                 <span data-testid="sync-sent">{String(outbox.sent)}</span>
                 {outbox.failed > 0 ? (
-                  <span className="danger-text">, ошибок {outbox.failed}</span>
+                  <span className="danger-text">{t(', ошибок {n}', { n: outbox.failed })}</span>
                 ) : (
-                  ', ошибок нет'
+                  t(', ошибок нет')
                 )}
               </>
             ) : (
-              'Неизвестно'
+              t('Неизвестно')
             )
           }
         >
           <span className="state-bar__sub">
             {outbox?.lastSentAt
-              ? `последняя ${eventTime(outbox.lastSentAt, clock)}`
+              ? t('последняя {time}', { time: eventTime(outbox.lastSentAt, clock) })
               : outbox
-                ? 'ещё не было'
-                : 'сводка не загрузилась'}
+                ? t('ещё не было')
+                : t('сводка не загрузилась')}
           </span>
         </StateFact>
         <StateFact
-          label="Входящие брони"
+          label={t('Входящие брони')}
           value={
             failedEvents === null ? (
-              'не загрузилось'
+              t('не загрузилось')
             ) : failedEvents > 0 ? (
-              <span className="danger-text">требуют разбора: {failedEvents}</span>
+              <span className="danger-text">{t('требуют разбора: {n}', { n: failedEvents })}</span>
             ) : (
               inboundLabel
             )
           }
         >
           <span className="state-bar__sub">
-            {lastInbound ? `последняя ${eventTime(lastInbound, clock)}` : 'ещё не приходили'}
+            {lastInbound
+              ? t('последняя {time}', { time: eventTime(lastInbound, clock) })
+              : t('ещё не приходили')}
           </span>
         </StateFact>
       </StateBar>
@@ -770,8 +783,8 @@ async function Sync({ queue, canMutate }: { queue: OutboxRowStatus | ''; canMuta
       <Table size="sm" className="dir-table" data-testid="sync-kinds">
         <thead>
           <tr>
-            {['Что', 'Состояние', 'Последняя отправка'].map((h) => (
-              <th key={h}>{h}</th>
+            {[msg('Что'), msg('Состояние'), msg('Последняя отправка')].map((h) => (
+              <th key={h}>{t(h)}</th>
             ))}
           </tr>
         </thead>
@@ -780,25 +793,25 @@ async function Sync({ queue, canMutate }: { queue: OutboxRowStatus | ''; canMuta
             const s = kindState(kind);
             return (
               <tr key={kind} data-testid={`sync-kind-${kind}`}>
-                <td>{label}</td>
+                <td>{t(label)}</td>
                 <td>
                   {allRows === null ? (
-                    'Неизвестно'
+                    t('Неизвестно')
                   ) : s.failed > 0 ? (
-                    <Badge tone="danger">ошибка</Badge>
+                    <Badge tone="danger">{t('ошибка')}</Badge>
                   ) : s.pending > 0 ? (
-                    <Badge tone="info">в очереди: {s.pending}</Badge>
+                    <Badge tone="info">{t('в очереди: {n}', { n: s.pending })}</Badge>
                   ) : (
                     <Badge tone="info">
                       {!connection
-                        ? 'Не проверено'
+                        ? t('Не проверено')
                         : notConnected
-                          ? 'Не подключено'
+                          ? t('Не подключено')
                           : connection.environment !== 'production'
-                            ? 'Тестовый контур'
+                            ? t('Тестовый контур')
                             : s.lastSent
-                              ? 'Отправлено в менеджер'
-                              : 'Не отправлялось'}
+                              ? t('Отправлено в менеджер')
+                              : t('Не отправлялось')}
                     </Badge>
                   )}
                 </td>
@@ -807,14 +820,14 @@ async function Sync({ queue, canMutate }: { queue: OutboxRowStatus | ''; canMuta
             );
           })}
           <tr data-testid="sync-kind-BOOKINGS">
-            <td>Брони из каналов</td>
+            <td>{t('Брони из каналов')}</td>
             <td>
               {failedEvents === null ? (
-                'Неизвестно'
+                t('Неизвестно')
               ) : failedEvents > 0 ? (
                 <>
-                  <Badge tone="danger">требуют разбора: {failedEvents}</Badge>{' '}
-                  <Link href="/channels/events?status=FAILED">к событиям</Link>
+                  <Badge tone="danger">{t('требуют разбора: {n}', { n: failedEvents })}</Badge>{' '}
+                  <Link href="/channels/events?status=FAILED">{t('к событиям')}</Link>
                 </>
               ) : (
                 <Badge tone="info">{inboundLabel}</Badge>
@@ -828,9 +841,9 @@ async function Sync({ queue, canMutate }: { queue: OutboxRowStatus | ''; canMuta
         <ChannelButtons group="exchange" connected={!!connection?.propertyAccessible} canMutate />
       )}
       <details className="context-help" open={queue ? true : undefined} data-testid="sync-tech">
-        <summary>Технические детали</summary>
+        <summary>{t('Технические детали')}</summary>
         <section className="stack stack--sm" aria-labelledby="outbox-title">
-          <SectionTitle id="outbox-title">Очередь в каналы</SectionTitle>
+          <SectionTitle id="outbox-title">{t('Очередь в каналы')}</SectionTitle>
           <OutboxTable
             rows={rows}
             filter={queue}
@@ -877,9 +890,10 @@ async function Events({
     const s = u.toString();
     return s ? `/channels/events?${s}` : '/channels/events';
   };
+  const t = await serverT();
   return (
     <section className="stack stack--sm" aria-labelledby="events-title">
-      <SectionTitle id="events-title">Входящие события</SectionTitle>
+      <SectionTitle id="events-title">{t('Входящие события')}</SectionTitle>
       <EventsTable data={data} filter={filter} hrefFor={href} canRetry={canMutate} />
     </section>
   );
@@ -890,7 +904,8 @@ async function Events({
  * или дала ошибку, каналы продолжают продавать по старому остатку — это прямая дорога к овербукингу.
  * Порог 10 минут: воркер отправляет каждые 5 секунд, лимит Channex — не чаще 6 секунд на вид сообщения.
  */
-function OverbookingAlarm({ outbox }: { outbox: OutboxSummary }) {
+async function OverbookingAlarm({ outbox }: { outbox: OutboxSummary }) {
+  const t = await serverT();
   const staleMinutes = outbox.oldestPendingAt
     ? Math.floor((Date.now() - Date.parse(outbox.oldestPendingAt)) / 60000)
     : 0;
@@ -898,11 +913,10 @@ function OverbookingAlarm({ outbox }: { outbox: OutboxSummary }) {
   if (outbox.failed === 0 && !stuck) return null;
   return (
     <Alert boxed data-testid="overbooking-alarm">
-      <b>Каналы могут не знать об остатках.</b>{' '}
-      {outbox.failed > 0 && `Ошибок отправки: ${outbox.failed}. `}
-      {stuck && `Самая старая неотправленная дельта ждёт ${staleMinutes} мин. `}
-      Пока очередь не разошлась, каналы продают по старому остатку — возможен овербукинг. Нажмите
-      «Отправить очередь сейчас» и проверьте ключ менеджера каналов.
+      <b>{t('Каналы могут не знать об остатках.')}</b>{' '}
+      {outbox.failed > 0 && `${t('Ошибок отправки: {n}.', { n: outbox.failed })} `}
+      {stuck && `${t('Самая старая неотправленная дельта ждёт {n} мин.', { n: staleMinutes })} `}
+      {t('Пока очередь не разошлась, каналы продают по старому остатку: возможен овербукинг. Нажмите «Отправить очередь сейчас» и проверьте ключ менеджера каналов.')}
     </Alert>
   );
 }

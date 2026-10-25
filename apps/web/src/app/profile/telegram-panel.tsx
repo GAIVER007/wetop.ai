@@ -12,8 +12,10 @@ import {
   telegramTestAction,
   type TelegramActionResult,
 } from './telegram-actions';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
-export const BOT_PENDING_TEXT = 'Бот WETOP подключается администратором платформы';
+export const BOT_PENDING_TEXT = msg('Бот WETOP подключается администратором платформы');
 
 /**
  * «Уведомления» в настройках рабочего места (STAFF-TG-20261020, план plans/staff-telegram-notifications-2026-10-20.md):
@@ -27,6 +29,7 @@ export function TelegramNotifications({ initial }: { initial: StaffTelegramStatu
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
   const [, startTransition] = useTransition();
+  const t = useT();
 
   const run = (name: string, action: () => Promise<TelegramActionResult>) => {
     setPending(name);
@@ -46,8 +49,8 @@ export function TelegramNotifications({ initial }: { initial: StaffTelegramStatu
   if (!status)
     return (
       <section className="panel" data-testid="profile-telegram">
-        <h2 className="section-title">Уведомления в Telegram</h2>
-        <p className="muted">Состояние уведомлений видно после входа.</p>
+        <h2 className="section-title">{t('Уведомления в Telegram')}</h2>
+        <p className="muted">{t('Состояние уведомлений видно после входа.')}</p>
       </section>
     );
 
@@ -58,26 +61,28 @@ export function TelegramNotifications({ initial }: { initial: StaffTelegramStatu
       <span className="round-icon">
         <Icon name="send" />
       </span>
-      <h2 className="section-title">Уведомления в Telegram</h2>
+      <h2 className="section-title">{t('Уведомления в Telegram')}</h2>
       <p className="muted">
-        Новые брони и записи с сайта WETOP приходят вам в личный чат с ботом: кто, когда, что и телефон гостя. Кнопка в
-        сообщении открывает бронь в WETOP.
+        {t(
+          'Новые брони и записи с сайта WETOP приходят вам в личный чат с ботом: кто, когда, что и телефон гостя. Кнопка в сообщении открывает бронь в WETOP.',
+        )}
       </p>
       <p>
         {connected ? (
           <Badge tone="ok" data-testid="telegram-state">
-            Подключено{connected.username ? `: @${connected.username}` : ''}
+            {t('Подключено')}
+            {connected.username ? `: @${connected.username}` : ''}
           </Badge>
         ) : (
           <Badge tone="neutral" data-testid="telegram-state">
-            Не подключено
+            {t('Не подключено')}
           </Badge>
         )}
       </p>
 
       {!botReady && (
         <Notice tone="muted" data-testid="telegram-bot-pending">
-          {BOT_PENDING_TEXT}
+          {t(BOT_PENDING_TEXT)}
         </Notice>
       )}
 
@@ -85,8 +90,8 @@ export function TelegramNotifications({ initial }: { initial: StaffTelegramStatu
         <>
           <Switch
             name="siteBookings"
-            label="Брони с сайта"
-            hint="Брони, записи и заявки с сайта филиалов, где вы видите брони"
+            label={t('Брони с сайта')}
+            hint={t('Брони, записи и заявки с сайта филиалов, где вы видите брони')}
             checked={connected.siteBookings}
             disabled={pending !== null}
             onChange={(on) => run('switch', () => telegramSiteBookingsAction(on))}
@@ -98,7 +103,7 @@ export function TelegramNotifications({ initial }: { initial: StaffTelegramStatu
               aria-busy={pending === 'test'}
               onClick={() => run('test', telegramTestAction)}
             >
-              {pending === 'test' ? 'Отправляю…' : 'Проверить'}
+              {pending === 'test' ? t('Отправляю…') : t('Проверить')}
             </Button>
             <Button
               tone="ghost"
@@ -106,7 +111,7 @@ export function TelegramNotifications({ initial }: { initial: StaffTelegramStatu
               aria-busy={pending === 'disconnect'}
               onClick={() => run('disconnect', telegramDisconnectAction)}
             >
-              {pending === 'disconnect' ? 'Отключаю…' : 'Отключить'}
+              {pending === 'disconnect' ? t('Отключаю…') : t('Отключить')}
             </Button>
           </Row>
         </>
@@ -118,22 +123,22 @@ export function TelegramNotifications({ initial }: { initial: StaffTelegramStatu
               aria-busy={pending === 'code'}
               onClick={() => run('code', telegramCodeAction)}
             >
-              {pending === 'code' ? 'Готовлю ссылку…' : 'Подключить Telegram'}
+              {pending === 'code' ? t('Готовлю ссылку…') : t('Подключить Telegram')}
             </Button>
           </Row>
           {link && (
             <div data-testid="telegram-link">
               <p>
-                Откройте ссылку и нажмите «Запустить» в Telegram. Ссылка действует 15 минут, код{' '}
+                {t('Откройте ссылку и нажмите «Запустить» в Telegram. Ссылка действует 15 минут, код')}{' '}
                 <strong translate="no">{link.code}</strong>.
               </p>
               <Row>
                 <a className="btn btn--secondary" href={link.url} target="_blank" rel="noopener noreferrer">
-                  Открыть Telegram
+                  {t('Открыть Telegram')}
                   <Icon name="external" width={16} />
                 </a>
                 <Button tone="ghost" disabled={pending !== null} onClick={() => run('refresh', telegramRefreshAction)}>
-                  {pending === 'refresh' ? 'Проверяю…' : 'Я подключил'}
+                  {pending === 'refresh' ? t('Проверяю…') : t('Я подключил')}
                 </Button>
               </Row>
             </div>

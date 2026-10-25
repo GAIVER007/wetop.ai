@@ -3,18 +3,19 @@ import { useEffect, useRef } from 'react';
 import { Icon } from '../../components/icon';
 import { Badge, Button } from '../../components/ui';
 import { wholeTenge } from '../../lib/dashboard-format';
-import { pluralRu } from '../../lib/plural';
 import { foodStatus } from '../../lib/status/food';
 import type { DiningTable, OrderView, RestaurantReservation } from '../../lib/food-types';
 import { formatPhone } from '../../lib/phone';
 import { tableTitle } from '../../lib/table-title';
+import { countLabel, msg } from '../../i18n';
+import { useLocale, useT } from '../../i18n/locale-provider';
 
 export type TableKind = 'FREE' | 'OCCUPIED' | 'RESERVED' | 'CLEANING';
 export const KIND_LABEL: Record<TableKind, string> = {
-  FREE: 'Свободен',
-  OCCUPIED: 'Занят',
-  RESERVED: 'Бронь',
-  CLEANING: 'Уборка',
+  FREE: msg('Свободен'),
+  OCCUPIED: msg('Занят'),
+  RESERVED: msg('Бронь'),
+  CLEANING: msg('Уборка'),
 };
 export const KIND_TONE: Record<TableKind, 'neutral' | 'danger' | 'info' | 'warn'> = {
   FREE: 'neutral',
@@ -63,6 +64,8 @@ export function TablePanel({
   toggleCleaning: () => void;
   cleaningPending: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const name = (r: RestaurantReservation) =>
     [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' ');
   const upcoming = day.filter((r) => r.id !== current?.id);
@@ -82,15 +85,15 @@ export function TablePanel({
     <aside
       className="rest-table-panel"
       data-testid="table-panel"
-      aria-label={tableTitle(table.name)}
+      aria-label={tableTitle(table.name, t)}
     >
       <div className="rest-table-panel__head">
-        <h2>{tableTitle(table.name)}</h2>
+        <h2>{tableTitle(table.name, t)}</h2>
         <button
           ref={closeButton}
           type="button"
           className="rest-icon-btn"
-          aria-label={`Закрыть: ${tableTitle(table.name)}`}
+          aria-label={t('Закрыть: {table}', { table: tableTitle(table.name, t) })}
           onClick={close}
         >
           <Icon name="close" />
@@ -98,58 +101,58 @@ export function TablePanel({
       </div>
         <div className="food-section-heading">
           <Badge tone={KIND_TONE[kind]}>
-            {current ? foodStatus[current.status].label : KIND_LABEL[kind]}
+            {t(current ? foodStatus[current.status].label : KIND_LABEL[kind])}
           </Badge>
           <span className="muted">
-            {areaName}, {pluralRu(table.capacity, ['место', 'места', 'мест'])}
+            {areaName}, {countLabel(locale, t, table.capacity, [msg('место@@стол'), 'места', msg('мест@@стол')])}{/* kk-allow: форма склонения */}
           </span>
         </div>
         {current && (
-          <section aria-label="Текущий визит" className="rest-table-panel__now">
+          <section aria-label={t('Текущий визит')} className="rest-table-panel__now">
             <strong>{name(current)}</strong>
             {current.customer.phone && <span>{formatPhone(current.customer.phone)}</span>}
             <span>
-              Время: {clock(current.startsAt)}–{clock(current.endsAt)},{' '}
-              {pluralRu(current.partySize, ['гость', 'гостя', 'гостей'])}
+              {t('Время: {from}–{to},', { from: clock(current.startsAt), to: clock(current.endsAt) })}{' '}
+              {countLabel(locale, t, current.partySize, [msg('гость'), 'гостя', msg('гостей')])}{/* kk-allow: форма склонения */}
             </span>
             {current.notes && <small>{current.notes}</small>}
           </section>
         )}
         {order && (
-          <section aria-label="Заказ стола" className="rest-table-panel__now">
-            <strong>Заказ №{order.number}</strong>
+          <section aria-label={t('Заказ стола')} className="rest-table-panel__now">
+            <strong>{t('Заказ №{number}', { number: order.number })}</strong>
             <span>
-              {wholeTenge(order.totalMinor, order.currency)}, с {clock(order.openedAt)}
+              {t('{sum}, с {time}', { sum: wholeTenge(order.totalMinor, order.currency), time: clock(order.openedAt) })}
             </span>
           </section>
         )}
         <div className="rest-table-panel__actions">
           {current && (
-            <Button onClick={() => openReservation(current)}>Открыть бронь</Button>
+            <Button onClick={() => openReservation(current)}>{t('Открыть бронь')}</Button>
           )}
           {order && (
             <Button tone={current ? 'secondary' : 'primary'} onClick={openOrders}>
-              Открыть заказ
+              {t('Открыть заказ')}
             </Button>
           )}
           {write && !current && !order && kind !== 'CLEANING' && (
             <>
-              <Button onClick={book}>Забронировать</Button>
+              <Button onClick={book}>{t('Забронировать')}</Button>
               <Button tone="secondary" onClick={walkIn}>
-                Посадить без брони
+                {t('Посадить без брони')}
               </Button>
             </>
           )}
           {write && !current && !order && (
             <Button tone="secondary" disabled={cleaningPending} onClick={toggleCleaning}>
-              {table.needsCleaning ? 'Убрано' : 'Отметить уборку'}
+              {table.needsCleaning ? t('Убрано') : t('Отметить уборку')}
             </Button>
           )}
         </div>
-        <section aria-label="Брони стола на день">
-          <h3>Брони на день</h3>
+        <section aria-label={t('Брони стола на день')}>
+          <h3>{t('Брони на день')}</h3>
           {upcoming.length === 0 ? (
-            <p className="muted">Других броней на этот день нет</p>
+            <p className="muted">{t('Других броней на этот день нет')}</p>
           ) : (
             <ul className="rest-table-panel__list">
               {upcoming.map((r) => (
@@ -159,7 +162,7 @@ export function TablePanel({
                       {clock(r.startsAt)}–{clock(r.endsAt)}
                     </span>
                     <span>{name(r)}</span>
-                    <Badge>{foodStatus[r.status].label}</Badge>
+                    <Badge>{t(foodStatus[r.status].label)}</Badge>
                   </button>
                 </li>
               ))}

@@ -2,8 +2,8 @@
 import Link from 'next/link';
 import { Badge } from '../../components/ui';
 import { Icon } from '../../components/icon';
-import { pluralRu } from '../../lib/plural';
 import { useLocale, useT } from '../../i18n/locale-provider';
+import { countLabel } from '../../i18n';
 
 export interface WarehouseCard {
   id: 'bar' | 'kitchen';
@@ -27,8 +27,8 @@ export interface WarehouseCard {
 export function WarehouseSummary({ cards }: { cards: WarehouseCard[] }) {
   const t = useT();
   const locale = useLocale();
-  // у казахского существительное после числа не меняется: «5 тауар»
-  const counted = (n: number, noun: WarehouseCard['noun']) => (locale === 'kk' ? `${n} ${t(noun[0])}` : pluralRu(n, noun, true));
+  // склонение на языке человека: русское, «5 тауар», «5 items» (EN1)
+  const counted = (n: number, noun: WarehouseCard['noun']) => countLabel(locale, t, n, noun);
   return (
     <section className="bar-warehouses" aria-label={t('Остатки по складам')}>
       {cards.map((card) => {

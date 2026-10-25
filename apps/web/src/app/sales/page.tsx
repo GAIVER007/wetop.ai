@@ -21,6 +21,8 @@ import { Icon, type IconName } from '../../components/icon';
 import { KpiTile } from '../../components/kpi-tile';
 import { Alert, Panel, cx } from '../../components/ui';
 import { insightText } from '../market/insight-text';
+import { countLabel, msg, type DeskLocale, type Translate } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 import './sales.css';
 
 /**
@@ -46,9 +48,10 @@ const minusDays = (iso: string, n: number) =>
 
 export default async function SalesHubPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const me = await requireFeature('/sales');
+  const [t, locale] = await Promise.all([serverT(), currentLocale()]);
   if (me.context?.vertical === 'BEAUTY' || me.context?.vertical === 'FOOD_SERVICE') {
     const data = await loadBusinessSales(normalizeSearchParams(await searchParams));
-    return <BusinessGrowthScreen vertical={me.context.vertical} mode="sales" data={data} />;
+    return <BusinessGrowthScreen vertical={me.context.vertical} mode="sales" data={data} locale={locale} />;
   }
   const sp = normalizeSearchParams(await searchParams);
   const today = await hotelToday();
@@ -69,7 +72,7 @@ export default async function SalesHubPage({ searchParams }: { searchParams: Pro
   const humanCount = needsHuman?.ok ? needsHuman.value.items.length : null;
   const board = market.ok ? market.value.board : null;
   const boardWeek = weekAgo.ok ? weekAgo.value.board : null;
-  const noSeller = !botReadable ? 'ИИ-продавец не подключён' : 'Нет данных от продавца';
+  const noSeller = t(!botReadable ? msg('ИИ-продавец не подключён') : msg('Нет данных от продавца'));
 
   const marketDelta: Delta | undefined =
     board?.summary.marketBp != null && boardWeek?.summary.marketBp != null
@@ -88,15 +91,15 @@ export default async function SalesHubPage({ searchParams }: { searchParams: Pro
 
   return (
     <Page
-      title="Обзор продаж"
-      subtitle="Инструменты роста, анализа рынка и ИИ-продаж в одном разделе."
+      title={t('Обзор продаж')}
+      subtitle={t('Инструменты роста, анализа рынка и ИИ-продаж в одном разделе.')}
       actions={
-        <nav className="chips sales-chips" aria-label="Период броней и конверсии" data-testid="sales-period">
+        <nav className="chips sales-chips" aria-label={t('Период броней и конверсии')} data-testid="sales-period">
           <Link href="/sales?days=7" aria-current={period.preset === '7' ? 'page' : undefined}>
-            7 дней
+            {t('7 дней')}
           </Link>
           <Link href="/sales?days=30" aria-current={period.preset === '30' ? 'page' : undefined}>
-            30 дней
+            {t('30 дней')}
           </Link>
         </nav>
       }
@@ -104,112 +107,114 @@ export default async function SalesHubPage({ searchParams }: { searchParams: Pro
       <div className="sales-hub">
         {!sales && (
           <Alert tone="warning" role="alert" data-testid="sales-summary-error">
-            Не удалось посчитать брони и конкурентов. Остальное показано как есть, обновите страницу.
+            {t('Не удалось посчитать брони и конкурентов. Остальное показано как есть, обновите страницу.')}
           </Alert>
         )}
 
         <div className="kpi-row" data-testid="sales-kpis">
           <KpiTile
             icon="channels"
-            label="Конкурентов в отслеживании"
+            label={t('Конкурентов в отслеживании')}
             testId="sales-kpi-competitors"
             value={sales ? String(sales.competitors.count) : DASH}
             delta={added > 0 ? { direction: 'up', text: `+${added}` } : undefined}
             caption={
               !sales || !fresh
-                ? 'Нет данных'
+                ? t('Нет данных')
                 : added > 0
-                  ? 'с прошлого месяца'
+                  ? t('с прошлого месяца')
                   : fresh.state === 'empty'
-                    ? 'добавьте первого конкурента'
+                    ? t('добавьте первого конкурента')
                     : fresh.state === 'none'
-                      ? 'снимков загрузки ещё нет'
-                      : `обновлено ${sales.competitors.lastObservedOn?.slice(8, 10)}.${sales.competitors.lastObservedOn?.slice(5, 7)}`
+                      ? t('снимков загрузки ещё нет')
+                      : t('обновлено {date}', { date: `${sales.competitors.lastObservedOn?.slice(8, 10)}.${sales.competitors.lastObservedOn?.slice(5, 7)}` })
             }
             href="/market"
           />
           <KpiTile
             icon="analytics"
-            label="Средняя загрузка рынка"
+            label={t('Средняя загрузка рынка')}
             testId="sales-kpi-market"
             value={pct(board?.summary.marketBp)}
             delta={marketDelta}
-            caption={board ? (marketDelta ? 'за последние 7 дней' : 'по внесённым данным') : 'Нет данных'}
+            caption={board ? t(marketDelta ? msg('за последние 7 дней') : msg('по внесённым данным')) : t('Нет данных')}
             href="/market"
           />
           <KpiTile
             icon="board"
-            label="Ваша загрузка vs рынок"
+            label={t('Ваша загрузка vs рынок')}
             testId="sales-kpi-own"
             value={pct(board?.summary.ownBp)}
             delta={gapDelta}
             caption={
               gap === null
                 ? board
-                  ? 'нет данных конкурентов'
-                  : 'Нет данных'
+                  ? t('нет данных конкурентов')
+                  : t('Нет данных')
                 : gap === 0
-                  ? 'вровень с рынком'
-                  : `${gap > 0 ? 'выше' : 'ниже'} на ${formatPoints(Math.abs(Math.round(gap / 100) * 100)).replace('+', '')}`
+                  ? t('вровень с рынком')
+                  : t(gap > 0 ? msg('выше на {points}') : msg('ниже на {points}'), {
+                      points: formatPoints(Math.abs(Math.round(gap / 100) * 100)).replace('+', ''),
+                    })
             }
             href="/market"
           />
           <KpiTile
             icon="chat"
-            label="Активных диалогов"
+            label={t('Активных диалогов')}
             testId="sales-kpi-dialogs"
             value={dialogs ? String(dialogs.dialogs) : DASH}
             caption={
               dialogs
                 ? humanCount
-                  ? `за 24 часа, ${humanCount} ждут человека`
-                  : 'за 24 часа'
+                  ? t('за 24 часа, {n} ждут человека', { n: humanCount })
+                  : t('за 24 часа')
                 : noSeller
             }
             href="/ai-seller/dialogs"
           />
           <KpiTile
             icon="check"
-            label="Конверсия в бронь"
+            label={t('Конверсия в бронь')}
             testId="sales-kpi-conversion"
             value={conversion ?? DASH}
             delta={conversionDelta}
             caption={
               !sales
-                ? 'Нет данных'
+                ? t('Нет данных')
                 : conversion === null
-                  ? 'за период предложений не было'
-                  : `${sales.bookings.current} из ${sales.offers.current} предложений`
+                  ? t('за период предложений не было')
+                  : t('{bookings} из {offers} предложений', { bookings: sales.bookings.current, offers: sales.offers.current })
             }
             href="/ai-seller/dialogs"
           />
           <KpiTile
             icon="guests"
-            label="Лидов"
+            label={t('Лидов')}
             testId="sales-kpi-leads"
             value={dialogs ? String(dialogs.leads) : DASH}
-            caption={dialogs ? 'оставили контакт за 24 часа' : noSeller}
+            caption={dialogs ? t('оставили контакт за 24 часа') : noSeller}
             href="/ai-seller/dialogs"
           />
         </div>
 
         <div className="sales-trio">
-          <MarketCard board={board} />
-          <SellerCard connected={botReadable} extensionOff={status.ok && status.value.state === 'extension-off'} />
-          <RecommendationsCard insights={board?.insights ?? null} empty={sales?.competitors.count === 0} />
+          <MarketCard board={board} t={t} locale={locale} />
+          <SellerCard connected={botReadable} extensionOff={status.ok && status.value.state === 'extension-off'} t={t} />
+          <RecommendationsCard insights={board?.insights ?? null} empty={sales?.competitors.count === 0} t={t} locale={locale} />
         </div>
       </div>
     </Page>
   );
 }
 
-function CheckList({ items }: { items: string[] }) {
+function CheckList({ items, t }: { items: string[]; t: Translate }) {
   return (
     <ul className="sales-card__checks">
       {items.map((item) => (
         <li key={item}>
           <Icon name="check" width={16} aria-hidden="true" />
-          {item}
+          {t(item)}
         </li>
       ))}
     </ul>
@@ -217,10 +222,12 @@ function CheckList({ items }: { items: string[] }) {
 }
 
 /** Мини-столбцы по реальным данным: средняя загрузка рынка на ближайшие ночи; нет данных, нет и картинки */
-function MarketBars({ board }: { board: MarketView['board'] | null }) {
+function MarketBars({ board, t, locale }: { board: MarketView['board'] | null; t: Translate; locale: DeskLocale }) {
   const bars = board?.market.filter((m) => m.bp !== null) ?? [];
   if (!board || bars.length === 0) return null;
-  const label = `Средняя загрузка рынка на ближайшие ${board.dates.length} ночей`;
+  const label = t('Средняя загрузка рынка на ближайшие {nights}', {
+    nights: countLabel(locale, t, board.dates.length, [msg('ночь'), msg('ночи'), msg('ночей')]),
+  });
   return (
     <svg className="sales-card__art" viewBox="0 0 112 56" role="img" aria-label={label}>
       {board.market.map((m, i) => {
@@ -235,7 +242,7 @@ function MarketBars({ board }: { board: MarketView['board'] | null }) {
   );
 }
 
-function MarketCard({ board }: { board: MarketView['board'] | null }) {
+function MarketCard({ board, t, locale }: { board: MarketView['board'] | null; t: Translate; locale: DeskLocale }) {
   return (
     <Panel className="sales-card" aria-labelledby="sales-market-title" data-testid="sales-card-market">
       <div className="sales-card__head">
@@ -243,17 +250,17 @@ function MarketCard({ board }: { board: MarketView['board'] | null }) {
           <Icon name="analytics" />
         </span>
         <div>
-          <h2 id="sales-market-title">Анализ конкурентов</h2>
-          <p>Мониторинг рынка, сравнение загрузки, подсказки к цене.</p>
+          <h2 id="sales-market-title">{t('Анализ конкурентов')}</h2>
+          <p>{t('Мониторинг рынка, сравнение загрузки, подсказки к цене.')}</p>
         </div>
       </div>
       <div className="sales-card__body">
-        <CheckList items={['Ручной ввод и разрешённые источники', 'Графики загрузки по ночам', 'Подсказки к цене по спросу']} />
-        <MarketBars board={board} />
+        <CheckList t={t} items={[msg('Ручной ввод и разрешённые источники'), msg('Графики загрузки по ночам'), msg('Подсказки к цене по спросу')]} />
+        <MarketBars board={board} t={t} locale={locale} />
       </div>
       <div className="sales-card__foot">
         <Link className="btn" href="/market">
-          Открыть аналитику
+          {t('Открыть аналитику')}
           <Icon name="arrow" aria-hidden="true" />
         </Link>
       </div>
@@ -275,7 +282,7 @@ function ChatArt() {
   );
 }
 
-function SellerCard({ connected, extensionOff }: { connected: boolean; extensionOff: boolean }) {
+function SellerCard({ connected, extensionOff, t }: { connected: boolean; extensionOff: boolean; t: Translate }) {
   return (
     <Panel className="sales-card" aria-labelledby="sales-seller-title" data-testid="sales-card-seller">
       <div className="sales-card__head">
@@ -283,22 +290,22 @@ function SellerCard({ connected, extensionOff }: { connected: boolean; extension
           <Icon name="chat" />
         </span>
         <div>
-          <h2 id="sales-seller-title">ИИ-продавец</h2>
-          <p>Сайт и WhatsApp. Ответы на вопросы, заявки и брони.</p>
+          <h2 id="sales-seller-title">{t('ИИ-продавец')}</h2>
+          <p>{t('Сайт и WhatsApp. Ответы на вопросы, заявки и брони.')}</p>
         </div>
       </div>
       <div className="sales-card__body">
-        <CheckList items={['Подключение каналов', 'Умные ответы на вопросы гостей', 'Квалификация и бронирование']} />
+        <CheckList t={t} items={[msg('Подключение каналов'), msg('Умные ответы на вопросы гостей'), msg('Квалификация и бронирование')]} />
         <ChatArt />
       </div>
       {extensionOff && (
         <p className="sales-card__note" data-testid="sales-seller-off">
-          Расширение «ИИ-продавец» не подключено: подключает администратор WETOP после оплаты по счёту.
+          {t('Расширение «ИИ-продавец» не подключено: подключает администратор WETOP после оплаты по счёту.')}
         </p>
       )}
       <div className="sales-card__foot">
         <Link className="btn" href={extensionOff ? '/ai-agents' : '/ai-seller'}>
-          {extensionOff ? 'Подробнее' : connected ? 'Открыть ИИ-продавца' : 'Настроить ИИ-продавца'}
+          {t(extensionOff ? msg('Подробнее') : connected ? msg('Открыть ИИ-продавца') : msg('Настроить ИИ-продавца'))}
           <Icon name="arrow" aria-hidden="true" />
         </Link>
       </div>
@@ -314,7 +321,17 @@ const REC_ICON: Record<MarketInsight['kind'], IconName> = {
   missing: 'help',
 };
 
-function RecommendationsCard({ insights, empty }: { insights: MarketInsight[] | null; empty: boolean }) {
+function RecommendationsCard({
+  insights,
+  empty,
+  t,
+  locale,
+}: {
+  insights: MarketInsight[] | null;
+  empty: boolean;
+  t: Translate;
+  locale: DeskLocale;
+}) {
   const shown = (insights ?? []).slice(0, 3);
   return (
     <Panel className="sales-card" aria-labelledby="sales-recs-title" data-testid="sales-card-recs">
@@ -323,22 +340,22 @@ function RecommendationsCard({ insights, empty }: { insights: MarketInsight[] | 
           <Icon name="sun" />
         </span>
         <div>
-          <h2 id="sales-recs-title">Рекомендации сегодня</h2>
-          <p>Что видно на рынке на ближайшие две недели.</p>
+          <h2 id="sales-recs-title">{t('Рекомендации сегодня')}</h2>
+          <p>{t('Что видно на рынке на ближайшие две недели.')}</p>
         </div>
       </div>
       {shown.length > 0 ? (
         <ul className="sales-recs" data-testid="sales-recs">
           {shown.map((i) => {
-            const t = insightText(i);
+            const tip = insightText(i, t, locale);
             return (
-              <li key={`${i.kind}-${i.from}`} className={cx('sales-rec', `sales-rec--${t.tone}`)}>
+              <li key={`${i.kind}-${i.from}`} className={cx('sales-rec', `sales-rec--${tip.tone}`)}>
                 <span className="sales-rec__icon" aria-hidden="true">
                   <Icon name={REC_ICON[i.kind]} />
                 </span>
                 <div>
-                  <strong>{t.title}</strong>
-                  <p>{t.text}</p>
+                  <strong>{tip.title}</strong>
+                  <p>{tip.text}</p>
                 </div>
               </li>
             );
@@ -347,15 +364,15 @@ function RecommendationsCard({ insights, empty }: { insights: MarketInsight[] | 
       ) : (
         <p className="sales-card__note" data-testid="sales-recs-empty">
           {empty
-            ? 'Добавьте ближайших конкурентов и внесите их загрузку: WETOP покажет, где рынок полон и цену можно поднять.'
+            ? t('Добавьте ближайших конкурентов и внесите их загрузку: WETOP покажет, где рынок полон и цену можно поднять.')
             : insights === null
-              ? 'Не удалось получить данные рынка.'
-              : 'Пока подсказок нет: на ближайшие ночи рынок без резких перепадов.'}
+              ? t('Не удалось получить данные рынка.')
+              : t('Пока подсказок нет: на ближайшие ночи рынок без резких перепадов.')}
         </p>
       )}
       <div className="sales-card__foot">
         <Link className="btn btn--secondary" href="/market?add=1">
-          Добавить конкурента
+          {t('Добавить конкурента')}
           <Icon name="plus" aria-hidden="true" />
         </Link>
       </div>

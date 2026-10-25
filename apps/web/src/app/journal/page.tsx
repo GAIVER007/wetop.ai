@@ -13,7 +13,8 @@ import { propertyClock } from '../../lib/property-time';
 import { zoneLabel } from '../../lib/human-period';
 import { dayTitle } from './journal-view';
 import { getJsonPublic } from '../../lib/api';
-import { pluralRu } from '../../lib/plural';
+import { countLabel, msg } from '../../i18n';
+import { currentLocale, serverT } from '../../i18n/server';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
@@ -51,14 +52,14 @@ interface AuditRow {
 }
 
 const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
-  [null, 'Все'],
-  ['Reservation', 'Брони'],
-  ['InventoryUnit', 'Номера и места'],
-  ['Guest', 'Гости'],
-  ['Property', 'Объект и каналы'],
-  ['TrackedSite', 'Сайт'],
-  ['user', 'Сотрудники'],
-  ['organization', 'Организация'],
+  [null, msg('Все')],
+  ['Reservation', msg('Брони')],
+  ['InventoryUnit', 'Номера и места'], // kk-allow: labels.test.ts сверяет эту строку исходника, перевод t(label) при показе
+  ['Guest', msg('Гости')],
+  ['Property', msg('Объект и каналы')],
+  ['TrackedSite', msg('Сайт')],
+  ['user', msg('Сотрудники')],
+  ['organization', msg('Организация')],
 ];
 /** Сколько строк просим у API: поиск и отбор идут по всей истории, наружу — не больше этого */
 const LIMIT = 50;
@@ -75,10 +76,11 @@ export default async function JournalPage({
   searchParams: Promise<SearchParams>;
 }) {
   const desk = await deskShell();
+  const t = await serverT();
   if (!mayAccess(desk.access, 'journal'))
     return (
-      <Page title="История действий">
-        <Notice>История действий доступна только владельцу.</Notice>
+      <Page title={t('История действий')}>
+        <Notice>{t('История действий доступна только владельцу.')}</Notice>
       </Page>
     );
   const { type, q, system, actor, from, to, group, action, cursor } = normalizeSearchParams(
@@ -111,7 +113,7 @@ export default async function JournalPage({
     ...(showSystem ? { system: '1' } : {}),
   });
   const href = (next: { type?: string | null; q?: string; system?: boolean }) => {
-    const t = next.type === undefined ? type : next.type;
+    const nextType = next.type === undefined ? type : next.type;
     const s = next.q === undefined ? needle : next.q;
     const sys = next.system === undefined ? showSystem : next.system;
     const u = new URLSearchParams({
@@ -120,7 +122,7 @@ export default async function JournalPage({
       ...(to ? { to } : {}),
       ...(group ? { group } : {}),
       ...(action ? { action } : {}),
-      ...(t ? { type: t } : {}),
+      ...(nextType ? { type: nextType } : {}),
       ...(s ? { q: s } : {}),
       ...(sys ? { system: '1' } : {}),
     });
@@ -131,117 +133,118 @@ export default async function JournalPage({
   const filters =
     desk.vertical === 'HOSPITALITY'
       ? FILTERS
-      : FILTERS.filter(([t]) => t === null || t === 'user' || t === 'organization');
-  const sectionLabel = FILTERS.find(([t]) => (t ?? undefined) === type)?.[1];
+      : FILTERS.filter(([f]) => f === null || f === 'user' || f === 'organization');
+  const sectionLabel = FILTERS.find(([f]) => (f ?? undefined) === type)?.[1];
   const conditions = [
-    needle ? `по запросу «${needle}»` : '',
-    type ? `раздел «${sectionLabel ?? type}»` : '',
-    showSystem ? 'со служебными' : '',
+    needle ? t('по запросу «{q}»', { q: needle }) : '',
+    type ? t('раздел «{section}»', { section: sectionLabel ? t(sectionLabel) : type }) : '',
+    showSystem ? t('со служебными') : '',
     actor
-      ? `сотрудник: ${actorResult.actors.find((a) => a.id === actor)?.name ?? (actor === 'system' ? 'система' : actor)}`
+      ? t('сотрудник: {name}', {
+          name: actorResult.actors.find((a) => a.id === actor)?.name ?? (actor === 'system' ? t('система') : actor),
+        })
       : '',
-    from ? `с ${from}` : '',
-    to ? `по ${to}` : '',
-    group === 'finance' ? 'касса и финансы' : group === 'staff' ? 'действия сотрудников' : '',
-    action ? actionLabel(action) : '',
+    from ? t('с {date}', { date: from }) : '',
+    to ? t('по {date}', { date: to }) : '',
+    group === 'finance' ? t('касса и финансы') : group === 'staff' ? t('действия сотрудников') : '',
+    action ? actionLabel(action, t) : '',
   ].filter(Boolean);
   return (
     <Page
-      title="История действий"
-      subtitle={`Действия сотрудников и изменения денег. Время: ${zoneLabel(clock.timezone)}.`}
+      title={t('История действий')}
+      subtitle={t('Действия сотрудников и изменения денег. Время: {zone}.', { zone: zoneLabel(clock.timezone, t) })}
       actions={<RefreshButton />}
     >
       {desk.vertical !== 'BEAUTY' && <TeamNavigation current="journal" owner />}
       {actorResult.failed && (
         <Notice>
-          Не удалось загрузить список сотрудников. Журнал доступен, обновите страницу для выбора
-          сотрудника.
+          {t('Не удалось загрузить список сотрудников. Журнал доступен, обновите страницу для выбора сотрудника.')}
         </Notice>
       )}
       {/* аудит 21.10.2026 п. 38: поиск по истории виден сразу и ищет только в истории, а не по всему WETOP */}
-      <form method="get" className="journal-search" role="search" aria-label="Искать по истории">
-        <Field label="Поиск в истории">
+      <form method="get" className="journal-search" role="search" aria-label={t('Искать по истории')}>
+        <Field label={t('Поиск в истории')}>
           <Input
             key={`q-${needle}`}
             name="q"
-            aria-label="Поиск в истории"
-            placeholder={desk.vertical === 'HOSPITALITY' ? 'Номер брони' : 'Действие или сотрудник'}
+            aria-label={t('Поиск в истории')}
+            placeholder={desk.vertical === 'HOSPITALITY' ? t('Номер брони') : t('Действие или сотрудник')}
             defaultValue={needle}
           />
         </Field>
         {type && <input name="type" type="hidden" value={type} />}
-        <Button tone="secondary">Искать в истории</Button>
+        <Button tone="secondary">{t('Искать в истории')}</Button>
         {(needle || type || showSystem || actor || from || to || group || action || cursor) && (
           <Link href="/journal" className="btn btn--ghost">
-            Сбросить фильтры
+            {t('Сбросить фильтры')}
           </Link>
         )}
       </form>
       <details className="journal-filter-panel">
-        <summary>Фильтры истории</summary>
+        <summary>{t('Фильтры истории')}</summary>
         <form method="get" className="control-toolbar control-journal-search">
           <input name="q" type="hidden" value={needle ?? ''} />
           <input name="type" type="hidden" value={type ?? ''} />
-          <Field label="Сотрудник">
+          <Field label={t('Сотрудник')}>
             <Select
               name="actor"
               defaultValue={actor ?? ''}
               key={`actor-${actor}`}
-              aria-label="Сотрудник"
+              aria-label={t('Сотрудник')}
             >
-              <option value="">Все сотрудники</option>
-              <option value="system">Система</option>
+              <option value="">{t('Все сотрудники')}</option>
+              <option value="system">{t('Система')}</option>
               {actor && actor !== 'system' && !actorResult.actors.some((a) => a.id === actor) && (
                 <option value={actor}>{actor}</option>
               )}
               {actorResult.actors.map((a) => (
                 <option key={a.id} value={a.id}>
-                  {a.name || `Сотрудник ${a.id}`}
+                  {a.name || t('Сотрудник {id}', { id: a.id })}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field label="С даты">
+          <Field label={t('С даты')}>
             <Input
               type="date"
               name="from"
-              aria-label="С даты"
+              aria-label={t('С даты')}
               defaultValue={from ?? ''}
               key={`from-${from}`}
             />
           </Field>
-          <Field label="По дату">
+          <Field label={t('По дату')}>
             <Input
               type="date"
               name="to"
-              aria-label="По дату"
+              aria-label={t('По дату')}
               defaultValue={to ?? ''}
               key={`to-${to}`}
             />
           </Field>
-          <Field label="Раздел">
+          <Field label={t('Раздел')}>
             <Select
               name="group"
-              aria-label="Раздел"
+              aria-label={t('Раздел')}
               defaultValue={group ?? ''}
               key={`group-${group}`}
             >
-              <option value="">Все разделы</option>
-              <option value="finance">Касса и финансы</option>
-              <option value="staff">Сотрудники</option>
+              <option value="">{t('Все разделы')}</option>
+              <option value="finance">{t('Касса и финансы')}</option>
+              <option value="staff">{t('Сотрудники')}</option>
             </Select>
           </Field>
-          <Field label="Действие">
+          <Field label={t('Действие')}>
             <Select
               name="action"
-              aria-label="Действие"
+              aria-label={t('Действие')}
               defaultValue={action ?? ''}
               key={`action-${action}`}
             >
-              <option value="">Все действия</option>
+              <option value="">{t('Все действия')}</option>
               {Object.entries(ACTION_RU).map(([key, title]) => (
                 <option key={key} value={key}>
-                  {title}
+                  {t(title)}
                 </option>
               ))}
             </Select>
@@ -254,20 +257,20 @@ export default async function JournalPage({
               value="1"
               defaultChecked={showSystem}
             />{' '}
-            Служебные события
+            {t('Служебные события')}
           </label>
-          <Button tone="secondary">Найти</Button>
+          <Button tone="secondary">{t('Найти')}</Button>
         </form>
       </details>
-      <nav className="chips" aria-label="Раздел истории">
-        {filters.map(([t, label]) => (
+      <nav className="chips" aria-label={t('Раздел истории')}>
+        {filters.map(([f, label]) => (
           <Link
             key={label}
-            href={href({ type: t })}
-            className={cx((t ?? undefined) === type && 'is-active')}
-            aria-current={(t ?? undefined) === type ? 'true' : undefined}
+            href={href({ type: f })}
+            className={cx((f ?? undefined) === type && 'is-active')}
+            aria-current={(f ?? undefined) === type ? 'true' : undefined}
           >
-            {label}
+            {t(label)}
           </Link>
         ))}
       </nav>
@@ -275,7 +278,7 @@ export default async function JournalPage({
         key={query.toString()}
         fallback={
           <Panel role="status" data-testid="journal-loading">
-            Загружаем журнал действий…
+            {t('Загружаем журнал действий…')}
           </Panel>
         }
       >
@@ -310,6 +313,9 @@ async function JournalEntries({
   // день «сегодня» считает сервер по часам объекта: страница серверная, расхождения гидрации нет
   const clock = propertyClock(await workspaceTimezone());
   const today = clock.today();
+  const locale = await currentLocale();
+  const t = await serverT();
+  const count = (n: number) => countLabel(locale, t, n, [msg('операция'), 'операции', msg('операций')]); // kk-allow: форма склонения
   const loaded = await getJsonPublic<AuditRow[]>(`/audit?${query}`).then(
     (r) => ({ ok: true as const, r }),
     (e: unknown) => {
@@ -321,7 +327,7 @@ async function JournalEntries({
   const hasMore = loaded.ok && loaded.r.length > LIMIT;
   const lastCursor = rows?.at(-1)?.cursor;
   const meta = rows
-    ? `${rows.length >= LIMIT && !older ? `Последние ${LIMIT} операций` : filtered || older ? pluralRu(rows.length, ['операция', 'операции', 'операций']) : `Последние ${pluralRu(rows.length, ['операция', 'операции', 'операций'])}`}${conditions.length ? `, ${conditions.join(', ')}` : ''}${searching ? ' (поиск по всей истории)' : ''}`
+    ? `${rows.length >= LIMIT && !older ? t('Последние {n} операций', { n: LIMIT }) : filtered || older ? count(rows.length) : t('Последние {list}', { list: count(rows.length) })}${conditions.length ? `, ${conditions.join(', ')}` : ''}${searching ? ` ${t('(поиск по всей истории)')}` : ''}`
     : null;
   return (
     <div className="control-page">
@@ -340,8 +346,8 @@ async function JournalEntries({
         >
           <thead>
             <tr>
-              {['Когда', 'Кто', 'Что сделали', 'Где'].map((h) => (
-                <th key={h}>{h}</th>
+              {[msg('Когда'), msg('Кто'), msg('Что сделали'), msg('Где')].map((h) => (
+                <th key={h}>{t(h)}</th>
               ))}
             </tr>
           </thead>
@@ -355,7 +361,7 @@ async function JournalEntries({
                   {newDay && (
                     <tr className="journal-day">
                       <th colSpan={4} scope="colgroup" data-testid="journal-day">
-                        {dayTitle(r.at, today, clock)}
+                        {dayTitle(r.at, today, clock, locale, t)}
                       </th>
                     </tr>
                   )}
@@ -366,24 +372,25 @@ async function JournalEntries({
                     <td>
                       {r.author ?? (
                         <span className="muted-2">
-                          {r.authorId ? `Сотрудник ${r.authorId}` : 'система'}
+                          {r.authorId ? t('Сотрудник {id}', { id: r.authorId }) : t('система')}
                         </span>
                       )}
                     </td>
                     <td>
-                      <div>{actionLabel(r.action)}</div>
+                      <div>{actionLabel(r.action, t)}</div>
                       {(r.after?.amountMinor ?? r.before?.amountMinor) !== undefined && (
                         <strong>
-                          {auditValue('amountMinor', r.after?.amountMinor ?? r.before?.amountMinor)}
+                          {auditValue('amountMinor', r.after?.amountMinor ?? r.before?.amountMinor, t)}
                         </strong>
                       )}
                       <OperationDetails
                         {...(r.before ? { before: r.before } : {})}
                         {...(r.after ? { after: r.after } : {})}
+                        t={t}
                       />
                     </td>
                     <td>
-                      <span className="muted-2">{entityLabel(r.entityType)}</span>
+                      <span className="muted-2">{entityLabel(r.entityType, t)}</span>
                       {r.subject && ' '}
                       {r.subject &&
                         (r.entityType === 'Reservation' && r.targetAvailable !== false ? (
@@ -395,7 +402,7 @@ async function JournalEntries({
                         ))}
                       {r.entityType === 'Reservation' &&
                         r.subject &&
-                        r.targetAvailable === false && <span className="muted-2"> (удалена)</span>}
+                        r.targetAvailable === false && <span className="muted-2"> {t('(удалена)')}</span>}
                     </td>
                   </tr>
                 </Fragment>
@@ -405,10 +412,10 @@ async function JournalEntries({
         </Table>
       )}
       {rows && (hasMore || older) && (
-        <nav className="journal-pagination" aria-label="Страницы истории">
+        <nav className="journal-pagination" aria-label={t('Страницы истории')}>
           {older && (
             <Link href={pageHref} className="btn btn--secondary">
-              К новым операциям
+              {t('К новым операциям')}
             </Link>
           )}
           {hasMore && lastCursor && (
@@ -416,7 +423,7 @@ async function JournalEntries({
               href={`${pageHref}${pageHref.includes('?') ? '&' : '?'}cursor=${encodeURIComponent(lastCursor)}`}
               className="btn btn--secondary"
             >
-              Более ранние операции
+              {t('Более ранние операции')}
             </Link>
           )}
         </nav>
@@ -424,19 +431,21 @@ async function JournalEntries({
       {rows?.length === 0 && (
         <EmptyState
           icon={<Icon name="journal" />}
-          title={conditions.length ? 'По этим условиям операций нет' : 'Операций пока нет'}
+          title={conditions.length ? t('По этим условиям операций нет') : t('Операций пока нет')}
           data-testid="journal-empty"
           actions={
             conditions.length ? (
               <Link href="/journal" className="btn btn--secondary">
-                Показать последние операции
+                {t('Показать последние операции')}
               </Link>
             ) : undefined
           }
         >
           {conditions.length
-            ? `Ничего не нашлось ${conditions.join(', ')}. Поиск идёт по всей истории, а не только по показанным строкам.`
-            : 'Журнал заполняется действиями стойки и интеграций: заселение, оплата, брони из каналов.'}
+            ? t('Ничего не нашлось {conditions}. Поиск идёт по всей истории, а не только по показанным строкам.', {
+                conditions: conditions.join(', '),
+              })
+            : t('Журнал заполняется действиями стойки и интеграций: заселение, оплата, брони из каналов.')}
         </EmptyState>
       )}
     </div>

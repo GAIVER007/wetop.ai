@@ -1,6 +1,6 @@
 import { dateFormat, type DateFormat } from '../i18n/dates';
 
-type IntlLocale = 'ru-RU' | 'kk-KZ';
+type IntlLocale = 'ru-RU' | 'kk-KZ' | 'en-GB';
 const STYLES = {
   short: { timeZone: 'UTC', day: 'numeric', month: 'short' },
   /** §14: основной формат даты 20.09.2026; «20 сент.» только в таблицах и на плашках */

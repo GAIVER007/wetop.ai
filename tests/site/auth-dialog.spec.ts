@@ -383,7 +383,7 @@ test('registration: three countries, correct dial codes and Kazakh preference', 
   const language = dialog.getByLabel('Язык системы');
   // KK2: стойка салона на казахском целиком, казахский выбирается при регистрации (решение владельца 23.10.2026)
   await expect(language.locator('option')).toHaveText(['Русский', 'Қазақша', 'English']);
-  await expect(dialog.locator('#auth-language-note')).toContainText('казахском');
+  await expect(dialog.locator('#auth-language-note')).toContainText('казахском и английском');
   await language.selectOption('kk');
   await dialog.getByLabel('Имя').fill('Тестовый владелец');
   await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');

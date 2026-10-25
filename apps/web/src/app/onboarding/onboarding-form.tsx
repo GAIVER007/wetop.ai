@@ -5,12 +5,14 @@ import { Alert, Button, Field, Input, Select } from '../../components/ui';
 import { postponeOnboarding, provisionHotel } from './actions';
 import type { OnboardingCategoryInput } from '../../lib/api';
 import './onboarding.css';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 type Kind = OnboardingCategoryInput['kind'];
 const KINDS: [Kind, string][] = [
-  ['PRIVATE_ROOM', 'Отдельный номер'],
-  ['DORM_BED', 'Койко-место (общий номер)'],
-  ['APARTMENT', 'Апартаменты'],
+  ['PRIVATE_ROOM', msg('Отдельный номер')],
+  ['DORM_BED', msg('Койко-место (общий номер)')],
+  ['APARTMENT', msg('Апартаменты')],
 ];
 
 export interface Row {
@@ -48,6 +50,7 @@ export function OnboardingForm({
   onRowsChange?: (rows: Row[]) => void;
   readOnly?: boolean;
 }) {
+  const t = useT();
   const [rows, setRowsState] = useState<Row[]>(initialRows?.length ? initialRows : [emptyRow()]);
   const setRows = (update: (current: Row[]) => Row[]) => {
     const next = update(rows);
@@ -69,7 +72,7 @@ export function OnboardingForm({
     // Пустые строки (без названия и цены) не отправляем, человек мог добавить лишнюю
     const filled = rows.filter((r) => r.name.trim() || r.price.trim());
     if (filled.length === 0) {
-      setError('Добавьте хотя бы одну категорию номеров с ценой.');
+      setError(msg('Добавьте хотя бы одну категорию номеров с ценой.'));
       return;
     }
     const categories: OnboardingCategoryInput[] = filled.map((r) => ({
@@ -91,62 +94,62 @@ export function OnboardingForm({
       {!embedded && (
         <header className="onboarding__head">
           {/* Путь нового аккаунта (ADR-100): почта подтверждена → номера и цены → знакомство со стойкой */}
-          <ol className="onboarding__steps" aria-label="Путь до работы">
-            <li className="is-done">Почта подтверждена</li>
-            <li aria-current="step">Номера и цены</li>
-            <li>Знакомство со стойкой</li>
+          <ol className="onboarding__steps" aria-label={t('Путь до работы')}>
+            <li className="is-done">{t('Почта подтверждена')}</li>
+            <li aria-current="step">{t('Номера и цены')}</li>
+            <li>{t('Знакомство со стойкой')}</li>
           </ol>
-          <h1>Настройте отель</h1>
+          <h1>{t('Настройте отель')}</h1>
           <p>
-            Заведите номера и цены, и можно принимать гостей. Всё это потом меняется в настройках.
-            Нет времени сейчас, нажмите «Заполнить позже»: стойка откроется, а Главная напомнит об
-            этом шаге.
+            {t(
+              'Заведите номера и цены, и можно принимать гостей. Всё это потом меняется в настройках. Нет времени сейчас, нажмите «Заполнить позже»: стойка откроется, а Главная напомнит об этом шаге.',
+            )}
           </p>
         </header>
       )}
 
-      <section className="onboarding__section" aria-label="Отель">
-        <h2>Отель</h2>
+      <section className="onboarding__section" aria-label={t('Отель')}>
+        <h2>{t('Отель')}</h2>
         <div className="onboarding__hotel">
-          <Field label="Название">
+          <Field label={t('Название')}>
             <Input value={hotelName} readOnly aria-readonly="true" />
           </Field>
-          <Field label="Валюта">
+          <Field label={t('Валюта')}>
             <Input value={currency} readOnly aria-readonly="true" />
           </Field>
         </div>
         <p className="onboarding__hint">
-          Название и реквизиты можно изменить в настройках объекта.
+          {t('Название и реквизиты можно изменить в настройках объекта.')}
         </p>
       </section>
 
       <fieldset disabled={readOnly} style={{ border: 0, padding: 0 }}>
-        <section className="onboarding__section" aria-label="Номера и цены">
-          <h2>Номера и цены</h2>
+        <section className="onboarding__section" aria-label={t('Номера и цены')}>
+          <h2>{t('Номера и цены')}</h2>
           <div className="onboarding__rows" role="list">
             {rows.map((r, i) => (
               <div className="onboarding__row" role="listitem" key={i}>
-                <Field label="Название категории">
+                <Field label={t('Название категории')}>
                   <Input
                     value={r.name}
-                    placeholder="Двухместный номер"
+                    placeholder={t('Двухместный номер')}
                     maxLength={100}
                     onChange={(e) => setRow(i, { name: e.target.value })}
                   />
                 </Field>
-                <Field label="Тип">
+                <Field label={t('Тип')}>
                   <Select
                     value={r.kind}
                     onChange={(e) => setRow(i, { kind: e.target.value as Kind })}
                   >
                     {KINDS.map(([id, label]) => (
                       <option key={id} value={id}>
-                        {label}
+                        {t(label)}
                       </option>
                     ))}
                   </Select>
                 </Field>
-                <Field label="Гостей на место">
+                <Field label={t('Гостей на место')}>
                   <Input
                     type="number"
                     min={1}
@@ -155,7 +158,7 @@ export function OnboardingForm({
                     onChange={(e) => setRow(i, { capacityAdults: e.target.value })}
                   />
                 </Field>
-                <Field label="Сколько мест">
+                <Field label={t('Сколько мест')}>
                   <Input
                     type="number"
                     min={1}
@@ -164,7 +167,7 @@ export function OnboardingForm({
                     onChange={(e) => setRow(i, { units: e.target.value })}
                   />
                 </Field>
-                <Field label={`Цена за ночь, ${currency}`}>
+                <Field label={t('Цена за ночь, {currency}', { currency })}>
                   <Input
                     type="number"
                     min={0}
@@ -176,7 +179,7 @@ export function OnboardingForm({
                 <button
                   type="button"
                   className="onboarding__remove"
-                  aria-label={`Убрать категорию ${i + 1}`}
+                  aria-label={t('Убрать категорию {n}', { n: i + 1 })}
                   disabled={rows.length === 1}
                   onClick={() => removeRow(i)}
                 >
@@ -187,11 +190,11 @@ export function OnboardingForm({
           </div>
           <button type="button" className="btn btn--secondary onboarding__add" onClick={addRow}>
             <Icon name="plus" width={16} />
-            Добавить категорию
+            {t('Добавить категорию')}
           </button>
         </section>
       </fieldset>
-      {error && <Alert boxed>{error}</Alert>}
+      {error && <Alert boxed>{t(error)}</Alert>}
 
       <div className="onboarding__actions">
         <form action={postponeOnboarding}>
@@ -201,11 +204,11 @@ export function OnboardingForm({
             disabled={pending || readOnly}
             data-testid="onboarding-later"
           >
-            Заполнить позже
+            {t('Заполнить позже')}
           </Button>
         </form>
         <Button onClick={submit} disabled={pending || readOnly} aria-busy={pending}>
-          {pending ? 'Запускаем…' : 'Запустить отель'}
+          {pending ? t('Запускаем…') : t('Запустить отель')}
           <Icon name="arrow" width={16} />
         </Button>
       </div>

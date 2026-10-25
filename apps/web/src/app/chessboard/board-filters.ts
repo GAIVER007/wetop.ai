@@ -1,4 +1,5 @@
 import type { ChessboardCell, ChessboardRow } from '../../lib/api';
+import { msg } from '../../i18n';
 import { CHANNELS, SOURCES } from '../reservations/sources';
 import { hospitalityStatus } from '../../lib/status/hospitality';
 
@@ -31,10 +32,10 @@ export const NO_FILTERS: BoardFilters = {
 };
 
 export const STAY_FLAGS: ReadonlyArray<readonly [StayFlag, string]> = [
-  ['arrival', 'Заезд сегодня'],
-  ['departure', 'Выезд сегодня'],
-  ['inhouse', 'Проживают'],
-  ['debt', 'С долгом'],
+  ['arrival', msg('Заезд сегодня')],
+  ['departure', msg('Выезд сегодня')],
+  ['inhouse', msg('Проживают')],
+  ['debt', msg('С долгом')],
 ];
 
 /** Статусы, которые бывают на сетке: отменённых и незаездов там нет (решение владельца не принято) */

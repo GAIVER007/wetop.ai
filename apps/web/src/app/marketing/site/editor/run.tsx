@@ -3,19 +3,23 @@ import { useEffect, useRef, useState } from 'react';
 import { GENERATION_ERROR_TEXT, isGenerationErrorCode } from '@pms/domain';
 import type { AssistantRunView, GenerationRunView } from '../../../../lib/api';
 import { assistantRunAction, runAction } from './actions';
+import { msg, type Translate } from '../../../../i18n';
 
 /** Состояние задачи ИИ словами (MKT9 §114) */
 export const RUN_STATE: Record<GenerationRunView['status'], string> = {
-  QUEUED: 'В очереди',
-  RUNNING: 'ИИ работает',
-  SUCCEEDED: 'Готово',
-  FAILED: 'Ошибка',
-  CANCELLED: 'Отменено',
+  QUEUED: msg('В очереди'),
+  RUNNING: msg('ИИ работает'),
+  SUCCEEDED: msg('Готово'),
+  FAILED: msg('Ошибка'),
+  CANCELLED: msg('Отменено'),
 };
 
-/** Ошибка ИИ человеку: только постоянный текст по коду, ответ модели и поставщика не показываются */
-export function runErrorText(run: GenerationRunView): string {
-  return isGenerationErrorCode(run.errorCode) ? GENERATION_ERROR_TEXT[run.errorCode] : 'ИИ не смог выполнить задачу';
+/**
+ * Ошибка ИИ человеку: только постоянный текст по коду, ответ модели и поставщика не показываются. Тексты домена
+ * переводятся при показе, их перевод лежит в словаре этой области
+ */
+export function runErrorText(run: GenerationRunView, t: Translate = (text) => text): string {
+  return t(isGenerationErrorCode(run.errorCode) ? GENERATION_ERROR_TEXT[run.errorCode] : msg('ИИ не смог выполнить задачу'));
 }
 
 const POLL_MS = 1500;
@@ -67,4 +71,10 @@ export function useAssistantRun(onDone: (run: AssistantRunView) => void) {
 }
 
 /** Ход сборки словами (MKT9.2): QUEUED и RUNNING показываются шагами по времени работы; это подсказка, а не замер */
-export const BUILD_STEPS = ['Анализирую данные объекта', 'Продумываю структуру', 'Создаю страницы', 'Настраиваю блоки', 'Проверяю сайт'] as const;
+export const BUILD_STEPS = [
+  msg('Анализирую данные объекта'),
+  msg('Продумываю структуру'),
+  msg('Создаю страницы'),
+  msg('Настраиваю блоки'),
+  msg('Проверяю сайт'),
+] as const;

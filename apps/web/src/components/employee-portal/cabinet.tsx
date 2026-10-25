@@ -95,7 +95,7 @@ export function EmployeeCabinet({
       {/* «Мой месяц» (срез S2, владелец 21.10.2026): одна строка итогов, без плиток; стрелки листают месяц */}
       <nav className="portal-month" aria-label={t('Итоги месяца')} data-testid="portal-month">
         <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, -1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label={t('Предыдущий месяц')} data-testid="portal-month-prev"><span aria-hidden="true">‹</span></a>
-        <p className="portal-month-line" data-testid="portal-month-line" data-month={data.monthStats.month}>{portalMonthLine(data.monthStats, new Date().getUTCFullYear().toString())}</p>
+        <p className="portal-month-line" data-testid="portal-month-line" data-month={data.monthStats.month}>{portalMonthLine(data.monthStats, new Date().getUTCFullYear().toString(), t, locale)}</p>
         <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, 1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label={t('Следующий месяц')} data-testid="portal-month-next"><span aria-hidden="true">›</span></a>
       </nav></div>
       </div>
@@ -176,7 +176,7 @@ export function EmployeeCabinet({
     <section className="panel portal-section" data-testid="portal-time-offs"><h2>{manager ? t('Отсутствия') : t('Мои отсутствия')}</h2>
       {(() => {
         const { upcoming, past } = portalAbsences(data.timeOffs, localDate(new Date(), data.location?.timezone ?? 'UTC'));
-        const row = (off: EmployeePortalDto['timeOffs'][number]) => <li key={off.id} data-testid="portal-time-off"><strong>{shortPeriod(off.dateFrom, off.dateTo, intlLocale(locale))}</strong><span>{portalAbsenceDays(off)}</span><span>{off.reason || t('Без причины')}</span></li>;
+        const row = (off: EmployeePortalDto['timeOffs'][number]) => <li key={off.id} data-testid="portal-time-off"><strong>{shortPeriod(off.dateFrom, off.dateTo, intlLocale(locale))}</strong><span>{portalAbsenceDays(off, t, locale)}</span><span>{off.reason || t('Без причины')}</span></li>;
         return <>
           {upcoming.length ? <ul className="portal-list">{upcoming.map(row)}</ul> : <p>{t('Ближайших отсутствий нет.')}</p>}
           {!!past.length && <details className="portal-time-offs-past"><summary>{t('Прошедшие ({n})', { n: past.length })}</summary><ul className="portal-list">{past.map(row)}</ul></details>}
@@ -185,7 +185,7 @@ export function EmployeeCabinet({
       })()}
     </section>
     {beauty && <section className="panel portal-section" data-testid="portal-schedule-conflicts" aria-live="polite"><h2>{t('Записи и график')}</h2>
-      {data.scheduleConflicts.items.length ? <><p role="alert">{t('Есть записи вне графика или в дни отсутствия. Согласуйте изменения с руководителем.')}</p><ul className="portal-list">{data.scheduleConflicts.items.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.locationName}</span><span>{shortPeriod(a.date, a.date, intlLocale(locale))} {new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: a.timezone }).format(new Date(a.startsAt))} ({zoneLabel(a.timezone)})</span><span>{a.reason === 'TIME_OFF' ? t('В день отсутствия') : t('Вне рабочих часов')}</span></li>)}</ul></> : <p>{data.scheduleConflicts.truncated ? t('Среди первых 500 записей вне нового графика нет.') : t('Записей вне нового графика нет.')}</p>}
+      {data.scheduleConflicts.items.length ? <><p role="alert">{t('Есть записи вне графика или в дни отсутствия. Согласуйте изменения с руководителем.')}</p><ul className="portal-list">{data.scheduleConflicts.items.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{a.locationName}</span><span>{shortPeriod(a.date, a.date, intlLocale(locale))} {new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: a.timezone }).format(new Date(a.startsAt))} ({zoneLabel(a.timezone, t)})</span><span>{a.reason === 'TIME_OFF' ? t('В день отсутствия') : t('Вне рабочих часов')}</span></li>)}</ul></> : <p>{data.scheduleConflicts.truncated ? t('Среди первых 500 записей вне нового графика нет.') : t('Записей вне нового графика нет.')}</p>}
       {data.scheduleConflicts.truncated && <p role="alert">{t('Проверены только первые 500 предстоящих записей. Проверка неполная: остальные записи нужно проверить с руководителем.')}</p>}
     </section>}
     </div> }] : []),

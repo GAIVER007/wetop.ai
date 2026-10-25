@@ -5,9 +5,13 @@ import { decodeInviteToken } from '../../../lib/invite-token';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
 import { RateForm } from './rate-form';
+import { serverT } from '../../../i18n/server';
 import '../../food/restaurant.css';
 
-export const metadata = { title: 'Оценка обслуживания', robots: { index: false } };
+export async function generateMetadata() {
+  const t = await serverT();
+  return { title: t('Оценка обслуживания'), robots: { index: false } };
+}
 
 /**
  * Оценка официанта с телефона гостя по QR-коду (DATA_MODEL §40, ADR-170). Без входа: ключ живёт только в адресе.
@@ -15,6 +19,7 @@ export const metadata = { title: 'Оценка обслуживания', robots
  */
 export default async function RatePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
+  const t = await serverT();
   const raw = decodeInviteToken(token);
   const loaded = raw
     ? await orderRatingApi.preview(raw, await clientInfo()).then(
@@ -31,18 +36,18 @@ export default async function RatePage({ params }: { params: Promise<{ token: st
         <div className="login-form" data-testid="rate-page">
           {!loaded.ok ? (
             <>
-              <h1>Страница не открылась</h1>
+              <h1>{t('Страница не открылась')}</h1>
               <LoadError testId="rate-load-error" {...loadErrorProps(loaded.e)} />
             </>
           ) : loaded.r ? (
             <>
-              <h1>Как вас обслужили?</h1>
+              <h1>{t('Как вас обслужили?')}</h1>
               <p>
-                {loaded.r.placeName}, заказ № {loaded.r.orderNumber}
+                {t('{place}, заказ № {number}', { place: loaded.r.placeName, number: loaded.r.orderNumber })}
                 {loaded.r.waiterName ? (
                   <>
                     <br />
-                    Официант: <b>{loaded.r.waiterName}</b>
+                    {t('Официант:')} <b>{loaded.r.waiterName}</b>
                   </>
                 ) : null}
               </p>
@@ -50,10 +55,9 @@ export default async function RatePage({ params }: { params: Promise<{ token: st
             </>
           ) : (
             <>
-              <h1>Ссылка недействительна</h1>
+              <h1>{t('Ссылка недействительна')}</h1>
               <p className="muted">
-                Оценка по этой ссылке уже поставлена или срок ссылки истёк. Попросите официанта показать новый
-                QR-код.
+                {t('Оценка по этой ссылке уже поставлена или срок ссылки истёк. Попросите официанта показать новый QR-код.')}
               </p>
             </>
           )}

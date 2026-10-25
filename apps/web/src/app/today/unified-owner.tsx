@@ -20,7 +20,7 @@ function MoneyValue({ value, t }: { value: OwnerSummaryDto['current']['revenue']
             ))
           : t('Нет данных')}
       </strong>
-      {value.state !== 'READY' && <small>{t(ownerReason(value.reason))}</small>}
+      {value.state !== 'READY' && <small>{ownerReason(value.reason, t)}</small>}
     </>
   );
 }
@@ -35,7 +35,7 @@ function MoneyComparison({
 }) {
   if (!value?.currencies?.length)
     return (
-      <small title={t(ownerReason(reason ?? value?.reason)) || undefined}>
+      <small title={ownerReason(reason ?? value?.reason, t) || undefined}>
         {t('Нет данных для сравнения')}
       </small>
     );
@@ -85,7 +85,7 @@ function WorkloadValue({ value, t }: { value: Workload; t: Translate }) {
         })} ${valid ? t('Отношение сумм мощностей за период.') : t('Итоговый процент периода недоступен.')}`
       : '';
   const reason =
-    value.state === 'UNAVAILABLE' ? t('Нет данных для расчёта') : t(ownerReason(value.reason));
+    value.state === 'UNAVAILABLE' ? t('Нет данных для расчёта') : ownerReason(value.reason, t);
   return (
     <>
       <span
@@ -376,7 +376,7 @@ export function OwnerSummaryView({
         })()}
         {!expenses.currencies?.length && (
           <p className="owner-expense-empty">
-            {t(ownerReason(expenses.reason)) ||
+            {ownerReason(expenses.reason, t) ||
               t('Расходов за период пока нет. Добавьте расход в «Финансах», и здесь появятся статьи.')}
           </p>
         )}

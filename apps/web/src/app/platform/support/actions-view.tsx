@@ -4,6 +4,7 @@ import { supportApi } from '../../../lib/api';
 import { propertyClock } from '../../../lib/property-time';
 import { actionClassLabel, actionLabel, actionStatus } from '../../../lib/support-actions';
 import { unstable_rethrow } from 'next/navigation';
+import { serverT } from '../../../i18n/server';
 
 const settle = <T,>(promise: Promise<T>) =>
   promise.then(
@@ -22,11 +23,12 @@ export async function ActionsJournal({ conversationId }: { conversationId: strin
   const loaded = await settle(supportApi.conversationActions(conversationId));
   if (loaded.ok && loaded.value.items.length === 0) return null;
   const clock = propertyClock(PLATFORM_TIMEZONE);
+  const t = await serverT();
   return (
-    <section aria-label="Действия агента" data-testid="agent-actions" className="stack stack--sm">
-      <PanelTitle>Действия агента</PanelTitle>
+    <section aria-label={t('Действия агента')} data-testid="agent-actions" className="stack stack--sm">
+      <PanelTitle>{t('Действия агента')}</PanelTitle>
       {!loaded.ok ? (
-        <p className="settings-note">Не удалось узнать, какие действия делал агент.</p>
+        <p className="settings-note">{t('Не удалось узнать, какие действия делал агент.')}</p>
       ) : (
         <ul>
           {loaded.value.items.map((item) => {
@@ -34,8 +36,8 @@ export async function ActionsJournal({ conversationId }: { conversationId: strin
             return (
               <li key={item.id ?? `${item.action}-${item.createdAt}`}>
                 <span>{item.createdAt ? clock.moment(item.createdAt) : ''}</span>{' '}
-                <strong>{actionLabel(item.action)}</strong> ({actionClassLabel(item.actionClass)}){' '}
-                <Badge tone={status.tone}>{status.label}</Badge>
+                <strong>{t(actionLabel(item.action))}</strong> ({t(actionClassLabel(item.actionClass))}){' '}
+                <Badge tone={status.tone}>{t(status.label)}</Badge>
                 {item.result ? <span className="settings-note"> — {item.result}</span> : null}
               </li>
             );

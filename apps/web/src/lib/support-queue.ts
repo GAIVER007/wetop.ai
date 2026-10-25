@@ -1,3 +1,5 @@
+import { msg, translator, type Translate } from '../i18n';
+
 /**
  * Очередь «Платформа → Техподдержка» словами стойки (план `plans/support-assistant-v2-2026-09-29.md`, S1). Отбор,
  * приоритет и порядок строк считает API (`apps/api/src/platform/support.queue.ts`); здесь — только подписи.
@@ -43,12 +45,12 @@ export const CATEGORY_CHIPS: ReadonlyArray<{
   category: SupportCategoryFilter;
   label: string;
 }> = [
-  { category: 'all', label: 'Все' },
-  { category: 'platform', label: 'Вопрос по платформе' },
-  { category: 'error', label: 'Ошибка' },
-  { category: 'payment', label: 'Возврат и оплата' },
-  { category: 'access', label: 'Доступ и права' },
-  { category: 'other', label: 'Другое' },
+  { category: 'all', label: msg('Все') },
+  { category: 'platform', label: msg('Вопрос по платформе') },
+  { category: 'error', label: msg('Ошибка') },
+  { category: 'payment', label: msg('Возврат и оплата') },
+  { category: 'access', label: msg('Доступ и права') },
+  { category: 'other', label: msg('Другое') },
 ];
 
 export const categoryOf = (raw: string | undefined): SupportCategoryFilter =>
@@ -66,7 +68,7 @@ export const categoryChipCount = (
 export const emptyCategoryText = (category: SupportCategoryFilter): string | null =>
   category === 'all'
     ? null
-    : `В этой категории обращений нет. Категорию помощник не спрашивает: её определяет первое сообщение.`;
+    : msg('В этой категории обращений нет. Категорию помощник не спрашивает: её определяет первое сообщение.');
 
 export interface SupportLastMessage {
   role: string;
@@ -75,13 +77,13 @@ export interface SupportLastMessage {
 }
 
 export const QUEUE_CHIPS: ReadonlyArray<{ queue: SupportQueue; label: string }> = [
-  { queue: 'open', label: 'Все открытые' },
-  { queue: 'new', label: 'Новые' },
-  { queue: 'waiting', label: 'Ждут ответа' },
-  { queue: 'needs_human', label: 'Нужен человек' },
-  { queue: 'owner_takeover', label: 'Ведёт оператор' },
-  { queue: 'bot_active', label: 'Ведёт ИИ' },
-  { queue: 'closed', label: 'Закрытые' },
+  { queue: 'open', label: msg('Все открытые') },
+  { queue: 'new', label: msg('Новые') },
+  { queue: 'waiting', label: msg('Ждут ответа') },
+  { queue: 'needs_human', label: msg('Нужен человек') },
+  { queue: 'owner_takeover', label: msg('Ведёт оператор') },
+  { queue: 'bot_active', label: msg('Ведёт ИИ') },
+  { queue: 'closed', label: msg('Закрытые') },
 ];
 
 export const queueOf = (raw: string | undefined): SupportQueue =>
@@ -95,15 +97,16 @@ export function chipCount(queue: SupportQueue, counts: SupportQueueCounts): stri
 }
 
 /** Сколько человек ждёт ответа: «ждёт 12 мин», «ждёт 2 ч 5 мин», «ждёт 3 дн.»; не ждёт — `null` */
-export function waitingFor(since: string | null, now = Date.now()): string | null {
+export function waitingFor(since: string | null, now = Date.now(), t: Translate = translator('ru')): string | null {
   if (!since) return null;
   const minutes = Math.floor((now - Date.parse(since)) / 60_000);
   if (!Number.isFinite(minutes)) return null;
-  if (minutes < 1) return 'ждёт меньше минуты';
-  if (minutes < 60) return `ждёт ${minutes} мин`;
+  if (minutes < 1) return t('ждёт меньше минуты');
+  if (minutes < 60) return t('ждёт {n} мин', { n: minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return minutes % 60 ? `ждёт ${hours} ч ${minutes % 60} мин` : `ждёт ${hours} ч`;
-  return `ждёт ${Math.floor(hours / 24)} дн.`;
+  if (hours < 24)
+    return minutes % 60 ? t('ждёт {h} ч {m} мин', { h: hours, m: minutes % 60 }) : t('ждёт {h} ч', { h: hours });
+  return t('ждёт {n} дн.', { n: Math.floor(hours / 24) });
 }
 
 /** Приоритет словом: «срочно» — нужен человек; «ждёт…» — последнее слово за пользователем; иначе метки нет */
@@ -113,48 +116,48 @@ export function priorityBadge(item: {
   closed: boolean;
 }): { label: string; tone: 'danger' | 'warn' } | null {
   if (item.closed) return null;
-  if (item.priority === 'urgent') return { label: 'срочно', tone: 'danger' };
+  if (item.priority === 'urgent') return { label: msg('срочно'), tone: 'danger' };
   if (item.priority === 'waiting')
     return {
-      label: item.mode === 'owner_takeover' ? 'ждёт оператора' : 'ждёт ответа',
+      label: item.mode === 'owner_takeover' ? msg('ждёт оператора') : msg('ждёт ответа'),
       tone: 'warn',
     };
   return null;
 }
 
 const SPEAKER: Record<string, string> = {
-  user: 'Пользователь',
-  assistant: 'ИИ',
-  operator: 'Оператор',
-  system: 'Система',
+  user: msg('Пользователь'),
+  assistant: msg('ИИ'),
+  operator: msg('Оператор'),
+  system: msg('Система'),
 };
 
 export const speaker = (role: string) => SPEAKER[role] ?? role;
 
-export function lastMessageLine(last: SupportLastMessage | null): string {
-  return last ? `${speaker(last.role)}: ${last.text}` : '—';
+export function lastMessageLine(last: SupportLastMessage | null, t: Translate = translator('ru')): string {
+  return last ? `${t(speaker(last.role))}: ${last.text}` : '—';
 }
 
 const EMPTY: Record<SupportQueue, { title: string; text: string }> = {
   open: {
-    title: 'Открытых обращений нет',
-    text: 'Здесь появятся разговоры помощника с теми, кто пишет из стойки и с wetop.ai.',
+    title: msg('Открытых обращений нет'),
+    text: msg('Здесь появятся разговоры помощника с теми, кто пишет из стойки и с wetop.ai.'),
   },
-  new: { title: 'Новых обращений нет', text: 'За последние сутки никто не начинал разговор.' },
+  new: { title: msg('Новых обращений нет'), text: msg('За последние сутки никто не начинал разговор.') },
   waiting: {
-    title: 'Никто не ждёт ответа',
-    text: 'Во всех открытых диалогах последнее слово за помощником или оператором.',
+    title: msg('Никто не ждёт ответа'),
+    text: msg('Во всех открытых диалогах последнее слово за помощником или оператором.'),
   },
   needs_human: {
-    title: 'Человек никому не нужен',
-    text: 'Помощник справляется сам. Диалог попадёт сюда, когда помощник позовёт человека.',
+    title: msg('Человек никому не нужен'),
+    text: msg('Помощник справляется сам. Диалог попадёт сюда, когда помощник позовёт человека.'),
   },
   owner_takeover: {
-    title: 'Оператор ничего не ведёт',
-    text: 'Заберите диалог из очереди — он появится здесь.',
+    title: msg('Оператор ничего не ведёт'),
+    text: msg('Заберите диалог из очереди — он появится здесь.'),
   },
-  bot_active: { title: 'ИИ сейчас ничего не ведёт', text: 'Все открытые диалоги у операторов.' },
-  closed: { title: 'Закрытых обращений нет', text: 'Закрытый диалог остаётся здесь с перепиской.' },
+  bot_active: { title: msg('ИИ сейчас ничего не ведёт'), text: msg('Все открытые диалоги у операторов.') },
+  closed: { title: msg('Закрытых обращений нет'), text: msg('Закрытый диалог остаётся здесь с перепиской.') },
 };
 
 export const emptyQueueText = (queue: SupportQueue) => EMPTY[queue];

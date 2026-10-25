@@ -3,21 +3,24 @@ import { useState, useTransition } from 'react';
 import { Badge, cx } from '../../../../components/ui';
 import type { Loaded, SiteLocation, SiteStatus } from '../../../../lib/site-facts';
 import { chooseSiteLocationAction } from './actions';
+import { msg } from '../../../../i18n';
+import { useT } from '../../../../i18n/locale-provider';
 
 /**
  * Выбор филиала на первом экране «Сайт и SEO» (SITE-1, план §1 шаг 1): список филиалов организации с направлением и
  * статусом сайта, текущий филиал стойки отмечен. Выбор другого переключает стойку тем же действием, что переключатель
  * в шапке (`selectBranch`), и возвращает на этот экран: все запросы конструктора идут уже от выбранного филиала.
  */
-const VERTICAL: Record<string, string> = { HOSPITALITY: 'Гостиница', BEAUTY: 'Салон', FOOD_SERVICE: 'Ресторан' };
+const VERTICAL: Record<string, string> = { HOSPITALITY: msg('Гостиница'), BEAUTY: msg('Салон'), FOOD_SERVICE: msg('Ресторан') };
 const STATUS: Record<SiteStatus, { label: string; tone: 'neutral' | 'info' | 'ok' | 'warn' }> = {
-  NONE: { label: 'Нет сайта', tone: 'neutral' },
-  DRAFT: { label: 'Черновик', tone: 'info' },
-  PUBLISHED: { label: 'Опубликован', tone: 'ok' },
-  ARCHIVED: { label: 'В архиве', tone: 'warn' },
+  NONE: { label: msg('Нет сайта'), tone: 'neutral' },
+  DRAFT: { label: msg('Черновик'), tone: 'info' },
+  PUBLISHED: { label: msg('Опубликован'), tone: 'ok' },
+  ARCHIVED: { label: msg('В архиве'), tone: 'warn' },
 };
 
 export function LocationPicker({ locations, currentId }: { locations: Loaded<SiteLocation[]>; currentId: string | null }) {
+  const t = useT();
   const [pending, start] = useTransition();
   const [target, setTarget] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +36,7 @@ export function LocationPicker({ locations, currentId }: { locations: Loaded<Sit
       } catch (e) {
         // переход Next (redirect) приходит как исключение действия: страница сменится сама
         if (e instanceof Error && /NEXT_REDIRECT/.test(e.message)) return;
-        setError('Не удалось переключить филиал. Обновите страницу и повторите.');
+        setError(t('Не удалось переключить филиал. Обновите страницу и повторите.'));
       }
       window.dispatchEvent(new Event('wetop-scope-switch-failed'));
       setTarget(null);
@@ -42,11 +45,11 @@ export function LocationPicker({ locations, currentId }: { locations: Loaded<Sit
   return (
     <section className="site-start__locations" aria-labelledby="site-locations-title" data-testid="site-locations">
       <h3 id="site-locations-title" className="site-start__step">
-        Филиал
+        {t('Филиал')}
       </h3>
       {!locations.ok ? (
         <p className="muted" role="alert">
-          Список филиалов не загрузился: {locations.message}
+          {t('Список филиалов не загрузился: {message}', { message: locations.message })}
         </p>
       ) : (
         <ul className="site-locations">
@@ -66,10 +69,10 @@ export function LocationPicker({ locations, currentId }: { locations: Loaded<Sit
                 >
                   <span className="site-location__name">{l.name}</span>
                   <span className="site-location__meta">
-                    <span className="muted">{VERTICAL[l.vertical] ?? l.vertical}</span>
-                    {status && <Badge tone={status.tone}>{status.label}</Badge>}
-                    {current && <span className="site-location__current">выбран</span>}
-                    {target === l.id && <span className="muted">Переключаем…</span>}
+                    <span className="muted">{VERTICAL[l.vertical] ? t(VERTICAL[l.vertical]!) : l.vertical}</span>
+                    {status && <Badge tone={status.tone}>{t(status.label)}</Badge>}
+                    {current && <span className="site-location__current">{t('выбран')}</span>}
+                    {target === l.id && <span className="muted">{t('Переключаем…')}</span>}
                   </span>
                 </button>
               </li>

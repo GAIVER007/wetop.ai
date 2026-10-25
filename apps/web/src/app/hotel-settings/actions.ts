@@ -15,6 +15,7 @@ import {
   type ServiceInputField,
 } from '@pms/domain';
 import { formValues } from '../../lib/form-values';
+import { serverT } from '../../i18n/server';
 
 export interface SettingsActionResult {
   error: string | null;
@@ -86,11 +87,12 @@ export async function saveHotelSettings(
       return [name, v === '' && name !== 'name' ? null : v];
     }),
   );
+  const t = await serverT();
   try {
     await hotelSettingsApi.update(patch);
     // название и реквизиты видны в меню, печатных формах и у ИИ-продавца
     revalidatePath('/', 'layout');
-    return { error: null, message: 'Изменения сохранены' };
+    return { error: null, message: t('Изменения сохранены') };
   } catch (e) {
     return {
       error: e instanceof ApiError || e instanceof Error ? e.message : String(e),
@@ -164,11 +166,12 @@ export async function savePaymentMethods(
   _prev: DirectoryActionResult | null,
   form: FormData,
 ): Promise<DirectoryActionResult> {
+  const t = await serverT();
   let methods: unknown;
   try {
     methods = JSON.parse(String(form.get('methods') ?? '[]'));
   } catch {
-    return { error: 'Список способов не прочитан, обновите страницу', message: null };
+    return { error: t('Список способов не прочитан, обновите страницу'), message: null };
   }
   const parsed = parsePaymentMethodSettings({ methods });
   if (!parsed.ok) return { error: parsed.reason, message: null };
@@ -178,7 +181,7 @@ export async function savePaymentMethods(
     return fail(e);
   }
   revalidatePath('/hotel-settings/directories');
-  return { error: null, message: 'Способы оплаты сохранены' };
+  return { error: null, message: t('Способы оплаты сохранены') };
 }
 
 /** Статья кассы: без `id` новая, с `id` переименование или выключение; удаления нет (§21) */
@@ -186,6 +189,7 @@ export async function saveCashCategory(
   _prev: DirectoryActionResult | null,
   form: FormData,
 ): Promise<DirectoryActionResult> {
+  const t = await serverT();
   const id = String(form.get('id') ?? '').trim();
   const name = form.get('name');
   const active = form.get('active');
@@ -206,7 +210,7 @@ export async function saveCashCategory(
   }
   revalidatePath('/hotel-settings/directories');
   revalidatePath('/finance');
-  return { error: null, message: id ? 'Статья сохранена' : 'Статья добавлена' };
+  return { error: null, message: id ? t('Статья сохранена') : t('Статья добавлена') };
 }
 
 export interface MediaActionResult {
@@ -214,13 +218,14 @@ export interface MediaActionResult {
 }
 
 /** Отказ API словами для человека; сырой текст сервера и трассировка наружу не идут */
-function mediaError(e: unknown): string {
+async function mediaError(e: unknown): Promise<string> {
+  const t = await serverT();
   if (e instanceof ApiError) {
-    if (e.status === 413) return 'Файл больше 10 МиБ';
-    if (e.status >= 500 && e.status !== 503) return 'Сервер не ответил. Попробуйте ещё раз.';
+    if (e.status === 413) return t('Файл больше 10 МиБ');
+    if (e.status >= 500 && e.status !== 503) return t('Сервер не ответил. Попробуйте ещё раз.');
     return e.message;
   }
-  return 'Не удалось выполнить действие';
+  return t('Не удалось выполнить действие');
 }
 
 /** Загрузка фото или договора объекта: файл уходит в API стойки, не в хранилище из браузера (ADR-158, §32.3) */
@@ -228,16 +233,17 @@ export async function uploadMediaAction(
   kind: 'photos' | 'contract',
   form: FormData,
 ): Promise<MediaActionResult> {
+  const t = await serverT();
   const file = form.get('file');
   if (!(file instanceof File) || file.size === 0)
-    return { error: kind === 'photos' ? 'Выберите файл: JPEG, PNG или WebP' : 'Выберите файл PDF' };
-  if (file.size > 10 * 1024 * 1024) return { error: 'Файл больше 10 МиБ' };
+    return { error: kind === 'photos' ? t('Выберите файл: JPEG, PNG или WebP') : t('Выберите файл PDF') };
+  if (file.size > 10 * 1024 * 1024) return { error: t('Файл больше 10 МиБ') };
   try {
     await propertyMediaApi.upload(kind, file);
     revalidatePath('/hotel-settings');
     return { error: null };
   } catch (e) {
-    return { error: mediaError(e) };
+    return { error: await mediaError(e) };
   }
 }
 
@@ -251,6 +257,6 @@ export async function removeMediaAction(
     revalidatePath('/hotel-settings');
     return { error: null };
   } catch (e) {
-    return { error: mediaError(e) };
+    return { error: await mediaError(e) };
   }
 }

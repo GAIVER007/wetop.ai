@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '../../components/icon';
 import { Input } from '../../components/ui';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * Компактный поиск гостей («Гости и бронирования»; ТЗ «Гости v2» §6): автопоиск с задержкой вместо кнопки «Найти».
@@ -19,6 +20,7 @@ export function GuestsSearch({
   /** отбор, который поиск сам не задаёт (раздел, визит, визиты, порядок, G7) — едет дальше */
   keep: Record<string, string>;
 }) {
+  const t = useT();
   const router = useRouter();
   const [value, setValue] = useState(q);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -45,8 +47,8 @@ export function GuestsSearch({
           name="q"
           value={value}
           maxLength={120}
-          aria-label="Поиск гостей"
-          placeholder="Поиск по гостю, брони, номеру, телефону…"
+          aria-label={t('Поиск гостей')}
+          placeholder={t('Поиск по гостю, брони, номеру, телефону…')}
           onChange={(e) => {
             const raw = e.currentTarget.value;
             setValue(raw);

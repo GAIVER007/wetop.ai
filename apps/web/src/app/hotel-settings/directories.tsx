@@ -5,6 +5,8 @@ import type { CashCategory, PaymentMethodSettingRow } from '../../lib/api';
 import { Alert, Badge, Button, Field, Input, Select, Table } from '../../components/ui';
 import { saveCashCategory, savePaymentMethods, type DirectoryActionResult } from './actions';
 import { SETTINGS_FORM_ID, useSaveReport } from './settings-save';
+import { msg } from '../../i18n';
+import { useT } from '../../i18n/locale-provider';
 
 /**
  * «Справочники» в «Настройках объекта» (DATA_MODEL §21.6, ADR-185, план plans/property-directories-2026-10-07.md):
@@ -13,7 +15,7 @@ import { SETTINGS_FORM_ID, useSaveReport } from './settings-save';
  */
 const same = (a: PaymentMethodSettingRow[], b: PaymentMethodSettingRow[]) =>
   JSON.stringify(a) === JSON.stringify(b);
-const label = (method: string) => PAYMENT_METHOD_RU[method] ?? method;
+const methodLabel = (method: string) => PAYMENT_METHOD_RU[method] ?? method;
 
 export function PaymentMethodsForm({
   stored,
@@ -30,6 +32,8 @@ export function PaymentMethodsForm({
   scopeKey?: string;
   note?: string;
 }) {
+  const t = useT();
+  const label = (method: string) => t(methodLabel(method));
   const [list, setList] = useState(stored);
   const [state, action, pending] = useActionState<DirectoryActionResult | null, FormData>(save, null);
   // после сохранения запись объекта перечитана: список снова равен сохранённому
@@ -63,11 +67,11 @@ export function PaymentMethodsForm({
     });
   if (!editable)
     return (
-      <Table size="sm" className="settings-directory-table" data-testid="payment-methods-table" aria-label="Список способов оплаты">
+      <Table size="sm" className="settings-directory-table" data-testid="payment-methods-table" aria-label={t('Список способов оплаты')}>
         <thead>
           <tr>
-            <th>Способ</th>
-            <th>Принимаем</th>
+            <th>{t('Способ')}</th>
+            <th>{t('Принимаем')}</th>
           </tr>
         </thead>
         <tbody>
@@ -75,7 +79,7 @@ export function PaymentMethodsForm({
             <tr key={m.method} data-testid="payment-method-row" data-method={m.method}>
               <td>{label(m.method)}</td>
               <td>
-                <Badge tone={m.enabled ? 'ok' : 'neutral'}>{m.enabled ? 'да' : 'нет'}</Badge>
+                <Badge tone={m.enabled ? 'ok' : 'neutral'}>{m.enabled ? t('да') : t('нет')}</Badge>
               </td>
             </tr>
           ))}
@@ -87,13 +91,13 @@ export function PaymentMethodsForm({
       <input type="hidden" name="methods" value={JSON.stringify(list)} />
       {scopeKey && <input type="hidden" name="scopeKey" value={scopeKey} />}
       {state?.error && <Alert boxed>{state.error}</Alert>}
-      {none && <Alert boxed>Хотя бы один способ оплаты должен быть включён</Alert>}
-      <Table size="sm" className="settings-directory-table settings-payment-table" data-testid="payment-methods-table" aria-label="Список способов оплаты">
+      {none && <Alert boxed>{t('Хотя бы один способ оплаты должен быть включён')}</Alert>}
+      <Table size="sm" className="settings-directory-table settings-payment-table" data-testid="payment-methods-table" aria-label={t('Список способов оплаты')}>
         <thead>
           <tr>
-            <th>Способ</th>
+            <th>{t('Способ')}</th>
             <th>
-              <span className="sr-only">Действия</span>
+              <span className="sr-only">{t('Действия')}</span>
             </th>
           </tr>
         </thead>
@@ -108,27 +112,27 @@ export function PaymentMethodsForm({
                     tone="ghost"
                     disabled={i === 0}
                     onClick={() => move(m.method, -1)}
-                    aria-label={`Выше: ${label(m.method)}`}
+                    aria-label={t('Выше: {name}', { name: label(m.method) })}
                   >
-                    Выше
+                    {t('Выше')}
                   </Button>
                   <Button
                     type="button"
                     tone="ghost"
                     disabled={i === shown.length - 1}
                     onClick={() => move(m.method, 1)}
-                    aria-label={`Ниже: ${label(m.method)}`}
+                    aria-label={t('Ниже: {name}', { name: label(m.method) })}
                   >
-                    Ниже
+                    {t('Ниже')}
                   </Button>
                   <Button
                     type="button"
                     tone="ghost"
                     onClick={() => setEnabled(m.method, false)}
-                    aria-label={`Убрать: ${label(m.method)}`}
+                    aria-label={t('Убрать: {name}', { name: label(m.method) })}
                     data-testid="payment-method-remove"
                   >
-                    Убрать
+                    {t('Убрать')}
                   </Button>
                 </div>
               </td>
@@ -138,7 +142,7 @@ export function PaymentMethodsForm({
       </Table>
       {hidden.length > 0 && (
         <div className="settings-category-add" data-testid="payment-method-add">
-          <Field label="Добавить способ оплаты">
+          <Field label={t('Добавить способ оплаты')}>
             <Select value={chosen} onChange={(e) => setPick(e.target.value)}>
               {hidden.map((m) => (
                 <option key={m.method} value={m.method}>
@@ -152,15 +156,17 @@ export function PaymentMethodsForm({
             tone="secondary"
             disabled={!chosen}
             onClick={() => chosen && setEnabled(chosen, true)}
-            aria-label={chosen ? `Добавить способ: ${label(chosen)}` : 'Добавить способ'}
+            aria-label={chosen ? t('Добавить способ: {name}', { name: label(chosen) }) : t('Добавить способ')}
           >
-            Добавить
+            {t('Добавить')}
           </Button>
         </div>
       )}
       <p className="settings-note">
-        {note ??
-          'Убранный способ не предлагается при приёме оплаты, в кассе и в запросах оплаты. Прошлые платежи, отчёты и сверка не меняются. Платёж площадки (внешний канал) ставят каналы продаж, он здесь не настраивается.'}
+        {t(
+          note ??
+            msg('Убранный способ не предлагается при приёме оплаты, в кассе и в запросах оплаты. Прошлые платежи, отчёты и сверка не меняются. Платёж площадки (внешний канал) ставят каналы продаж, он здесь не настраивается.'),
+        )}
       </p>
     </form>
   );
@@ -169,7 +175,7 @@ export function PaymentMethodsForm({
 const IDLE: DirectoryActionResult | null = null;
 
 /** Статьи кассы: добавить, переименовать, выключить; удаления нет, прошлые операции хранят статью */
-const kindRu = (kind: string) => (kind === 'INCOME' ? 'Доход' : 'Расход');
+const kindRu = (kind: string) => (kind === 'INCOME' ? msg('Доход') : msg('Расход'));
 
 export function CashCategoriesEditor({
   categories,
@@ -178,6 +184,7 @@ export function CashCategoriesEditor({
   categories: CashCategory[];
   editable: boolean;
 }) {
+  const t = useT();
   const [state, action, pending] = useActionState<DirectoryActionResult | null, FormData>(
     saveCashCategory,
     IDLE,
@@ -196,29 +203,29 @@ export function CashCategoriesEditor({
               ✓ {state.message}
             </p>
           )}
-          <Field label="Тип">
+          <Field label={t('Тип')}>
             <Select name="kind" defaultValue="EXPENSE">
-              <option value="EXPENSE">Расход</option>
-              <option value="INCOME">Доход</option>
+              <option value="EXPENSE">{t('Расход')}</option>
+              <option value="INCOME">{t('Доход')}</option>
             </Select>
           </Field>
-          <Field label="Название">
+          <Field label={t('Название')}>
             <Input name="name" required maxLength={80} data-testid="cash-category-name" />
           </Field>
           <Button type="submit" disabled={pending} aria-busy={pending}>
-            Добавить
+            {t('Добавить')}
           </Button>
         </form>
       )}
-      <Table size="sm" className="settings-directory-table" data-testid="cash-categories-table" aria-label="Список статей кассы">
+      <Table size="sm" className="settings-directory-table" data-testid="cash-categories-table" aria-label={t('Список статей кассы')}>
         <thead>
           <tr>
-            <th>Статья</th>
-            <th className="settings-col-wide">Тип</th>
-            <th className="settings-col-wide">Статус</th>
+            <th>{t('Статья')}</th>
+            <th className="settings-col-wide">{t('Тип')}</th>
+            <th className="settings-col-wide">{t('Статус')}</th>
             {editable && (
               <th>
-                <span className="sr-only">Действия</span>
+                <span className="sr-only">{t('Действия')}</span>
               </th>
             )}
           </tr>
@@ -234,13 +241,13 @@ export function CashCategoriesEditor({
                 )}
                 {/* на телефоне колонки типа и статуса скрыты, те же слова строкой под названием (как у «Сотрудников») */}
                 <span className="settings-row-sub">
-                  {kindRu(c.kind)}, {c.active ? 'действует' : 'выключена'}
+                  {t(kindRu(c.kind))}, {c.active ? t('действует') : t('выключена')}
                 </span>
               </td>
-              <td className="settings-col-wide">{kindRu(c.kind)}</td>
+              <td className="settings-col-wide">{t(kindRu(c.kind))}</td>
               <td className="settings-col-wide">
                 <Badge tone={c.active ? 'ok' : 'neutral'}>
-                  {c.active ? 'действует' : 'выключена'}
+                  {c.active ? t('действует') : t('выключена')}
                 </Badge>
               </td>
               {editable && (
@@ -248,7 +255,7 @@ export function CashCategoriesEditor({
                   <div className="settings-order">
                     {renaming !== c.id && (
                       <Button type="button" tone="ghost" onClick={() => setRenaming(c.id)}>
-                        Переименовать
+                        {t('Переименовать')}
                       </Button>
                     )}
                     <ToggleForm category={c} />
@@ -264,6 +271,7 @@ export function CashCategoriesEditor({
 }
 
 function RenameForm({ category, onDone }: { category: CashCategory; onDone: () => void }) {
+  const t = useT();
   const [state, action, pending] = useActionState<DirectoryActionResult | null, FormData>(
     saveCashCategory,
     IDLE,
@@ -274,21 +282,22 @@ function RenameForm({ category, onDone }: { category: CashCategory; onDone: () =
   return (
     <form action={action} className="settings-rename" data-testid="cash-category-rename">
       <input type="hidden" name="id" value={category.id} />
-      <Field label={`Новое название: ${category.name}`}>
+      <Field label={t('Новое название: {name}', { name: category.name })}>
         <Input name="name" defaultValue={category.name} required maxLength={80} autoFocus />
       </Field>
       {state?.error && <Alert boxed>{state.error}</Alert>}
       <Button type="submit" disabled={pending} aria-busy={pending}>
-        Сохранить
+        {t('Сохранить')}
       </Button>
       <Button type="button" tone="ghost" onClick={onDone}>
-        Отмена
+        {t('Отмена')}
       </Button>
     </form>
   );
 }
 
 function ToggleForm({ category }: { category: CashCategory }) {
+  const t = useT();
   const [state, action, pending] = useActionState<DirectoryActionResult | null, FormData>(
     saveCashCategory,
     IDLE,
@@ -299,7 +308,7 @@ function ToggleForm({ category }: { category: CashCategory }) {
       <input type="hidden" name="active" value={category.active ? 'false' : 'true'} />
       {state?.error && <Alert boxed>{state.error}</Alert>}
       <Button type="submit" tone="secondary" disabled={pending} aria-busy={pending}>
-        {category.active ? 'Выключить' : 'Включить'}
+        {category.active ? t('Выключить') : t('Включить')}
       </Button>
     </form>
   );

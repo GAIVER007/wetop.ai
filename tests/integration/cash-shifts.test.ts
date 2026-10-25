@@ -369,4 +369,42 @@ describe.skipIf(!process.env.DATABASE_URL)('кассовые смены всех
       }),
     ).toBe(1);
   });
+  it('быстрый приход соблюдает настройки филиала, расход выводит прежний остаток OTHER', async () => {
+    const place = places.find((p) => p.vertical === 'FOOD_SERVICE')!;
+    let view = await at(place, owner, () => service.state());
+    if (!view.active)
+      view = await command(place, { action: 'open', counted: '0', note: 'Тест настроек' });
+    const operation = {
+      shiftId: view.active!.id,
+      method: 'KASPI',
+      amount: '1',
+      category: 'Внесение',
+    };
+    await db.branchPaymentMethodSetting.create({
+      data: { locationId: place.locationId, method: 'KASPI', enabled: false, sortOrder: 2 },
+    });
+    try {
+      await expect(command(place, { ...operation, action: 'income' })).rejects.toThrow('выключен');
+      await db.branchPaymentMethodSetting.create({
+        data: { locationId: place.locationId, method: 'OTHER', enabled: true, sortOrder: 6 },
+      });
+      await command(place, { ...operation, action: 'income', method: 'OTHER' });
+      await db.branchPaymentMethodSetting.update({
+        where: { locationId_method: { locationId: place.locationId, method: 'OTHER' } },
+        data: { enabled: false },
+      });
+      await expect(
+        command(place, { ...operation, action: 'income', method: 'OTHER' }),
+      ).rejects.toThrow('выключен');
+      const after = await command(place, {
+        ...operation,
+        action: 'expense',
+        method: 'OTHER',
+        category: 'Прочее',
+      });
+      expect(after.snapshot.balances.OTHER).toBe('0');
+    } finally {
+      await db.branchPaymentMethodSetting.deleteMany({ where: { locationId: place.locationId } });
+    }
+  });
 });

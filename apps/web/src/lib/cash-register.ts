@@ -33,6 +33,8 @@ export interface CashRegisterView {
     refunds: Record<string, string>;
     expenses: Record<string, string>;
   } | null;
+  incomeMethods: string[];
+  expenseMethods: string[];
   mayOperate: boolean;
   mayManage: boolean;
   currentUserId: string;

@@ -9,6 +9,9 @@ import {
 } from '@nestjs/common';
 import {
   canWrite,
+  resolvePaymentMethodSettings,
+  enabledPaymentMethods,
+  assertPaymentMethodEnabled,
   roleAt,
   can,
   parseBeautyPermissions,
@@ -27,6 +30,10 @@ import {
 } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { assertBeautyOperation, runWithBeautyWriteAuthorization } from '../beauty/access';
+import {
+  branchPaymentSettings,
+  assertBranchMethodsOpen,
+} from '../food-service/branch-payment-methods';
 import { readCashShiftSnapshot } from './cash-shift-sources';
 import { createHotelCash } from './hotel-cash';
 import { cashAmount, cashDelta, closeCashShift } from './cash-shift-rules';
@@ -68,6 +75,8 @@ export type CashShiftState = {
     received: Record<string, string>;
     refunds: Record<string, string>;
   } | null;
+  incomeMethods: string[];
+  expenseMethods: string[];
   mayOperate: boolean;
   mayManage: boolean;
   currentUserId: string;
@@ -224,7 +233,27 @@ export class CashShiftsService {
         }
       }
     }
+    const enabledMethods = enabledPaymentMethods(
+      scope.propertyId
+        ? resolvePaymentMethodSettings(
+            await db.paymentMethodSetting.findMany({ where: { propertyId: scope.propertyId } }),
+          )
+        : await branchPaymentSettings(db, scope.locationId),
+    );
+    const incomeMethods = enabledMethods.filter(
+      (method) => METHODS.includes(method) || (!scope.propertyId && method === 'OTHER'),
+    );
+    const expenseMethods = scope.propertyId
+      ? incomeMethods
+      : [
+          ...METHODS,
+          ...(enabledMethods.includes('OTHER') || BigInt(snapshot.balances.OTHER ?? '0') !== 0n
+            ? ['OTHER']
+            : []),
+        ];
     return {
+      incomeMethods,
+      expenseMethods,
       registerId: register.id,
       name: scope.name,
       currency: scope.currency,
@@ -375,8 +404,20 @@ export class CashShiftsService {
                 const kind = body.action === 'expense' ? 'EXPENSE' : 'INCOME';
                 const amount = cashAmount(body.amount),
                   method = body.method ?? 'CASH';
-                if (amount <= 0n || !METHODS.includes(method))
+                if (
+                  amount <= 0n ||
+                  !(METHODS.includes(method) || (!scope.propertyId && method === 'OTHER'))
+                )
                   throw new BadRequestException('Проверьте сумму и способ оплаты');
+                if (scope.propertyId) {
+                  try {
+                    assertPaymentMethodEnabled(method, before.incomeMethods);
+                  } catch (error) {
+                    throw new BadRequestException((error as Error).message);
+                  }
+                } else if (kind === 'INCOME') {
+                  await assertBranchMethodsOpen(db, scope.locationId, method);
+                }
                 if (
                   kind === 'EXPENSE' &&
                   method === 'CASH' &&

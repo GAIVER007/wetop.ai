@@ -389,18 +389,13 @@ export function CashHeader({
                       </Field>
                       <Field label="Способ оплаты">
                         <Select name="method" defaultValue="CASH" disabled={busy}>
-                          {[
-                            'CASH',
-                            'CARD_TERMINAL',
-                            'KASPI',
-                            'HALYK',
-                            'BANK_TRANSFER_PERSON',
-                            'BANK_TRANSFER_LEGAL',
-                          ].map((method) => (
-                            <option value={method} key={method}>
-                              {METHOD_RU[method] ?? method}
-                            </option>
-                          ))}
+                          {(panel === 'income' ? cash.incomeMethods : cash.expenseMethods).map(
+                            (method) => (
+                              <option value={method} key={method}>
+                                {METHOD_RU[method] ?? method}
+                              </option>
+                            ),
+                          )}
                         </Select>
                       </Field>
                       <Field label="Статья">

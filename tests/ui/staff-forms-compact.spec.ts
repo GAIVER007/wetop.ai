@@ -74,3 +74,19 @@ for (const width of [1440, 390]) {
     await page.screenshot({ path: `${SHOTS}/invite-${width}.png`, fullPage: true });
   });
 }
+
+test('mobile create can stay and then discard a dirty draft', async ({ page, request }) => {
+  await page.setViewportSize({ width: 600, height: 844 });
+  await openSalon(page, request);
+  await page.goto('/employees');
+  await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: 'Новый специалист', exact: true });
+  await panel.getByLabel('Имя', { exact: true }).fill('Тестовый черновик');
+  const confirm = page.getByRole('dialog', { name: 'Несохранённые изменения', exact: true });
+  await panel.getByRole('button', { name: 'Отмена', exact: true }).click();
+  await confirm.getByRole('button', { name: 'Остаться', exact: true }).click();
+  await expect(panel.getByLabel('Имя', { exact: true })).toHaveValue('Тестовый черновик');
+  await panel.getByRole('button', { name: 'Отмена', exact: true }).click();
+  await confirm.getByRole('button', { name: 'Не сохранять', exact: true }).click();
+  await expect(panel).toHaveCount(0);
+});

@@ -3852,7 +3852,7 @@
   .staff-form-dialog .team-scope__tree { grid-column: 1 / -1; }
   .staff-form-dialog .staff-form-footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); border-top: 1px solid var(--border); padding-top: var(--space-4); margin-top: var(--space-1); }
   .staff-form-dialog .staff-form-footer > p { font-size: var(--text-sm); color: var(--muted); }
-  .staff-form-dialog :is(.employee-workspace-actions, .team-invite-form__actions) { border: 0; padding: 0; gap: calc(var(--space-4) - var(--space-1) / 2); flex-wrap: nowrap; }
+  .staff-form-dialog .staff-form-footer :is(.employee-workspace-actions, .team-invite-form__actions) { border: 0; padding: 0; gap: calc(var(--space-4) - var(--space-1) / 2); flex-wrap: nowrap; }
   .staff-form-dialog .staff-form-footer .btn { min-height: calc(var(--touch-target) + var(--space-1) / 2); border-radius: var(--radius-sm); padding-inline: calc(var(--space-4) + var(--space-1) / 2); font-size: var(--text-sm); white-space: nowrap; }
   .staff-form-dialog .staff-form-footer .btn--secondary { background: var(--surface-muted); border-color: transparent; }
   .staff-form-dialog .team-invite-form > .staff-access { border-top: 1px solid var(--border); padding-top: calc(var(--space-4) + var(--space-1)); margin-top: var(--space-1); }

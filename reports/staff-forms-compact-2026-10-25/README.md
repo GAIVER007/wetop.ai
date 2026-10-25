@@ -14,3 +14,5 @@
 Общий unit на первой итерации: 7586 passed, 4 skipped, два таймаута неизменённого db-restore-prod. Отдельно 7/7 passed; записанный повтор с лимитом 15 секунд тоже 7/7. Полный unit на окончательной версии проверяет CI.
 
 Публикация подтверждается отдельно по release-checks, deployed SHA и рабочему адресу.
+
+CI follow-up: all five reported failures fixed without changing computed geometry or weakening design rules. Full local unit: 7588 passed, 4 skipped, 0 failed; 914 files passed and 1 skipped. Desktop/mobile UI: 2/2 passed; lint passed.

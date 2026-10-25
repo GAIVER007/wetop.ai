@@ -3806,64 +3806,64 @@
     width: min(690px, calc(100vw - 32px));
     max-height: calc(100dvh - 32px);
     background: var(--surface-solid);
-    border-radius: 14px;
+    border-radius: calc(var(--radius-control) + var(--radius-xs));
     font-size: var(--text-lg);
     line-height: 1.4;
   }
   .staff-form-dialog .overlay-heading {
-    padding: 24px 28px 12px;
+    padding: var(--space-6) calc(var(--space-6) + var(--space-1)) calc(var(--space-2) + var(--space-1));
     border: 0;
     background: var(--surface-solid);
   }
   .staff-form-dialog .overlay-heading h2 { font-size: var(--text-4xl); font-weight: 700; }
-  .staff-form-dialog .overlay-content { padding: 12px 28px 22px; }
-  .staff-form-dialog :is(.employee-workspace-form, .team-invite-form) { gap: 20px; }
+  .staff-form-dialog .overlay-content { padding: calc(var(--space-2) + var(--space-1)) calc(var(--space-6) + var(--space-1)) calc(var(--space-6) - var(--space-1) / 2); }
+  .staff-form-dialog :is(.employee-workspace-form, .team-invite-form) { gap: calc(var(--space-4) + var(--space-1)); }
   .staff-form-dialog :is(h3, p, fieldset) { margin: 0; }
-  .staff-form-dialog .field { gap: 8px; color: var(--text); }
+  .staff-form-dialog .field { gap: var(--space-2); color: var(--text); }
   .staff-form-dialog :is(.field__label, .staff-access__legend, .staff-personnel-kind legend, .team-scope legend) { font-weight: 500; color: var(--text); }
-  .staff-form-dialog .staff-form-section-title { font-size: var(--text-lg); font-weight: 600; margin-top: 8px; }
+  .staff-form-dialog .staff-form-section-title { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-2); }
   .staff-form-dialog .field__label--required::after { color: var(--danger); }
   .staff-form-dialog .inp {
-    min-height: 48px; height: 48px; border-color: var(--border); border-radius: 8px;
-    background-color: var(--surface-solid); padding: 10px 16px; font-size: var(--text-lg); box-shadow: none;
+    min-height: calc(var(--touch-target) + var(--space-1)); height: calc(var(--touch-target) + var(--space-1)); border-color: var(--border); border-radius: var(--radius-sm);
+    background-color: var(--surface-solid); padding: calc(var(--space-2) + var(--space-1) / 2) var(--space-4); font-size: var(--text-lg); box-shadow: none;
   }
   .staff-form-dialog .staff-phone { gap: 0; grid-template-columns: 94px minmax(0, 1fr); }
-  .staff-form-dialog .staff-phone select { border-radius: 8px 0 0 8px; background-color: var(--surface-muted); }
-  .staff-form-dialog .staff-phone input[type='tel'] { border-radius: 0 8px 8px 0; border-left: 0; }
-  .staff-form-dialog .employee-workspace-contacts { gap: 20px; }
+  .staff-form-dialog .staff-phone select { border-radius: var(--radius-sm) 0 0 var(--radius-sm); background-color: var(--surface-muted); }
+  .staff-form-dialog .staff-phone input[type='tel'] { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: 0; }
+  .staff-form-dialog .employee-workspace-contacts { gap: calc(var(--space-4) + var(--space-1)); }
   .staff-form-dialog :is(.field__hint, .employee-workspace-note, .staff-access__invite) { color: var(--muted); font-size: var(--text-md); line-height: 1.4; }
-  .staff-form-dialog .employee-workspace-note { margin-top: -12px; }
-  .staff-personnel-kind { border: 0; border-top: 1px solid var(--border); padding: 20px 0 0; min-width: 0; }
-  .staff-personnel-kind legend { float: left; width: 100%; margin-bottom: 8px; }
-  .staff-choice-row { clear: both; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .staff-choice { display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; min-height: 50px; cursor: pointer; }
+  .staff-form-dialog .employee-workspace-note { margin-top: calc(-1 * calc(var(--space-2) + var(--space-1))); }
+  .staff-personnel-kind { border: 0; border-top: 1px solid var(--border); padding: calc(var(--space-4) + var(--space-1)) 0 0; min-width: 0; }
+  .staff-personnel-kind legend { float: left; width: 100%; margin-bottom: var(--space-2); }
+  .staff-choice-row { clear: both; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  .staff-choice { display: flex; align-items: center; gap: calc(var(--space-2) + var(--space-1)); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: calc(var(--space-2) + var(--space-1)) calc(var(--space-4) + var(--space-1)); min-height: calc(var(--touch-target) + var(--space-1) + var(--space-1) / 2); cursor: pointer; }
   .staff-choice:has(input:checked), .staff-form-dialog .team-scope__row:has(input:checked) { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); font-weight: 600; }
-  .staff-choice input { accent-color: var(--primary); margin: 0; width: 18px; height: 18px; flex-shrink: 0; }
-  .staff-choice--no-login { align-items: flex-start; margin-top: 8px; }
-  .staff-choice--no-login small { display: block; color: var(--muted); font-weight: 400; font-size: var(--text-sm); margin-top: 4px; }
-  .staff-form-dialog .staff-access--compact { padding: 0; border: 0; gap: 8px; }
-  .staff-form-dialog .staff-access__legend { float: left; width: 100%; margin-bottom: 8px; }
+  .staff-choice input { accent-color: var(--primary); margin: 0; width: 18px; height: calc(var(--space-4) + var(--space-1) / 2); flex-shrink: 0; }
+  .staff-choice--no-login { align-items: flex-start; margin-top: var(--space-2); }
+  .staff-choice--no-login small { display: block; color: var(--muted); font-weight: 400; font-size: var(--text-sm); margin-top: var(--space-1); }
+  .staff-form-dialog .staff-access--compact { padding: 0; border: 0; gap: var(--space-2); }
+  .staff-form-dialog .staff-access__legend { float: left; width: 100%; margin-bottom: var(--space-2); }
   .staff-form-dialog .staff-access--compact > .inp { clear: both; }
-  .staff-form-dialog .team-scope { border: 0; padding: 0; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .staff-form-dialog .team-scope legend { float: left; width: 100%; margin-bottom: 8px; }
-  .staff-form-dialog .team-scope__row { border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; min-height: 50px; }
+  .staff-form-dialog .team-scope { border: 0; padding: 0; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  .staff-form-dialog .team-scope legend { float: left; width: 100%; margin-bottom: var(--space-2); }
+  .staff-form-dialog .team-scope__row { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: calc(var(--space-2) + var(--space-1)) var(--space-4); min-height: calc(var(--touch-target) + var(--space-1) + var(--space-1) / 2); }
   .staff-form-dialog .team-scope__tree { grid-column: 1 / -1; }
-  .staff-form-dialog .staff-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 4px; }
+  .staff-form-dialog .staff-form-footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); border-top: 1px solid var(--border); padding-top: var(--space-4); margin-top: var(--space-1); }
   .staff-form-dialog .staff-form-footer > p { font-size: var(--text-sm); color: var(--muted); }
-  .staff-form-dialog :is(.employee-workspace-actions, .team-invite-form__actions) { border: 0; padding: 0; gap: 14px; flex-wrap: nowrap; }
-  .staff-form-dialog .staff-form-footer .btn { min-height: 46px; border-radius: 8px; padding-inline: 18px; font-size: var(--text-sm); white-space: nowrap; }
+  .staff-form-dialog :is(.employee-workspace-actions, .team-invite-form__actions) { border: 0; padding: 0; gap: calc(var(--space-4) - var(--space-1) / 2); flex-wrap: nowrap; }
+  .staff-form-dialog .staff-form-footer .btn { min-height: calc(var(--touch-target) + var(--space-1) / 2); border-radius: var(--radius-sm); padding-inline: calc(var(--space-4) + var(--space-1) / 2); font-size: var(--text-sm); white-space: nowrap; }
   .staff-form-dialog .staff-form-footer .btn--secondary { background: var(--surface-muted); border-color: transparent; }
-  .staff-form-dialog .team-invite-form > .staff-access { border-top: 1px solid var(--border); padding-top: 20px; margin-top: 4px; }
+  .staff-form-dialog .team-invite-form > .staff-access { border-top: 1px solid var(--border); padding-top: calc(var(--space-4) + var(--space-1)); margin-top: var(--space-1); }
   @media (max-width: 600px) {
     .ui-overlay.staff-form-dialog { width: calc(100vw - 16px); }
-    .staff-form-dialog .overlay-heading { padding: 20px 16px 8px; }
+    .staff-form-dialog .overlay-heading { padding: calc(var(--space-4) + var(--space-1)) var(--space-4) var(--space-2); }
     .staff-form-dialog .overlay-heading h2 { font-size: var(--text-2xl); }
-    .staff-form-dialog .overlay-content { padding: 12px 16px 20px; }
-    .staff-form-dialog .staff-form-names { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .staff-form-dialog .overlay-content { padding: calc(var(--space-2) + var(--space-1)) var(--space-4) calc(var(--space-4) + var(--space-1)); }
+    .staff-form-dialog .staff-form-names { grid-template-columns: 1fr 1fr; gap: calc(var(--space-2) + var(--space-1)); }
     .staff-form-dialog .staff-form-footer { flex-wrap: wrap; }
     .staff-form-dialog .staff-form-footer > p { flex-basis: 100%; }
     .staff-form-dialog .staff-form-footer > div { margin-left: auto; }
-    .staff-choice { padding: 12px; }
+    .staff-choice { padding: calc(var(--space-2) + var(--space-1)); }
   }
 }
 
@@ -3876,13 +3876,13 @@
   .staff-form-dialog .staff-form-footer { margin-top: auto; }
   @media (max-height: 920px), (max-width: 600px) {
     .staff-form-dialog :is(.employee-workspace-form--creating, .team-invite-form) { min-height: 0; }
-    .staff-form-dialog .staff-form-footer { margin-top: 4px; }
+    .staff-form-dialog .staff-form-footer { margin-top: var(--space-1); }
   }
 }
 
 @layer sections {
   .staff-form-dialog .team-scope { display: block; }
   .staff-form-dialog .team-scope legend { float: none; }
-  .staff-form-dialog .team-scope__tree { margin-top: 16px; }
-  .staff-form-dialog .team-scope__row input { width: 18px; height: 18px; accent-color: var(--primary); }
+  .staff-form-dialog .team-scope__tree { margin-top: var(--space-4); }
+  .staff-form-dialog .team-scope__row input { width: 18px; height: calc(var(--space-4) + var(--space-1) / 2); accent-color: var(--primary); }
 }

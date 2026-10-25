@@ -96,3 +96,50 @@ test('order creation never retries an uncertain network result automatically', a
   ).rejects.toMatchObject({ kind: 'network' });
   expect(fetcher).toHaveBeenCalledTimes(1);
 });
+
+test('payment and closing preserve exact payload, scope and single-attempt transport', async () => {
+  const payment = {
+    orderId: 'order',
+    amount: 9007199254740991,
+    method: 'CASH' as const,
+    idempotencyKey: 'payment-original',
+  };
+  for (const action of ['pay', 'close'] as const) {
+    const fetcher = fake({ id: 'order' });
+    const api = createAccessApi('https://example.invalid/api/mobile/v1', fetcher);
+    if (action === 'pay') await api.payOrder('fixture-token', 'business=b;location=l', payment);
+    else
+      await api.closeOrder(
+        'fixture-token',
+        'business=b;location=l',
+        'order',
+        '2026-10-25T00:00:00.000Z',
+      );
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher).toHaveBeenCalledWith(
+      `https://example.invalid/api/mobile/v1/food/${action}`,
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'omit',
+        redirect: 'error',
+        body: JSON.stringify(
+          action === 'pay'
+            ? payment
+            : { orderId: 'order', expectedUpdatedAt: '2026-10-25T00:00:00.000Z' },
+        ),
+        headers: expect.objectContaining({
+          Authorization: 'Bearer fixture-token',
+          'X-Wetop-Scope': 'business=b;location=l',
+        }),
+      }),
+    );
+    fetcher.mockClear();
+    fetcher.mockRejectedValue(new Error('lost response'));
+    const pending =
+      action === 'pay'
+        ? api.payOrder('fixture-token', 'business=b;location=l', payment)
+        : api.closeOrder('fixture-token', 'business=b;location=l', 'order', 'version');
+    await expect(pending).rejects.toMatchObject({ kind: 'network' });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  }
+});

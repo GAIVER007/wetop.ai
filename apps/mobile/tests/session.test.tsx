@@ -301,3 +301,37 @@ test('serving uses verified scope and rejects late results after branch change',
   resolve({ id: 'order' });
   await expect(pending).rejects.toMatchObject({ kind: 'forbidden' });
 });
+
+test.each(['payOrder', 'closeOrder'] as const)(
+  '%s requires verified scope and discards a late response after branch change',
+  async (method) => {
+    const { session, api } = fixture();
+    const payment = {
+      orderId: 'order',
+      amount: 100,
+      method: 'CASH' as const,
+      idempotencyKey: 'original',
+    };
+    const invoke = () =>
+      method === 'payOrder' ? session.payOrder(payment) : session.closeOrder('order', 'version');
+    await expect(invoke()).rejects.toMatchObject({ kind: 'forbidden' });
+    expect(api[method]).not.toHaveBeenCalled();
+    await session.login('test@example.invalid', 'fixture');
+    let resolve!: (value: unknown) => void;
+    api[method].mockImplementation(
+      () =>
+        new Promise((done) => {
+          resolve = done;
+        }),
+    );
+    const pending = invoke();
+    expect(api[method]).toHaveBeenCalledWith(
+      'fixture-token',
+      'business=biz-01;location=loc-01',
+      ...(method === 'payOrder' ? [payment] : ['order', 'version']),
+    );
+    await session.changeBranch();
+    resolve({ id: 'order' });
+    await expect(pending).rejects.toMatchObject({ kind: 'forbidden' });
+  },
+);

@@ -1,6 +1,6 @@
 import { requireFeature } from '../../../lib/vertical-guard';
 import Link from 'next/link';
-import { countGuestNights, summarizeGuestStays } from '@pms/domain';
+import { citizenshipLabel, countGuestNights, summarizeGuestStays } from '@pms/domain';
 import { Tabs } from '../../../components/tabs';
 import { notFoundOn404 } from '../../../lib/page-error';
 import { api, guestsApi, messengerLinks, type GuestCard } from '../../../lib/api';
@@ -410,7 +410,7 @@ export default async function GuestPage({ params }: { params: Promise<{ id: stri
         </div>
         <div>
           <dt>{t('Гражданство')}</dt>
-          <dd>{g.citizenship ?? <span className="warn-text">—</span>}</dd>
+          <dd>{citizenshipLabel(g.citizenship) ?? <span className="warn-text">—</span>}</dd>
         </div>
         <div>
           <dt>{t('Визиты')}</dt>

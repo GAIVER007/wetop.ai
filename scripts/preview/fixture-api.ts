@@ -10507,6 +10507,9 @@ createServer(async (req, res) => {
         return send(200, r);
       }
       if (item && action === 'check-in') {
+        // как API (reservations.service checkIn): без гражданства в гостинице Казахстана заселения нет (eQonaq)
+        if (!(r.primaryGuest?.citizenship ?? '').trim())
+          return send(422, { message: 'Укажите гражданство в карточке гостя — без него заселение невозможно (eQonaq)' });
         item.status = 'CHECKED_IN';
         r.status = 'CHECKED_IN';
         return send(200, r);

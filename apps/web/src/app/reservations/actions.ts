@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import {
   ApiError,
+  chessboardApi,
   guestsApi,
   reservationsApi,
   type CancelPreview,
@@ -262,6 +263,24 @@ export async function extendStayAction(
 ): Promise<ActionResult> {
   try {
     await reservationsApi.extend(number, itemId, nights, ratePlanCode);
+  } catch (e) {
+    return { error: describe(e) };
+  }
+  revalidatePath('/chessboard');
+  revalidatePath(`/reservations/${number}`);
+  return { error: null };
+}
+
+/**
+ * Гражданство основного гостя брони прямо из окна заселения (решение владельца 24.10.2026). Гость берётся из карточки
+ * брони на сервере, а не из браузера: окно не может записать гражданство чужому гостю. Запись идёт тем же PATCH гостя,
+ * что форма карточки гостя (проверка кода ISO alpha-3 там же).
+ */
+export async function setBookingCitizenshipAction(number: string, citizenship: string): Promise<ActionResult> {
+  try {
+    const card = await chessboardApi.reservation(number);
+    if (!card.primaryGuest) return { error: msg('У брони нет основного гостя: добавьте гостя в карточке брони') };
+    await guestsApi.update(card.primaryGuest.id, { citizenship });
   } catch (e) {
     return { error: describe(e) };
   }

@@ -259,4 +259,10 @@ export const salonCatalog: Record<string, string> = {
   "Способы оплаты и статьи кассы": 'Payment methods and cash desk categories',
   "Способы оплаты": 'Payment methods',
   "Документы и договор": 'Documents and contract',
+  'Работает в этот день': 'Works this day',
+  'Изменить график недели': 'Change weekly schedule',
+  'Нажмите на день: включить или выключить только эту дату. Обычная неделя и часы меняются по имени специалиста.': 'Tap a day to turn only that date on or off. The regular week and hours change from the specialist’s name.',
+  'Нажмите на имя или на день, чтобы изменить обычную неделю.': 'Tap a name or a day to change the regular week.',
+  'Филиал пока не выбран': 'No branch selected yet',
+  'Обычная неделя сотрудников ресторана': 'Regular week of restaurant staff',
 };

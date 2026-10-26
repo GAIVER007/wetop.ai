@@ -453,4 +453,6 @@ export const portalTeam: Record<string, string> = {
   "Дать доступ": 'Give access',
   "Доступ в WETOP: {name}": 'WETOP access: {name}',
   "Изменить контакты": 'Edit contacts',
+  'Процент, от 1 до 100': 'Percent, 1 to 100',
+  'Сумма в валюте филиала. Зарплату за месяц WETOP посчитает сам. Премии и удержания добавляются в «Зарплате».': 'Amount in the branch currency. WETOP calculates the monthly pay itself. Bonuses and deductions are added in “Payroll”.',
 };

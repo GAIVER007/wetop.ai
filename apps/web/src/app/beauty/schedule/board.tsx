@@ -1,10 +1,11 @@
 'use client';
 import Link from 'next/link';
-import { useActionState, useEffect, useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import { parseWorkingHoursWeek } from '@pms/domain';
 import { Overlay } from '../../../components/overlay';
+import { panelBox, panelPlacement } from '../../../components/panel-placement';
 import { Switch } from '../../../components/switch';
-import { Alert, Button, Field, Input, Select, Table } from '../../../components/ui';
+import { Alert, Button, Input, Select, Table } from '../../../components/ui';
 import type {
   BeautySchedule,
   BeautyTimeOff,
@@ -77,6 +78,8 @@ export interface WeekGridData {
   /** Профессии для отбора: группы услуг, назначенных мастерам филиала (Q-SCHED-2) */
   groups?: string[];
   group?: string | null;
+  /** Сегодня в поясе филиала: столбец подсвечивается */
+  today?: string | null;
 }
 
 export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: boolean }) {
@@ -127,24 +130,35 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
     });
   };
 
+  const today = data.today ?? null;
+  const [menu, setMenu] = useState<{ masterId: string; date: string; rect: DOMRect } | null>(null);
+  const groupQuery = data.group ? `&group=${encodeURIComponent(data.group)}` : '';
   return (
     <>
-      <nav className="beauty-week-nav" aria-label={t('Неделя')}>
-        <Link className="btn btn--secondary btn--sm" href={shift(-7)}>
-          {t('Прошлая неделя')}
-        </Link>
-        <span data-testid="beauty-week-range">
-          {label(days[0]!.date)} – {label(days[6]!.date)}
-        </span>
-        <Link className="btn btn--secondary btn--sm" href={shift(7)}>
-          {t('Следующая неделя')}
-        </Link>
-      </nav>
-      {(data.groups?.length ?? 0) > 0 && (
-        <form className="beauty-pick" method="get" action="/beauty/schedule">
-          <input type="hidden" name="week" value={data.monday} />
-          <Field label={t('Профессия')}>
-            <Select name="group" defaultValue={data.group ?? ''}>
+      <div className="schedule-toolbar">
+        <nav className="schedule-week" aria-label={t('Неделя')}>
+          <Link className="btn btn--secondary btn--sm schedule-week__step" href={shift(-7)} aria-label={t('Прошлая неделя')}>
+            <span aria-hidden="true">‹</span>
+          </Link>
+          <span className="schedule-week__range" data-testid="beauty-week-range">
+            {label(days[0]!.date)} – {label(days[6]!.date)}
+          </span>
+          <Link className="btn btn--secondary btn--sm schedule-week__step" href={shift(7)} aria-label={t('Следующая неделя')}>
+            <span aria-hidden="true">›</span>
+          </Link>
+          <Link className="btn btn--secondary btn--sm" href={`/beauty/schedule${groupQuery ? `?${groupQuery.slice(1)}` : ''}`}>
+            {t('Сегодня')}
+          </Link>
+        </nav>
+        {(data.groups?.length ?? 0) > 0 && (
+          <form className="schedule-filter" method="get" action="/beauty/schedule">
+            <input type="hidden" name="week" value={data.monday} />
+            <Select
+              name="group"
+              aria-label={t('Профессия')}
+              defaultValue={data.group ?? ''}
+              onChange={(e) => e.currentTarget.form?.requestSubmit()}
+            >
               <option value="">{t('Все специалисты')}</option>
               {data.groups!.map((g) => (
                 <option key={g} value={g}>
@@ -152,16 +166,9 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
                 </option>
               ))}
             </Select>
-          </Field>
-          <Button type="submit" tone="secondary">
-            {t('Показать')}
-          </Button>
-        </form>
-      )}
-      <p className="beauty-note">
-        {t('Переключатель меняет только эту дату.')}
-        {canEdit && ` ${t('Выходной по графику и часы работы меняются в окне специалиста: нажмите на его имя.')}`}
-      </p>
+          </form>
+        )}
+      </div>
       {error && <Alert>{error}</Alert>}
       {/* записи в выключенный день не отменяются: тогда это предупреждение, а не просто отметка */}
       {notice &&
@@ -170,12 +177,12 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         ) : (
           <p role="status">{notice}</p>
         ))}
-      <Table className="beauty-week-grid" aria-busy={busy}>
+      <Table className="schedule-grid beauty-week-grid" aria-busy={busy}>
         <thead>
           <tr>
             <th scope="col">{t('Специалисты')}</th>
             {days.map((d) => (
-              <th key={d.date} scope="col">
+              <th key={d.date} scope="col" className={d.date === today ? 'is-today' : undefined}>
                 {label(d.date)}, {shortDay.format(new Date(`${d.date}T12:00:00Z`))}
               </th>
             ))}
@@ -185,13 +192,18 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
           {data.masters.map((m) => (
             <tr key={m.id}>
               <th scope="row">
-                {canEdit ? (
-                  <Button type="button" tone="ghost" size="sm" onClick={() => setEditing({ master: m })}>
-                    {m.name}
-                  </Button>
-                ) : (
-                  <span>{m.name}</span>
-                )}
+                <span className="schedule-person">
+                  <span className="schedule-avatar" aria-hidden="true">
+                    {initials(m.name)}
+                  </span>
+                  {canEdit ? (
+                    <button type="button" className="schedule-person__name" onClick={() => setEditing({ master: m })}>
+                      {m.name}
+                    </button>
+                  ) : (
+                    <span className="schedule-person__name">{m.name}</span>
+                  )}
+                </span>
                 {/* новый специалист без часов (онбординг 21.10.2026): к нему нельзя записаться, кнопка сразу под именем */}
                 {canEdit && m.week.every((w) => w.intervals.length === 0) && (
                   <Button
@@ -212,6 +224,7 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
                 const dayOff = absent && absent.dateFrom === absent.dateTo ? absent : undefined;
                 const templateOff = hours.length === 0;
                 const works = optimistic[`${m.id}:${d.date}`] ?? (!templateOff && !absent);
+                const tone = works ? 'on' : templateOff ? 'rest' : absent && !dayOff ? 'away' : 'off';
                 const text = templateOff
                   ? t('Выходной по графику')
                   : absent && !dayOff
@@ -219,45 +232,61 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
                     : works
                       ? t('Работает')
                       : t('Не работает');
+                const time = hours.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ');
+                const open = menu?.masterId === m.id && menu.date === d.date;
                 return (
-                  <td
-                    key={d.date}
-                    className={works ? 'is-on' : 'is-off'}
-                    data-label={label(d.date)}
-                  >
-                    {canEdit && !templateOff && (!absent || dayOff) ? (
-                      <Switch
-                        name={`works-${m.id}-${d.date}`}
-                        label={
-                          <>
-                            {text}
-                            <span className="sr-only">
-                              : {m.name}, {label(d.date)}
-                            </span>
-                          </>
-                        }
-                        checked={works}
-                        disabled={busy}
-                        onChange={(on) => toggle(m, d.date, on, dayOff)}
-                      />
-                    ) : (
-                      <span>{text}</span>
-                    )}
-                    {works && (
-                      <small className="beauty-note">
-                        {hours.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ')}
-                      </small>
-                    )}
-                    {absent?.reason && <small className="beauty-note">{absent.reason}</small>}
-                    {canEdit && templateOff && (
-                      <Button
-                        type="button"
-                        tone="ghost"
-                        size="sm"
-                        onClick={() => setEditing({ master: m, weekday: d.weekday })}
-                      >
-                        {t('Изменить график')}<span className="sr-only">: {m.name}, {label(d.date)}</span>
-                      </Button>
+                  <td key={d.date} data-label={label(d.date)} className={d.date === today ? 'is-today' : undefined}>
+                    <button
+                      type="button"
+                      className={`schedule-chip schedule-chip--${tone}`}
+                      aria-haspopup="dialog"
+                      aria-expanded={open}
+                      disabled={!canEdit && !absent?.reason}
+                      onClick={(e) => setMenu(open ? null : { masterId: m.id, date: d.date, rect: e.currentTarget.getBoundingClientRect() })}
+                    >
+                      <span aria-hidden="true">{works ? time : tone === 'away' ? t('Отсутствует') : t('Выходной')}</span>
+                      <span className="sr-only">
+                        {text}: {m.name}, {label(d.date)}
+                      </span>
+                    </button>
+                    {absent?.reason && <small className="schedule-chip__note">{absent.reason}</small>}
+                    {open && (
+                      <DayMenu rect={menu.rect} title={`${m.name}, ${label(d.date)}, ${shortDay.format(new Date(`${d.date}T12:00:00Z`))}`} onClose={() => setMenu(null)}>
+                        {canEdit && !templateOff && (!absent || dayOff) && (
+                          <Switch
+                            name={`works-${m.id}-${d.date}`}
+                            label={
+                              <>
+                                {t('Работает в этот день')}
+                                <span className="sr-only">
+                                  : {m.name}, {label(d.date)}
+                                </span>
+                              </>
+                            }
+                            checked={works}
+                            disabled={busy}
+                            onChange={(on) => toggle(m, d.date, on, dayOff)}
+                          />
+                        )}
+                        <p className="schedule-menu__line">
+                          <span>{text}</span>
+                          {time && <span>{time}</span>}
+                        </p>
+                        {absent?.reason && <p className="schedule-menu__line">{absent.reason}</p>}
+                        {canEdit && (
+                          <Button
+                            type="button"
+                            tone="secondary"
+                            size="sm"
+                            onClick={() => {
+                              setMenu(null);
+                              setEditing({ master: m, weekday: d.weekday });
+                            }}
+                          >
+                            {t('Изменить график недели')}<span className="sr-only">: {m.name}, {label(d.date)}</span>
+                          </Button>
+                        )}
+                      </DayMenu>
                     )}
                   </td>
                 );
@@ -274,6 +303,9 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
           )}
         </tbody>
       </Table>
+      <ScheduleLegend
+        hint={canEdit ? t('Нажмите на день: включить или выключить только эту дату. Обычная неделя и часы меняются по имени специалиста.') : null}
+      />
       {data.elsewhere > 0 && (
         <p className="beauty-note">
           {t('Специалистов из других филиалов здесь не видно: {n}. Поставить специалиста в этот филиал можно в его карточке, раздел «Филиалы».', { n: data.elsewhere })}
@@ -306,6 +338,75 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
         )}
       </Overlay>
     </>
+  );
+}
+
+/** Буквы имени в кружке строки графика: «Айгуль Сеитова» → «АС» */
+export function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || '·';
+}
+
+/** Подпись цветов сетки графика (вариант B, 25.10.2026): одна строка под таблицей у всех направлений */
+export function ScheduleLegend({ hint }: { hint?: string | null }) {
+  const t = useT();
+  return (
+    <p className="schedule-legend">
+      <span><i className="schedule-dot schedule-dot--on" aria-hidden="true" />{t('Работает')}</span>
+      <span><i className="schedule-dot schedule-dot--off" aria-hidden="true" />{t('Выходной')}</span>
+      <span><i className="schedule-dot schedule-dot--away" aria-hidden="true" />{t('Отсутствует')}</span>
+      {hint && <span className="schedule-legend__hint">{hint}</span>}
+    </p>
+  );
+}
+
+/**
+ * Окошко дня над ячейкой (вариант B): привязано к плашке через fixed, поэтому прокрутка таблицы его не режет.
+ * Закрывается Escape, щелчком мимо и прокруткой страницы.
+ */
+function DayMenu({ rect, title, onClose, children }: { rect: DOMRect; title: string; onClose: () => void; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  // закрытие держим в ref: родитель передаёт новую функцию на каждой отрисовке, а окошко ставится один раз
+  const close = useRef(onClose);
+  close.current = onClose;
+  useEffect(() => {
+    const onClose = () => close.current();
+    const panel = ref.current;
+    if (panel) {
+      // место считает panelPlacement, как у выбора периода: под плашкой и всегда внутри экрана
+      const { left } = panelPlacement(rect, panel.offsetWidth, window.innerWidth);
+      const { top, maxHeight } = panelBox(rect, panel.scrollHeight, window.innerHeight);
+      panel.style.left = `${left}px`;
+      panel.style.top = `${top}px`;
+      panel.style.maxHeight = `${maxHeight}px`;
+      panel.setAttribute('data-placed', '');
+      panel.querySelector<HTMLElement>('input, button')?.focus();
+    }
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const down = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (panel && !panel.contains(target) && !panel.parentElement?.contains(target)) onClose();
+    };
+    const scroll = (e: Event) => {
+      if (panel && e.target instanceof Node && panel.contains(e.target)) return;
+      onClose();
+    };
+    document.addEventListener('keydown', key);
+    document.addEventListener('mousedown', down);
+    window.addEventListener('resize', onClose);
+    window.addEventListener('scroll', scroll, true);
+    return () => {
+      document.removeEventListener('keydown', key);
+      document.removeEventListener('mousedown', down);
+      window.removeEventListener('resize', onClose);
+      window.removeEventListener('scroll', scroll, true);
+    };
+  }, [rect]);
+  return (
+    <div ref={ref} role="dialog" aria-label={title} className="schedule-menu">
+      <p className="schedule-menu__title">{title}</p>
+      {children}
+    </div>
   );
 }
 
@@ -595,5 +696,113 @@ export function LocationsForm({
         {pending ? t('Сохраняем…') : t('Сохранить филиалы')}
       </Button>
     </form>
+  );
+}
+
+export interface TemplateRow {
+  id: string;
+  name: string;
+  week: Array<{ weekday: number; intervals: Array<{ timeFrom: string; timeTo: string }> }>;
+}
+
+const SHORT: Record<number, string> = { 1: msg('Пн'), 2: msg('Вт'), 3: msg('Ср'), 4: msg('Чт'), 5: msg('Пт'), 6: msg('Сб'), 0: msg('Вс') };
+
+/**
+ * Обычная неделя сотрудников ресторана и гостиницы тем же видом, что график салона (вариант B, 25.10.2026): строка
+ * сотрудника, плашка на день (зелёная с часами, красная «Выходной»), окошко дня по нажатию. Дат у них нет, только
+ * недельный шаблон, поэтому в окошке одно действие: изменить неделю.
+ */
+export function WeekTemplateGrid<R extends TemplateRow>({
+  rows,
+  write,
+  onEdit,
+  testId,
+}: {
+  rows: R[];
+  write: boolean;
+  onEdit: (row: R, weekday?: number) => void;
+  testId?: string;
+}) {
+  const t = useT();
+  const [menu, setMenu] = useState<{ id: string; weekday: number; rect: DOMRect } | null>(null);
+  const days = rows[0]?.week.map((d) => d.weekday) ?? [1, 2, 3, 4, 5, 6, 0];
+  return (
+    <>
+      <Table className="schedule-grid" data-testid={testId}>
+        <thead>
+          <tr>
+            <th scope="col">{t('Сотрудник')}</th>
+            {days.map((d) => (
+              <th scope="col" key={d}>
+                {t(SHORT[d] ?? '')}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.id}>
+              <th scope="row">
+                <span className="schedule-person">
+                  <span className="schedule-avatar" aria-hidden="true">
+                    {initials(r.name)}
+                  </span>
+                  {write ? (
+                    <button type="button" className="schedule-person__name" onClick={() => onEdit(r)}>
+                      {r.name}
+                    </button>
+                  ) : (
+                    <span className="schedule-person__name">{r.name}</span>
+                  )}
+                </span>
+              </th>
+              {r.week.map((day) => {
+                const works = day.intervals.length > 0;
+                const time = day.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ');
+                const open = menu?.id === r.id && menu.weekday === day.weekday;
+                const dayName = t(DAYS[day.weekday] ?? '');
+                return (
+                  <td key={day.weekday} data-label={t(SHORT[day.weekday] ?? '')}>
+                    <button
+                      type="button"
+                      className={`schedule-chip schedule-chip--${works ? 'on' : 'rest'}`}
+                      aria-haspopup="dialog"
+                      aria-expanded={open}
+                      disabled={!write}
+                      onClick={(e) => setMenu(open ? null : { id: r.id, weekday: day.weekday, rect: e.currentTarget.getBoundingClientRect() })}
+                    >
+                      <span aria-hidden="true">{works ? time : t('Выходной')}</span>
+                      <span className="sr-only">
+                        {works ? time : t('Выходной')}: {r.name}, {dayName}
+                      </span>
+                    </button>
+                    {open && (
+                      <DayMenu rect={menu.rect} title={`${r.name}, ${dayName}`} onClose={() => setMenu(null)}>
+                        <p className="schedule-menu__line">
+                          <span>{works ? t('Работает') : t('Выходной')}</span>
+                          {time && <span>{time}</span>}
+                        </p>
+                        <Button
+                          type="button"
+                          tone="secondary"
+                          size="sm"
+                          onClick={() => {
+                            setMenu(null);
+                            onEdit(r, day.weekday);
+                          }}
+                        >
+                          {t('Изменить график недели')}<span className="sr-only">: {r.name}</span>
+                        </Button>
+                      </DayMenu>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      <ScheduleLegend hint={write ? t('Нажмите на имя или на день, чтобы изменить обычную неделю.') : null} />
+    </>
   );
 }

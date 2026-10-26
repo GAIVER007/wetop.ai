@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { Alert, Button, EmptyState, Field, Input, Select, Table } from '../../components/ui';
 import { ActionMenu } from '../../components/action-menu';
-import { MonthInput } from '../../components/date-field';
 import { Segmented } from '../../components/segmented';
 import { currencySign, formatMoney } from '../../lib/money';
 import type { PayModel } from '../../lib/food-types';
@@ -157,23 +156,12 @@ function AdjustmentDrawer({ scopeKey, month, currency, row, close }: { scopeKey:
  */
 export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: string; write: boolean; payroll: HotelPayrollView }) {
   const t = useT();
-  const router = useRouter();
   const [settings, setSettings] = useState<HotelPayrollRow | null>(null);
   const [adjust, setAdjust] = useState<HotelPayrollRow | null>(null);
   const money = (minor: string) => formatMoney(minor, payroll.currency);
   const cleanings = payroll.rows.reduce((sum, r) => sum + r.cleanings, 0);
   return (
     <div className="food-workspace" data-testid="payroll-board">
-      <div className="food-toolbar">
-        <Field label={t('Месяц')}>
-          <MonthInput
-            value={payroll.month}
-            onChange={(e) => {
-              if (e.target.value) router.push(`/payroll?month=${e.target.value}`);
-            }}
-          />
-        </Field>
-      </div>
       <p className="hint" data-testid="hotel-payroll-note">
         {t('Начисления за месяц. Выплату проведите в кассе объекта: выплата из этого экрана у гостиницы пока не подключена.')}
       </p>

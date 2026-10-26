@@ -10,6 +10,9 @@ import { restaurantShell } from './restaurant-load';
 import { loadStaffRevenue, StaffRevenuePeriodNav } from '../../lib/staff-revenue-load';
 import type { StaffRevenuePeriod } from '../../lib/staff-revenue';
 import { serverT } from '../../i18n/server';
+import { loadTeamBoard } from '../team/people-load';
+import { InviteButton, TeamProvider } from '../team/team-board';
+import { TeamNavigation } from '../../components/team-navigation';
 import './food.css';
 import './restaurant.css';
 
@@ -25,12 +28,21 @@ export async function FoodEmployeesScreen({ period = 'day' }: { period?: StaffRe
       if (!cursor) canAssignPersonnelKind = (page as { canAssignPersonnelKind?: boolean }).canAssignPersonnelKind === true;
       return page;
     });
-    const revenue = await loadStaffRevenue('branch', period);
-    return (
+    const [revenue, team] = await Promise.all([loadStaffRevenue('branch', period), loadTeamBoard()]);
+    const write = shell.canStaff && !shell.readOnly;
+    const page = (
       <Page
         title={t('Сотрудники')}
-        actions={shell.canStaff && !shell.readOnly ? <NewEmployeeButton /> : undefined}
+        actions={
+          write || team ? (
+            <>
+              {write && <NewEmployeeButton />}
+              {team && <InviteButton />}
+            </>
+          ) : undefined
+        }
       >
+        {team && <TeamNavigation current="team" owner={team.actorRole === 'OWNER'} teamHref="/employees" />}
         <div key={shell.scopeKey}>
           <EmployeesBoard
             scopeKey={shell.scopeKey}
@@ -46,9 +58,17 @@ export async function FoodEmployeesScreen({ period = 'day' }: { period?: StaffRe
               branchName: shell.branchName,
               vertical: 'FOOD_SERVICE',
             }}
+            team={team}
           />
         </div>
       </Page>
+    );
+    return team ? (
+      <TeamProvider role={team.actorRole} structure={team.structure} expectedOrganizationId={team.organizationId} vertical="FOOD_SERVICE">
+        {page}
+      </TeamProvider>
+    ) : (
+      page
     );
   } catch (error) {
     unstable_rethrow(error);

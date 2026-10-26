@@ -22,6 +22,7 @@ import type {
 import { clearPendingCreation, pendingCreation } from '../creation-key';
 import { beautyMasterDayStatus } from '../../../lib/beauty-master-day-status';
 import { useT } from '../../../i18n/locale-provider';
+import { usePeopleBoard, type TeamBoardData } from '../../team/people';
 
 /**
  * Мастера салона (DATA_MODEL §19, срез B3). Мастер это сотрудник сети, не филиала: филиалы ведёт отдельная
@@ -122,7 +123,10 @@ export function MastersBoard({
   access,
   openNew = false,
   headerAction = false,
+  team = null,
 }: {
+  /** входы организации для общего экрана «Сотрудники» (U2); null: вошедшему они не открыты, доска только карточек */
+  team?: TeamBoardData | null;
   /** `/employees?new=1`: окно нового специалиста открыто сразу (аудит 21.10.2026, п. 16) */
   openNew?: boolean;
   /** кнопка добавления стоит в шапке страницы (`NewSpecialistButton`), в списке её не повторяем */
@@ -293,47 +297,66 @@ export function MastersBoard({
       ),
     },
   ];
+  const cardTabs = tabs.map((tab) => ({
+    id: tab.key,
+    label: tab.key === 'unassigned' ? t('Не назначено') : t(tab.label),
+    rows: tab.items as BeautyEmployeeRow[],
+    ...(tab.key === 'unassigned'
+      ? { note: t('Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет услуги и права.') }
+      : {}),
+    empty:
+      tab.key === 'specialists'
+        ? t('Специалистов пока нет. Назначьте их в строке сотрудника.')
+        : t('Других сотрудников пока нет. Назначьте их в строке сотрудника.'),
+  }));
+  const searchOf = (row: BeautyEmployeeRow) => `${row.name} ${row.phone ?? ''}`;
+  const people = usePeopleBoard({
+    team,
+    employees: items,
+    columns,
+    tabs: cardTabs,
+    search: searchOf,
+    grant: {
+      levels: access?.levels ?? [],
+      vertical: 'BEAUTY',
+      branchName: access?.branchName ?? null,
+      canAllBranches: access?.canAllBranches ?? false,
+    },
+  });
+  const shared = {
+    caption: t('Специалисты салона'),
+    actions:
+      canCreate && !headerAction ? (
+        <Button type="button" onClick={startNew}>
+          {t('Добавить специалиста')}
+        </Button>
+      ) : null,
+    emptyAction: canCreate ? (
+      <Button type="button" tone="secondary" onClick={startNew}>
+        {t('Добавить первого специалиста')}
+      </Button>
+    ) : null,
+    searchPlaceholder: t('Поиск специалиста'),
+    period: revenue ? revenueNav : null,
+    footer: unattributed ? <span data-testid="employees-unattributed">{unattributed}</span> : null,
+  };
   return (
     <>
       {unavailable && <Alert>{t('Специалист недоступен в текущем контексте.')}</Alert>}
       {notice && <p role="status">{notice}</p>}
-      <StaffBoard<BeautyEmployeeRow>
-        caption={t('Специалисты салона')}
-        actions={
-          canCreate && !headerAction ? (
-            <Button type="button" onClick={startNew}>
-              {t('Добавить специалиста')}
-            </Button>
-          ) : null
-        }
-        emptyAction={
-          canCreate ? (
-            <Button type="button" tone="secondary" onClick={startNew}>
-              {t('Добавить первого специалиста')}
-            </Button>
-          ) : null
-        }
-        tabs={[
-          { id: 'all', label: t('Все'), rows: items, empty: t('Добавьте первого специалиста') },
-          ...tabs.map((tab) => ({
-            id: tab.key,
-            label: tab.key === 'unassigned' ? t('Не назначено') : t(tab.label),
-            rows: tab.items as BeautyEmployeeRow[],
-            ...(tab.key === 'unassigned'
-              ? { note: t('Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет услуги и права.') }
-              : {}),
-            empty:
-              tab.key === 'specialists'
-                ? t('Специалистов пока нет. Назначьте их в строке сотрудника.')
-                : t('Других сотрудников пока нет. Назначьте их в строке сотрудника.'),
-          })),
-        ]}
-        columns={columns}
-        search={(row) => `${row.name} ${row.phone ?? ''}`}
-        searchPlaceholder={t('Поиск специалиста')}
-        period={revenue ? revenueNav : null}
-        footer={unattributed ? <span data-testid="employees-unattributed">{unattributed}</span> : null}
-      />
+      {people ? (
+        <>
+          <StaffBoard {...shared} columns={people.columns} tabs={people.tabs} search={people.search} notice={people.notice} />
+          {people.overlays}
+        </>
+      ) : (
+        <StaffBoard<BeautyEmployeeRow>
+          {...shared}
+          tabs={[{ id: 'all', label: t('Все'), rows: items, empty: t('Добавьте первого специалиста') }, ...cardTabs]}
+          columns={columns}
+          search={searchOf}
+        />
+      )}
       <Overlay
         open={editing !== null}
         onClose={() => guard.current(close)}

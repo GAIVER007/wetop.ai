@@ -206,6 +206,42 @@ describe('сотрудники организации', () => {
     ]);
   });
 
+  it('строка несёт карточки человека по user_id, приглашение несёт карточку (один экран «Сотрудники», U1)', async () => {
+    repo.employees = [
+      { id: 'e-admin', organizationId: ORG, businessId: 'b-1', name: 'Админ', locationIds: [], userId: 'u-admin' },
+      { id: 'e-admin-cafe', organizationId: ORG, businessId: 'b-2', name: 'Админ', locationIds: [], userId: 'u-admin' },
+      { id: 'e-new', organizationId: ORG, businessId: 'b-1', name: 'Новый', locationIds: [], userId: null },
+    ];
+    await repo.createInvite({
+      organizationId: ORG,
+      email: 'new@example.invalid',
+      tokenHash: 'h-new',
+      expiresAt: new Date(Date.now() + 3600_000),
+      createdBy: 'u-owner',
+      role: 'STAFF',
+      employeeId: 'e-new',
+    });
+    const token = await as('u-owner');
+    const rows = (await http().get('/auth/members').set('Authorization', `Bearer ${token}`).expect(200))
+      .body as Array<{ userId: string; employees: unknown }>;
+    expect(rows.map((r) => [r.userId, r.employees])).toEqual([
+      ['u-owner', []],
+      ['u-manager', []],
+      [
+        'u-admin',
+        [
+          { employeeId: 'e-admin', businessId: 'b-1' },
+          { employeeId: 'e-admin-cafe', businessId: 'b-2' },
+        ],
+      ],
+      ['u-admin2', []],
+    ]);
+    const invites = (await http().get('/auth/invites').set('Authorization', `Bearer ${token}`).expect(200))
+      .body as Array<{ email: string; employeeId: unknown }>;
+    expect(invites.map((i) => [i.email, i.employeeId])).toEqual([['new@example.invalid', 'e-new']]);
+    repo.employees = [];
+  });
+
   it('управляющему: отключить можно только администраторов, роль не меняет никому', async () => {
     const res = await http()
       .get('/auth/members')

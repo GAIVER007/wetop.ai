@@ -14,16 +14,24 @@ import { expect, type Page } from '@playwright/test';
  */
 const openDialog = (page: Page) => page.locator('dialog[open][data-testid="confirm-dialog"]');
 
+/**
+ * Отказы стойки (`role="alert"`) без объявителя переходов Next.js: он тоже `role="alert"` и после действия читает новый
+ * заголовок страницы («WETOP: рабочее пространство»), а сбоем это не является (PR #852, 25.10.2026: незаезд прошёл, тест
+ * упал на объявителе).
+ */
+const errorAlerts = (page: Page) =>
+  page.getByRole('alert').and(page.locator(':not(#__next-route-announcer__):not(next-route-announcer *)'));
+
 /** Нажать кнопку действия в открытом окне; `expectText` — что окно обязано сказать до нажатия (сумма, штраф). */
 export async function confirmDialog(page: Page, button: string, expectText?: string | RegExp) {
   const dialog = openDialog(page);
   await expect(dialog, 'окно подтверждения не открылось').toHaveCount(1);
   if (expectText) await expect(dialog).toContainText(expectText);
-  const previousAlerts = await page.getByRole('alert').allTextContents();
+  const previousAlerts = await errorAlerts(page).allTextContents();
   await dialog.getByRole('button', { name: button, exact: true }).click();
   let outcome = '';
   await expect.poll(async () => {
-    const alerts = await page.getByRole('alert').filter({ visible: true }).allTextContents();
+    const alerts = await errorAlerts(page).filter({ visible: true }).allTextContents();
     const error = alerts.find((text) => text.trim() && !previousAlerts.includes(text));
     if (error) return (outcome = `error: ${error.trim()}`);
     if (await dialog.count() === 0) return (outcome = 'closed');

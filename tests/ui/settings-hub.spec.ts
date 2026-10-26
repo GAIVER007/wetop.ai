@@ -90,7 +90,8 @@ test('салон: те же карточки, свои экраны салона
   await card('Основные').getByRole('link', { name: 'Режим работы', exact: true }).click();
   await expect(page).toHaveURL(/\/beauty-settings\?section=hours$/);
   await expect(page.getByRole('main').getByRole('link', { name: '← Все настройки', exact: true })).toHaveAttribute('href', '/settings');
-  await expect(page.getByRole('heading', { name: 'Режим работы салона' })).toBeVisible();
+  // заголовок страницы раздела (h1); у формы часов свой заголовок с тем же текстом
+  await expect(page.getByRole('heading', { level: 1, name: 'Режим работы салона' })).toBeVisible();
   // единый вход (PR 879): раздел «Режим работы» показывает только часы, бонусы открываются своей ссылкой
   await expect(page.getByTestId('bonus-settings')).toHaveCount(0);
   await checkShots(page, 'salon-settings');

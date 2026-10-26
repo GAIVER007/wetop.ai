@@ -61,6 +61,18 @@ describe('итоги отчёта салона строкой, без плито
     expect(html).toMatch(/data-testid="salon-report-status-DONE"[^>]*>1</);
   });
 });
+describe('отчёты салона, вариант B владельца 26.10.2026', () => {
+  it('слева список отчётов с подписями, текущий отмечен; справа один отчёт', async () => {
+    const html = renderToStaticMarkup(
+      await SalonReportsScreen({ searchParams: { from: '2026-10-18', to: '2026-10-18', view: 'services' } }),
+    );
+    expect(html).toContain('class="salon-reports__menu"');
+    expect(html).toMatch(/aria-current="page"[^>]*>Услуги</);
+    expect(html).toContain('что продаётся');
+    expect(html).toContain('Записи периода');
+    expect(html).not.toContain('salon-reports__trio');
+  });
+});
 describe('salon report server permission boundary', () => {
   it('renders actual service and employee breakdowns without payment claims', async () => {
     const html = renderToStaticMarkup(

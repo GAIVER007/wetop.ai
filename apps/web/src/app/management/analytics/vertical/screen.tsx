@@ -7,7 +7,7 @@ import { branchesApi, type BranchItem } from '../../../../lib/api';
 import { currentMe, deskShell } from '../../../../lib/desk-shell';
 import { localInput } from '../../../beauty/time';
 import { BEAUTY_LABELS, FOOD_LABELS, moneyText, periodDates } from './metrics';
-import { loadBranchPeriod, loadPreviousPeriod } from './load';
+import { loadBeautyInsights, loadBranchPeriod, loadPreviousPeriod } from './load';
 import { beautyPult, previousRange } from './pult';
 import { BeautyPultView } from './beauty-pult';
 import { FoodPeriodPanel } from './food-period';
@@ -46,6 +46,10 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
       branch: BranchItem;
       report: Awaited<ReturnType<typeof loadBranchPeriod>> | null;
       previous: Awaited<ReturnType<typeof loadPreviousPeriod>>;
+      insights?: {
+        now: Awaited<ReturnType<typeof loadBeautyInsights>>;
+        prev: Awaited<ReturnType<typeof loadBeautyInsights>>;
+      };
       error: string | null;
     }> = [];
     // Пульт владельца (вариант A, 25.10.2026) сравнивает с таким же отрезком перед периодом; у «Всех филиалов» без него
@@ -55,7 +59,13 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
       try {
         const report = await loadBranchPeriod(branch, dates);
         const previous = organization ? null : await loadPreviousPeriod(branch, prevDates);
-        results.push({ branch, report, previous, error: null });
+        const insights = organization
+          ? undefined
+          : {
+              now: await loadBeautyInsights(branch, from, to),
+              prev: await loadBeautyInsights(branch, prevRange.from, prevRange.to),
+            };
+        results.push({ branch, report, previous, ...(insights ? { insights } : {}), error: null });
       } catch (error) {
         unstable_rethrow(error);
         results.push({
@@ -112,7 +122,7 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
                 aria-label={vertical === 'BEAUTY' ? t('Салоны') : t('Рестораны')}
               >
                 {organization && <h2>{vertical === 'BEAUTY' ? t('Салоны') : t('Рестораны')}</h2>}
-                {group.map(({ branch, report, previous, error }) =>
+                {group.map(({ branch, report, previous, insights, error }) =>
                   !organization && !error && report ? (
                     // один филиал: пульт владельца на всю ширину, без рамки панели вокруг
                     <div key={branch.locationId} data-testid={`report-${branch.locationId}`}>
@@ -122,6 +132,8 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
                           prev={previous ? beautyPult(previous.days, branch.currency) : null}
                           labels={labels}
                           today={today}
+                          insights={insights?.now ?? null}
+                          prevInsights={insights?.prev ?? null}
                           t={t}
                         />
                       ) : (

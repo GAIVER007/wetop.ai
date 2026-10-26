@@ -1,6 +1,7 @@
 'use client';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
+import { matchesCustomer } from '../../lib/customer-match';
 import type { BeautyAppointmentRow, BeautyCustomerRow, BeautyDay } from '../../lib/api';
 import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { createAppointment, moveAppointment } from './journal-actions';
@@ -203,14 +204,24 @@ export function AppointmentForm({
     (customer) =>
       customer.status !== 'ARCHIVED' &&
       (!search ||
-        `${customer.firstName} ${customer.lastName ?? ''} ${customer.phone ?? ''}`
-          .toLocaleLowerCase()
-          .includes(search) ||
-        (search.replace(/\D/g, '').length > 2 &&
-          (customer.phone ?? '').replace(/\D/g, '').includes(search.replace(/\D/g, '')))),
+        matchesCustomer(customerSearch, {
+          name: `${customer.firstName} ${customer.lastName ?? ''}`,
+          phone: customer.phone,
+        })),
   );
 
   const [customerId, setCustomerId] = useState(repeatFrom?.customer.id ?? '');
+  const pickedRow = customers.find((c) => c.id === customerId);
+  const pickedCustomer = !customerId
+    ? null
+    : pickedRow
+      ? {
+          name: [pickedRow.firstName, pickedRow.lastName].filter(Boolean).join(' '),
+          phone: pickedRow.phone ? formatPhone(pickedRow.phone) : '',
+        }
+      : repeatFrom && repeatFrom.customer.id === customerId
+        ? { name: repeatFrom.customer.name, phone: repeatFrom.customer.phone ?? '' }
+        : { name: customerId, phone: '' };
   const initial = useRef({
     employeeId,
     date: initialLocal.slice(0, 10),
@@ -350,28 +361,20 @@ export function AppointmentForm({
               {t('+ Новый клиент')}
             </Button>
           </div>
-          <Field label={t('Клиент')}>
-            <Select
-              name="customerId"
-              aria-label={t('Клиент')}
-              value={customerId}
-              onChange={(e) => {
-                setCustomerId(e.target.value);
-                if (e.target.value) lastPickedCustomerId = e.target.value;
-              }}
-            >
-              <option value="">{t('Новый клиент')}</option>
-              {repeatFrom && !matchingCustomers.some((c) => c.id === repeatFrom.customer.id) && (
-                <option value={repeatFrom.customer.id}>{repeatFrom.customer.name}</option>
-              )}
-              {matchingCustomers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${formatPhone(c.phone)}` : ''}`}
-                  {c.status === 'ARCHIVED' ? t(' (в архиве)') : ''}
-                </option>
-              ))}
-            </Select>
-          </Field>
+          <input type="hidden" name="customerId" value={customerId} />
+          {pickedCustomer && (
+            <span className="appointment-customer-chip" data-testid="appointment-customer-chip">
+              {`${pickedCustomer.name}${pickedCustomer.phone ? `, ${pickedCustomer.phone}` : ''}`}
+              <button
+                type="button"
+                className="appointment-customer-chip-remove"
+                aria-label={`${t('Убрать клиента')}: ${pickedCustomer.name}`}
+                onClick={() => setCustomerId('')}
+              >
+                ×
+              </button>
+            </span>
+          )}
           {!customerId && (
             <div className="appointment-customer-new">
               <Field label={t('Имя клиента')}>

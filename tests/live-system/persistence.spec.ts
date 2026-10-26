@@ -101,7 +101,7 @@ test('UI → Nest → Supabase → связанные экраны, с убор�
       const form = page.getByTestId('guest-form');
       await form.locator('[name="firstName"]').fill('Проверено');
       await form.locator('[name="notes"]').fill(marker);
-      await form.locator('[name="citizenship"]').fill('KAZ');
+      await form.locator('[name="citizenship"]').selectOption('KAZ');
       await form.getByRole('button', { name: 'Сохранить', exact: true }).click();
       await expect
         .poll(async () => (await db.guest.findUniqueOrThrow({ where: { id: guestId } })).firstName)

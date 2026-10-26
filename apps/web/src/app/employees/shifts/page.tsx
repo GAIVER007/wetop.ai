@@ -19,7 +19,7 @@ export default async function ShiftsPage() {
     const shell = await restaurantShell();
     const { employees } = await restaurantApi.shifts();
     return (
-      <Page title={t('График работы')}>
+      <Page className="schedule-page" title={t('График работы')} subtitle={t('Обычная неделя сотрудников ресторана')}>
         <div key={shell.scopeKey}>
           <ShiftsBoard scopeKey={shell.scopeKey} write={shell.canStaff && !shell.readOnly} employees={employees} />
         </div>

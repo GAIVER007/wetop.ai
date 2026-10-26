@@ -27,7 +27,13 @@ test('PR638 grid switch changes only that date, the weekly template and the othe
   const other = await read(b.id);
   await page.goto(`/beauty/schedule?week=${weekStart}`);
   const row = page.getByRole('row').filter({ has: page.getByRole('button', { name: 'Тест Анна', exact: true }) });
-  const monday = row.getByRole('switch').first();
+  // вариант B (25.10.2026): переключатель даты в окошке дня, которое открывает плашка понедельника
+  const mondayCell = row.getByRole('cell').first();
+  const openMonday = async () => {
+    if ((await mondayCell.getByRole('dialog').count()) === 0) await mondayCell.getByRole('button').first().click();
+  };
+  const monday = mondayCell.getByRole('switch');
+  await openMonday();
   await expect(monday).toBeChecked();
   await monday.uncheck();
   await expect.poll(async () => offOn(await read(a.id), weekStart)).toBe(true);
@@ -37,13 +43,16 @@ test('PR638 grid switch changes only that date, the weekly template and the othe
   // следующая неделя: тот же понедельник по шаблону рабочий
   await page.getByRole('link', { name: 'Следующая неделя', exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`week=${nextMonday}`));
+  await openMonday();
   await expect(monday).toBeChecked();
   await page.getByRole('link', { name: 'Прошлая неделя', exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`week=${weekStart}`));
+  await openMonday();
   await expect(monday).not.toBeChecked();
   await monday.check();
   await expect.poll(async () => offOn(await read(a.id), weekStart)).toBe(false);
   await page.reload();
+  await openMonday();
   await expect(monday).toBeChecked();
   // выходной по шаблону: в ячейке нет переключателя, окно мастера объясняет, что меняется каждая неделя
   await f.call(`/beauty/employees/${a.id}/working-hours`, {
@@ -51,8 +60,10 @@ test('PR638 grid switch changes only that date, the weekly template and the othe
   }, 'put');
   await page.reload();
   await expect(row.getByRole('switch')).toHaveCount(0);
-  await expect(row.getByText('Выходной по графику').first()).toBeVisible();
-  await row.getByRole('button', { name: /^Изменить график/ }).first().click();
+  await expect(mondayCell.getByRole('button').first()).toContainText('Выходной');
+  await openMonday();
+  await expect(mondayCell.getByRole('dialog')).toContainText('Выходной по графику');
+  await mondayCell.getByRole('button', { name: /^Изменить график недели/ }).click();
   await expect(page.getByTestId('beauty-week-hint')).toBeVisible();
   expect((await read(b.id)).week).toEqual(other.week);
   await page.keyboard.press('Escape');

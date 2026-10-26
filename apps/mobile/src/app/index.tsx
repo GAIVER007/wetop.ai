@@ -34,6 +34,9 @@ export default function HomeScreen() {
           пока доступны в веб-версии.
         </Text>
       </View>
+      {state.branch.vertical === 'FOOD_SERVICE' && state.user.role !== 'EMPLOYEE' ? (
+        <ActionButton label="Обзор ресторана" onPress={() => router.push('/restaurant-overview')} />
+      ) : null}
       {state.branch.vertical === 'FOOD_SERVICE' ? (
         <ActionButton label="Столы и заказы" onPress={() => router.push('/restaurant')} />
       ) : null}

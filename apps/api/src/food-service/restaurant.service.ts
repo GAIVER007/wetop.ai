@@ -78,6 +78,7 @@ import { StockService } from './stock.service';
 import { branchStaffRevenue } from './staff-revenue';
 import { monthPayrollRows, type MonthPayrollDb } from './month-payroll';
 import { reverseLoyaltyForVoid } from '../beauty/loyalty';
+import { topByStation } from './station-top';
 
 /** Срок ссылки на оценку с телефона гостя (§40) */
 const RATING_LINK_TTL_MS = 72 * 3_600_000;
@@ -838,8 +839,28 @@ export class RestaurantService {
   async createOrder(raw: unknown) {
     return this.write('orders', async (tx, s) => {
       const b = parsed(() => parseOrderCreate(raw));
-      // официант принимает заказ только на себя (§33.6)
+      // Проверяем действующие права до возврата ранее созданного заказа.
       const me = await waiterSelf(tx, s);
+      const key = b.creationRequestKey;
+      const userId = currentUserId();
+      if (key && !userId) throw new ForbiddenException('Нужна учётная запись');
+      const hash = key ? createHash('sha256').update(JSON.stringify({
+        version: 1, locationId: s.locationId, userId,
+        tableId: b.tableId, waiterId: b.waiterId, guestCount: b.guestCount, notes: b.notes,
+        items: b.items.map(i => ({ menuItemId: i.menuItemId, qty: i.qty, notes: i.notes, modifierIds: [...i.modifierIds].sort() })),
+      })).digest('hex') : null;
+      // foodTransaction уже держит блокировку филиала, поиск выполняется после неё.
+      if (key) {
+        const existing = await tx.restaurantOrder.findFirst({
+          where: { locationId: s.locationId, creationRequestKey: key }, include: orderInclude,
+        });
+        if (existing) {
+          if (existing.creationRequestHash !== hash || existing.createdById !== userId)
+            throw new ConflictException('Ключ уже использован для другого запроса');
+          if (me && existing.waiterId !== me.id) throw new ForbiddenException('Заказ недоступен');
+          return orderView(existing);
+        }
+      }
       if (me) b.waiterId = me.id;
       await this.checkTableAndWaiter(tx, s, b.tableId, b.waiterId);
       const { data, total } = await this.orderItemsData(tx, s, b.items);
@@ -851,6 +872,8 @@ export class RestaurantService {
         data: {
           locationId: s.locationId,
           number: (last._max.number ?? 0) + 1,
+          creationRequestKey: key ?? null,
+          creationRequestHash: hash,
           tableId: b.tableId,
           waiterId: b.waiterId,
           guestCount: b.guestCount,
@@ -1927,6 +1950,7 @@ export class RestaurantService {
           name: true,
           price: true,
           qty: true,
+          station: true,
           menuItem: { select: { category: { select: { name: true } } } },
         },
       }),
@@ -2022,6 +2046,12 @@ export class RestaurantService {
         .map(([name, d]) => ({ name, qty: d.qty, revenueMinor: d.revenue.toString() }))
         .sort((a, b) => b.qty - a.qty || a.name.localeCompare(b.name, 'ru'))
         .slice(0, 10),
+      topByStation: topByStation(items.map((item) => ({
+        station: item.station,
+        name: item.name,
+        qty: item.qty,
+        price: item.price,
+      }))),
       revenueByDay: [...byDay.entries()].map(([date, d]) => ({
         date,
         revenueMinor: d.revenue.toString(),
@@ -2032,6 +2062,7 @@ export class RestaurantService {
         .sort((a, b) => Number(BigInt(b.revenueMinor) - BigInt(a.revenueMinor)) || a.name.localeCompare(b.name, 'ru')),
       waiters: waiters
         .map((x) => ({
+          waiterId: x.waiterId!,
           name: names.get(x.waiterId!) ?? '—',
           orders: x._count._all,
           revenueMinor: (x._sum.total ?? 0n).toString(),

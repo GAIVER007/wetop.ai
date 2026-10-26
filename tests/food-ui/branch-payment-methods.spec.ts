@@ -60,15 +60,22 @@ test('ресторан: убрать Halyk, поднять Kaspi, сохрани
   await page.reload();
   await expect(rows(page)).toHaveCount(5);
 
-  // касса: в приходе Halyk нет; расход всеми способами (выводит прежние деньги)
+  // касса: в приходе Halyk нет; в расходе тоже, пока по нему нет денег
   await page.goto('/cashbox');
   const ops = page.getByRole('region', { name: 'Операция кассы' });
   await ops.getByRole('button', { name: 'Приход' }).click();
   const income = ops.getByLabel('Способ');
   await expect(income.locator('option')).toHaveText(['Наличные', 'Kaspi', 'Карта (терминал)', 'Перевод от физлица', 'Перевод от юрлица']);
   await ops.getByRole('button', { name: 'Расход' }).click();
-  // расход прежними шестью: «Другое» не включено и остатка по нему нет
-  await expect(ops.getByLabel('Способ').locator('option')).toHaveCount(6);
+  // расход включёнными способами и теми, где есть деньги (ТЗ салона 25.10.2026, п. 1): Halyk выключен и пуст,
+  // «Другое» не включено и остатка по нему нет, обоих в списке нет
+  await expect(ops.getByLabel('Способ').locator('option')).toHaveText([
+    'Наличные',
+    'Kaspi',
+    'Карта (терминал)',
+    'Перевод от физлица',
+    'Перевод от юрлица',
+  ]);
 
   const refused = await request.post(`${api}/food-service/cash/operations`, {
     headers,

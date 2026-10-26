@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BeautyAppointmentRow, BeautyDayColumn } from '../../lib/api';
-import { dayMoney, masterLoad, quickAction, shortHour, shortName, upcoming } from './journal-day';
+import { dayMoney, masterLoad, quickAction, shortHour, shortName, tilePayment, upcoming } from './journal-day';
 
 /** Журнал салона, вариант B (владелец 24.10.2026): загрузка мастера, ближайшие, деньги дня, быстрое действие */
 const row = (p: Partial<BeautyAppointmentRow>): BeautyAppointmentRow => ({
@@ -92,6 +92,9 @@ describe('деньги за день', () => {
   it('бонусы и сертификат в «получено» не входят: это не деньги в кассе (paidMinor API их включает)', () => {
     expect(dayMoney([row({ status: 'DONE', priceMinor: '1000000', paidMinor: '1000000', paidLoyaltyMinor: '300000' })])).toEqual({ received: 700000n, waiting: 0n, currency: 'KZT' });
   });
+  it('пустой день в валюте филиала, а не в тенге (салон в Катаре видел «0 ₸»)', () => {
+    expect(dayMoney([], 'QAR')).toEqual({ received: 0n, waiting: 0n, currency: 'QAR' });
+  });
 });
 
 describe('shortName: имя мастера в узкой колонке (5+ мастеров)', () => {
@@ -109,5 +112,23 @@ describe('shortHour: часы работы в узкой колонке', () => 
     expect(shortHour('09:00')).toBe('9');
     expect(shortHour('18:00')).toBe('18');
     expect(shortHour('10:30')).toBe('10:30');
+  });
+});
+
+describe('оплата на плашке записи: короткое слово, полное в подсказке (владелец 25.10.2026)', () => {
+  it('«Оплачено», «Частично», «Долг» по оплате и цене', () => {
+    expect(tilePayment(row({ priceMinor: '40000', paidMinor: '40000' }))).toEqual({
+      kind: 'paid', word: 'Оплачено', full: 'Оплачено',
+    });
+    expect(tilePayment(row({ priceMinor: '40000', paidMinor: '10000' }))).toEqual({
+      kind: 'partial', word: 'Частично', full: 'Оплачено частично',
+    });
+    expect(tilePayment(row({ priceMinor: '40000', paidMinor: '0' }))).toEqual({
+      kind: 'debt', word: 'Долг', full: 'Не оплачено',
+    });
+  });
+  it('у неявки оплаты на плашке нет; бесплатная запись оплачена', () => {
+    expect(tilePayment(row({ status: 'NO_SHOW', priceMinor: '40000', paidMinor: '0' }))).toBeNull();
+    expect(tilePayment(row({ priceMinor: '0', paidMinor: '0' }))?.kind).toBe('paid');
   });
 });

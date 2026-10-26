@@ -521,6 +521,11 @@ export class PrismaAccountsRepository implements AccountsRepository {
       orderBy: { createdAt: 'asc' },
       select: { userId: true, role: true, businessId: true, locationId: true },
     });
+    const cards = await this.prisma.db.employee.findMany({
+      where: { userId: { in: rows.map((m) => m.user.id) }, business: { organizationId } },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      select: { id: true, businessId: true, userId: true },
+    });
     const scopesOf = (userId: string): ScopeAssignment[] =>
       scopeRows
         .filter((r) => r.userId === userId && r.role !== 'OWNER')
@@ -540,6 +545,9 @@ export class PrismaAccountsRepository implements AccountsRepository {
       position: m.position,
       suspended: m.status === 'SUSPENDED',
       scopes: scopesOf(m.user.id),
+      employees: cards
+        .filter((c) => c.userId === m.user.id)
+        .map((c) => ({ employeeId: c.id, businessId: c.businessId })),
     }));
   }
 

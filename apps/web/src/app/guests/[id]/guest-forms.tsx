@@ -30,6 +30,7 @@ import { useConfirm } from '../../../components/use-confirm';
 import { phoneFieldValue, phoneOnInput } from '../../../lib/phone';
 import { msg } from '../../../i18n';
 import { useT } from '../../../i18n/locale-provider';
+import { CitizenshipSelect } from '../../../components/citizenship';
 
 const DOC_TYPES: Array<[string, string]> = [
   ['PASSPORT', msg('паспорт')],
@@ -117,13 +118,15 @@ export function GuestProfileForm({
               </Field>
             </>
           )}
-          <Field label={t('Гражданство (ISO alpha-3, напр. KAZ) *для заселения')}>
-            <Input
-              name="citizenship"
+          <Field
+            label={t('Гражданство')}
+            controlId={`guest-${guest.id}-citizenship`}
+            hint={t('Нужно для заселения в гостинице Казахстана (eQonaq)')}
+          >
+            <CitizenshipSelect
+              id={`guest-${guest.id}-citizenship`}
+              key={`citizenship-${pState.attempt ?? 0}`}
               defaultValue={pState.values?.citizenship ?? guest.citizenship ?? ''}
-              maxLength={3}
-              placeholder="KAZ"
-              className="inp--upper"
             />
           </Field>
           <Field label={t('Пол')}>

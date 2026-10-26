@@ -1120,10 +1120,6 @@
           {
             "href": "/cashbox",
             "label": "Касса"
-          },
-          {
-            "href": "/finance/certificates",
-            "label": "Сертификаты"
           }
         ]
       },
@@ -1142,40 +1138,6 @@
           {
             "href": "/settings",
             "label": "Все настройки"
-          }
-        ]
-      },
-      {
-        "id": "marketing",
-        "label": "Продвижение",
-        "items": [
-          {
-            "href": "/marketing",
-            "label": "Обзор"
-          },
-          {
-            "href": "/marketing/ads",
-            "label": "Реклама"
-          },
-          {
-            "href": "/marketing/content",
-            "label": "Контент"
-          },
-          {
-            "href": "/marketing/voice",
-            "label": "Голосовой агент"
-          },
-          {
-            "href": "/ai-agents",
-            "label": "ИИ-продавец"
-          },
-          {
-            "href": "/sales",
-            "label": "Обзор продаж"
-          },
-          {
-            "href": "/marketing/budget",
-            "label": "Бюджет и аналитика"
           }
         ]
       },
@@ -1323,10 +1285,6 @@
           {
             "href": "/cashbox",
             "label": "Касса"
-          },
-          {
-            "href": "/finance/certificates",
-            "label": "Сертификаты"
           }
         ]
       },
@@ -1341,40 +1299,6 @@
           {
             "href": "/settings",
             "label": "Все настройки"
-          }
-        ]
-      },
-      {
-        "id": "marketing",
-        "label": "Продвижение",
-        "items": [
-          {
-            "href": "/marketing",
-            "label": "Обзор"
-          },
-          {
-            "href": "/marketing/ads",
-            "label": "Реклама"
-          },
-          {
-            "href": "/marketing/content",
-            "label": "Контент"
-          },
-          {
-            "href": "/marketing/voice",
-            "label": "Голосовой агент"
-          },
-          {
-            "href": "/ai-agents",
-            "label": "ИИ-продавец"
-          },
-          {
-            "href": "/sales",
-            "label": "Обзор продаж"
-          },
-          {
-            "href": "/marketing/budget",
-            "label": "Бюджет и аналитика"
           }
         ]
       },
@@ -1452,20 +1376,6 @@
         ]
       },
       {
-        "id": "stats",
-        "label": "Статистика",
-        "items": [
-          {
-            "href": "/management/analytics",
-            "label": "Аналитика бизнеса"
-          },
-          {
-            "href": "/reports",
-            "label": "Все отчёты"
-          }
-        ]
-      },
-      {
         "id": "stock",
         "label": "Склад",
         "items": [
@@ -1508,16 +1418,8 @@
         "label": "Финансы",
         "items": [
           {
-            "href": "/finance",
-            "label": "Обзор финансов"
-          },
-          {
             "href": "/cashbox",
             "label": "Касса"
-          },
-          {
-            "href": "/finance/certificates",
-            "label": "Сертификаты"
           }
         ]
       },
@@ -1532,20 +1434,6 @@
           {
             "href": "/settings",
             "label": "Все настройки"
-          }
-        ]
-      },
-      {
-        "id": "marketing",
-        "label": "Продвижение",
-        "items": [
-          {
-            "href": "/ai-agents",
-            "label": "ИИ-продавец"
-          },
-          {
-            "href": "/sales",
-            "label": "Обзор продаж"
           }
         ]
       },
@@ -1893,10 +1781,6 @@
           {
             "href": "/cashbox",
             "label": "Касса"
-          },
-          {
-            "href": "/finance/certificates",
-            "label": "Сертификаты"
           }
         ]
       },
@@ -1911,36 +1795,6 @@
           {
             "href": "/settings",
             "label": "Все настройки"
-          }
-        ]
-      },
-      {
-        "id": "marketing",
-        "label": "Продвижение",
-        "items": [
-          {
-            "href": "/marketing",
-            "label": "Обзор"
-          },
-          {
-            "href": "/marketing/ads",
-            "label": "Реклама"
-          },
-          {
-            "href": "/marketing/content",
-            "label": "Контент"
-          },
-          {
-            "href": "/marketing/voice",
-            "label": "Голосовой агент"
-          },
-          {
-            "href": "/sales",
-            "label": "Обзор продаж"
-          },
-          {
-            "href": "/marketing/budget",
-            "label": "Бюджет и аналитика"
           }
         ]
       },

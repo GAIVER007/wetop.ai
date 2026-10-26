@@ -510,4 +510,11 @@ export const reportsStock: Record<string, string> = {
   "броням": 'bookings',
   "Показать неиспользуемые": "Show unused",
   "Цена продажи, {currency}": "Sale price, {currency}",
+  'главные цифры': 'key figures',
+  'что продаётся': 'what sells',
+  'кто сколько принёс': 'who brought how much',
+  'записи и неявки': 'appointments and no-shows',
+  'каждая запись': 'every appointment',
+  'сравнение': 'comparison',
+  'Итого': 'Total',
 };

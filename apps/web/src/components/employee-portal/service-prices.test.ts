@@ -107,6 +107,12 @@ describe('блок цен мастера обновляется после на�
   it('ключ меняется, когда меняется набор услуг', () => {
     expect(servicePricesKey([])).not.toBe(servicePricesKey([prices[0]]));
     expect(servicePricesKey([prices[0], prices[1]])).toBe(servicePricesKey([prices[1], prices[0]]));
-    expect(servicePricesKey([prices[0]])).not.toBe(servicePricesKey([{ ...prices[0], revision: 4 }]));
+  });
+
+  // своё «Сохранить» поднимает ревизию и обновляет карточку с сервера: блок не должен пересоздаваться, иначе
+  // «Сохранено» пропадает, не успев показаться (гейт PR #852, 25.10.2026)
+  it('ключ не меняется от ревизии цены, только от набора услуг', () => {
+    const bumped = { ...prices[0], revision: 4 };
+    expect(servicePricesKey([prices[0]])).toBe(servicePricesKey([bumped]));
   });
 });

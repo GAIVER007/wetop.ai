@@ -1,4 +1,4 @@
-import { unstable_rethrow } from 'next/navigation';
+import { redirect, unstable_rethrow } from 'next/navigation';
 import { canManageStaff, parseMembershipRole } from '@pms/domain';
 import { authApi } from '../../lib/api';
 import { clientInfo, sessionToken } from '../../lib/session';
@@ -37,6 +37,9 @@ export default async function TeamPage({
     unstable_rethrow(error);
     return { user: null };
   });
+  // салон и ресторан: люди, карточки и входы на одном экране «Сотрудники» (plans/unified-team-screen-2026-10-25.md, В1)
+  const vertical = 'context' in me ? me.context?.vertical : undefined;
+  if (vertical === 'BEAUTY' || vertical === 'FOOD_SERVICE') redirect('/employees');
   const role = me.user?.role ? parseMembershipRole(me.user.role) : null;
   const team = !!token && !!me.user?.organization && !!role && canManageStaff(role);
   const info = await clientInfo();

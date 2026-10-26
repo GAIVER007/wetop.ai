@@ -69,8 +69,8 @@ test('сутки гостя целиком: заезд, услуга на счё
   await page
     .getByRole('main')
     .getByTestId('guest-form')
-    .locator('input[name="citizenship"]')
-    .fill('KAZ');
+    .locator('select[name="citizenship"]')
+    .selectOption('KAZ');
   await page
     .getByRole('main')
     .getByTestId('guest-form')
@@ -78,7 +78,7 @@ test('сутки гостя целиком: заезд, услуга на счё
     .click();
   // сохранение обновляет страницу: пока оно идёт, введённый номер документа стирался (CI main 23.10.2026),
   // поэтому ждём гражданство в шапке карточки и только потом заполняем документ
-  await expect(page.getByRole('main').getByRole('definition').filter({ hasText: /^KAZ$/ })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('definition').filter({ hasText: /^Казахстан$/ })).toBeVisible();
   await page.waitForLoadState('networkidle');
   // G5: документы — своя вкладка карточки гостя
   await page.getByRole('main').getByRole('tab', { name: 'Документы', exact: true }).click();

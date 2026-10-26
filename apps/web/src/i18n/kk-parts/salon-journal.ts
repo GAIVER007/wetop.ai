@@ -16,8 +16,6 @@ export const salonJournal: KkPart = {
     'app/beauty/journal-actions.ts',
     'app/beauty/journal.tsx',
     'app/beauty/page.tsx',
-    'app/beauty/reminder-actions.ts',
-    'app/beauty/reminders-today.tsx',
     'app/beauty/review-invitation-actions.ts',
     'app/beauty/review-invitation.tsx',
     'app/beauty/week-calendar.tsx',

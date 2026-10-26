@@ -54,7 +54,6 @@ vi.mock('../../lib/api', () => ({
     bonusProgram: state.bonusProgram,
   },
 }));
-vi.mock('../../lib/beauty-reminders', () => ({ loadManualReminders: async () => null }));
 vi.mock('../beauty-settings/loyalty-forms', () => ({
   ReminderSettingsForm: (props: Record<string, unknown>) =>
     createElement('div', { 'data-testid': 'reminders-update', 'data-allowed': String(props.canEdit) }),

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { branchMethodsAll, branchMethodsShown, cashMethodsShown } from './shown';
+import { branchMethodsAll, branchMethodsShown, cashMethodsList, cashMethodsShown } from './shown';
 
 const ALL = ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'] as const;
 
@@ -43,5 +43,24 @@ describe('способы в остатках кассы, сверке и рас�
   });
   it('выключенный способ с деньгами остаётся: деньги не прячем, их можно перевести или потратить', () => {
     expect(cashMethodsShown(balances, ['CASH']).map((b) => b.method)).toContain('HALYK');
+  });
+});
+
+describe('способы расхода и сверки кассы филиала', () => {
+  const balances = [
+    { method: 'CASH', balanceMinor: '0' },
+    { method: 'HALYK', balanceMinor: '1200' },
+  ];
+  it('включённые в порядке настройки филиала (Kaspi поднят вверх), затем выключенные с деньгами', () => {
+    expect(cashMethodsList(ALL, ['CASH', 'KASPI', 'CARD_TERMINAL', 'BANK_TRANSFER_LEGAL'], balances)).toEqual([
+      'CASH',
+      'KASPI',
+      'CARD_TERMINAL',
+      'BANK_TRANSFER_LEGAL',
+      'HALYK',
+    ]);
+  });
+  it('выключенный способ с нулём не показывается', () => {
+    expect(cashMethodsList(ALL, ['CASH'], [{ method: 'KASPI', balanceMinor: '0' }])).toEqual(['CASH']);
   });
 });

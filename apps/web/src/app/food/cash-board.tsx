@@ -22,7 +22,7 @@ import { useLocale, useT } from '../../i18n/locale-provider';
 import { mutateCash } from '../cashbox/actions';
 import { useConfirm } from '../../components/use-confirm';
 import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
-import { branchMethodsShown, cashMethodsShown } from '../branch-payment-methods/shown';
+import { branchMethodsShown, cashMethodsList, cashMethodsShown } from '../branch-payment-methods/shown';
 
 type Kind = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 const KIND_LABEL: Record<Kind, string> = { INCOME: msg('Приход'), EXPENSE: msg('Расход'), TRANSFER: msg('Перевод') };
@@ -140,10 +140,8 @@ export function CashBoard({
     );
   }
   const shownBalances = cashMethodsShown(cash.balances, accepted);
-  // сверка и расход «из» по тем же способам, что в остатках: включённые и все, где есть деньги
-  const cashMethods = FOOD_PAYMENT_METHODS.filter(
-    (m) => accepted.includes(m) || shownBalances.some((b) => b.method === m),
-  );
+  // сверка и расход «из» по тем же способам, что в остатках: включённые в порядке настройки, затем все, где есть деньги
+  const cashMethods = cashMethodsList(FOOD_PAYMENT_METHODS, accepted, cash.balances);
   const total = cash.balances.reduce((sum, b) => sum + BigInt(b.balanceMinor), 0n);
   const operations =
     cash.operations.length === 0 ? (

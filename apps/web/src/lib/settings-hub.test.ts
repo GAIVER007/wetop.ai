@@ -10,9 +10,9 @@ const flat = (groups: ReturnType<typeof settingsGroupsFor>) =>
 describe('хаб «Настройки» одной таблицей для всех направлений', () => {
   it('у владельца карточки в одном порядке и со своими экранами направления', () => {
     expect(flat(settingsGroupsFor(owner, 'BEAUTY'))).toEqual([
-      ['Основные', ['Филиалы и реквизиты /branches', 'Режим работы /beauty-settings#hours', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
+      ['Основные', ['Филиалы и реквизиты /branches', 'Режим работы /beauty-settings?section=hours', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
       ['Журнал', ['Сотрудники /employees', 'График работы /beauty/schedule', 'Каталог услуг /services']],
-      ['Клиенты и продажи', ['Напоминания клиентам /beauty-settings#reminders', 'Бонусы /beauty-settings#bonuses', 'Сертификаты /finance/certificates', 'Сайт и онлайн-запись /marketing/site/editor', 'ИИ-продавец /ai-agents']],
+      ['Клиенты и продажи', ['Напоминания клиентам /beauty-settings?section=reminders', 'Бонусы /beauty-settings?section=bonuses', 'Сертификаты /finance/certificates', 'Сайт и онлайн-запись /marketing/site/editor', 'ИИ-продавец /ai-agents']],
       ['Система', ['Способы оплаты /branch-payment-methods', 'История действий /journal']],
     ]);
     expect(flat(settingsGroupsFor(owner, 'FOOD_SERVICE'))).toEqual([

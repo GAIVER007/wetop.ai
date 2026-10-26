@@ -1,4 +1,4 @@
-import { unstable_rethrow } from 'next/navigation';
+import { redirect, unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
@@ -12,17 +12,23 @@ import { BonusProgramForm, ReminderSettingsForm } from './loyalty-forms';
 import { serverT } from '../../i18n/server';
 import './settings.css';
 
-export default async function BeautySettingsPage() {
+export default async function BeautySettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ section?: string }>;
+}) {
+  const { section } = await searchParams;
+  if (section !== 'hours' && section !== 'reminders' && section !== 'bonuses') redirect('/settings');
   await requireFeature('/beauty-settings');
   const me = await currentMe();
   const shell = await deskShell();
   const t = await serverT();
+  const title =
+    section === 'hours' ? t('Режим работы салона') : section === 'reminders' ? t('Напоминания клиентам') : t('Бонусы');
   try {
-    const [initial, reminders, bonuses] = await Promise.all([
-      beautyApi.locationHours(),
-      beautyApi.reminderSettings(),
-      beautyApi.bonusProgram(),
-    ]);
+    const initial = section === 'hours' ? await beautyApi.locationHours() : null;
+    const reminders = section === 'reminders' ? await beautyApi.reminderSettings() : null;
+    const bonuses = section === 'bonuses' ? await beautyApi.bonusProgram() : null;
     const canEdit =
       !shell.readOnly && mayBeautyAccess(shell.access, 'settings', 'update', { legacy: 'property' });
     const scopeKey = JSON.stringify({
@@ -31,28 +37,17 @@ export default async function BeautySettingsPage() {
       locationId: me.context?.locationId,
     });
     return (
-      <Page title={t('Настройки салона')} subtitle={initial.location.name ?? t('Выбранный филиал')}>
+      <Page title={title} subtitle={initial?.location.name ?? t('Выбранный филиал')}>
         <SettingsLinks />
-        {/* компактно (поручение 21.10.2026): режим работы слева, напоминания и бонусы справа; на телефоне столбиком */}
-        <div className="salon-settings-stack">
-          <div className="salon-settings-col" id="hours">
-            <SalonHoursForm key={scopeKey} initial={initial} scopeKey={scopeKey} canEdit={canEdit} />
-          </div>
-          <div className="salon-settings-col">
-            <div id="reminders">
-              <ReminderSettingsForm key={`r${scopeKey}`} initial={reminders} scopeKey={scopeKey} canEdit={canEdit} />
-            </div>
-            <div id="bonuses">
-              <BonusProgramForm key={`b${scopeKey}`} initial={bonuses} scopeKey={scopeKey} canEdit={canEdit} />
-            </div>
-          </div>
-        </div>
+        {initial && <SalonHoursForm key={scopeKey} initial={initial} scopeKey={scopeKey} canEdit={canEdit} />}
+        {reminders && <ReminderSettingsForm key={`r${scopeKey}`} initial={reminders} scopeKey={scopeKey} canEdit={canEdit} />}
+        {bonuses && <BonusProgramForm key={`b${scopeKey}`} initial={bonuses} scopeKey={scopeKey} canEdit={canEdit} />}
       </Page>
     );
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title={t('Настройки салона')}>
+      <Page title={title}>
         <LoadError testId="beauty-settings-error" {...loadErrorProps(error)} />
       </Page>
     );

@@ -22,7 +22,7 @@ test('salon hours: break restricts new bookings and reports existing conflicts',
     firstName: 'Тестовый конфликт часов',
   });
   try {
-    await page.goto('/beauty-settings');
+    await page.goto('/beauty-settings?section=hours');
     await expect(page.getByText(/Режим пока не настроен/)).toBeVisible();
     await page.getByRole('button', { name: 'Добавить интервал: Понедельник', exact: true }).click();
     await page.getByLabel('Начало: Понедельник, интервал 1', { exact: true }).fill('09:00');

@@ -83,15 +83,17 @@ test('салон: те же карточки, свои экраны салона
   await expect(hub.getByRole('heading', { level: 2 })).toHaveText(['Основные', 'Журнал', 'Клиенты и продажи', 'Система']);
   const card = (title: string) => hub.getByRole('region', { name: title, exact: true });
   await expect(card('Журнал').getByRole('link')).toHaveText(['Сотрудники', 'График работы', 'Каталог услуг']);
-  await expect(card('Клиенты и продажи').getByRole('link', { name: 'Бонусы', exact: true })).toHaveAttribute('href', '/beauty-settings#bonuses');
+  await expect(card('Клиенты и продажи').getByRole('link', { name: 'Бонусы', exact: true })).toHaveAttribute('href', '/beauty-settings?section=bonuses');
   // гостиничных экранов у салона нет
   await expect(hub.getByRole('link', { name: 'Каналы продаж', exact: true })).toHaveCount(0);
   await checkShots(page, 'salon');
   await card('Основные').getByRole('link', { name: 'Режим работы', exact: true }).click();
-  await expect(page).toHaveURL(/\/beauty-settings#hours$/);
+  await expect(page).toHaveURL(/\/beauty-settings\?section=hours$/);
   await expect(page.getByRole('main').getByRole('link', { name: '← Все настройки', exact: true })).toHaveAttribute('href', '/settings');
-  await expect(page.getByRole('heading', { name: 'Режим работы салона' })).toBeVisible();
-  await expect(page.getByTestId('bonus-settings')).toBeVisible();
+  // заголовок страницы раздела (h1); у формы часов свой заголовок с тем же текстом
+  await expect(page.getByRole('heading', { level: 1, name: 'Режим работы салона' })).toBeVisible();
+  // единый вход (PR 879): раздел «Режим работы» показывает только часы, бонусы открываются своей ссылкой
+  await expect(page.getByTestId('bonus-settings')).toHaveCount(0);
   await checkShots(page, 'salon-settings');
 });
 

@@ -23,7 +23,7 @@ const SCREENS = [
   '/services',
   '/employees',
   '/beauty/schedule',
-  '/beauty-settings',
+  '/beauty-settings?section=hours',
   '/finance',
   '/cashbox',
   '/reports',

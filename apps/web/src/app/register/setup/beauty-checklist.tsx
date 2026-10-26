@@ -46,7 +46,7 @@ const HINTS: Record<string, string> = {
 };
 const NEXT: Array<{ href: string; icon: IconName; title: string; text: string; action: string }> = [
   {
-    href: '/beauty-settings',
+    href: '/beauty-settings?section=hours',
     icon: 'clock',
     title: msg('Часы работы салона'),
     text: msg('Журнал и онлайн-запись показывают время только внутри этих часов.'),

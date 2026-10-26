@@ -1124,10 +1124,6 @@
         "label": "Настройки",
         "items": [
           {
-            "href": "/beauty-settings",
-            "label": "Салон"
-          },
-          {
             "href": "/journal",
             "label": "История действий"
           },
@@ -1285,10 +1281,6 @@
         "label": "Настройки",
         "items": [
           {
-            "href": "/beauty-settings",
-            "label": "Салон"
-          },
-          {
             "href": "/settings",
             "label": "Все настройки"
           }
@@ -1419,10 +1411,6 @@
         "id": "settings",
         "label": "Настройки",
         "items": [
-          {
-            "href": "/beauty-settings",
-            "label": "Салон"
-          },
           {
             "href": "/settings",
             "label": "Все настройки"
@@ -1581,10 +1569,6 @@
         "id": "settings",
         "label": "Настройки",
         "items": [
-          {
-            "href": "/beauty-settings",
-            "label": "Салон"
-          },
           {
             "href": "/journal",
             "label": "История действий"
@@ -1776,10 +1760,6 @@
         "id": "settings",
         "label": "Настройки",
         "items": [
-          {
-            "href": "/beauty-settings",
-            "label": "Салон"
-          },
           {
             "href": "/settings",
             "label": "Все настройки"

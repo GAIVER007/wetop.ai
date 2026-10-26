@@ -5067,3 +5067,14 @@ PK `location_id` (филиал ресторана, триггер), `enabled` (�
 меняется, таблицы гостиницы закрыты для `OTHER` CHECK (как `BONUS`, миграция 141). Миграцию на рабочей базе
 применяет владелец.
 
+
+
+## CASH-SHIFTS-20261025: смены общей кассы (УТВЕРЖДЕНО 25.10.2026)
+
+Решение владельца: docs/decisions/2026-10-25-cash-shifts.md. Номера 159/160 зарезервированы для этого среза, 158 занята способом оплаты «Другое».
+
+CashRegister: uuid id, organization_id, ровно одно property_id/location_id, уникальная область, name, currency, cashier_ids uuid[], created_at UTC. CashShift: id, register_id, responsible_user_id, opened_at, closed_at/closed_by_id nullable, opening/closing JSON-снимки с целыми minor units строками и fingerprint исходного реестра. Не более одной открытой смены на кассу; начало и закрытый снимок неизменяемы. cash_operations и restaurant_cash_operations получают nullable cash_shift_id, исторические строки без backfill. Область операции соответствует кассе, новая операция только в открытой смене.
+
+CashHandover: id, register_id, shift_id unique, amount bigint > 0, recipient_id, requested_by_id, created_at, acknowledged_at nullable; получатель иной, чем отправитель. После однократного подтверждения уменьшает CASH отдельным движением и не считается расходом бизнеса. CashCommand: составной ключ register_id/command_key uuid, fingerprint автора и тела, response JSON, created_at UTC. RLS и права своей организации; удаления у прикладной роли нет. Подробности сверки открытия/закрытия хранятся в существующих CashReconciliation / RestaurantCashReconciliation и снимке смены.
+
+Источники гостиницы: payments/refunds/cash_operations. Источники филиалов салона и ресторана: restaurant_payments/restaurant_cash_operations. Закрытые агрегаты не изменяются поздними событиями; перепроведение денежных источников остаётся отдельным действием со старым аудитом. Исторические остатки не переоцениваются и не дублируются. Безопасный откат только до начала использования новых таблиц; backup, validation и down.sql обязательны. Production применяет владелец.

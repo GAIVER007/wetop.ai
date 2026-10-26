@@ -3461,6 +3461,8 @@ export interface AuthInvite {
   lastName?: string | null;
   position?: string | null;
   scopes?: AuthScope[];
+  /** Приглашение из формы «Новый сотрудник»: карточка, к которой привяжется вход; старый API не присылает */
+  employeeId?: string | null;
 }
 
 /** Назначение: роль в бизнесе целиком (`locationId` null) или в одном филиале (DATA_MODEL §31.1) */
@@ -3517,6 +3519,8 @@ export interface AuthMember {
   scopes: AuthScope[];
   /** Этот вошедший может заменить ему назначения */
   scopesEditable: boolean;
+  /** Карточки человека по бизнесам (`employees.user_id`), один экран «Сотрудники»; старый API не присылает */
+  employees?: Array<{ employeeId: string; businessId: string }>;
 }
 
 export interface AuthInvitePreview {

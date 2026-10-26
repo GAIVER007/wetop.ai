@@ -18,11 +18,13 @@ const sourceLabel: Record<BeautyEmployeeServicePriceRow['source'], string> = {
 };
 
 /**
- * Ключ блока цен: набор услуг мастера и их ревизии. Блок держит строки в своём состоянии, поэтому после
- * «Сохранить услуги» он пересоздаётся по новому ключу, иначе писал «Сначала назначьте услугу» до перезагрузки.
+ * Ключ блока цен: набор услуг мастера. Блок держит строки в своём состоянии, поэтому после «Сохранить услуги» он
+ * пересоздаётся по новому ключу, иначе писал «Сначала назначьте услугу» до перезагрузки. Ревизия в ключ не входит:
+ * своё «Сохранить» поднимает её и обновляет карточку с сервера, и пересозданный блок терял «Сохранено» (25.10.2026);
+ * свежие строки после своего сохранения блок берёт из ответа действия.
  */
-export function servicePricesKey(rows: readonly Pick<BeautyEmployeeServicePriceRow, 'serviceId' | 'revision'>[]): string {
-  return rows.map((row) => `${row.serviceId}:${row.revision ?? 0}`).sort().join('|');
+export function servicePricesKey(rows: readonly Pick<BeautyEmployeeServicePriceRow, 'serviceId'>[]): string {
+  return rows.map((row) => row.serviceId).sort().join('|');
 }
 
 export function EmployeeServicePrices({

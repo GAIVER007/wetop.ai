@@ -255,6 +255,7 @@ export async function inviteAction(
     const invite = await authApi.invite(token, email, invited, await clientInfo(), extra);
     revalidatePath('/profile/access');
     revalidatePath('/team');
+    revalidatePath('/employees');
     return { error: null, email: invite.email };
   } catch (e) {
     return { error: errorText(e), email: null };
@@ -286,6 +287,7 @@ export async function inviteNewStaffAction(input: {
       ...(input.allBranches ? { allBranches: true } : {}),
     });
     revalidatePath('/team');
+    revalidatePath('/employees');
     return { error: null, invited: invite.email };
   } catch (e) {
     return { error: errorText(e), invited: null };
@@ -312,6 +314,8 @@ async function teamAction(
   }
   revalidatePath('/profile/access');
   revalidatePath('/team');
+  // общий экран «Сотрудники» салона и ресторана показывает те же входы (U2)
+  revalidatePath('/employees');
   return { error: null };
 }
 

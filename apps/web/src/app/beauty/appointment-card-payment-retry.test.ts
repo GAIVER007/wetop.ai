@@ -14,7 +14,7 @@ vi.mock('./journal-actions', () => ({ moveAppointment: vi.fn(), payAppointment: 
 // язык стойки (KK2): у рендера-обвязки нет React-контекста, тексты русские
 vi.mock('../../i18n/locale-provider', async (importOriginal) => {
   const { translator } = await import('../../i18n');
-  return { ...(await importOriginal<object>()), useT: () => translator('ru') };
+  return { ...(await importOriginal<object>()), useT: () => translator('ru'), useLocale: () => 'ru' };
 });
 vi.mock('../../components/use-confirm', () => ({ useConfirm: () => ({ ask: vi.fn(), dialog: null }) }));
 import { AppointmentCard } from './appointment-card';

@@ -2,6 +2,7 @@ import type { ChessboardCell, ChessboardRow } from '../../lib/api';
 import { msg } from '../../i18n';
 import { CHANNELS, SOURCES } from '../reservations/sources';
 import { hospitalityStatus } from '../../lib/status/hospitality';
+import { matchesCustomer } from '../../lib/customer-match';
 
 /**
  * Отбор в календаре (ТЗ «Шахматка v2» §8–10, §41; решения — `plans/chessboard-v2-2026-09-27.md`,
@@ -157,8 +158,9 @@ const has = (value: string | null | undefined, needle: SearchNeedle) =>
 
 /** Бронь находится по имени гостя, номеру брони и телефону (цифрами, как ни записан) */
 export function stayMatchesSearch(cell: ChessboardCell, needle: SearchNeedle): boolean {
-  if (has(cell.guestLabel, needle) || has(cell.confirmationNumber, needle)) return true;
-  return !!needle.digits && !!cell.guestPhone?.replace(/\D/g, '').includes(needle.digits);
+  if (has(cell.confirmationNumber, needle)) return true;
+  // имя и телефон гостя тем же правилом, что журналы салона и ресторана (`lib/customer-match.ts`)
+  return !!cell.guestLabel && matchesCustomer(needle.text, { name: cell.guestLabel, phone: cell.guestPhone });
 }
 
 /** Место находится по коду и категории */

@@ -1,7 +1,7 @@
 'use client';
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useConfirm } from '../../components/use-confirm';
-import { Alert, Button, Field, Input, Select } from '../../components/ui';
+import { Alert, Button, Field, Input, Select, StatusBadge } from '../../components/ui';
 import type { BeautyAppointmentRow, BeautyDay } from '../../lib/api';
 import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { METHOD_RU } from '../../lib/dashboard-format';
@@ -26,7 +26,9 @@ import type { JournalResult } from './journal-actions';
 import { formatPhone } from '../../lib/phone';
 import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
 import { branchMethodsAll, branchMethodsShown } from '../branch-payment-methods/shown';
-import { useT } from '../../i18n/locale-provider';
+import { useLocale, useT } from '../../i18n/locale-provider';
+import { intlLocale } from '../../i18n';
+import { displayDate } from '../../lib/display-date';
 
 type PayMethod = FoodPaymentMethod | 'BONUS' | 'GIFT_CERTIFICATE';
 
@@ -61,6 +63,7 @@ function AppointmentCardBody({
   onDone: () => void;
 }) {
   const t = useT();
+  const locale = useLocale();
   const [editing, setEditing] = useState(false);
   const [repeating, setRepeating] = useState(false);
   const [state, action, pending] = useActionState(moveAppointment, null);
@@ -234,302 +237,322 @@ function AppointmentCardBody({
     });
   };
 
+  const primaryNext = row.next.find((status) => status !== 'CANCELLED');
+  const nextActions = [...row.next].sort((a, b) => Number(b === primaryNext) - Number(a === primaryNext) || Number(a === 'CANCELLED') - Number(b === 'CANCELLED'));
+  const when = t('{date}, {from}–{to}', {
+    date: displayDate(day.date, 'long', intlLocale(locale)),
+    from: clock(row.startMinutes),
+    to: clock(row.endMinutes),
+  });
+  const leftToPay = net > 0n && remaining > 0n;
+
   return (
-    <div className="beauty-form">
-      <dl className="beauty-facts">
-        <div>
-          <dt>{t('Клиент')}</dt>
-          <dd>
-            {row.customer.name}
-            {row.customer.phone ? `, ${formatPhone(row.customer.phone)}` : ''}
-          </dd>
-        </div>
-        {row.items?.length ? (
-          row.items.map((item) => (
-            <div key={item.id} className="appointment-card-line">
-              <dt>{item.serviceName}</dt>
-              <dd>
-                <p>
-                  {item.employeeName}, {clock(item.startMinutes)}–{clock(item.endMinutes)} ·{' '}
-                  {t('{n} мин', { n: item.durationMinutes })}
-                </p>
-                {/* цена один раз (аудит салона 22.10.2026): база и итог строки только при скидке, наценке или
-                    нескольких услугах; итог записи в строке «Оплачено» */}
-                {(BigInt(item.discountMinor) > 0n || BigInt(item.surchargeMinor) > 0n) && (
-                  <p>{t('Цена: {amount}', { amount: formatMoney(item.basePriceMinor, item.currency) })}</p>
-                )}
-                {BigInt(item.discountMinor) > 0n && (
-                  <p>{t('Скидка: {amount}', { amount: formatMoney(item.discountMinor, item.currency) })}</p>
-                )}
-                {BigInt(item.surchargeMinor) > 0n && (
-                  <p>{t('Наценка: {amount}', { amount: formatMoney(item.surchargeMinor, item.currency) })}</p>
-                )}
-                {(row.items!.length > 1 || BigInt(item.discountMinor) > 0n || BigInt(item.surchargeMinor) > 0n) && (
-                  <strong>{formatMoney(item.priceMinor, item.currency)}</strong>
-                )}
+    <div className="beauty-form appointment-card">
+      {/* ТЗ 25.10.2026 п.8: шапка, сводка, действия строкой; оплата справа на ПК, под сводкой на телефоне */}
+      <header className="appointment-card-head">
+        <strong className="appointment-card-client">{row.customer.name}</strong>
+        {row.customer.phone && (
+          <a className="appointment-card-phone" href={`tel:${row.customer.phone}`}>
+            {formatPhone(row.customer.phone)}
+          </a>
+        )}
+        <StatusBadge kind="beauty" value={row.status} data-testid="beauty-card-status" />
+      </header>
+      <div className="appointment-card-layout">
+        <div className="appointment-card-main">
+          <dl className="beauty-facts appointment-card-summary">
+            {row.items?.length ? (
+              row.items.map((item) => (
+                <div key={item.id} className="appointment-card-line">
+                  <dt>{item.serviceName}</dt>
+                  <dd>
+                    <p>
+                      {item.employeeName}, {clock(item.startMinutes)}–{clock(item.endMinutes)},{' '}
+                      {t('{n} мин', { n: item.durationMinutes })}
+                    </p>
+                    {/* цена один раз (аудит салона 22.10.2026): база и итог строки только при скидке, наценке или
+                        нескольких услугах; итог записи в строке «Оплачено» */}
+                    {(BigInt(item.discountMinor) > 0n || BigInt(item.surchargeMinor) > 0n) && (
+                      <p>{t('Цена: {amount}', { amount: formatMoney(item.basePriceMinor, item.currency) })}</p>
+                    )}
+                    {BigInt(item.discountMinor) > 0n && (
+                      <p>{t('Скидка: {amount}', { amount: formatMoney(item.discountMinor, item.currency) })}</p>
+                    )}
+                    {BigInt(item.surchargeMinor) > 0n && (
+                      <p>{t('Наценка: {amount}', { amount: formatMoney(item.surchargeMinor, item.currency) })}</p>
+                    )}
+                    {(row.items!.length > 1 || BigInt(item.discountMinor) > 0n || BigInt(item.surchargeMinor) > 0n) && (
+                      <strong>{formatMoney(item.priceMinor, item.currency)}</strong>
+                    )}
+                  </dd>
+                </div>
+              ))
+            ) : (
+              <>
+                <div>
+                  <dt>{t('Услуга')}</dt>
+                  <dd>{row.serviceName}</dd>
+                </div>
+                <div>
+                  <dt>{t('Специалист')}</dt>
+                  <dd>{master?.name ?? t('не найден')}</dd>
+                </div>
+              </>
+            )}
+            <div>
+              <dt>{t('Время')}</dt>
+              <dd>{when}</dd>
+            </div>
+            <div>
+              <dt>{t('Оплачено')}</dt>
+              <dd data-testid="beauty-card-paid">
+                {t('{paid} из {price}', {
+                  paid: formatMoney(row.paidMinor, row.currency),
+                  price: formatMoney(row.priceMinor, row.currency),
+                })}
               </dd>
             </div>
-          ))
-        ) : (
-          <>
-            <div>
-              <dt>{t('Услуга')}</dt>
-              <dd>{row.serviceName}</dd>
-            </div>
-            <div>
-              <dt>{t('Специалист')}</dt>
-              <dd>{master?.name ?? t('не найден')}</dd>
-            </div>
-          </>
-        )}
-        <div>
-          <dt>{t('Время')}</dt>
-          <dd>
-            {t('{date}, {from} до {to}', { date: day.date, from: clock(row.startMinutes), to: clock(row.endMinutes) })}
-          </dd>
-        </div>
-        <div>
-          <dt>{t('Оплачено')}</dt>
-          <dd data-testid="beauty-card-paid">
-            {t('{paid} из {price}', {
-              paid: formatMoney(row.paidMinor, row.currency),
-              price: formatMoney(row.priceMinor, row.currency),
-            })}
-          </dd>
-        </div>
-        {(row.payments?.length ?? 0) > 0 && (
-          <div>
-            <dt>{t('Платежи')}</dt>
-            <dd data-testid="beauty-card-payments">
-              {/* A4 (паритет с zapis.kz): каждый платёж строкой; аннулирование по-прежнему в «Кассе» */}
-              <ul className="beauty-card-payments">
-                {row.payments!.map((payment) => (
-                  <li key={payment.id}>
-                    {localInput(payment.at, day.location.timezone).slice(11, 16)},{' '}
-                    {t(METHOD_RU[payment.method as keyof typeof METHOD_RU] ?? payment.method)},{' '}
-                    {formatMoney(payment.amountMinor, row.currency)}
-                    {payment.kind === 'EXPENSE' ? t(' (Возврат)') : ''}
-                  </li>
-                ))}
-              </ul>
-            </dd>
-          </div>
-        )}
-        {BigInt(row.refundedMinor) > 0n && (
-          <div>
-            <dt>{t('Возвращено')}</dt>
-            <dd data-testid="beauty-card-refunded">
-              {formatMoney(row.refundedMinor, row.currency)}
-            </dd>
-          </div>
-        )}
-        <div>
-          <dt>{t('Состояние')}</dt>
-          <dd data-testid="beauty-card-status">{t(beautyStatus[row.status].label)}</dd>
-        </div>
-        {row.notes && (
-          <div>
-            <dt>{t('Заметка')}</dt>
-            <dd>{row.notes}</dd>
-          </div>
-        )}
-      </dl>
+            {leftToPay && (
+              <div>
+                <dt>{t('Осталось')}</dt>
+                <dd data-testid="beauty-card-left">{formatMoney(remaining.toString(), row.currency)}</dd>
+              </div>
+            )}
+            {(row.payments?.length ?? 0) > 0 && (
+              <div>
+                <dt>{t('Платежи')}</dt>
+                <dd data-testid="beauty-card-payments">
+                  {/* A4 (паритет с zapis.kz): каждый платёж строкой; аннулирование по-прежнему в «Кассе» */}
+                  <ul className="beauty-card-payments">
+                    {row.payments!.map((payment) => (
+                      <li key={payment.id}>
+                        {localInput(payment.at, day.location.timezone).slice(11, 16)},{' '}
+                        {t(METHOD_RU[payment.method as keyof typeof METHOD_RU] ?? payment.method)},{' '}
+                        {formatMoney(payment.amountMinor, row.currency)}
+                        {payment.kind === 'EXPENSE' ? t(' (Возврат)') : ''}
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+            )}
+            {BigInt(row.refundedMinor) > 0n && (
+              <div>
+                <dt>{t('Возвращено')}</dt>
+                <dd data-testid="beauty-card-refunded">
+                  {formatMoney(row.refundedMinor, row.currency)}
+                </dd>
+              </div>
+            )}
+            {row.notes && (
+              <div>
+                <dt>{t('Заметка')}</dt>
+                <dd>{row.notes}</dd>
+              </div>
+            )}
+          </dl>
 
-      <AppointmentHistoryPanel
-        key={`${scopeKey}:${row.id}`}
-        appointmentId={row.id}
-        scopeKey={scopeKey}
-      />
-      {canIssueReview && row.status === 'DONE' && (
-        <ReviewInvitation appointmentId={row.id} scopeKey={scopeKey} />
-      )}
-      {canCreate && (
-        <section aria-label={t('Повторная запись')}>
-          <Button type="button" tone="secondary" onClick={() => setRepeating(true)}>
-            {t('Повторить запись')}
-          </Button>
-          <AppointmentEditor
-            open={repeating}
-            onClose={() => setRepeating(false)}
-            day={day}
-            customers={[]}
-            employeeId={row.employeeId}
-            repeatFrom={row}
-            canAdjustPrice={canAdjustPrice}
-            scopeKey={scopeKey}
-            onDone={onDone}
-          />
-        </section>
-      )}
-      {canUpdate && canAdjustPrice && row.next.length > 0 && (
-        <section aria-label={t('Редактирование услуг')}>
-          <Button type="button" tone="secondary" onClick={() => setEditing(true)}>
-            {t('Изменить услуги')}
-          </Button>
-          <AppointmentEditor
-            open={editing}
-            onClose={() => setEditing(false)}
-            day={day}
-            customers={[]}
-            employeeId={row.employeeId}
-            editing={row}
-            canAdjustPrice
-            scopeKey={scopeKey}
-            onDone={onDone}
-          />
-        </section>
-      )}
-      {canUpdate && row.next.length > 0 && (
-        <div className="beauty-bar">
-          {row.next.map((status) => (
-            <Button
-              key={status}
-              type="button"
-              size="sm"
-              tone={status === 'CANCELLED' ? 'danger' : 'secondary'}
-              disabled={busy}
-              onClick={() => void change(status)}
-            >
-              {t(ACTION_WORD[status])}
-            </Button>
-          ))}
-        </div>
-      )}
-
-      {canUpdate && (row.status === 'BOOKED' || row.status === 'CONFIRMED') && !row.next.includes('NO_SHOW') && (
-        <p className="muted">{t(beautyStatus.NO_SHOW.label)}: {t(NO_SHOW_BEFORE_START_MESSAGE)}</p>
-      )}
-
-      {payable && (
-        <section className="beauty-form" aria-label={t('Оплата записи')}>
-          <h3>{t('Оплата')}</h3>
-          <Field label={t('Способ')}>
-            <Select disabled={moneyLocked} value={method} onChange={(e) => chooseMethod(e.target.value as PayMethod)}>
-              {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
-                <option key={m} value={m}>
-                  {t(METHOD_RU[m] ?? m)}
-                </option>
-              ))}
-              {/* «Бонусы» только когда у клиента есть бонусы (аудит салона 22.10.2026: предлагались при 0) */}
-              {bonusAvailable && <option value="BONUS">{t('Бонусы')}</option>}
-              <option value="GIFT_CERTIFICATE">{t('Сертификат')}</option>
-            </Select>
-          </Field>
-          {method === 'BONUS' && bonusAvailable && bonus && bonus !== 'loading' && bonus !== 'none' && (
-            <p className="beauty-loyalty-hint" data-testid="pay-bonus-hint">
-              {t('Бонусов: {balance}. Можно списать: {max}.', {
-                balance: formatMoney(bonus.balanceMinor, row.currency),
-                max: formatMoney(bonusMax.toString(), row.currency),
-              })}
-            </p>
-          )}
-          {method === 'GIFT_CERTIFICATE' && (
-            <>
-              <Field label={t('Код сертификата')}>
-                <Input
-                  disabled={moneyLocked}
-                  value={certCode}
-                  maxLength={12}
-                  autoComplete="off"
-                  onChange={(e) => { setCertCode(e.target.value); setCert(null); }}
-                />
-              </Field>
-              <Button type="button" tone="secondary" disabled={moneyLocked || !certCode.trim()} onClick={checkCertificate}>
-                {t('Проверить')}
+          <div className="beauty-bar appointment-card-actions" role="group" aria-label={t('Действия с записью')}>
+            {canUpdate && nextActions.map((status) => (
+              <Button
+                key={status}
+                type="button"
+                size="sm"
+                tone={status === 'CANCELLED' ? 'danger' : status === primaryNext ? 'primary' : 'secondary'}
+                disabled={busy}
+                onClick={() => void change(status)}
+              >
+                {t(ACTION_WORD[status])}
               </Button>
-              {cert && (
-                <p className="beauty-loyalty-hint" data-testid="pay-certificate-hint">
-                  {'error' in cert
-                    ? cert.error
-                    : cert.status === 'ACTIVE'
-                      ? t('Остаток сертификата: {amount}. Если остатка не хватает, спишется сколько есть.', {
-                          amount: formatMoney(cert.balanceMinor, row.currency),
-                        })
-                      : cert.status === 'EXPIRED'
-                        ? t('Срок сертификата истёк')
-                        : t('Сертификат уже использован')}
+            ))}
+            <details className="appointment-card-more">
+                <summary className="btn btn--secondary btn--sm">{t('Ещё')}</summary>
+                <div className="appointment-card-more-body">
+                    <AppointmentHistoryPanel
+                      key={`${scopeKey}:${row.id}`}
+                      appointmentId={row.id}
+                      scopeKey={scopeKey}
+                    />
+                    {canCreate && (
+                      <section aria-label={t('Повторная запись')}>
+                        <Button type="button" tone="secondary" onClick={() => setRepeating(true)}>
+                          {t('Повторить запись')}
+                        </Button>
+                        <AppointmentEditor
+                          open={repeating}
+                          onClose={() => setRepeating(false)}
+                          day={day}
+                          customers={[]}
+                          employeeId={row.employeeId}
+                          repeatFrom={row}
+                          canAdjustPrice={canAdjustPrice}
+                          scopeKey={scopeKey}
+                          onDone={onDone}
+                        />
+                      </section>
+                    )}
+                    {canUpdate && canAdjustPrice && row.next.length > 0 && (
+                      <section aria-label={t('Редактирование услуг')}>
+                        <Button type="button" tone="secondary" onClick={() => setEditing(true)}>
+                          {t('Изменить услуги')}
+                        </Button>
+                        <AppointmentEditor
+                          open={editing}
+                          onClose={() => setEditing(false)}
+                          day={day}
+                          customers={[]}
+                          employeeId={row.employeeId}
+                          editing={row}
+                          canAdjustPrice
+                          scopeKey={scopeKey}
+                          onDone={onDone}
+                        />
+                      </section>
+                    )}
+                </div>
+              </details>
+          </div>
+          {canUpdate && (row.status === 'BOOKED' || row.status === 'CONFIRMED') && !row.next.includes('NO_SHOW') && (
+            <p className="muted">{t(beautyStatus.NO_SHOW.label)}: {t(NO_SHOW_BEFORE_START_MESSAGE)}</p>
+          )}
+
+          {canIssueReview && row.status === 'DONE' && (
+            <ReviewInvitation appointmentId={row.id} scopeKey={scopeKey} />
+          )}
+        </div>
+        <div className="appointment-card-side">
+          {payable && (
+            <section className="beauty-form" aria-label={t('Оплата записи')}>
+              <h3>{t('Оплата')}</h3>
+              <Field label={t('Способ')}>
+                <Select disabled={moneyLocked} value={method} onChange={(e) => chooseMethod(e.target.value as PayMethod)}>
+                  {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
+                    <option key={m} value={m}>
+                      {t(METHOD_RU[m] ?? m)}
+                    </option>
+                  ))}
+                  {/* «Бонусы» только когда у клиента есть бонусы (аудит салона 22.10.2026: предлагались при 0) */}
+                  {bonusAvailable && <option value="BONUS">{t('Бонусы')}</option>}
+                  <option value="GIFT_CERTIFICATE">{t('Сертификат')}</option>
+                </Select>
+              </Field>
+              {method === 'BONUS' && bonusAvailable && bonus && bonus !== 'loading' && bonus !== 'none' && (
+                <p className="beauty-loyalty-hint" data-testid="pay-bonus-hint">
+                  {t('Бонусов: {balance}. Можно списать: {max}.', {
+                    balance: formatMoney(bonus.balanceMinor, row.currency),
+                    max: formatMoney(bonusMax.toString(), row.currency),
+                  })}
                 </p>
               )}
-            </>
+              {method === 'GIFT_CERTIFICATE' && (
+                <>
+                  <Field label={t('Код сертификата')}>
+                    <Input
+                      disabled={moneyLocked}
+                      value={certCode}
+                      maxLength={12}
+                      autoComplete="off"
+                      onChange={(e) => { setCertCode(e.target.value); setCert(null); }}
+                    />
+                  </Field>
+                  <Button type="button" tone="secondary" disabled={moneyLocked || !certCode.trim()} onClick={checkCertificate}>
+                    {t('Проверить')}
+                  </Button>
+                  {cert && (
+                    <p className="beauty-loyalty-hint" data-testid="pay-certificate-hint">
+                      {'error' in cert
+                        ? cert.error
+                        : cert.status === 'ACTIVE'
+                          ? t('Остаток сертификата: {amount}. Если остатка не хватает, спишется сколько есть.', {
+                              amount: formatMoney(cert.balanceMinor, row.currency),
+                            })
+                          : cert.status === 'EXPIRED'
+                            ? t('Срок сертификата истёк')
+                            : t('Сертификат уже использован')}
+                    </p>
+                  )}
+                </>
+              )}
+              <Field label={t('Сумма, {currency}', { currency: currencyLabel })}>
+                <Input disabled={moneyLocked} inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              </Field>
+              <Button type="button" disabled={moneyLocked} onClick={pay}>
+                {t('Принять оплату')}
+              </Button>
+              {BigInt(row.paidMinor) > 0n && (
+                <p className="muted">{t('Аннулировать оплату можно в «Кассе».')}</p>
+              )}
+            </section>
           )}
-          <Field label={t('Сумма, {currency}', { currency: currencyLabel })}>
-            <Input disabled={moneyLocked} inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
-          </Field>
-          <Button type="button" disabled={moneyLocked} onClick={pay}>
-            {t('Принять оплату')}
-          </Button>
-          {BigInt(row.paidMinor) > 0n && (
-            <p className="muted">{t('Аннулировать оплату можно в «Кассе».')}</p>
+
+          {refundable && (
+            <section className="beauty-form" aria-label={t('Возврат по записи')}>
+              <h3>{t('Возврат')}</h3>
+              <Field label={t('Способ возврата')}>
+                <Select
+                  disabled={moneyLocked}
+                  value={refundMethod}
+                  onChange={(e) => setRefundMethod(e.target.value as FoodPaymentMethod)}
+                >
+                  {branchMethodsAll(FOOD_PAYMENT_METHODS, accepted, [refundMethod]).map((m) => (
+                    <option key={m} value={m}>
+                      {t(METHOD_RU[m] ?? m)}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label={t('Сумма возврата, {currency}', { currency: currencyLabel })}>
+                <Input
+                  disabled={moneyLocked}
+                  inputMode="decimal"
+                  value={refundAmount}
+                  onChange={(e) => setRefundAmount(e.target.value)}
+                />
+              </Field>
+              <Field label={t('Причина')}>
+                <Input disabled={moneyLocked} value={reason} maxLength={300} onChange={(e) => setReason(e.target.value)} />
+              </Field>
+              <Button type="button" tone="danger" disabled={moneyLocked} onClick={refund}>
+                {t('Оформить возврат')}
+              </Button>
+            </section>
           )}
-        </section>
-      )}
 
-      {refundable && (
-        <section className="beauty-form" aria-label={t('Возврат по записи')}>
-          <h3>{t('Возврат')}</h3>
-          <Field label={t('Способ возврата')}>
-            <Select
-              disabled={moneyLocked}
-              value={refundMethod}
-              onChange={(e) => setRefundMethod(e.target.value as FoodPaymentMethod)}
-            >
-              {branchMethodsAll(FOOD_PAYMENT_METHODS, accepted, [refundMethod]).map((m) => (
-                <option key={m} value={m}>
-                  {t(METHOD_RU[m] ?? m)}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label={t('Сумма возврата, {currency}', { currency: currencyLabel })}>
-            <Input
-              disabled={moneyLocked}
-              inputMode="decimal"
-              value={refundAmount}
-              onChange={(e) => setRefundAmount(e.target.value)}
-            />
-          </Field>
-          <Field label={t('Причина')}>
-            <Input disabled={moneyLocked} value={reason} maxLength={300} onChange={(e) => setReason(e.target.value)} />
-          </Field>
-          <Button type="button" tone="danger" disabled={moneyLocked} onClick={refund}>
-            {t('Оформить возврат')}
-          </Button>
-        </section>
-      )}
+          {canUpdate && row.next.length > 0 && (
+            <form action={action} className="beauty-form">
+              <input type="hidden" name="id" value={row.id} />
+              <h3>{t('Перенести')}</h3>
+              <Field label={row.items && row.items.length > 1 ? t('Специалист первой услуги') : t('Специалист')}>
+                <Select name="employeeId" defaultValue={row.employeeId}>
+                  {day.columns.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label={t('Начало')}>
+                <Input
+                  type="datetime-local"
+                  value={localStart}
+                  onChange={(e) => setLocalStart(e.target.value)}
+                  data-testid="beauty-move-start"
+                />
+              </Field>
+              <input
+                type="hidden"
+                name="startsAt"
+                value={instantOf(localStart, day.location.timezone)}
+              />
+              {state?.error && <Alert>{state.error}</Alert>}
+              <Button type="submit" tone="secondary" disabled={pending}>
+                {pending ? t('Переносим…') : t('Перенести')}
+              </Button>
+            </form>
+          )}
 
-      {canUpdate && row.next.length > 0 && (
-        <form action={action} className="beauty-form">
-          <input type="hidden" name="id" value={row.id} />
-          <h3>{t('Перенести')}</h3>
-          <Field label={row.items && row.items.length > 1 ? t('Специалист первой услуги') : t('Специалист')}>
-            <Select name="employeeId" defaultValue={row.employeeId}>
-              {day.columns.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label={t('Начало')}>
-            <Input
-              type="datetime-local"
-              value={localStart}
-              onChange={(e) => setLocalStart(e.target.value)}
-              data-testid="beauty-move-start"
-            />
-          </Field>
-          <input
-            type="hidden"
-            name="startsAt"
-            value={instantOf(localStart, day.location.timezone)}
-          />
-          {state?.error && <Alert>{state.error}</Alert>}
-          <Button type="submit" tone="secondary" disabled={pending}>
-            {pending ? t('Переносим…') : t('Перенести')}
-          </Button>
-        </form>
-      )}
-
+        </div>
+      </div>
       {moneyStatus === 'blocked' && (canPay || canRefund) && (
         <Alert>
           {t(

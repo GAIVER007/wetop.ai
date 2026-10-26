@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import type { NavigationAccess } from './navigation';
 import {
   CLOSED_ACCESS,
+  pageOpen,
+  beautyTotalsVisible,
   beautyMenuSections,
   menuSectionsFor,
   phoneNavigationFor,
@@ -46,11 +49,11 @@ describe('меню салона', () => {
       ['Склад', ['/warehouse', '/bar', '/bar/consumables', '/bar/menu', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
       // касса филиала, общая с рестораном (§48, ADR-178 этап 0)
       // «Сертификаты» салона (решение 21.10.2026 §3)
-      ['Финансы', ['/finance', '/cashbox', '/finance/certificates']],
+      // «Сертификаты» салона пока скрыты в меню (запуск первого клиента 25.10.2026)
+      ['Финансы', ['/finance', '/cashbox']],
       // «Подключения» и «Неисправности» только у гостиницы (аудит 17.10.2026, Д1)
       ['Настройки', ['/beauty-settings', '/journal', '/settings']],
-      // без «Конкурентов»: мониторинг соседей пока только у гостиницы
-      ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/marketing/voice', '/ai-agents', '/sales', '/marketing/budget']],
+      // «Продвижение» салона пока скрыто: не готово к первым клиентам (владелец 25.10.2026)
       ['Помощь', ['/help']],
     ]);
   });
@@ -109,5 +112,52 @@ describe('меню салона', () => {
     expect(items).toContain('/services');
     expect(items).not.toContain('/platform');
     expect(items).not.toContain('/journal');
+  });
+});
+
+describe('запуск первых салонов (владелец 25.10.2026): недоделанное скрыто, админ видит только свою работу', () => {
+  const platform = { ...CLOSED_ACCESS, role: 'OWNER' as const, platform: true };
+  const staff = { ...CLOSED_ACCESS, role: 'STAFF' as const };
+  const manager = { ...CLOSED_ACCESS, role: 'MANAGER' as const };
+  const of = (access: NavigationAccess) => menuSectionsFor(access, 'BEAUTY').flatMap((s) => s.items.map((i) => i.href));
+  it('владелец салона не видит «Продвижение» и «Сертификаты»', () => {
+    expect(of(owner).filter((h) => h.startsWith('/marketing') || h === '/ai-agents' || h === '/sales')).toEqual([]);
+    expect(of(owner)).not.toContain('/finance/certificates');
+  });
+  it('главный администратор платформы видит их, чтобы доделывать', () => {
+    expect(of(platform)).toContain('/marketing');
+    expect(of(platform)).toContain('/finance/certificates');
+  });
+  it('администратор (касса) не видит выручку салона: ни «Статистики», ни «Обзора финансов»; касса остаётся', () => {
+    const items = of(staff);
+    expect(items).toContain('/cashbox');
+    expect(items).toContain('/calendar');
+    for (const href of ['/finance', '/management/analytics', '/reports', '/marketing']) expect(items, href).not.toContain(href);
+  });
+  it('управляющий видит статистику и финансы, как владелец', () => {
+    expect(of(manager)).toContain('/finance');
+    expect(of(manager)).toContain('/management/analytics');
+  });
+  it('у гостиницы и ресторана меню не меняется', () => {
+    expect(menuSectionsFor(owner, 'HOSPITALITY').flatMap((s) => s.items.map((i) => i.href))).toContain('/marketing');
+    expect(menuSectionsFor(staff, 'FOOD_SERVICE').flatMap((s) => s.items.map((i) => i.href))).toContain('/restaurant-finance');
+  });
+});
+
+describe('салон по прямому адресу: администратор не открывает итоги и недоделанное', () => {
+  const projection = { mode: 'LEGACY' } as unknown as NonNullable<Parameters<typeof pageOpen>[0]['beautyAccess']>;
+  const staff = { ...CLOSED_ACCESS, role: 'STAFF' as const, beautyAccess: projection };
+  it('касса открывается, обзор финансов, аналитика и продвижение нет', () => {
+    expect(pageOpen(staff, 'desk', '/cashbox')).toBe(true);
+    for (const path of ['/finance', '/management/analytics', '/reports/finance', '/marketing/ads'])
+      expect(pageOpen(staff, 'reports', path), path).toBe(false);
+  });
+});
+
+describe('сводка «Главной» салона с выручкой', () => {
+  it('администратору без должности не показывается, владельцу и управляющему да', () => {
+    expect(beautyTotalsVisible({ ...CLOSED_ACCESS, role: 'STAFF' })).toBe(false);
+    expect(beautyTotalsVisible({ ...CLOSED_ACCESS, role: 'OWNER' })).toBe(true);
+    expect(beautyTotalsVisible({ ...CLOSED_ACCESS, role: 'MANAGER' })).toBe(true);
   });
 });

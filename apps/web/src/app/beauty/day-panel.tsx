@@ -29,11 +29,14 @@ export function DayPanel({
   columns,
   selected,
   nowMinutes,
+  currency,
   canUpdate,
   onOpen,
   onDone,
 }: {
   rows: BeautyAppointmentRow[];
+  /** валюта филиала для пустого дня */
+  currency: string;
   columns: BeautyDayColumn[];
   selected: BeautyAppointmentRow | null;
   /** минуты «сейчас» по поясу филиала; не сегодня: null */
@@ -54,7 +57,7 @@ export function DayPanel({
       else onDone();
     });
   const soon = upcoming(rows, nowMinutes);
-  const money = dayMoney(rows);
+  const money = dayMoney(rows, currency);
   const first = selected?.next.find(
     (s) => s === 'IN_PROGRESS' || s === 'DONE' || s === 'CONFIRMED',
   );

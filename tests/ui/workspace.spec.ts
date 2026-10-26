@@ -1558,7 +1558,7 @@ test('гости D1: выборка и пустота словами, стату
   await expect(
     main.getByTestId('guest-stay-current').or(main.getByTestId('guest-stay-next')).first(),
   ).toContainText('R01');
-  await expect(main.getByTestId('guest-head')).toContainText('KAZ');
+  await expect(main.getByTestId('guest-head')).toContainText('Казахстан');
   await expect(main.getByTestId('guest-visits')).toContainText('ноч');
   overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

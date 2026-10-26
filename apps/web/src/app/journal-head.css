@@ -357,7 +357,8 @@
 /* «На весь экран» журнала (владелец 24.10.2026, как календарь гостиницы): квадратик перед «Быстрым отчётом»,
    журнал раскрывается поверх шапки и меню; Esc или повторное нажатие возвращают обычный вид */
 @layer sections {
-  .journal-head__actions .journal-expand {
+  .journal-head__actions .journal-expand,
+  .journal-head__actions .journal-compact {
     flex: none;
     width: var(--control-h);
     height: var(--control-h);
@@ -438,3 +439,54 @@
   }
 }
 
+
+/* Журнал на ПК в один экран (ТЗ салона 25.10.2026, п. 9; образец календарь гостиницы, `chessboard/board.css`,
+   `.page:has(> .board-stage)`): страница не прокручивается, шапка журнала целиком под верхней панелью, доска
+   (`.journal-screen__board`) берёт остаток высоты и прокручивается внутри себя. Слой общий для всех направлений:
+   страница журнала ставит `journal-screen`, доска (прямой потомок страницы или её ребёнок с классом доски)
+   `journal-screen__board`. Телефон и планшет листают страницу. */
+@layer sections {
+  @media (min-width: 961px) {
+    div.workspace .page.journal-screen {
+      display: flex;
+      flex-direction: column;
+      /* высота, а не min-height: иначе колонка растёт под содержимое и страница снова прокручивается */
+      height: calc(100dvh - var(--header-h));
+      overflow: hidden;
+    }
+    div.workspace .page.journal-screen > * {
+      flex: none;
+    }
+    /* «На весь экран» поверх шапки: верхней панели нет, колонка во всю высоту окна */
+    div.workspace .page.journal-screen[data-expanded='true'] {
+      height: 100dvh;
+    }
+    div.workspace .page.journal-screen > .journal-screen__board {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow: auto;
+    }
+    /* промежуточная обёртка между страницей и доской (ресторан: срез по `scopeKey` и колонка экрана) сама колонка,
+       чтобы остаток высоты дошёл до доски */
+    div.workspace .page.journal-screen .journal-screen__pass {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 0;
+      min-height: 0;
+    }
+    div.workspace .page.journal-screen .journal-screen__pass > * {
+      flex: none;
+    }
+    /* вложенная обёртка (ресторан: срез `scopeKey` > колонка экрана) берёт остаток, а не высоту содержимого:
+       иначе доска с основой 0 сжимается в ноль, а её содержимое ложится под обёртку и та ловит клики */
+    div.workspace .page.journal-screen .journal-screen__pass > .journal-screen__pass {
+      flex: 1 1 0;
+      min-height: 0;
+    }
+    div.workspace .page.journal-screen .journal-screen__pass > .journal-screen__board {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow: auto;
+    }
+  }
+}

@@ -22,7 +22,7 @@ import { useLocale, useT } from '../../i18n/locale-provider';
 import { mutateCash } from '../cashbox/actions';
 import { useConfirm } from '../../components/use-confirm';
 import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
-import { branchMethodsAll, branchMethodsShown } from '../branch-payment-methods/shown';
+import { branchMethodsShown, cashMethodsList, cashMethodsShown } from '../branch-payment-methods/shown';
 
 type Kind = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 const KIND_LABEL: Record<Kind, string> = { INCOME: msg('Приход'), EXPENSE: msg('Расход'), TRANSFER: msg('Перевод') };
@@ -139,8 +139,10 @@ export function CashBoard({
       () => setCounted(''),
     );
   }
+  const shownBalances = cashMethodsShown(cash.balances, accepted);
+  // сверка и расход «из» по тем же способам, что в остатках: включённые в порядке настройки, затем все, где есть деньги
+  const cashMethods = cashMethodsList(FOOD_PAYMENT_METHODS, accepted, cash.balances);
   const total = cash.balances.reduce((sum, b) => sum + BigInt(b.balanceMinor), 0n);
-  const nonZero = cash.balances.filter((b) => BigInt(b.balanceMinor) !== 0n).map((b) => b.method);
   const operations =
     cash.operations.length === 0 ? (
       <EmptyState title={t('Операций пока нет')} />
@@ -273,7 +275,7 @@ export function CashBoard({
           <dd data-testid="cash-total">{wholeTenge(String(total), cash.currency)}</dd>
         </div>
       </dl>
-      {cash.balances.length > 0 && (
+      {shownBalances.length > 0 && (
         <Table aria-label={t('Остатки по способам оплаты')} data-testid="cash-balances">
           <thead>
             <tr>
@@ -282,7 +284,7 @@ export function CashBoard({
             </tr>
           </thead>
           <tbody>
-            {cash.balances.map((b) => (
+            {shownBalances.map((b) => (
               <tr key={b.method}>
                 <td>{methodName(t, b.method)}</td>
                 <td data-testid={`cash-${b.method}`}>{wholeTenge(b.balanceMinor, cash.currency)}</td>
@@ -306,11 +308,7 @@ export function CashBoard({
                 label={kind === 'TRANSFER' ? t('Откуда') : t('Способ')}
                 value={method}
                 onChange={setMethod}
-                methods={
-                  kind === 'INCOME'
-                    ? accepted
-                    : branchMethodsAll(FOOD_PAYMENT_METHODS, accepted, nonZero)
-                }
+                methods={kind === 'INCOME' ? accepted : cashMethods}
               />
               {kind === 'TRANSFER' && <MethodSelect label={t('Куда')} value={methodTo} onChange={setMethodTo} methods={accepted} />}
               <Field label={t('Сумма, {currency}', { currency: currencySign(cash.currency) })}>
@@ -330,12 +328,7 @@ export function CashBoard({
             <h2 id="cash-check-title" className="panel__title">{t('Сверка кассы')}</h2>
             <p className="muted">{t('Пересчитайте деньги одного способа: WETOP покажет разницу с остатком.')}</p>
             <div className="food-form-row">
-              <MethodSelect
-                label={t('Способ')}
-                value={checkMethod}
-                onChange={setCheckMethod}
-                methods={branchMethodsAll(FOOD_PAYMENT_METHODS, accepted, nonZero)}
-              />
+              <MethodSelect label={t('Способ')} value={checkMethod} onChange={setCheckMethod} methods={cashMethods} />
               <Field label={t('Пересчитано, {currency}', { currency: currencySign(cash.currency) })}>
                 <Input inputMode="numeric" value={counted} onChange={(e) => setCounted(e.target.value.replace(/\D/g, ''))} />
               </Field>

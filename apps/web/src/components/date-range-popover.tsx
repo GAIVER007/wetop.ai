@@ -90,7 +90,7 @@ const compactIn = (from: string, to: string, locale: DeskLocale) =>
 const shortIn = (from: string, to: string, locale: DeskLocale) =>
   locale === 'ru' ? formatShortRange(from, to) : localeRange(from, to, locale, { day: 'numeric', month: 'short' });
 
-export type DateRangePreset = 'today' | '7' | '14' | '30' | 'month' | 'custom';
+export type DateRangePreset = 'today' | 'yesterday' | 'week' | 'month' | '7' | '14' | '30' | 'custom';
 
 export function presetRange(
   preset: DateRangePreset,
@@ -98,6 +98,14 @@ export function presetRange(
 ): { from: string; to: string } | null {
   const date = parseDate(today);
   if (!date || preset === 'custom') return null;
+  if (preset === 'yesterday') {
+    const yesterday = addDays(today, -1);
+    return { from: yesterday, to: yesterday };
+  }
+  if (preset === 'week') {
+    const monday = addDays(today, -((date.getUTCDay() + 6) % 7));
+    return { from: monday, to: addDays(monday, 6) };
+  }
   if (preset === 'month') {
     return {
       from: iso(monthStart(date)),
@@ -108,19 +116,22 @@ export function presetRange(
 }
 
 function activePreset(from: string, to: string, today: string): DateRangePreset {
-  for (const preset of ['today', '7', '14', '30', 'month'] as const) {
+  for (const preset of ['today', 'yesterday', 'week', 'month', '7', '14', '30'] as const) {
     const range = presetRange(preset, today);
     if (range?.from === from && range.to === to) return preset;
   }
   return 'custom';
 }
 
+// быстрые периоды одни во всех направлениях (владелец 25.10.2026): «Сегодня, Вчера, Эта неделя, Этот месяц» первыми
 const presets: { value: DateRangePreset; label: string }[] = [
   { value: 'today', label: msg('Сегодня') },
+  { value: 'yesterday', label: msg('Вчера') },
+  { value: 'week', label: msg('Эта неделя') },
+  { value: 'month', label: msg('Этот месяц') },
   { value: '7', label: msg('7 дней') },
   { value: '14', label: msg('14 дней') },
   { value: '30', label: msg('30 дней') },
-  { value: 'month', label: msg('Текущий месяц') },
   { value: 'custom', label: msg('Произвольный период') },
 ];
 
@@ -151,7 +162,7 @@ export function DateRangePopover({
    * переходит, без формы и «Применить»
    */
   onDay?: (date: string) => void;
-  /** быстрые дни слева в режиме дня («Сегодня», «Завтра», «Эта неделя») */
+  /** быстрые дни слева в режиме дня («Сегодня», «Вчера», «Эта неделя», «Этот месяц») */
   dayPresets?: Array<{ label: string; date?: string; onSelect?: () => void }>;
 }) {
   const t = useT();

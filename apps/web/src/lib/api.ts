@@ -3525,6 +3525,8 @@ export interface AuthMember {
 
 export interface AuthInvitePreview {
   organizationName: string;
+  /** Язык организации (ORG-LOCALE-20261026); старый API без поля: русский */
+  locale?: string;
   email: string;
   expiresAt: string;
   /** Только у принятия: ключ, по которому человек задаёт себе пароль. null — пароль у него уже есть. */
@@ -3666,13 +3668,16 @@ export interface BranchItem {
   _count: { inventoryUnits: number; accommodationTypes: number };
 }
 export const branchesApi = {
+  /** Язык организации (ORG-LOCALE-20261026): только владелец */
+  setLocale: (locale: string) =>
+    sendJson<{ locale: string }>('POST', '/branches/organization/locale', { locale }),
   overview: (from: string, to: string) =>
     getJson<{ rows: Array<{ branch: BranchItem; stats: import('@pms/domain').DashboardPeriod }> }>(
       `/branches/overview?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
     ),
   list: () =>
     getJson<{
-      organization: { id: string; name: string; status: string };
+      organization: { id: string; name: string; status: string; locale?: string };
       businesses?: BusinessCardView[];
       items: BranchItem[];
       canCreate: boolean;
@@ -5034,6 +5039,9 @@ export interface SharedOnboardingState {
   canEdit: boolean;
   /** Страна организации из регистрации (ISO 3166-1), если указана */
   organizationCountry?: string | null;
+  /** Язык организации и право его менять (ORG-LOCALE-20261026) */
+  organizationLocale?: string;
+  canEditLocale?: boolean;
   profileApplied?: boolean;
   storedFlowVersion?: number | null;
   completedFlowVersion?: number | null;
@@ -5280,7 +5288,8 @@ export interface BeautyInsights {
   period: { from: string; to: string };
   reviews: { count: number; avgTenths: number | null };
   customers: { total: number; new: number; repeat: number; lapsed: number };
-  employees: Array<{ employeeId: string; customers: number; returning: number; reviews: number; avgTenths: number | null }>;
+  /** `returnedToMaster`: были у этого мастера до периода; `ltvMinor`: средняя выручка мастера с одного его клиента за всё время */
+  employees: Array<{ employeeId: string; customers: number; returning: number; returnedToMaster?: number; ltvMinor?: string; reviews: number; avgTenths: number | null }>;
 }
 export async function branchBeautyInsights(
   branch: Pick<BranchItem, 'locationId' | 'location'>,

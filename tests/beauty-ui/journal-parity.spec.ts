@@ -23,7 +23,7 @@ test('салон: шапка журнала как у гостиницы', async
   const master = await call('/beauty/employees', { name: 'Тест Мастер' });
   await call(`/beauty/employees/${master.id}/services`, { serviceIds: [service.id] }, 'put');
   for (const [width, height] of [[1440, 1000], [1280, 800]] as const) {
-    for (const path of ['/calendar?date=2026-10-19', '/calendar?date=2026-10-19&view=week']) {
+    for (const path of ['/calendar?date=2026-10-19', '/calendar?date=2026-10-19&view=month']) {
       await page.setViewportSize({ width, height });
       await page.goto(path);
       await page.locator('.journal-head__filters').waitFor();

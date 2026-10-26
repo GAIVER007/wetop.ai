@@ -62,6 +62,7 @@ beforeEach(() => {
   repo.logins.length = 0;
   repo.invites.length = 0;
   repo.accounts = [ACCOUNT];
+  repo.userLocales.clear();
   sender.clear();
 });
 
@@ -309,4 +310,45 @@ it('сбой почты не выдаётся за отправленное пр
   } finally {
     send.mockRestore();
   }
+});
+
+/** Язык организации (ORG-LOCALE-20261026): салон на английском зовёт по-английски от письма до первого входа */
+describe('приглашение: язык организации', () => {
+  it('английская организация: письмо, страница по ссылке и язык нового человека английские', async () => {
+    repo.organizationLocales.set(ACCOUNT.organizationId, 'en');
+    try {
+      await (async () => {
+        const token = await login();
+        await request(app.getHttpServer())
+          .post('/auth/invites')
+          .set('Authorization', `Bearer ${token}`)
+          .send({ email: INVITEE, role: 'STAFF' })
+          .expect(201);
+      })();
+      const letter = sender.to(INVITEE).at(-1)!;
+      expect(letter.subject).toBe('Invitation to WETOP');
+      expect(letter.text).toContain('Role: administrator.');
+      const rawToken = linkFromLetter(INVITEE).split('/invite/')[1]!;
+      const seen = await request(app.getHttpServer()).get(`/auth/invites/${rawToken}`).expect(200);
+      expect(seen.body.locale).toBe('en');
+      const accepted = await request(app.getHttpServer())
+        .post(`/auth/invites/${rawToken}/accept`)
+        .expect(200);
+      expect(accepted.body.locale).toBe('en');
+      expect(repo.userLocales.get(INVITEE)).toBe('en');
+    } finally {
+      repo.organizationLocales.clear();
+    }
+  });
+
+  it('русская организация: письмо и страница как раньше, язык нового человека русский', async () => {
+    const token = await login();
+    await invite(token, INVITEE).expect(201);
+    expect(sender.to(INVITEE).at(-1)!.subject).toBe(mail.INVITE_SUBJECT);
+    const rawToken = linkFromLetter(INVITEE).split('/invite/')[1]!;
+    const seen = await request(app.getHttpServer()).get(`/auth/invites/${rawToken}`).expect(200);
+    expect(seen.body.locale).toBe('ru');
+    await request(app.getHttpServer()).post(`/auth/invites/${rawToken}/accept`).expect(200);
+    expect(repo.userLocales.get(INVITEE)).toBe('ru');
+  });
 });

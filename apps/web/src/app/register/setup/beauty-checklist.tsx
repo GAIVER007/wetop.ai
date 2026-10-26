@@ -7,8 +7,9 @@ import type { SharedOnboardingState } from '../../../lib/api';
 import { reloadOnboarding, saveOnboarding } from './actions';
 import { Icon, type IconName } from '../../../components/icon';
 import { setupCountLine, setupPath, type BookingPreview, type SetupPathRow } from './setup-path';
-import { msg } from '../../../i18n';
+import { LOCALE_NAMES, deskLocale, msg } from '../../../i18n';
 import { useLocale, useT } from '../../../i18n/locale-provider';
+import { OrganizationLocaleField } from '../../../components/organization-locale';
 
 const TITLES: Record<string, string> = {
   profile: msg('Основные сведения'),
@@ -248,6 +249,10 @@ export function BeautyChecklist({
       <p className="setup-help">
         {t('Название салона общее для всех филиалов. Пояс и валюта задаются страной.')}
       </p>
+      <OrganizationLocaleField
+        value={state.organizationLocale ?? 'ru'}
+        canEdit={Boolean(state.canEditLocale)}
+      />
       {state.canEdit && (
         <div className="onboarding__actions">
           <Button type="submit" disabled={pending}>
@@ -412,7 +417,8 @@ export function BeautyChecklist({
                   )}
                   {status === 'done' && row.id === 'profile' && (
                     <p className="setup-path__summary">
-                      {String(state.draft.businessName ?? '')}, {String(state.draft.currency ?? '')}
+                      {String(state.draft.businessName ?? '')}, {String(state.draft.currency ?? '')},{' '}
+                      {LOCALE_NAMES[deskLocale(state.organizationLocale)]}
                     </p>
                   )}
                   {(status === 'current' || welcome) && (

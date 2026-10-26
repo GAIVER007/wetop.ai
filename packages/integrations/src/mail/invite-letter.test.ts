@@ -47,3 +47,31 @@ describe('inviteLetter', () => {
     expect(daysWord(21)).toBe('день');
   });
 });
+
+/** Язык организации (ORG-LOCALE-20261026): салон в Катаре зовёт сотрудника письмом на английском */
+describe('inviteLetter: язык организации', () => {
+  const link = 'https://app.example.com/invite/abc';
+  it('английский: тема, текст, роль и срок по-английски, кириллицы нет', () => {
+    const letter = inviteLetter('admin@example.com', 'Lashes by Kyial salon', link, 7 * 86_400_000, 'STAFF', 'en');
+    expect(letter.subject).toBe('Invitation to WETOP');
+    expect(letter.text).toContain('You are invited to join "Lashes by Kyial salon" in WETOP.');
+    expect(letter.text).toContain('Role: administrator.');
+    expect(letter.text).toContain('valid for 7 days');
+    expect(letter.text).toContain('create your own password');
+    expect(letter.text).toContain(link);
+    expect(letter.text + letter.subject).not.toMatch(/[А-Яа-яЁё]/);
+  });
+  it('один день по-английски в единственном числе', () => {
+    expect(inviteLetter('a@example.com', 'X', link, 86_400_000, undefined, 'en').text).toContain('valid for 1 day ');
+  });
+  it('казахский: тема и роль по-казахски', () => {
+    const letter = inviteLetter('a@example.com', 'X', link, 7 * 86_400_000, 'MANAGER', 'kk');
+    expect(letter.subject).toBe('WETOP-қа шақыру');
+    expect(letter.text).toContain('Рөлі: басқарушы.');
+  });
+  it('без языка и для ru всё как раньше: роль кодом переводится в русское слово', () => {
+    const ru = inviteLetter('a@example.com', 'X', link, 7 * 86_400_000, 'STAFF', 'ru');
+    expect(ru.subject).toBe(INVITE_SUBJECT);
+    expect(ru.text).toContain('Роль: администратор.');
+  });
+});

@@ -102,7 +102,7 @@ export class BranchesService {
     const organizationId = this.organization();
     const organization = await this.prisma.db.organization.findUniqueOrThrow({
       where: { id: organizationId },
-      select: { id: true, name: true, status: true },
+      select: { id: true, name: true, status: true, locale: true },
     });
     const properties = await this.prisma.db.property.findMany({
       where: {
@@ -146,6 +146,40 @@ export class BranchesService {
     const items = all.filter((item) => visible.has(item.locationId) && permitted.has(item.locationId));
     // `personal`: «Личный кабинет», стойка сама выбирает его филиал и ведёт в «Мою работу» (`/scope/resolve`)
     return { organization, items, canCreate: currentRole() === 'OWNER', personal: currentRole() === 'EMPLOYEE' };
+  }
+  /**
+   * Язык организации (ORG-LOCALE-20261026): на нём уходят приглашения сотрудникам и открываются экраны приглашения и
+   * пароля, новый сотрудник входит с ним. Меняет только владелец, только `ru`, `kk`, `en`, с журналом «было/стало».
+   */
+  async setLocale(raw: unknown) {
+    const organizationId = this.organization();
+    if (currentRole() !== 'OWNER')
+      throw new ForbiddenException('Язык организации меняет владелец');
+    const locale = (raw as { locale?: unknown } | null)?.locale;
+    if (locale !== 'ru' && locale !== 'kk' && locale !== 'en')
+      throw new BadRequestException('Выберите язык из списка');
+    return this.prisma.db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT 1 FROM organizations WHERE id = ${organizationId}::uuid FOR UPDATE`;
+      const before = await tx.organization.findUniqueOrThrow({
+        where: { id: organizationId },
+        select: { locale: true },
+      });
+      if (before.locale !== locale) {
+        await tx.organization.update({ where: { id: organizationId }, data: { locale } });
+        await tx.auditLog.create({
+          data: {
+            organizationId,
+            userId: currentUserId(),
+            entityType: 'organization',
+            entityId: organizationId,
+            action: 'organization.locale.changed',
+            before: { locale: before.locale },
+            after: { locale },
+          },
+        });
+      }
+      return { locale };
+    });
   }
   async create(raw: unknown) {
     const organizationId = this.organization();
@@ -408,5 +442,9 @@ export class BranchesController {
   }
   @Access('owner') @Post() create(@Body() body: unknown) {
     return this.service.create(body);
+  }
+  /** Язык организации (ORG-LOCALE-20261026): только владелец */
+  @Access('owner') @Post('organization/locale') setLocale(@Body() body: unknown) {
+    return this.service.setLocale(body);
   }
 }

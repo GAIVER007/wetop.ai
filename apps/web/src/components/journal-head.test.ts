@@ -70,8 +70,8 @@ describe('единая шапка журнала: части и порядок',
       [/<DayNav/, /summary=\{\s*<(SummaryLine|p className="summary-line")/, /<JournalSearch/, /<EmployeeFilter/, /<JournalFilter[^>]*?label=(?:"Услуга"|\{t\('Услуга'\)\})/s, /<JournalFilter[^>]*?label=(?:"Статус записи"|\{t\('Статус записи'\)\})/s, /views=\{views\}/],
     ],
     [
-      'салон, неделя',
-      'app/beauty/week-calendar.tsx',
+      'салон, месяц',
+      'app/beauty/month-calendar.tsx',
       [/<DateRangePopover|<WeekNav/, /summary=\{\s*<(SummaryLine|p className="summary-line")/, /<JournalSearch/, /<EmployeeFilter/, /<JournalFilter[^>]*?label=(?:"Услуга"|\{t\('Услуга'\)\})/s, /<JournalFilter[^>]*?label=(?:"Статус записи"|\{t\('Статус записи'\)\})/s, /views=\{views\}/],
     ],
     [

@@ -193,13 +193,13 @@ for (const width of [1440, 390])
         expect(
           await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
         ).toBe(true);
-        const input = page.getByLabel('Период: с', { exact: true });
-        await input.focus();
-        await expect(input).toBeFocused();
-        const end = page.getByLabel('Период: по', { exact: true });
-        for (let i = 0; i < 10 && !(await end.evaluate((el) => el === document.activeElement)); i++)
-          await page.keyboard.press('Tab');
-        await expect(end).toBeFocused();
+        // период только месяцем (владелец 26.10.2026): с клавиатуры до стрелки «прошлый месяц», Enter ведёт в него
+        const prev = page.getByRole('main').getByTestId('analytics-month-prev');
+        await prev.focus();
+        await expect(prev).toBeFocused();
+        const box = await prev.boundingBox();
+        expect(box!.height).toBeGreaterThanOrEqual(44);
+        expect(box!.width).toBeGreaterThanOrEqual(44);
         await page.screenshot({
           path: `reports/mv9-analytics-finance-2026-10-07/screenshots/${vertical}-${width}-${theme}.png`,
           fullPage: true,

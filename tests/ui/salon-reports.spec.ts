@@ -158,7 +158,7 @@ test('salon analytics owner dashboard: four key figures and what-to-do in the fi
 }, info) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await setup(page, request);
-  await page.goto(`/management/analytics?from=${date}&to=${date}`);
+  await page.goto(`/management/analytics?month=${date.slice(0, 7)}`);
   const main = page.getByRole('main');
   await expect(main.getByTestId('vertical-analytics')).toBeVisible();
   await expect(main.getByTestId('period-DONE')).toHaveText('1');
@@ -167,8 +167,11 @@ test('salon analytics owner dashboard: four key figures and what-to-do in the fi
     await expect(main.getByTestId(`pa-kpi-${id}`)).toBeInViewport();
   await expect(main.getByTestId('pult-insights')).toBeInViewport();
   await page.screenshot({ path: info.outputPath('salon-analytics-pult.png'), fullPage: true });
-  await main.getByRole('link', { name: 'Вчера', exact: true }).click();
-  await expect(page).toHaveURL(/from=\d{4}-\d{2}-\d{2}&to=\d{4}-\d{2}-\d{2}/);
+  // период только месяцем (владелец 26.10.2026): полей дат и «Вчера» нет, стрелка ведёт в прошлый месяц
+  await expect(main.getByRole('link', { name: 'Вчера', exact: true })).toHaveCount(0);
+  await expect(main.getByTestId('analytics-month-label')).toBeVisible();
+  await main.getByTestId('analytics-month-prev').click();
+  await expect(page).toHaveURL(/month=\d{4}-\d{2}/);
   await main.getByRole('link', { name: 'Все филиалы', exact: true }).click();
   await expect(page).toHaveURL(/scope=organization/);
 });

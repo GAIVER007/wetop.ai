@@ -6966,6 +6966,7 @@ createServer(async (req, res) => {
     // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.
     const invitePreview = {
       organizationName: 'Хостел «Пример»',
+      locale: 'ru',
       email: 'novyj@example.com',
       expiresAt: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
     };
@@ -7173,7 +7174,12 @@ createServer(async (req, res) => {
     }
     const inviteMatch = /^\/auth\/invites\/([^/]+)(\/accept)?$/.exec(path);
     if (inviteMatch) {
-      if (inviteMatch[1] !== 'fixture-invite-token')
+      // ORG-LOCALE-20261026: вымышленный салон на английском, ссылка второго ключа
+      const english = inviteMatch[1] === 'fixture-invite-token-en';
+      const shown = english
+        ? { ...invitePreview, organizationName: 'Pearl Beauty Studio', locale: 'en', email: 'admin@example.com' }
+        : invitePreview;
+      if (inviteMatch[1] !== 'fixture-invite-token' && !english)
         return send(404, {
           message: 'Приглашение не найдено, уже принято или его срок истёк.',
         });
@@ -7182,9 +7188,9 @@ createServer(async (req, res) => {
       if (inviteMatch[2]) {
         const token = 'fixture-set-password-token';
         uiResetTokens.set(token, { used: false, expired: false });
-        return send(200, { ...invitePreview, setPasswordToken: token });
+        return send(200, { ...shown, setPasswordToken: token });
       }
-      return send(200, invitePreview);
+      return send(200, shown);
     }
     if (path === '/auth/registration-context') {
       const token = sessionOf(req as never);
@@ -7802,6 +7808,24 @@ createServer(async (req, res) => {
           return send(200, { items: found.slice(0, 20) });
         }
         return send(200, { items });
+      }
+      // месяц журнала (26.10.2026): записи периода одним запросом, как `beauty/appointments.ts` period()
+      if (path === '/beauty/appointments/period' && req.method === 'GET') {
+        const from = url.searchParams.get('from') ?? '';
+        const to = url.searchParams.get('to') ?? '';
+        const days: string[] = [];
+        for (let d = from; d && d <= to; ) {
+          days.push(d);
+          const at = new Date(`${d}T12:00:00Z`);
+          at.setUTCDate(at.getUTCDate() + 1);
+          d = at.toISOString().slice(0, 10);
+        }
+        const views = days.map((d) => dayView(d));
+        return send(200, {
+          location: views[0]?.location,
+          period: { from, to },
+          appointments: views.flatMap((v) => v.appointments.map((a) => ({ ...a, localDate: v.date }))),
+        });
       }
       if (path === '/beauty/appointments' && req.method === 'GET')
         // без даты день филиала «сегодня» в его поясе, как у настоящего API (`beauty/appointments.ts`, todayIn)

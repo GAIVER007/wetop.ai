@@ -2,6 +2,13 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { GET, POST } from '../app/auth/fallback/route';
 import { authApi } from './api';
 
+const lang = vi.hoisted(() => ({ value: undefined as string | undefined }));
+vi.mock('next/headers', () => ({
+  cookies: async () => ({
+    get: (name: string) => (name === 'wetop_locale' && lang.value ? { name, value: lang.value } : undefined),
+  }),
+}));
+
 afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllEnvs();
@@ -65,4 +72,18 @@ it('ограничивает тело до отправки в API', async () =>
   const response = await POST(request('https://app.wetop.ai', { password: 'x'.repeat(17000) }));
   expect(response.status).toBe(413);
   expect(login).not.toHaveBeenCalled();
+});
+
+/** ORG-LOCALE-20261026: после пароля из приглашения человек входит здесь, на своём языке */
+it('английский вход после сохранения пароля: всё по-английски и сказано, что пароль сохранён', async () => {
+  lang.value = 'en';
+  try {
+    const html = await (await GET(new Request('https://app.wetop.ai/auth/fallback?password=set'))).text();
+    expect(html).toContain('lang="en"');
+    expect(html).toContain('Password saved. Sign in with your new password.');
+    expect(html).toContain('Sign in to WETOP');
+    expect(html.replace(/<style>[\s\S]*?<\/style>/, '')).not.toMatch(/[А-Яа-яЁё]/);
+  } finally {
+    lang.value = undefined;
+  }
 });

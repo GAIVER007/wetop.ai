@@ -32,18 +32,62 @@ export function daysWord(n: number): string {
   }
 }
 
+/** Язык письма: язык организации (ORG-LOCALE-20261026). Без него письмо русское, как раньше */
+export type InviteLetterLocale = 'ru' | 'kk' | 'en';
+
+/** Роль кодом базы или готовым словом стойки (до 26.10.2026 сервис передавал слово) */
+const ROLE_WORDS: Record<InviteLetterLocale, Record<string, string>> = {
+  ru: { MANAGER: 'управляющий', STAFF: 'администратор', EMPLOYEE: 'личный кабинет' },
+  kk: { MANAGER: 'басқарушы', STAFF: 'әкімші', EMPLOYEE: 'жеке кабинет' },
+  en: { MANAGER: 'manager', STAFF: 'administrator', EMPLOYEE: 'personal account' },
+};
+
 export function inviteLetter(
   to: string,
   organizationName: string,
   link: string,
   ttlMs: number,
-  /** Роль словами стойки: «управляющий», «администратор» */
+  /** Роль: код (`STAFF`, `MANAGER`, `EMPLOYEE`) или слово стойки («управляющий») */
   role?: string,
+  locale: InviteLetterLocale = 'ru',
 ): MailMessage {
   const d = Math.max(1, Math.round(ttlMs / 86_400_000));
+  const roleWord = role ? (ROLE_WORDS[locale][role] ?? role) : undefined;
+  if (locale === 'en') {
+    const text = [
+      `You are invited to join "${organizationName}" in WETOP.`,
+      ...(roleWord ? [`Role: ${roleWord}.`] : []),
+      '',
+      'To accept the invitation, open this link:',
+      link,
+      '',
+      `The link is valid for ${d} ${d === 1 ? 'day' : 'days'} and works once. After accepting, you will create your own password to sign in.`,
+      '',
+      'If you did not expect this invitation, do not open the link and simply ignore this email.',
+      '',
+      'WETOP',
+    ].join('\n');
+    return { to, subject: 'Invitation to WETOP', text };
+  }
+  if (locale === 'kk') {
+    const text = [
+      `Сізді WETOP жүйесіндегі «${organizationName}» ұйымына шақырады.`,
+      ...(roleWord ? [`Рөлі: ${roleWord}.`] : []),
+      '',
+      'Шақыруды қабылдау үшін сілтемені ашыңыз:',
+      link,
+      '',
+      `Сілтеме ${d} күн жарамды және бір рет қана жұмыс істейді. Қабылдағаннан кейін кіру үшін өз құпиясөзіңізді ойлап табасыз.`,
+      '',
+      'Егер шақыруды күтпеген болсаңыз, сілтемені ашпаңыз және бұл хатқа жауап бермеңіз.',
+      '',
+      'WETOP',
+    ].join('\n');
+    return { to, subject: 'WETOP-қа шақыру', text };
+  }
   const text = [
     `Вас приглашают в организацию «${organizationName}» в WETOP.`,
-    ...(role ? [`Роль: ${role}.`] : []),
+    ...(roleWord ? [`Роль: ${roleWord}.`] : []),
     '',
     'Чтобы принять приглашение, откройте ссылку:',
     link,

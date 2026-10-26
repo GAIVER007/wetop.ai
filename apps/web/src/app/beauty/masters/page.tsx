@@ -63,7 +63,7 @@ export default async function BeautyMastersPage({
   );
   if (!loaded.ok)
     return (
-      <Page title={t('Специалисты')}>
+      <Page title={t('Сотрудники')}>
         <LoadError testId="beauty-masters-error" {...loadErrorProps(loaded.error)} />
       </Page>
     );
@@ -82,7 +82,7 @@ export default async function BeautyMastersPage({
   const page = (
     <Page
       className="beauty-page"
-      title={t('Специалисты')}
+      title={t('Сотрудники')}
       subtitle={t('Специалист работает в сети: его можно поставить в несколько филиалов.')}
       // кнопка добавления в шапке, как «Пригласить сотрудника» на /team (аудит 21.10.2026, п. 37)
       actions={

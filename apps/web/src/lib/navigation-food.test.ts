@@ -12,7 +12,7 @@ describe('Food workspace isolation', () => {
       ['Главная', ['/today']],
       // журнал ресторана это живой план зала; брони столов это «Записи» клиентов
       ['Журнал', ['/floor-plan']],
-      ['Персонал', ['/employees', '/team', '/employees/shifts', '/payroll']],
+      ['Персонал', ['/employees', '/employees/shifts', '/payroll']],
       ['Клиенты', ['/customers', '/table-reservations']],
       ['Услуги', ['/menu', '/orders', '/waiter', '/kitchen', '/drinks', '/dining-areas']],
       // `/reports` ресторану ведёт в «Аналитику бизнеса» с тем же периодом (аудит 17.10.2026 Д2, вертикали 22.10.2026 п.5)

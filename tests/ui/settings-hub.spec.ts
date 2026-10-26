@@ -82,7 +82,7 @@ test('салон: те же карточки, свои экраны салона
   await expect(page.getByRole('heading', { level: 1, name: 'Настройки салона' })).toBeVisible({ timeout: 60_000 });
   await expect(hub.getByRole('heading', { level: 2 })).toHaveText(['Основные', 'Журнал', 'Клиенты и продажи', 'Система']);
   const card = (title: string) => hub.getByRole('region', { name: title, exact: true });
-  await expect(card('Журнал').getByRole('link')).toHaveText(['Специалисты', 'График работы', 'Каталог услуг']);
+  await expect(card('Журнал').getByRole('link')).toHaveText(['Сотрудники', 'График работы', 'Каталог услуг']);
   await expect(card('Клиенты и продажи').getByRole('link', { name: 'Бонусы', exact: true })).toHaveAttribute('href', '/beauty-settings#bonuses');
   // гостиничных экранов у салона нет
   await expect(hub.getByRole('link', { name: 'Каналы продаж', exact: true })).toHaveCount(0);

@@ -103,7 +103,8 @@ describe('Beauty position access in the web shell', () => {
     const owner = assigned([], { role: 'OWNER', assigned: false });
     expect(beautyPageOpen(owner, '/customers')).toBe(true);
     expect(beautyPageOpen(owner, '/finance')).toBe(true);
-    expect(hrefs(owner)).toContain('/team');
+    // люди салона одним пунктом /employees, /team открывается, но в меню своего пункта нет (25.10.2026)
+    expect(hrefs(owner)).toContain('/employees');
 
     const legacyProjection: BeautyPositionAccess = { mode: 'LEGACY', assigned: false, permissions: [] };
     const oldManager: NavigationAccess = { aiSeller: false, platform: false, role: 'MANAGER' };
@@ -123,7 +124,7 @@ describe('Beauty position access in the web shell', () => {
 
     expect(beautyPageOpen(manager, '/team')).toBe(true);
     expect(beautyPageOpen(manager, '/team/roles')).toBe(true);
-    expect(hrefs(manager)).toContain('/team');
+    expect(hrefs(manager)).toContain('/employees');
     for (const access of [staff, own]) {
       expect(beautyPageOpen(access, '/team')).toBe(false);
       expect(beautyPageOpen(access, '/team/roles')).toBe(false);

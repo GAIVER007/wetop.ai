@@ -1017,10 +1017,6 @@
         "items": [
           {
             "href": "/employees",
-            "label": "Специалисты"
-          },
-          {
-            "href": "/team",
             "label": "Сотрудники"
           },
           {
@@ -1182,10 +1178,6 @@
         "items": [
           {
             "href": "/employees",
-            "label": "Специалисты"
-          },
-          {
-            "href": "/team",
             "label": "Сотрудники"
           },
           {
@@ -1343,7 +1335,7 @@
         "items": [
           {
             "href": "/employees",
-            "label": "Специалисты"
+            "label": "Сотрудники"
           },
           {
             "href": "/beauty/schedule",
@@ -1479,10 +1471,6 @@
         "items": [
           {
             "href": "/employees",
-            "label": "Специалисты"
-          },
-          {
-            "href": "/team",
             "label": "Сотрудники"
           },
           {
@@ -1686,7 +1674,7 @@
         "items": [
           {
             "href": "/employees",
-            "label": "Специалисты"
+            "label": "Сотрудники"
           },
           {
             "href": "/beauty/schedule",
@@ -1842,10 +1830,6 @@
           {
             "href": "/employees",
             "label": "Сотрудники"
-          },
-          {
-            "href": "/team",
-            "label": "Доступ и роли"
           },
           {
             "href": "/employees/shifts",
@@ -2053,10 +2037,6 @@
           {
             "href": "/employees",
             "label": "Сотрудники"
-          },
-          {
-            "href": "/team",
-            "label": "Доступ и роли"
           },
           {
             "href": "/employees/shifts",
@@ -2447,10 +2427,6 @@
           {
             "href": "/employees",
             "label": "Сотрудники"
-          },
-          {
-            "href": "/team",
-            "label": "Доступ и роли"
           },
           {
             "href": "/employees/shifts",

@@ -52,23 +52,16 @@ test('настройки: напоминания с предпросмотром
   expect(saved).toMatchObject({ enabled: true, accrualPercent: 7 });
 });
 
-test('журнал: «Напомнить сегодня» со ссылкой WhatsApp и отметкой «Напомнил»', async ({ page, request }) => {
+test('журнал без блока «Напомнить сегодня» (владелец 26.10.2026: «убери, не о чём»)', async ({ page, request }) => {
   await openSalon(page, request);
   const inTwoHours = new Date(Date.now() + 2 * 3_600_000).toISOString();
   await request.post(`${FIXTURE_API}/__test/salon-loyalty`, {
-    data: { reminders: [{ customerName: 'Айгуль', customerPhone: '+7 701 000 00 00', startsAt: inTwoHours }, { customerName: 'Сауле', customerPhone: null, startsAt: inTwoHours }] },
+    data: { reminders: [{ customerName: 'Айгуль', customerPhone: '+7 701 000 00 00', startsAt: inTwoHours }] },
   });
   await page.goto('/calendar');
-  const block = page.getByTestId('reminders-today');
-  await expect(block.getByRole('heading', { name: 'Напомнить сегодня (2)' })).toBeVisible({ timeout: 60_000 });
-  const aigul = block.getByTestId('reminder-row').filter({ hasText: 'Айгуль' });
-  const link = aigul.getByRole('link', { name: 'Написать в WhatsApp' });
-  await expect(link).toHaveAttribute('href', /^https:\/\/wa\.me\/77010000000\?text=/);
-  await expect(link).toHaveAttribute('target', '_blank');
-  await expect(block.getByTestId('reminder-row').filter({ hasText: 'Сауле' })).toContainText('Нет телефона');
-  await page.screenshot({ path: `${SHOTS}/journal-reminders.png` });
-  await aigul.getByRole('button', { name: 'Напомнил' }).click();
-  await expect(block.getByRole('heading', { name: 'Напомнить сегодня (1)' })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId('reminders-today')).toHaveCount(0);
+  await expect(page.getByText(/Напомнить сегодня/)).toHaveCount(0);
 });
 
 test('финансы: продажа сертификата в окне по центру и проверка остатка по коду', async ({ page, request }) => {

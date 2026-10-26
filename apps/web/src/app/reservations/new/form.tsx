@@ -22,7 +22,7 @@ import { CHANNELS, SOURCES } from '../sources';
 import { summarize } from './summary';
 import { isStayDate } from '../../../lib/stay-date';
 import { phoneFieldValue, phoneOnInput } from '../../../lib/phone';
-import { BookingShell, PickButton, PickGroup, PickHeading } from '../../../components/booking-shell';
+import { BookingShell, PickHeading } from '../../../components/booking-shell';
 import { roomChoices, type Housekeeping } from './room-choices';
 
 const NIGHTS: [string, string, string] = [msg('ночь'), 'ночи', msg('ночей')]; // kk-allow: форма склонения
@@ -42,6 +42,8 @@ export function NewReservationForm(props: {
     name: string;
     capacityAdults: number;
     availableUnitCodes: string[];
+    /** все действующие места категории для карты фонда справа */
+    unitCodes?: string[];
   }>;
   ratePlans: Array<{ code: string; name: string; currency: string }>;
   /** ADR-072: `pseudonymized` — база не в Казахстане, имя и контакты гостя форма не спрашивает */
@@ -234,59 +236,99 @@ export function NewReservationForm(props: {
         </p>
       )}
       {!group && validDates && (
-        <div className="booking-rooms" data-testid="room-picker">
-          {choices.map((c) => (
-            <PickGroup
-              key={c.code}
-              testId="room-group"
-              title={c.name}
-              selected={c.code === chosenCategory}
-              facts={
-                checking || !fresh
-                  ? t('проверяем…')
-                  : t('свободно {n}, {why}', { n: c.free, why: c.why })
-              }
-              unavailable={
-                !c.fits ? c.why : fresh && !checking && c.free === 0 ? t('нет свободных') : undefined
-              }
-            >
-              {c.units.map((u) => (
-                <PickButton
-                  key={u.code}
-                  selected={c.code === chosenCategory && u.code === chosenUnit}
-                  mark={u.dirty}
-                  label={u.dirty ? t('Номер {unit}, ещё не убран', { unit: u.code }) : t('Номер {unit}', { unit: u.code })}
-                  disabled={!props.canMutate || pending}
-                  onClick={() =>
-                    setPickRequest((r) => ({ category: c.code, unit: u.code, n: (r?.n ?? 0) + 1 }))
-                  }
-                >
-                  {u.code}
-                </PickButton>
-              ))}
-              {c.units.length > 0 && (
-                <PickButton
-                  wide
-                  selected={c.code === chosenCategory && chosenUnit === ''}
-                  label={t('{category}: назначить номер позже', { category: c.name })}
-                  disabled={!props.canMutate || pending}
-                  onClick={() =>
-                    setPickRequest((r) => ({ category: c.code, unit: '', n: (r?.n ?? 0) + 1 }))
-                  }
-                >
-                  {t('Назначить позже')}
-                </PickButton>
-              )}
-            </PickGroup>
-          ))}
-          {anyDirty && (
-            <p className="booking-pick__legend">
+        <div className="booking-map" data-testid="room-picker">
+          {choices.map((c) => {
+            const busy = !c.fits || (fresh && !checking && c.free === 0);
+            return (
+              <div
+                key={c.code}
+                className="booking-map__row"
+                data-testid="room-group"
+                data-selected={c.code === chosenCategory || undefined}
+                data-unavailable={busy || undefined}
+              >
+                <div className="booking-map__name">
+                  <b>{c.name}</b>
+                  <small>
+                    {checking || !fresh
+                      ? t('проверяем…')
+                      : !c.fits
+                        ? c.why
+                        : t('свободно {n} из {all}', { n: c.free, all: c.cells.length })}
+                  </small>
+                </div>
+                <div className="booking-map__cells">
+                  {c.cells.map((u) => {
+                    const free = u.free && c.fits && fresh && !checking;
+                    return (
+                      <button
+                        key={u.code}
+                        type="button"
+                        className="booking-map__cell"
+                        data-mark={(free && u.dirty) || undefined}
+                        aria-pressed={c.code === chosenCategory && u.code === chosenUnit}
+                        aria-label={
+                          !free
+                            ? t('Номер {unit}, занят', { unit: u.code })
+                            : u.dirty
+                              ? t('Номер {unit}, ещё не убран', { unit: u.code })
+                              : t('Номер {unit}', { unit: u.code })
+                        }
+                        title={
+                          !free
+                            ? t('Номер {unit}, занят', { unit: u.code })
+                            : u.dirty
+                              ? t('Номер {unit}, ещё не убран', { unit: u.code })
+                              : t('Номер {unit}', { unit: u.code })
+                        }
+                        disabled={!free || !props.canMutate || pending}
+                        onClick={() =>
+                          setPickRequest((r) => ({ category: c.code, unit: u.code, n: (r?.n ?? 0) + 1 }))
+                        }
+                      >
+                        {u.code}
+                      </button>
+                    );
+                  })}
+                  {c.units.length > 0 && c.fits && (
+                    <button
+                      type="button"
+                      className="booking-map__cell booking-map__later"
+                      aria-pressed={c.code === chosenCategory && chosenUnit === ''}
+                      aria-label={t('{category}: назначить номер позже', { category: c.name })}
+                      title={t('{category}: назначить номер позже', { category: c.name })}
+                      disabled={!props.canMutate || pending}
+                      onClick={() =>
+                        setPickRequest((r) => ({ category: c.code, unit: '', n: (r?.n ?? 0) + 1 }))
+                      }
+                    >
+                      {t('позже')}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          <p className="booking-pick__legend">
+            <span>
+              <span className="booking-map__key" aria-hidden="true" />
+              {t('свободно')}
+            </span>
+            <span>
+              <span className="booking-map__key booking-map__key--busy" aria-hidden="true" />
+              {t('занято')}
+            </span>
+            <span>
+              <span className="booking-map__key booking-map__key--picked" aria-hidden="true" />
+              {t('выбрано')}
+            </span>
+            {anyDirty && (
               <span>
                 <span className="booking-pick__dot" aria-hidden="true" />
-                {t('номер ещё не убран: выбрать можно, при заселении WETOP напомнит')}
+                {t('ещё не убран')}
               </span>
-            </p>
-          )}
+            )}
+          </p>
         </div>
       )}
       <PriceByNight state={quote} />
@@ -294,6 +336,50 @@ export function NewReservationForm(props: {
   );
   const form = (
     <>
+      {(picked || props.piiStorage === 'real') && (
+        <h2 className="booking-create__guest-title sr-only">{t('Гость')}</h2>
+      )}
+      {picked ? (
+        <PickedGuest
+          guest={picked}
+          onChange={() => {
+            // поля нового гостя появятся пустыми — подсказка по прежнему телефону не нужна
+            setPhone('');
+            setPicked(null);
+            // гость из карточки пришёл адресом: без `guest` обновление страницы не вернёт его.
+            // Переход здесь не нужен — перехват открыл бы вторую форму панелью поверх этой
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('guest')) {
+              url.searchParams.delete('guest');
+              window.history.replaceState(null, '', `${url.pathname}${url.search}`);
+            }
+          }}
+        />
+      ) : props.piiStorage === 'real' ? (
+        <>
+          {/* порядок владельца 23.10.2026: сначала имя, затем телефон; отчество и почта в «Дополнительно» */}
+          <div className="booking-guest-fields">
+            <Field label={t('Имя *')}>
+              <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
+            </Field>
+            <Field label={t('Фамилия *')}>
+              <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
+            </Field>
+            <Field label={t('Телефон')} className="booking-guest-fields__phone">
+              <Input
+                type="tel"
+                name="phone"
+                inputMode="tel"
+                placeholder="+7 701 000 00 00"
+                defaultValue={phoneFieldValue(kept['phone'])}
+                onInput={phoneOnInput}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </Field>
+          </div>
+          <GuestMatches phone={phone} onPick={setPicked} />
+        </>
+      ) : null}
       <section className="booking-create__dates" aria-label={t('Даты проживания')}>
         <div className="booking-create__date-fields">
           <Field label={t('Заезд')}>
@@ -400,6 +486,7 @@ export function NewReservationForm(props: {
             ratePlans={props.ratePlans}
             initial={props.prefill[Number(id)]}
             request={id === '0' ? pickRequest : null}
+            single={placementIds.length === 1}
           />
           {id !== '0' && (
             <Button
@@ -413,50 +500,6 @@ export function NewReservationForm(props: {
           )}
         </fieldset>
       ))}
-      {(picked || props.piiStorage === 'real') && (
-        <h2 className="booking-create__guest-title">{t('Гость')}</h2>
-      )}
-      {picked ? (
-        <PickedGuest
-          guest={picked}
-          onChange={() => {
-            // поля нового гостя появятся пустыми — подсказка по прежнему телефону не нужна
-            setPhone('');
-            setPicked(null);
-            // гость из карточки пришёл адресом: без `guest` обновление страницы не вернёт его.
-            // Переход здесь не нужен — перехват открыл бы вторую форму панелью поверх этой
-            const url = new URL(window.location.href);
-            if (url.searchParams.has('guest')) {
-              url.searchParams.delete('guest');
-              window.history.replaceState(null, '', `${url.pathname}${url.search}`);
-            }
-          }}
-        />
-      ) : props.piiStorage === 'real' ? (
-        <>
-          {/* порядок владельца 23.10.2026: сначала имя, затем телефон; отчество и почта в «Дополнительно» */}
-          <div className="booking-guest-fields">
-            <Field label={t('Имя *')}>
-              <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
-            </Field>
-            <Field label={t('Фамилия *')}>
-              <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
-            </Field>
-            <Field label={t('Телефон')} className="booking-guest-fields__phone">
-              <Input
-                type="tel"
-                name="phone"
-                inputMode="tel"
-                placeholder="+7 701 000 00 00"
-                defaultValue={phoneFieldValue(kept['phone'])}
-                onInput={phoneOnInput}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </Field>
-          </div>
-          <GuestMatches phone={phone} onPick={setPicked} />
-        </>
-      ) : null}
       <details className="booking-create__extras">
         <summary>{t('Дополнительно')}</summary>
         <div className="booking-create__extra-fields">
@@ -757,7 +800,10 @@ function PlacementFields({
   ratePlans,
   initial,
   request = null,
+  single = false,
 }: {
+  /** одно размещение: категорию и номер выбирают на карте фонда справа, поля остаются для отправки и читалки */
+  single?: boolean;
   id: string;
   kept: Record<string, string>;
   categories: Array<{
@@ -805,7 +851,7 @@ function PlacementFields({
   );
   return (
     <Grid>
-      <Field label={t('Категория *')}>
+      <Field label={t('Категория *')} className={single && !group ? 'sr-only' : undefined}>
         <Select
           name={field('accommodationTypeCode')}
           value={category}
@@ -829,7 +875,7 @@ function PlacementFields({
           {t('; всего {guests}', { guests: countLabel(locale, t, Number(quantity) * adults, GUESTS) })}
         </div>
       ) : (
-        <Field label={t('Номер / койка')}>
+        <Field label={t('Номер / койка')} className={single ? 'sr-only' : undefined}>
           <Select
             name={field('unitCode')}
             value={chosenUnit}

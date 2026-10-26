@@ -75,9 +75,11 @@ export default async function NewReservationPage({
     // уборка номеров для точки «ещё не убран» справа (решение 23.10.2026); без ответа точек просто нет
     api.inventoryUnits().catch(() => []),
   ]);
-  const housekeeping = Object.fromEntries(
-    (Array.isArray(units) ? units : []).map((u) => [u.code, u.housekeepingStatus]),
-  );
+  const unitList = Array.isArray(units) ? units : [];
+  const housekeeping = Object.fromEntries(unitList.map((u) => [u.code, u.housekeepingStatus]));
+  // карта фонда справа (решение 26.10.2026): все действующие места категории, занятые серые
+  const unitCodesOf = (category: string) =>
+    unitList.filter((u) => u.accommodationTypeCode === category && u.active !== false).map((u) => u.code);
   const guest: BookingGuest | null = found && {
     id: found.id,
     name: [found.lastName, found.firstName, found.middleName].filter(Boolean).join(' '),
@@ -133,6 +135,7 @@ export default async function NewReservationPage({
             name: c.name,
             capacityAdults: c.capacityAdults,
             availableUnitCodes: availability?.byCategory[c.code]?.availableUnitCodes ?? [],
+            unitCodes: unitCodesOf(c.code),
           }))}
           ratePlans={ratePlans}
           piiStorage={piiStorage}

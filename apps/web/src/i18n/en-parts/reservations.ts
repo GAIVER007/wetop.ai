@@ -446,4 +446,10 @@ export const reservations: Record<string, string> = {
   'требует уборки': 'needs cleaning',
   'убрано, ждёт проверки': 'cleaned, awaiting inspection',
   'проверено, доступна': 'inspected, available',
+  // карта фонда в окне брони (26.10.2026)
+  'свободно {n} из {all}': 'free {n} of {all}',
+  'Номер {unit}, занят': 'Room {unit}, occupied',
+  'позже': 'later',
+  'ещё не убран': 'not cleaned yet',
+  'выбрано': 'selected',
 };

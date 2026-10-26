@@ -314,4 +314,11 @@
       padding: 0;
     }
   }
+  /* одно размещение (26.10.2026): категория и номер выбираются на карте фонда справа, слева гостей, тариф и мест */
+  .booking-create .placement-fields.is-single .grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  }
+  .booking-create .placement-fields.is-single .grid-auto > * {
+    grid-column: auto;
+  }
 }

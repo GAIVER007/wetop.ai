@@ -5,7 +5,6 @@ import {
   type ResolvedPeriod,
 } from '@pms/domain';
 import { msg } from '../../../i18n';
-import { analyticsMonth } from './vertical/month';
 
 export const ANALYTICS_PATH = '/management/analytics';
 
@@ -119,11 +118,6 @@ export function parseAnalyticsQuery(
     ...(category ? { category } : {}),
     ...(granularity ? { granularity } : {}),
   };
-  // месяц (владелец 26.10.2026): «Аналитика» выбирает только месяц; текущий до сегодня, прошлые целиком
-  if (sp.month !== undefined && !sp.period && !sp.from && !sp.to) {
-    const m = analyticsMonth({ month: sp.month }, today);
-    return { ...base, period: { preset: 'custom', from: m.from, to: m.to } };
-  }
   const legacyDate = !sp.period && !sp.from && !sp.to && sp.date !== undefined;
   if (legacyDate && !isDate(sp.date!))
     return {
@@ -143,14 +137,4 @@ export function parseAnalyticsQuery(
   // сегодняшний день своим периодом — это «Сегодня»: подсвечен отрезок, адрес короче
   const todayOnly = period.preset === 'custom' && period.from === today && period.to === today;
   return { ...base, period: todayOnly ? { preset: 'today', from: today, to: today } : period };
-}
-
-/** Адрес месяца вкладки (владелец 26.10.2026): `?month=`, фонд и сравнение сохраняются, умолчания не пишутся */
-export function analyticsMonthHref(q: AnalyticsQuery, month: string): string {
-  const sp = new URLSearchParams({ month });
-  if (q.fund !== 'all') sp.set('fund', q.fund);
-  if (!q.compare) sp.set('compare', '0');
-  if (q.category) sp.set('category', q.category);
-  const path = q.basePath ? `${q.basePath}/${q.tab === 'overview' ? 'overview' : q.tab}` : TAB_PATH[q.tab];
-  return `${path}?${sp}`;
 }

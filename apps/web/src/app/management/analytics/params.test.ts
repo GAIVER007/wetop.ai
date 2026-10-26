@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { analyticsHref, analyticsMonthHref, dayPeriod, parseAnalyticsQuery } from './params';
+import { analyticsHref, dayPeriod, parseAnalyticsQuery } from './params';
 
 /** Адрес «Обзора» (ADR-114): по умолчанию этот месяц, весь фонд, сравнение включено — в адрес не пишутся */
 describe('адрес «Аналитики → Обзор»', () => {
@@ -126,19 +126,5 @@ describe('категория и детализация в адресе отчё�
   it('сброс: patch с undefined убирает значение из адреса', () => {
     const q = parseAnalyticsQuery({ category: 'LUX' }, today, 'overview', '/reports');
     expect(analyticsHref(q, { category: undefined })).toBe('/reports/overview');
-  });
-});
-
-/** Гостиница: «Обзор» и «По номерам» только месяцем (владелец 26.10.2026, как у салона и ресторана) */
-describe('месяц в адресе гостиничной аналитики', () => {
-  const today = '2026-10-26';
-  it('?month= прошлого месяца даёт месяц целиком, текущего до сегодня', () => {
-    expect(parseAnalyticsQuery({ month: '2026-09' }, today).period).toMatchObject({ preset: 'custom', from: '2026-09-01', to: '2026-09-30' });
-    expect(parseAnalyticsQuery({ month: '2026-10' }, today).period).toMatchObject({ from: '2026-10-01', to: '2026-10-26' });
-  });
-  it('адрес месяца хранит фонд и сравнение, умолчания не пишет', () => {
-    const q = parseAnalyticsQuery({ fund: 'beds', compare: '0' }, today);
-    expect(analyticsMonthHref(q, '2026-09')).toBe('/management/analytics?month=2026-09&fund=beds&compare=0');
-    expect(analyticsMonthHref(parseAnalyticsQuery({}, today, 'units'), '2026-08')).toBe('/management/analytics/units?month=2026-08');
   });
 });

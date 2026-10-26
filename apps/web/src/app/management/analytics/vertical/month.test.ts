@@ -31,7 +31,16 @@ describe('месяц аналитики', () => {
     expect(analyticsMonth({ month: '2026-13' }, today).month).toBe('2026-10');
     expect(analyticsMonth({ month: 'x' }, today).month).toBe('2026-10');
   });
-  it('старая ссылка с датами открывает месяц даты «с»', () => {
-    expect(analyticsMonth({ from: '2026-09-05', to: '2026-09-05' }, today).month).toBe('2026-09');
+  it('ссылка с точными датами открывает ровно их внутри месяца, сравнение с теми же днями прошлого месяца', () => {
+    expect(analyticsMonth({ from: '2026-09-05', to: '2026-09-05' }, today)).toMatchObject({
+      month: '2026-09',
+      from: '2026-09-05',
+      to: '2026-09-05',
+      prev: { from: '2026-08-05', to: '2026-08-05' },
+    });
+  });
+  it('даты за пределами месяца или будущие обрезаются до месяца', () => {
+    expect(analyticsMonth({ from: '2026-09-05', to: '2026-11-02' }, today)).toMatchObject({ from: '2026-09-05', to: '2026-09-30' });
+    expect(analyticsMonth({ from: '2026-10-20', to: '2026-10-30' }, today)).toMatchObject({ from: '2026-10-20', to: '2026-10-26' });
   });
 });

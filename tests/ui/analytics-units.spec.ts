@@ -59,7 +59,10 @@ test('вкладка по умолчанию за месяц: строки до 
   await expect(
     main.getByTestId('pa-tabs').getByRole('link', { name: 'По номерам' }),
   ).toHaveAttribute('aria-current', 'page');
-  await expect(main.getByTestId('analytics-month-label')).toBeVisible();
+  await expect(main.getByRole('link', { name: 'Этот месяц' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
   await expect(main.getByTestId('pa-units-meta')).toContainText('Занятость с');
   // сравнения с прошлым отрезком у вкладки нет — и переключателя нет
   await expect(main.getByTestId('pa-compare-toggle')).toHaveCount(0);
@@ -103,9 +106,10 @@ test('тип фонда режет строки; период из адреса 
     'aria-current',
     'page',
   );
-  // старая ссылка на один день (Главная) открывается как раньше; переключатель только месячный (владелец 26.10.2026)
+  // один день — та же вкладка со стрелками дня
   await page.goto(`/management/analytics/units?date=${today}`);
-  await expect(main.getByTestId('analytics-month-label')).toBeVisible();
+  await expect(main.getByRole('link', { name: 'Сегодня' })).toHaveAttribute('aria-current', 'page');
+  await expect(main.getByTestId('pa-day-next')).toBeVisible();
   await expect(main.getByTestId('pa-units-meta')).toContainText('Занятость на');
 });
 

@@ -94,10 +94,14 @@ test('обзор за месяц: четыре основных показате
 }) => {
   const main = page.getByRole('main');
   await page.goto('/management/analytics');
-  // по умолчанию этот месяц; период только месяцем (владелец 26.10.2026): «‹ октябрь 2026 ›»
-  await expect(main.getByTestId('analytics-month-label')).toHaveText(/\S+ \d{4}/);
-  await expect(main.getByRole('link', { name: 'Этот месяц' })).toHaveCount(0);
-  await expect(main.getByTestId('analytics-month-next')).toHaveCount(0);
+  // по умолчанию — этот месяц; подпись словами
+  await expect(main.getByTestId('pa-period')).toContainText(
+    /\d+ \S+ \u2014 \d+ \S+, (28|29|30|31) д/,
+  );
+  await expect(main.getByRole('link', { name: 'Этот месяц' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
   const kpis = main.getByTestId('pa-kpis');
   for (const label of ['Загрузка', 'Начислено за проживание', 'Брони', 'Отмены'])
     await expect(kpis).toContainText(label);
@@ -143,9 +147,9 @@ test('номера и койки считаются раздельно: своя
   await expect(economics).toContainText('Доход на койку');
   await expectMetricDirection(page, 'beds');
   await expect(main.getByTestId('pa-categories').locator('tbody tr')).toHaveCount(2);
-  // тип фонда не теряется при смене месяца
-  await main.getByTestId('analytics-month-prev').click();
-  await expect(page).toHaveURL(/month=\d{4}-\d{2}/);
+  // тип фонда не теряется при смене периода
+  await main.getByRole('link', { name: 'Прошлый месяц' }).click();
+  await expect(page).toHaveURL(/period=last-month/);
   await expect(page).toHaveURL(/fund=beds/);
 });
 

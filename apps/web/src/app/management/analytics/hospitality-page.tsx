@@ -42,7 +42,7 @@ export async function HospitalityAnalytics({
       subtitle={t('Как работал объект за период и что изменилось.')}
     >
       <AnalyticsTabs current="overview" fund={query.fund} />
-      <AnalyticsToolbar query={query} today={today} monthOnly />
+      <AnalyticsToolbar query={query} today={today} />
       {query.period.error && (
         <Alert boxed>{t('{error}. Показан сегодняшний день.', { error: t(query.period.error) })}</Alert>
       )}

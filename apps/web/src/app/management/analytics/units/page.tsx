@@ -28,7 +28,7 @@ export default async function UnitsPage({ searchParams }: { searchParams: Promis
       subtitle={t('Сколько ночей занято и сколько заездов было у каждого места.')}
     >
       <AnalyticsTabs current="units" fund={query.fund} />
-      <AnalyticsToolbar query={query} today={today} noCompare monthOnly />
+      <AnalyticsToolbar query={query} today={today} noCompare />
       {query.period.error && (
         <Alert boxed>{t('{error}. Показан сегодняшний день.', { error: t(query.period.error) })}</Alert>
       )}

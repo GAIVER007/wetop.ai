@@ -1898,13 +1898,37 @@
     padding: 0 0 var(--space-2);
     font-weight: var(--weight-semibold);
   }
-  .rest-book__guest {
+  /* гость одним полем (владелец 26.10.2026): подсказки из базы, выбранный клиент чипом, строка нового клиента */
+  .rest-book__mode {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-2) var(--space-4);
+    gap: var(--space-2);
   }
-  .rest-book__phone {
-    grid-column: 1 / -1;
+  .rest-book__suggest {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+  .rest-book__new {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .rest-book__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .rest-book__chip-remove {
+    border: 0;
+    background: none;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
   }
   .rest-book .booking-shell__footer {
     bottom: calc(-1 * var(--space-4));

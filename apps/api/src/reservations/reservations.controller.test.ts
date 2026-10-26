@@ -103,6 +103,8 @@ function makeFake() {
     events: [] as string[],
     /** гражданство заказчика, как его отдаёт карточка — для правила заселения (DATA_MODEL §3) */
     citizenship: 'KAZ' as string | null,
+    /** страна объекта (ISO alpha-2): null как у старых объектов без страны */
+    propertyCountry: null as string | null,
     /** долг счёта по проживанию — для T3 (выселение с долгом) */
     debts: new Map<string, bigint>(),
     /** проживания, у которых счёт закрыт при выезде */
@@ -143,7 +145,7 @@ function makeFake() {
       return new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
     },
     async property() {
-      return { id: 'prop', currency: 'KZT', timezone: 'Asia/Almaty' };
+      return { id: 'prop', currency: 'KZT', timezone: 'Asia/Almaty', countryCode: state.propertyCountry };
     },
     async categoryByCode(code) {
       return types.find((t) => t.code === code) ?? null;
@@ -2075,5 +2077,32 @@ describe('manual reservation API', () => {
     fake.state.citizenship = 'KAZ';
     const ok = await checkIn().expect(200);
     expect(ok.body.items[0].status).toBe('CHECKED_IN');
+  });
+  it('гостиница не в Казахстане (Катар): eQonaq нет, заселение без гражданства проходит (решение 24.10.2026)', async () => {
+    const created = await request(app.getHttpServer()).post('/reservations').send(body()).expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    fake.state.citizenship = null;
+    fake.state.propertyCountry = 'QA';
+    try {
+      const ok = await request(app.getHttpServer()).post(`/reservations/${n}/items/${itemId}/check-in`).send({}).expect(200);
+      expect(ok.body.items[0].status).toBe('CHECKED_IN');
+    } finally {
+      fake.state.propertyCountry = null;
+      fake.state.citizenship = 'KAZ';
+    }
+  });
+  it('гостиница в Казахстане: без гражданства по-прежнему отказ', async () => {
+    const created = await request(app.getHttpServer()).post('/reservations').send(body()).expect(201);
+    const n = created.body.confirmationNumber as string;
+    const itemId = created.body.items[0].id as string;
+    fake.state.citizenship = null;
+    fake.state.propertyCountry = 'KZ';
+    try {
+      await request(app.getHttpServer()).post(`/reservations/${n}/items/${itemId}/check-in`).send({}).expect(422);
+    } finally {
+      fake.state.propertyCountry = null;
+      fake.state.citizenship = 'KAZ';
+    }
   });
 });

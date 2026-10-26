@@ -235,7 +235,7 @@ export const hotelBoard: Record<string, string> = {
   'Имя *': 'First name *',
   'Отчество': 'Middle name',
   'Дата рождения': 'Date of birth',
-  'Гражданство (ISO alpha-3, напр. KAZ) *для заселения': 'Citizenship (ISO alpha-3, e.g. KAZ) *for check-in',
+  'Нужно для заселения в гостинице Казахстана (eQonaq)': 'Required for check-in at a hotel in Kazakhstan (eQonaq)',
   'Пол': 'Gender',
   'мужской': 'male',
   'женский': 'female',

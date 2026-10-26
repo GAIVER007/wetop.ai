@@ -29,6 +29,8 @@ export interface DeskRepository {
   stays(date: string): Promise<DeskStay[]>;
   /** Открытые задачи стойки со сроком не позже даты (DATA_MODEL §22): число для панели «Сегодня» */
   openTasksDue(date: string): Promise<number>;
+  /** Страна объекта ISO alpha-2: гражданство нужно к заселению только в Казахстане (решение 24.10.2026) */
+  countryCode(): Promise<string | null>;
 }
 export const DESK_REPOSITORY = Symbol('DESK_REPOSITORY');
 
@@ -41,6 +43,11 @@ export class PrismaDeskRepository implements DeskRepository {
 
   async today(): Promise<string> {
     return propertyToday(this.prisma.db, this.propertyName);
+  }
+  async countryCode(): Promise<string | null> {
+    const id = await propertyIdRef(this.prisma.db, this.propertyName);
+    const p = await this.prisma.db.property.findUnique({ where: { id }, select: { countryCode: true } });
+    return p?.countryCode ?? null;
   }
   async openTasksDue(date: string): Promise<number> {
     return this.prisma.db.deskTask.count({

@@ -56,7 +56,9 @@ test('вариант B: панель дня, загрузка мастера, «
   // запись карточкой: статус и оплата
   const tile = page.locator('.beauty-grid-day .beauty-tile').filter({ hasText: 'Тест Жанна' });
   await expect(tile).toContainText('Подтверждена');
-  await expect(tile).toContainText('Не оплачено');
+  // плашка пишет коротко «Долг» (ТЗ салона 25.10.2026, п. 7), полное «Не оплачено» в подсказке значка оплаты
+  await expect(tile).toContainText('Долг');
+  await expect(tile.locator('.beauty-tile-pay')).toHaveAttribute('title', 'Не оплачено');
   // щелчок открывает карточку и показывает запись в панели дня
   await tile.click();
   await expect(page.getByRole('dialog', { name: 'Запись' })).toBeVisible();

@@ -105,7 +105,8 @@ export default async function BeautyPage({
   );
   return (
     <Page
-      className="beauty-page journal-page"
+      // день журнала на ПК в один экран (п. 9): страница не прокручивается, сетка и панель дня листаются внутри
+      className={`beauty-page journal-page${loaded.week ? '' : ' journal-screen'}`}
       title={t('Журнал')}
       subtitle={
         loaded.value.location.name

@@ -173,9 +173,16 @@ describe('Beauty positions board', () => {
       { section: 'payroll', action: 'view', scope: 'OWN' },
       { section: 'reviews', action: 'view', scope: 'OWN' },
     ]);
+    // владелец 25.10.2026: администратор-кассир без возврата денег и склада; касса: смотреть и проводить
+    expect(POSITION_TEMPLATES.administrator.permissions).not.toContainEqual(
+      expect.objectContaining({ section: 'finance', action: 'refund' }),
+    );
+    expect(POSITION_TEMPLATES.administrator.permissions).not.toContainEqual(
+      expect.objectContaining({ section: 'stock' }),
+    );
     expect(POSITION_TEMPLATES.administrator.permissions).toContainEqual({
       section: 'finance',
-      action: 'refund',
+      action: 'create',
       scope: 'BUSINESS',
     });
     expect(POSITION_TEMPLATES.administrator.permissions).not.toContainEqual(

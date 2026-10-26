@@ -13,6 +13,23 @@ describe('DateRangePopover', () => {
     expect(presetRange('custom', '2028-02-28')).toBeNull();
   });
 
+  it('«Вчера» и «Эта неделя» (с понедельника по воскресенье) считаются от дня объекта (владелец 25.10.2026)', () => {
+    expect(presetRange('yesterday', '2026-10-25')).toEqual({ from: '2026-10-24', to: '2026-10-24' });
+    expect(presetRange('yesterday', '2028-03-01')).toEqual({ from: '2028-02-29', to: '2028-02-29' });
+    expect(presetRange('week', '2026-10-25')).toEqual({ from: '2026-10-19', to: '2026-10-25' });
+    expect(presetRange('week', '2026-10-19')).toEqual({ from: '2026-10-19', to: '2026-10-25' });
+  });
+
+  it('окно периода начинается с «Сегодня, Вчера, Эта неделя, Этот месяц»', () => {
+    const markup = renderToStaticMarkup(
+      createElement(DateRangePopover, { from: '2026-10-19', to: '2026-10-25', today: '2026-10-25' }),
+    );
+    const labels = [...markup.matchAll(/class="date-range__preset"[^>]*>([^<]+)</g)].map((m) => m[1]);
+    expect(labels.slice(0, 4)).toEqual(['Сегодня', 'Вчера', 'Эта неделя', 'Этот месяц']);
+    expect(labels).not.toContain('Текущий месяц');
+    expect(markup).toMatch(/aria-pressed="true"[^>]*>Эта неделя</);
+  });
+
   it('содержит один управляющий элемент, шесть пресетов, календарь и форму с применением', () => {
     const markup = renderToStaticMarkup(
       createElement(DateRangePopover, {
@@ -23,7 +40,7 @@ describe('DateRangePopover', () => {
       }),
     );
     expect(markup).toContain('aria-label="Выбрать период"');
-    expect(markup.match(/class="date-range__preset"/g)).toHaveLength(6);
+    expect(markup.match(/class="date-range__preset"/g)).toHaveLength(8);
     expect(markup).toContain('aria-label="Календарь периода"');
     expect(markup).toContain('name="from"');
     expect(markup).toContain('name="to"');

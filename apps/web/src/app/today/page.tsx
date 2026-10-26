@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { unstable_rethrow } from 'next/navigation';
-import { deskAccessOf, mayAccess } from '../../lib/navigation';
+import { beautyTotalsVisible, deskAccessOf, mayAccess } from '../../lib/navigation';
 import { ownerPeriod, ownerSummaryEnabled } from '../../lib/owner-summary';
 import { readOwnerSummary } from '../../lib/owner-summary-api';
 import { OwnerSummaryView } from './unified-owner';
@@ -41,7 +41,9 @@ export default async function TodayPage({
   if (
     ownerSummaryEnabled(process.env.APP_UNIFIED_OWNER_HOME) &&
     me.user &&
-    mayAccess(deskAccessOf(me), 'reports')
+    mayAccess(deskAccessOf(me), 'reports') &&
+    // администратор салона без должности: рабочий день без выручки салона (запуск 25.10.2026)
+    (me.context?.vertical !== 'BEAUTY' || beautyTotalsVisible(deskAccessOf(me)))
   ) {
     const c = me.context;
     const locale = await currentLocale();

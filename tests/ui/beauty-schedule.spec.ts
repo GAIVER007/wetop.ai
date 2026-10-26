@@ -62,7 +62,16 @@ async function addMaster(page: Page, name: string) {
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Имя мастера').fill(name);
   await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
-  await expect(page.getByRole('status').filter({hasText:'Специалист создан'})).toBeVisible();
+  // После сохранения экран сразу переходит в карточку, временный status может исчезнуть.
+  // Проверяем сохранённого сотрудника в том же филиале, а не успеваемость чтения уведомления.
+  await expect.poll(async () => {
+    const response = await page.request.get(`${FIXTURE_API}/beauty/employees`, {
+      headers: await apiHeaders(page),
+    });
+    expect(response.ok()).toBe(true);
+    const { items } = await response.json() as { items: Array<{ name: string }> };
+    return items.some((item) => item.name === name);
+  }).toBe(true);
 }
 
 /** Окно часов мастера открывается по его имени в сетке */
@@ -131,18 +140,6 @@ test('«Сделать рабочим» и «Сохранить» сохраня
   await expect(cell(page, 'Дина', 0)).toContainText('09:00–18:00');
 });
 
-/** Понедельник текущей недели, как его считает страница по умолчанию */
-async function thisMonday(page: Page) {
-  // неделя салона по его часовому поясу (Алматы), как у страницы: по часам раннера (UTC) с 19:00 до полуночи
-  // воскресенья «эта неделя» теста была прошлой неделей страницы (гейт #863, 25.10.2026, 20:00 UTC)
-  return page.evaluate(() => {
-    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
-    const d = new Date(`${today}T12:00:00Z`);
-    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
-    return d.toISOString().slice(0, 10);
-  });
-}
-
 async function masterId(page: Page, request: APIRequestContext, name: string) {
   const { items } = (await (
     await request.get(`${FIXTURE_API}/beauty/employees`, { headers: await apiHeaders(page) })
@@ -191,10 +188,10 @@ test('сетка: выходной по графику ведёт в окно н
   await expect(main.getByRole('row').filter({ hasText: 'Ева' }).getByTestId('beauty-week-unset')).toHaveCount(0);
 
   // у мастера запись в эту среду: выключение дня её не отменяет и предупреждает
-  const monday = await thisMonday(page);
-  const wednesday = new Date(Date.parse(`${monday}T12:00:00Z`) + 2 * 86_400_000)
-    .toISOString()
-    .slice(0, 10);
+  // Берём дату отображаемой ячейки: неделя филиала может отличаться от недели браузера.
+  const switchName = await cell(page, 'Дина', 2).getByRole('switch').getAttribute('name');
+  const wednesday = switchName?.match(/(\d{4}-\d{2}-\d{2})$/)?.[1];
+  expect(wednesday).toBeTruthy();
   await request.post(`${FIXTURE_API}/__test/control`, {
     data: { beautyAppointments: [{ employeeId: await masterId(page, request, 'Дина'), date: wednesday }] },
   });

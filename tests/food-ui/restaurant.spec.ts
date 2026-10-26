@@ -604,7 +604,7 @@ test('отчёт за период: выручка, средний чек, оп�
     { method: 'KASPI', amountMinor: '88000', count: 1 },
   ]);
   expect(r.topDishes[0]).toEqual({ name: 'Паста Карбонара', qty: 3, revenueMinor: '117000' });
-  expect(r.waiters).toEqual([{ name: 'Иванова Анна', orders: 2, revenueMinor: '266000' }]);
+  expect(r.waiters).toEqual([{ waiterId: waiter.id, name: 'Иванова Анна', orders: 2, revenueMinor: '266000' }]);
   // техкарты не связаны со складом: себестоимость ноль, прибыль равна выручке (§38)
   expect([r.costMinor, r.grossProfitMinor, r.foodCostPct, r.shortages]).toEqual(['0', '266000', 0, []]);
   // выручка по дням и по категориям меню (макет «Аналитика», экран 10)

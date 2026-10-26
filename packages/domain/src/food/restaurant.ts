@@ -242,6 +242,7 @@ export interface OrderItemInput {
   modifierIds: string[];
 }
 export interface OrderCreate {
+  creationRequestKey?: string;
   tableId: string | null;
   waiterId: string | null;
   guestCount: number;
@@ -263,8 +264,12 @@ export function parseOrderItems(raw: unknown): OrderItemInput[] {
   });
 }
 export function parseOrderCreate(raw: unknown): OrderCreate {
-  const b = foodObject(raw, ['tableId', 'waiterId', 'guestCount', 'notes', 'items']);
+  const b = foodObject(raw, ['tableId', 'waiterId', 'guestCount', 'notes', 'items', 'creationRequestKey']);
+  if (b.creationRequestKey !== undefined &&
+      (typeof b.creationRequestKey !== 'string' || !/^[A-Za-z0-9_-]{1,100}$/.test(b.creationRequestKey)))
+    throw new Error('Некорректный ключ создания заказа');
   return {
+    ...(b.creationRequestKey !== undefined ? { creationRequestKey: b.creationRequestKey as string } : {}),
     tableId: b.tableId == null ? null : foodId(b.tableId),
     waiterId: b.waiterId == null ? null : foodId(b.waiterId),
     guestCount: foodInt(b.guestCount, 1, 1000),

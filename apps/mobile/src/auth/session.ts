@@ -1,3 +1,5 @@
+import type { PendingPayment } from '../restaurant/pending-payment';
+import type { PendingOrder } from '../restaurant/pending-order';
 import {
   AccessError,
   type AccessApi,
@@ -73,12 +75,21 @@ export class SessionController {
       }
     } else this.publish({ kind: 'error', message: accessMessage(error) });
   }
-  private async resolve(epoch: number, chosen?: string) {
+  private async resolve(
+    epoch: number,
+    chosen?: string,
+    expected?: Pick<User, 'id' | 'organizationId'>,
+  ) {
     const token = this.token;
     if (!token) return;
     const me = await this.api.me(token);
     if (epoch !== this.epoch) return;
     if (!me.user) throw new AccessError('unauthorized');
+    if (
+      expected &&
+      (me.user.id !== expected.id || me.user.organizationId !== expected.organizationId)
+    )
+      throw new AccessError('invalid');
     const [list, organizations] = await Promise.all([
       this.api.branches(token),
       this.api.organizations(token),
@@ -196,18 +207,18 @@ export class SessionController {
       return;
     await this.run(() => this.resolve(this.epoch, id));
   }
-  async readFood(action: 'tables' | 'orders', cursor?: string): Promise<unknown> {
+  private async scopedFood(
+    call: (token: string, scope: string) => Promise<unknown>,
+  ): Promise<unknown> {
     const current = this.state;
     const token = this.token;
     const epoch = this.epoch;
     if (current.kind !== 'ready' || current.branch.vertical !== 'FOOD_SERVICE' || !token)
       throw new AccessError('forbidden');
     try {
-      const result = await this.api.food(
+      const result = await call(
         token,
         `business=${current.branch.location.businessId};location=${current.branch.locationId}`,
-        action,
-        cursor,
       );
       if (
         epoch !== this.epoch ||
@@ -225,6 +236,34 @@ export class SessionController {
       throw error;
     }
   }
+  readFood(
+    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash' | 'shifts' | 'payment-methods',
+    cursor?: string,
+  ): Promise<unknown> {
+    return this.scopedFood((token, scope) => this.api.food(token, scope, action, cursor));
+  }
+  readReport(action: 'overview' | 'analytics', from: string, to?: string): Promise<unknown> {
+    return this.scopedFood((token, scope) => this.api.report(token, scope, action, from, to));
+  }
+  readStaffRevenue(period: 'day' | 'week' | 'month'): Promise<unknown> {
+    return this.scopedFood((token, scope) => this.api.staffRevenue(token, scope, period));
+  }
+  createOrder(request: PendingOrder['request']): Promise<unknown> {
+    return this.scopedFood((token, scope) => this.api.createOrder(token, scope, request));
+  }
+  serveItem(orderId: string, itemId: string, expectedUpdatedAt: string): Promise<unknown> {
+    return this.scopedFood((token, scope) =>
+      this.api.serveItem(token, scope, orderId, itemId, expectedUpdatedAt),
+    );
+  }
+  closeOrder(orderId: string, expectedUpdatedAt: string): Promise<unknown> {
+    return this.scopedFood((token, scope) =>
+      this.api.closeOrder(token, scope, orderId, expectedUpdatedAt),
+    );
+  }
+  payOrder(request: PendingPayment['request']): Promise<unknown> {
+    return this.scopedFood((token, scope) => this.api.payOrder(token, scope, request));
+  }
   async changeBranch() {
     if (this.state.kind !== 'ready') return;
     ++this.epoch;
@@ -239,6 +278,7 @@ export class SessionController {
     )
       return;
     const old = this.token;
+    const userId = this.state.user.id;
     await this.run(async () => {
       const epoch = this.epoch;
       let next;
@@ -251,6 +291,11 @@ export class SessionController {
       if (epoch !== this.epoch) {
         await this.api.logout(next.token).catch(() => {});
         return;
+      }
+      if (next.user.id !== userId || next.user.organizationId !== id) {
+        await this.clear();
+        await this.api.logout(next.token).catch(() => {});
+        throw new AccessError('invalid');
       }
       this.token = null;
       try {
@@ -265,7 +310,13 @@ export class SessionController {
         return;
       }
       this.token = next.token;
-      await this.resolve(epoch);
+      try {
+        await this.resolve(epoch, undefined, { id: userId, organizationId: id });
+      } catch (error) {
+        if (epoch === this.epoch) await this.clear();
+        await this.api.logout(next.token).catch(() => {});
+        throw error;
+      }
     });
   }
   async logout() {

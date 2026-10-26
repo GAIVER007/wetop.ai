@@ -37,6 +37,12 @@ function fixture() {
     switchOrganization: jest.fn(),
     logout: jest.fn().mockResolvedValue(undefined),
     food: jest.fn(),
+    report: jest.fn(),
+    staffRevenue: jest.fn(),
+    createOrder: jest.fn(),
+    serveItem: jest.fn(),
+    payOrder: jest.fn(),
+    closeOrder: jest.fn(),
     reset: jest.fn().mockResolvedValue(undefined),
   };
   return { api, store, session: new SessionController(api, store) };
@@ -129,7 +135,16 @@ test('organization rotation persists new token before requesting context', async
     { id: 'org-02', name: 'Two', role: 'OWNER', current: false },
   ]);
   await session.login('test@example.invalid', 'fixture');
-  api.switchOrganization.mockResolvedValue({ token: 'rotated', expiresAt: '2030', user });
+  const rotatedUser = { ...user, organizationId: 'org-02' };
+  api.switchOrganization.mockResolvedValue({
+    token: 'rotated',
+    expiresAt: '2030',
+    user: rotatedUser,
+  });
+  api.me.mockResolvedValue({
+    user: rotatedUser,
+    context: { businessId: 'biz-01', locationId: 'loc-01', vertical: 'FOOD_SERVICE' },
+  });
   await session.switchOrganization('org-02');
   expect(store.write).toHaveBeenLastCalledWith('rotated');
   expect(api.branches).toHaveBeenLastCalledWith('rotated');
@@ -173,3 +188,150 @@ test('food unauthorized response clears local access', async () => {
   expect(session.state.kind).toBe('signed-out');
   expect(store.clear).toHaveBeenCalled();
 });
+
+test('report uses verified scope and rejects a late answer after branch change', async () => {
+  const { session, api } = fixture();
+  await session.login('test@example.invalid', 'fixture');
+  let finish!: (v: unknown) => void;
+  api.report.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+  const response = session.readReport('analytics', '2026-10-24', '2026-10-24');
+  expect(api.report).toHaveBeenCalledWith(
+    'fixture-token',
+    'business=biz-01;location=loc-01',
+    'analytics',
+    '2026-10-24',
+    '2026-10-24',
+  );
+  await session.changeBranch();
+  finish({});
+  await expect(response).rejects.toThrow();
+});
+
+test.each(['rotation', 'context', 'user'])(
+  'organization switch rejects mismatched %s identity',
+  async (mismatch) => {
+    const { session, api, store } = fixture();
+    api.organizations.mockResolvedValue([
+      { id: 'org-01', name: 'One', role: 'OWNER', current: true },
+      { id: 'org-02', name: 'Two', role: 'OWNER', current: false },
+    ]);
+    await session.login('test@example.invalid', 'fixture');
+    const rotatedUser = { ...user, organizationId: 'org-02' };
+    api.switchOrganization.mockResolvedValue({
+      token: 'rotated',
+      expiresAt: '2030',
+      user:
+        mismatch === 'rotation'
+          ? user
+          : mismatch === 'user'
+            ? { ...rotatedUser, id: 'other-user' }
+            : rotatedUser,
+    });
+    await session.switchOrganization('org-02');
+    expect(session.state.kind).toBe('error');
+    expect(store.clear).toHaveBeenCalled();
+    expect(api.logout).toHaveBeenCalledWith('rotated');
+  },
+);
+
+test('order creation requires ready context and rejects late results after branch change', async () => {
+  const { session, api } = fixture();
+  const request = { creationRequestKey: 'attempt-1', tableId: null, guestCount: 1, items: [] };
+  await expect(session.createOrder(request)).rejects.toMatchObject({ kind: 'forbidden' });
+  expect(api.createOrder).not.toHaveBeenCalled();
+  await session.login('test@example.invalid', 'fixture');
+  let resolve!: (value: unknown) => void;
+  api.createOrder.mockImplementation(
+    () =>
+      new Promise((done) => {
+        resolve = done;
+      }),
+  );
+  const result = session.createOrder(request);
+  expect(api.createOrder).toHaveBeenCalledWith(
+    'fixture-token',
+    'business=biz-01;location=loc-01',
+    request,
+  );
+  await session.changeBranch();
+  resolve({ id: 'order' });
+  await expect(result).rejects.toMatchObject({ kind: 'forbidden' });
+});
+
+test('order creation with expired session clears access without retry', async () => {
+  const { session, api, store } = fixture();
+  await session.login('test@example.invalid', 'fixture');
+  api.createOrder.mockRejectedValue(new AccessError('unauthorized'));
+  await expect(
+    session.createOrder({
+      creationRequestKey: 'attempt-1',
+      tableId: null,
+      guestCount: 1,
+      items: [],
+    }),
+  ).rejects.toMatchObject({ kind: 'unauthorized' });
+  expect(api.createOrder).toHaveBeenCalledTimes(1);
+  expect(store.clear).toHaveBeenCalled();
+  expect(session.state.kind).toBe('signed-out');
+});
+
+test('serving uses verified scope and rejects late results after branch change', async () => {
+  const { session, api } = fixture();
+  await expect(session.serveItem('order', 'item', 'version')).rejects.toMatchObject({
+    kind: 'forbidden',
+  });
+  expect(api.serveItem).not.toHaveBeenCalled();
+  await session.login('test@example.invalid', 'fixture');
+  let resolve!: (value: unknown) => void;
+  api.serveItem.mockImplementation(
+    () =>
+      new Promise((done) => {
+        resolve = done;
+      }),
+  );
+  const pending = session.serveItem('order', 'item', 'version');
+  expect(api.serveItem).toHaveBeenCalledWith(
+    'fixture-token',
+    'business=biz-01;location=loc-01',
+    'order',
+    'item',
+    'version',
+  );
+  await session.changeBranch();
+  resolve({ id: 'order' });
+  await expect(pending).rejects.toMatchObject({ kind: 'forbidden' });
+});
+
+test.each(['payOrder', 'closeOrder'] as const)(
+  '%s requires verified scope and discards a late response after branch change',
+  async (method) => {
+    const { session, api } = fixture();
+    const payment = {
+      orderId: 'order',
+      amount: 100,
+      method: 'CASH' as const,
+      idempotencyKey: 'original',
+    };
+    const invoke = () =>
+      method === 'payOrder' ? session.payOrder(payment) : session.closeOrder('order', 'version');
+    await expect(invoke()).rejects.toMatchObject({ kind: 'forbidden' });
+    expect(api[method]).not.toHaveBeenCalled();
+    await session.login('test@example.invalid', 'fixture');
+    let resolve!: (value: unknown) => void;
+    api[method].mockImplementation(
+      () =>
+        new Promise((done) => {
+          resolve = done;
+        }),
+    );
+    const pending = invoke();
+    expect(api[method]).toHaveBeenCalledWith(
+      'fixture-token',
+      'business=biz-01;location=loc-01',
+      ...(method === 'payOrder' ? [payment] : ['order', 'version']),
+    );
+    await session.changeBranch();
+    resolve({ id: 'order' });
+    await expect(pending).rejects.toMatchObject({ kind: 'forbidden' });
+  },
+);

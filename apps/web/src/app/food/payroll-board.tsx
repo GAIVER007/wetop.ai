@@ -2,7 +2,16 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { Alert, Badge, Button, EmptyState, Field, Input, Select, Table } from '../../components/ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  Table,
+} from '../../components/ui';
 import { ActionMenu } from '../../components/action-menu';
 import { MonthInput } from '../../components/date-field';
 import { Icon } from '../../components/icon';
@@ -49,41 +58,25 @@ const BASIS = {
 const currencyLabel = currencySign;
 
 /** `t` переводит текст ошибки на язык человека; без него русский */
-function payrollInputToMinor(
-  value: string,
-  currency: string,
-  allowZero: boolean,
-  t: Translate,
-): number {
+function payrollInputToMinor(value: string, currency: string, allowZero: boolean, t: Translate): number {
   const parsed = inputToMinor(value);
-  if (parsed === null || parsed === '')
-    throw new Error(t('Укажите сумму в {currency}', { currency: currencyLabel(currency) }));
+  if (parsed === null || parsed === '') throw new Error(t('Укажите сумму в {currency}', { currency: currencyLabel(currency) }));
   const minor = BigInt(parsed);
   if (!allowZero && minor === 0n) throw new Error(t('Сумма должна быть больше нуля'));
   if (minor > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error(t('Сумма слишком большая'));
   return Number(minor);
 }
 
-export const payrollSalaryInputToMinor = (
-  value: string,
-  currency: string,
-  t: Translate = translator('ru'),
-): number => payrollInputToMinor(value, currency, true, t);
+export const payrollSalaryInputToMinor = (value: string, currency: string, t: Translate = translator('ru')): number =>
+  payrollInputToMinor(value, currency, true, t);
 
-export const payrollPositiveInputToMinor = (
-  value: string,
-  currency: string,
-  t: Translate = translator('ru'),
-): number => payrollInputToMinor(value, currency, false, t);
+export const payrollPositiveInputToMinor = (value: string, currency: string, t: Translate = translator('ru')): number =>
+  payrollInputToMinor(value, currency, false, t);
 
 export const payrollMinorToInput = minorToInput;
 
 /** Способы оплаты в окне (владелец 25.10.2026): три понятных, премии и удержания отдельной кнопкой, не способ оплаты */
-export const PAY_CHOICES = [
-  'FIXED',
-  'PERCENT',
-  'FIXED_PLUS_PERCENT',
-] as const satisfies readonly PayModel[];
+export const PAY_CHOICES = ['FIXED', 'PERCENT', 'FIXED_PLUS_PERCENT'] as const satisfies readonly PayModel[];
 export type PayChoice = (typeof PAY_CHOICES)[number];
 const CHOICE = {
   FIXED: { title: msg('Только оклад'), note: msg('Одна сумма каждый месяц') },
@@ -96,8 +89,7 @@ export const payFields = (model: PayChoice) => ({
   percent: model === 'PERCENT' || model === 'FIXED_PLUS_PERCENT',
 });
 /** Прежняя «только премии» открывается как «Только оклад»: способа без оплаты в окне нет */
-export const payChoiceOf = (model: PayModel): PayChoice =>
-  model === 'BONUS_ONLY' ? 'FIXED' : model;
+export const payChoiceOf = (model: PayModel): PayChoice => (model === 'BONUS_ONLY' ? 'FIXED' : model);
 
 /**
  * Что уйдёт на сервер из окна оплаты: поля только выбранного способа, у остальных ноль. Пустое или нулевое поле
@@ -141,9 +133,7 @@ function PayDrawer({
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [model, setModel] = useState<PayChoice>(payChoiceOf(row.model));
-  const [fixed, setFixed] = useState(
-    BigInt(row.fixedMinor) > 0n ? payrollMinorToInput(row.fixedMinor) : '',
-  );
+  const [fixed, setFixed] = useState(BigInt(row.fixedMinor) > 0n ? payrollMinorToInput(row.fixedMinor) : '');
   const [percent, setPercent] = useState(row.percent > 0 ? String(row.percent) : '');
   const need = payFields(model);
   const sales = BigInt(row.salesMinor);
@@ -164,11 +154,7 @@ function PayDrawer({
       return;
     }
     start(async () => {
-      const result = await mutateStaff(scopeKey, {
-        kind: 'pay-settings',
-        id: row.employeeId,
-        body,
-      });
+      const result = await mutateStaff(scopeKey, { kind: 'pay-settings', id: row.employeeId, body });
       if (result.error) setError(result.error);
       else {
         router.refresh();
@@ -177,32 +163,17 @@ function PayDrawer({
     });
   }
   return (
-    <Overlay
-      open
-      onClose={close}
-      title={t('Оплата: {name}', { name: row.name })}
-      drawer
-      className="food-drawer pay-drawer"
-      trapFocus
-    >
+    <Overlay open onClose={close} title={t('Оплата: {name}', { name: row.name })} drawer className="food-drawer pay-drawer" trapFocus>
       <div className="food-form pay-form" data-testid="pay-settings">
         {error && <Alert>{error}</Alert>}
         <fieldset className="pay-choices">
           <legend>{t('Как платим')}</legend>
           {PAY_CHOICES.map((value) => (
             <label key={value} className="pay-choice">
-              <input
-                type="radio"
-                name="pay-model"
-                value={value}
-                checked={model === value}
-                onChange={() => setModel(value)}
-              />
+              <input type="radio" name="pay-model" value={value} checked={model === value} onChange={() => setModel(value)} />
               <span className="pay-choice__title">{t(CHOICE[value].title)}</span>
               <span className="pay-choice__note">
-                {CHOICE[value].note
-                  ? t(CHOICE[value].note)
-                  : t(value === 'PERCENT' ? BASIS[basis].only : BASIS[basis].plus)}
+                {CHOICE[value].note ? t(CHOICE[value].note) : t(value === 'PERCENT' ? BASIS[basis].only : BASIS[basis].plus)}
               </span>
             </label>
           ))}
@@ -214,33 +185,12 @@ function PayDrawer({
               controlId={`pay-fixed-${row.employeeId}`}
               hint={t('Платится каждый месяц, даже без продаж')}
             >
-              <Input
-                id={`pay-fixed-${row.employeeId}`}
-                type="number"
-                inputMode="decimal"
-                min={0.01}
-                step="0.01"
-                value={fixed}
-                onChange={(e) => setFixed(e.target.value)}
-              />
+              <Input id={`pay-fixed-${row.employeeId}`} type="number" inputMode="decimal" min={0.01} step="0.01" value={fixed} onChange={(e) => setFixed(e.target.value)} />
             </Field>
           )}
           {need.percent && (
-            <Field
-              label={t(BASIS[basis].percent)}
-              controlId={`pay-percent-${row.employeeId}`}
-              hint={t(BASIS[basis].hint)}
-            >
-              <Input
-                id={`pay-percent-${row.employeeId}`}
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={100}
-                step={1}
-                value={percent}
-                onChange={(e) => setPercent(e.target.value)}
-              />
+            <Field label={t(BASIS[basis].percent)} controlId={`pay-percent-${row.employeeId}`} hint={t(BASIS[basis].hint)}>
+              <Input id={`pay-percent-${row.employeeId}`} type="number" inputMode="numeric" min={1} max={100} step={1} value={percent} onChange={(e) => setPercent(e.target.value)} />
             </Field>
           )}
         </div>
@@ -250,16 +200,13 @@ function PayDrawer({
           {need.fixed && need.percent && ' + '}
           {need.percent && (
             <span>
-              {t(BASIS[basis].example, { percent: pct, sales: money(sales) })} ={' '}
-              {money(percentPart)}
+              {t(BASIS[basis].example, { percent: pct, sales: money(sales) })} = {money(percentPart)}
             </span>
           )}
           {' = '}
           <strong>{money(fixedMinor + percentPart)}</strong>
         </p>
-        <p className="hint">
-          {t('Премии и удержания добавляются отдельно: «Ещё» → «Премия или удержание».')}
-        </p>
+        <p className="hint">{t('Премии и удержания добавляются отдельно: «Ещё» → «Премия или удержание».')}</p>
         <div className="food-actions pay-form__actions">
           <Button tone="secondary" disabled={pending} onClick={close}>
             {t('Отмена')}
@@ -274,18 +221,8 @@ function PayDrawer({
 }
 
 const MONTHS = [
-  msg('январь'),
-  msg('февраль'),
-  msg('март'),
-  msg('апрель'),
-  msg('май'),
-  msg('июнь'),
-  msg('июль'),
-  msg('август'),
-  msg('сентябрь'),
-  msg('октябрь'),
-  msg('ноябрь'),
-  msg('декабрь'),
+  msg('январь'), msg('февраль'), msg('март'), msg('апрель'), msg('май'), msg('июнь'),
+  msg('июль'), msg('август'), msg('сентябрь'), msg('октябрь'), msg('ноябрь'), msg('декабрь'),
 ];
 /** «2026-10» → «октябрь 2026» */
 export function monthName(month: string, t: Translate = translator('ru')): string {
@@ -389,14 +326,7 @@ function AdjustmentDrawer({
     });
   }
   return (
-    <Overlay
-      open
-      onClose={close}
-      title={t('Начисление: {name}', { name: row.name })}
-      drawer
-      className="food-drawer"
-      trapFocus
-    >
+    <Overlay open onClose={close} title={t('Начисление: {name}', { name: row.name })} drawer className="food-drawer" trapFocus>
       <div className="food-form" data-testid="pay-adjustment">
         {error && <Alert>{error}</Alert>}
         <Segmented
@@ -409,14 +339,7 @@ function AdjustmentDrawer({
           onChange={setKind}
         />
         <Field label={t('Сумма, {currency}', { currency: currencyLabel(currency) })}>
-          <Input
-            type="number"
-            inputMode="decimal"
-            min={0.01}
-            step="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
+          <Input type="number" inputMode="decimal" min={0.01} step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} />
         </Field>
         <Field label={t('Причина')}>
           <Input value={reason} onChange={(e) => setReason(e.target.value)} />
@@ -626,8 +549,7 @@ function PayoutDrawer({
 }
 
 /** Оплата сотрудника не задана: ни оклада, ни процента (новый сотрудник или прежняя «только премии») */
-export const payUnset = (r: Pick<PayrollRow, 'fixedMinor' | 'percent'>) =>
-  BigInt(r.fixedMinor) === 0n && r.percent === 0;
+export const payUnset = (r: Pick<PayrollRow, 'fixedMinor' | 'percent'>) => BigInt(r.fixedMinor) === 0n && r.percent === 0;
 
 /** «3 000 QAR + 30 %», «40 % от записей», «Оклад 3 000 QAR» */
 function payTerms(t: Translate, r: PayrollRow, basis: PayBasis, currency: string): string {
@@ -701,118 +623,92 @@ export function PayrollBoard({
   const names = new Map(payroll.rows.map((r) => [r.employeeId, r.name]));
   const remaining = payroll.rows.reduce((sum, r) => sum + BigInt(r.remainingMinor), 0n).toString();
   const money = (minor: string) => formatMoney(minor, payroll.currency);
-  const cell = (minor: string) =>
-    BigInt(minor) === 0n ? <span className="muted">—</span> : money(minor);
-  const staffTable =
-    payroll.rows.length === 0 ? (
-      <EmptyState title={t('Сотрудников пока нет')} />
-    ) : (
-      <Table className="payroll-table">
-        <thead>
-          <tr>
-            <th>{t('Сотрудник')}</th>
-            <th>{t('Как платим')}</th>
-            <th className="num">{t('Оклад')}</th>
-            <th className="num">{t(BASIS[basis].column)}</th>
-            {[
-              msg('Премии'),
-              msg('Удержания'),
-              msg('Начислено'),
-              msg('Выплачено'),
-              msg('Осталось'),
-            ].map((h) => (
-              <th key={h} className="num">
-                {t(h)}
-              </th>
-            ))}
-            <th>
-              <span className="sr-only">{t('Действия')}</span>
+  const cell = (minor: string) => (BigInt(minor) === 0n ? <span className="muted">—</span> : money(minor));
+  const staffTable = payroll.rows.length === 0 ? (
+    <EmptyState title={t('Сотрудников пока нет')} />
+  ) : (
+    <Table className="payroll-table">
+      <thead>
+        <tr>
+          <th>{t('Сотрудник')}</th>
+          <th>{t('Как платим')}</th>
+          <th className="num">{t('Оклад')}</th>
+          <th className="num">{t(BASIS[basis].column)}</th>
+          {[msg('Премии'), msg('Удержания'), msg('Начислено'), msg('Выплачено'), msg('Осталось')].map((h) => (
+            <th key={h} className="num">
+              {t(h)}
             </th>
-          </tr>
-        </thead>
-        <tbody>
-          {payroll.rows.map((r) => {
-            const due = BigInt(r.remainingMinor) > 0n;
-            const blank = payUnset(r);
-            return (
-              <tr key={r.employeeId}>
-                <th scope="row">{r.name}</th>
-                <td className="rest-pay-model">
-                  {blank ? (
-                    <Badge tone="warn">{t('Не настроено')}</Badge>
-                  ) : (
-                    payTerms(t, r, basis, payroll.currency)
-                  )}
-                </td>
-                <td className="num">{cell(r.baseMinor)}</td>
-                <td className="num">{cell(r.percentMinor)}</td>
-                <td className="num payroll-plus">{cell(r.bonusMinor)}</td>
-                <td className="num payroll-minus">{cell(r.penaltyMinor)}</td>
-                <td className="num">
-                  <strong>{cell(r.totalMinor)}</strong>
-                </td>
-                <td className="num">{cell(r.paidMinor)}</td>
-                <td className="num" data-testid="payroll-remaining">
-                  {due ? (
-                    <strong className="payroll-due">{money(r.remainingMinor)}</strong>
-                  ) : BigInt(r.totalMinor) > 0n ? (
-                    <span className="payroll-done">{money(r.remainingMinor)}</span>
-                  ) : (
-                    <span className="muted">—</span>
-                  )}
-                </td>
-                <td>
-                  {/* одна главная кнопка, остальное в меню (аудит 21.10.2026, п. 42) */}
-                  {write && (
-                    <span className="food-inline-actions">
-                      {/* «Выплатить» у каждого (владелец 26.10.2026); окно само скажет, если платить нечего */}
-                      <Button
-                        size="sm"
-                        tone={due ? 'primary' : 'secondary'}
-                        onClick={() => setPayout(r)}
-                      >
-                        {t('Выплатить')}
-                      </Button>
-                      <ActionMenu
-                        size="sm"
-                        label={t('Ещё: {name}', { name: r.name })}
-                        items={[
-                          { label: t('Условия оплаты'), onSelect: () => setSettings(r) },
-                          { label: t('Премия или удержание'), onSelect: () => setAdjust(r) },
-                        ]}
-                      />
-                    </span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-        {/* итоги месяца строкой под таблицей (аудит 21.10.2026, п. 29) */}
-        <tfoot>
-          <tr>
-            <th scope="row">{t('Итого')}</th>
-            <td colSpan={3} data-testid="payroll-fund">
-              {t('Фонд оплаты {sum}', { sum: money(payroll.totals.fundMinor) })}
-            </td>
-            <td className="num" data-testid="payroll-bonus">
-              {money(payroll.totals.bonusMinor)}
-            </td>
-            <td className="num" data-testid="payroll-penalty">
-              {money(payroll.totals.penaltyMinor)}
-            </td>
-            <td className="num" data-testid="payroll-total">
-              <strong>{money(payroll.totals.payoutMinor)}</strong>
-            </td>
-            <td className="num" data-testid="payroll-paid">
-              {money(payroll.totals.paidMinor)}
-            </td>
-            <td className="num">{money(remaining)}</td>
-            <td />
-          </tr>
-        </tfoot>
-      </Table>
-    );
+          ))}
+          <th>
+            <span className="sr-only">{t('Действия')}</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {payroll.rows.map((r) => {
+          const due = BigInt(r.remainingMinor) > 0n;
+          const blank = payUnset(r);
+          return (
+            <tr key={r.employeeId}>
+              <th scope="row">{r.name}</th>
+              <td className="rest-pay-model">
+                {blank ? <Badge tone="warn">{t('Не настроено')}</Badge> : payTerms(t, r, basis, payroll.currency)}
+              </td>
+              <td className="num">{cell(r.baseMinor)}</td>
+              <td className="num">
+                {cell(r.percentMinor)}
+              </td>
+              <td className="num payroll-plus">{cell(r.bonusMinor)}</td>
+              <td className="num payroll-minus">{cell(r.penaltyMinor)}</td>
+              <td className="num">
+                <strong>{cell(r.totalMinor)}</strong>
+              </td>
+              <td className="num">{cell(r.paidMinor)}</td>
+              <td className="num" data-testid="payroll-remaining">
+                {due ? <strong className="payroll-due">{money(r.remainingMinor)}</strong> : BigInt(r.totalMinor) > 0n ? <span className="payroll-done">{money(r.remainingMinor)}</span> : <span className="muted">—</span>}
+              </td>
+              <td>
+                {/* одна главная кнопка, остальное в меню (аудит 21.10.2026, п. 42) */}
+                {write && (
+                  <span className="food-inline-actions">
+                    {/* «Выплатить» у каждого (владелец 26.10.2026); окно само скажет, если платить нечего */}
+                    <Button size="sm" tone={due ? 'primary' : 'secondary'} onClick={() => setPayout(r)}>
+                      {t('Выплатить')}
+                    </Button>
+                    <ActionMenu
+                      size="sm"
+                      label={t('Ещё: {name}', { name: r.name })}
+                      items={[
+                        { label: t('Условия оплаты'), onSelect: () => setSettings(r) },
+                        { label: t('Премия или удержание'), onSelect: () => setAdjust(r) },
+                      ]}
+                    />
+                  </span>
+                )}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+      {/* итоги месяца строкой под таблицей (аудит 21.10.2026, п. 29) */}
+      <tfoot>
+        <tr>
+          <th scope="row">{t('Итого')}</th>
+          <td colSpan={3} data-testid="payroll-fund">
+            {t('Фонд оплаты {sum}', { sum: money(payroll.totals.fundMinor) })}
+          </td>
+          <td className="num" data-testid="payroll-bonus">{money(payroll.totals.bonusMinor)}</td>
+          <td className="num" data-testid="payroll-penalty">{money(payroll.totals.penaltyMinor)}</td>
+          <td className="num" data-testid="payroll-total">
+            <strong>{money(payroll.totals.payoutMinor)}</strong>
+          </td>
+          <td className="num" data-testid="payroll-paid">{money(payroll.totals.paidMinor)}</td>
+          <td className="num">{money(remaining)}</td>
+          <td />
+        </tr>
+      </tfoot>
+    </Table>
+  );
   const adjustments =
     payroll.adjustments.length === 0 ? (
       <EmptyState title={t('Начислений в этом месяце нет')} />

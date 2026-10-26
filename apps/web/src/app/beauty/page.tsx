@@ -9,7 +9,8 @@ import { normalizeSearchParams, type SearchParams } from '../../lib/search-param
 import { currentMe, deskShell } from '../../lib/desk-shell';
 import { mayBeautyAccess } from '../../lib/navigation';
 import { JournalBoard } from './journal';
-import { WeekCalendar } from './week-calendar';
+import { MonthCalendar } from './month-calendar';
+import { monthGrid } from './month-grid';
 import { serverT } from '../../i18n/server';
 import './beauty.css';
 
@@ -26,9 +27,11 @@ export default async function BeautyPage({
 }) {
   await requireFeature('/beauty');
   const t = await serverT();
-  const { date, view, appointment, employee, service, status, new: requestedNew } = normalizeSearchParams(
+  const { date, view: rawView, appointment, employee, service, status, new: requestedNew } = normalizeSearchParams(
     await searchParams,
   );
+  // «Неделю» заменил «Месяц» (владелец 26.10.2026); старые закладки view=week открывают месяц
+  const view = rawView === 'week' || rawView === 'month' ? 'month' : undefined;
   const filters = new URLSearchParams();
   if (employee) filters.set('employee', employee);
   if (service) filters.set('service', service);
@@ -55,24 +58,15 @@ export default async function BeautyPage({
     canReadEmployees ? beautyApi.employees() : Promise.resolve({ items: [] }),
   ])
     .then(async (value) => {
-      const week =
-        view === 'week'
-          ? await Promise.all(
-              Array.from({ length: 7 }, (_, index) => {
-                const at = new Date(`${value[0].date}T12:00:00Z`);
-                const weekday = (at.getUTCDay() + 6) % 7;
-                at.setUTCDate(at.getUTCDate() - weekday + index);
-                const day = at.toISOString().slice(0, 10);
-                return day === value[0].date ? value[0] : beautyApi.day(day);
-              }),
-            )
-          : null;
+      // месяц одним запросом за всю сетку (с понедельника недели 1-го по воскресенье недели последнего числа)
+      const grid = view === 'month' ? monthGrid(value[0].date).days : null;
+      const month = grid ? (await beautyApi.period(grid[0], grid.at(-1))).appointments : null;
       return {
         ok: true as const,
         value: value[0],
         customers: value[1].items,
         employees: value[2].items,
-        week,
+        month,
       };
     })
     .catch((error: unknown) => {
@@ -87,7 +81,7 @@ export default async function BeautyPage({
       </Page>
     );
 
-  // «День / Неделя»: в дне стоят в строке инструментов рядом с датой (аудит 21.10.2026, п. 34). Без предзагрузки:
+  // «День / Месяц» (до 26.10.2026 «День / Неделя»): в дне стоят в строке инструментов рядом с датой (аудит 21.10.2026, п. 34). Без предзагрузки:
   // предзагрузка этих двух адресов на живом сайте висела открытым запросом, и страница не затихала (п. 3)
   // переключатель тот же, что «План зала / Расписание» ресторана (`Tabs`, без предзагрузки), владелец 24.10.2026:
   // «в каждой вертикали всё по-разному выглядит»
@@ -95,15 +89,15 @@ export default async function BeautyPage({
     <Tabs
       label={t('Вид журнала')}
       items={[
-        { href: `/calendar?date=${loaded.value.date}&${filters}`, label: t('День'), current: view !== 'week' },
-        { href: `/calendar?date=${loaded.value.date}&view=week&${filters}`, label: t('Неделя'), current: view === 'week' },
+        { href: `/calendar?date=${loaded.value.date}&${filters}`, label: t('День'), current: view !== 'month' },
+        { href: `/calendar?date=${loaded.value.date}&view=month&${filters}`, label: t('Месяц'), current: view === 'month' },
       ]}
     />
   );
   return (
     <Page
       // день журнала на ПК в один экран (п. 9): страница не прокручивается, сетка и панель дня листаются внутри
-      className={`beauty-page journal-page${loaded.week ? '' : ' journal-screen'}`}
+      className={`beauty-page journal-page${loaded.month ? ' journal-month' : ' journal-screen'}`}
       title={t('Журнал')}
       subtitle={
         loaded.value.location.name
@@ -111,11 +105,12 @@ export default async function BeautyPage({
           : t('Расписание специалистов и услуг салона')
       }
     >
-      {loaded.week ? (
-        <WeekCalendar
+      {loaded.month ? (
+        <MonthCalendar
           views={views}
           canCreate={canCreate && !shell.readOnly}
-          days={loaded.week}
+          day={loaded.value}
+          rows={loaded.month}
           employees={loaded.employees}
           selectedDate={loaded.value.date}
         />

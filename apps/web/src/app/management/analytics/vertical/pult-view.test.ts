@@ -63,14 +63,19 @@ describe('пульт салона на экране', () => {
       today: '2026-10-20',
     }),
   );
-  it('четыре плитки: выручка, средний чек, загрузка мастеров, повторные клиенты', () => {
-    for (const id of ['revenue', 'average', 'load', 'repeat'])
+  it('шесть цифр в ряд (вариант B, 26.10.2026): выручка, чек, загрузка, вернулись, записи, неявки', () => {
+    for (const id of ['revenue', 'average', 'load', 'repeat', 'appointments', 'noshow'])
       expect(html).toContain(`data-testid="pa-kpi-${id}"`);
     expect(html).toMatch(/data-testid="pa-kpi-revenue"[^>]*>12 000 ₸/);
   });
   it('прежние testid проверок UI на месте: выручка в валюте и статусы', () => {
     expect(html).toMatch(/data-testid="revenue-KZT"[^>]*>12\s000,00 KZT/);
     expect(html).toMatch(/data-testid="period-DONE"[^>]*>1</);
+  });
+  it('ровная сетка: график с оплатами и клиентами, ниже мастера, услуги и столбец дел со статусами', () => {
+    expect(html).toMatch(/pult-row--chart[\s\S]*Выручка по дням[\s\S]*Оплаты по способам[\s\S]*Клиенты/);
+    expect(html).toMatch(/pult-row--lists[\s\S]*Мастера[\s\S]*Услуги по выручке[\s\S]*pult-stack[\s\S]*Что сделать сейчас[\s\S]*Записи по статусам/);
+    expect(html).not.toContain('pult-row--main');
   });
   it('подсказки, мастера, услуги и оплаты', () => {
     expect(html).toContain('data-testid="pult-insights"');
@@ -94,6 +99,34 @@ describe('пульт салона на экране', () => {
     expect(empty).toMatch(/data-testid="period-DONE"[^>]*>0</);
     expect(empty).toContain('Завершённых визитов за период нет.');
     expect(empty).toContain('data-testid="insight-calm"');
+  });
+});
+
+describe('пульт салона со сводкой API', () => {
+  const insights = {
+    period: { from: '2026-10-20', to: '2026-10-20' },
+    reviews: { count: 2, avgTenths: 48 },
+    customers: { total: 1, new: 0, repeat: 1, lapsed: 3 },
+    employees: [{ employeeId: 'm1', customers: 1, returning: 1, reviews: 2, avgTenths: 48 }],
+  };
+  const p = beautyPult([day], 'KZT');
+  const html = renderToStaticMarkup(
+    BeautyPultView({ p, prev: p, labels: BEAUTY_LABELS, insights, prevInsights: insights }),
+  );
+  it('оценка и «вернулись» у мастера, средняя оценка периода', () => {
+    expect(html).toMatch(/data-testid="master-m1".*4,8 ★/);
+    expect(html).toMatch(/data-testid="master-m1".*100%/);
+    expect(html).toContain('Средняя оценка за период: 4,8 ★, отзывов 2');
+  });
+  it('клиенты: новые, повторные и «не были больше 45 дней»', () => {
+    expect(html).toMatch(/data-testid="pult-clients-new"[^>]*>0</);
+    expect(html).toMatch(/data-testid="pult-clients-repeat"[^>]*>1</);
+    expect(html).toMatch(/data-testid="pult-clients-lapsed"[^>]*>3</);
+    expect(html).toContain('data-testid="insight-lapsed"');
+  });
+  it('график линией: этот период и пунктиром прошлый', () => {
+    expect(html).toContain('data-testid="pult-days"');
+    expect(html).toContain('Прошлый период');
   });
 });
 

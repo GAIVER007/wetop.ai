@@ -515,7 +515,10 @@ test('зарплата: оклад + процент, премия и штраф,
   await row.getByRole('button', { name: 'Ещё: Иванова Анна' }).click();
   await page.getByRole('menuitem', { name: 'Условия оплаты' }).click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Модель оплаты').selectOption('FIXED_PLUS_PERCENT');
+  // способ оплаты карточкой (владелец 25.10.2026): поля только выбранного способа
+  await expect(dialog.getByLabel('Оклад за месяц, ₸')).toBeVisible();
+  await expect(dialog.getByRole('spinbutton', { name: 'Процент от заказов' })).toHaveCount(0);
+  await dialog.getByRole('radio', { name: /^Оклад \+ процент/ }).check();
   await dialog.getByLabel('Оклад за месяц, ₸').fill('40000');
   await dialog.getByRole('spinbutton', { name: 'Процент от заказов' }).fill('5');
   await dialog.getByRole('button', { name: 'Сохранить' }).click();
@@ -601,7 +604,7 @@ test('отчёт за период: выручка, средний чек, оп�
     { method: 'KASPI', amountMinor: '88000', count: 1 },
   ]);
   expect(r.topDishes[0]).toEqual({ name: 'Паста Карбонара', qty: 3, revenueMinor: '117000' });
-  expect(r.waiters).toEqual([{ name: 'Иванова Анна', orders: 2, revenueMinor: '266000' }]);
+  expect(r.waiters).toEqual([{ waiterId: waiter.id, name: 'Иванова Анна', orders: 2, revenueMinor: '266000' }]);
   // техкарты не связаны со складом: себестоимость ноль, прибыль равна выручке (§38)
   expect([r.costMinor, r.grossProfitMinor, r.foodCostPct, r.shortages]).toEqual(['0', '266000', 0, []]);
   // выручка по дням и по категориям меню (макет «Аналитика», экран 10)
@@ -734,7 +737,8 @@ test('график смен (Q-REST-11): неделя сотрудника, пр
   await expect(page).toHaveURL(/\/employees\/shifts$/);
   const line = page.locator('tbody tr', { hasText: waiter.name });
   await expect(line).toContainText('Выходной');
-  await line.getByRole('button', { name: 'Изменить график' }).click();
+  // вид графика салона (вариант B, 25.10.2026): неделя сотрудника открывается по его имени
+  await line.getByRole('button', { name: waiter.name, exact: true }).click();
   const dialog = page.getByRole('dialog');
   const monday = dialog.getByRole('group', { name: 'Понедельник' });
   await monday.getByRole('button', { name: 'Сделать рабочим' }).click();
@@ -886,12 +890,13 @@ test('зарплата салона (§19.2): та же доска, процен
   await scope(page, f.beauty, f.locations[3]!);
   await page.goto('/today');
   await page.goto('/payroll');
-  await expect(page.getByRole('main').getByRole('cell', { name: 'Мастер Дина', exact: true })).toBeVisible();
+  // имя сотрудника заголовком строки (вариант A, 25.10.2026): читалка называет строку по имени
+  await expect(page.getByRole('main').getByRole('rowheader', { name: 'Мастер Дина', exact: true })).toBeVisible();
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Зарплата', level: 1 })).toBeVisible();
-  await expect(main).toContainText('процент от выполненных записей');
-  await expect(main.getByRole('columnheader', { name: 'Услуги' })).toBeVisible();
-  await expect(main.getByRole('columnheader', { name: 'Продажи' })).toHaveCount(0);
+  // процент салона от выполненных записей (вариант A владельца 25.10.2026: колонка процента по базе направления)
+  await expect(main.getByRole('columnheader', { name: '% с записей' })).toBeVisible();
+  await expect(main.getByRole('columnheader', { name: '% с заказов' })).toHaveCount(0);
   await expect(main.getByRole('link', { name: 'График смен' })).toHaveCount(0);
   expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
 });

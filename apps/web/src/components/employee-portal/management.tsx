@@ -68,10 +68,7 @@ export function PortalManagement({
     {data.employee.accountLinked && <PortalForm context={context} command="unlink" label={t('Отвязать аккаунт')} />}
     <h3>{t('Условия оплаты труда')}</h3>
     <PortalForm context={context} command="pay" label={t('Сохранить условия оплаты')}>
-      <Field label={t('Модель оплаты')}><Select name="model" defaultValue={data.pay.model ?? ''} required><option value="" disabled>{t('Выберите модель')}</option><option value="FIXED">{t('Фиксированная')}</option><option value="PERCENT">{t('Процент')}</option><option value="FIXED_PLUS_PERCENT">{t('Фиксированная + процент')}</option><option value="BONUS_ONLY">{t('Только бонусы')}</option></Select></Field>
-      <Field label={t('Фиксированная ставка, {currency}', { currency: currencySign(data.pay.currency) })}><Input name="fixedAmount" inputMode="decimal" required defaultValue={data.pay.fixedMinor === null ? '' : minorToInput(data.pay.fixedMinor)} /></Field>
-      <Field label={t('Процент, от 0 до 100')}><Input name="percent" type="number" min={0} max={100} step={1} required defaultValue={data.pay.percent ?? ''} /></Field>
-      <p>{t('Сумма в валюте филиала. Зарплату за месяц WETOP посчитает сам.')}</p>
+      <PortalPayFields pay={data.pay} />
     </PortalForm>
     {data.business.vertical === 'BEAUTY' && <>
       <h3>{t('База процента для бизнеса')}</h3>
@@ -81,6 +78,34 @@ export function PortalManagement({
       </PortalForm>
     </>}
   </section>;
+}
+
+/**
+ * Условия оплаты в карточке сотрудника той же логикой, что окно «Оплата» в «Зарплате» (владелец 25.10.2026): три
+ * способа, поля только выбранного способа. Поле другого способа уходит нулём скрытым полем: разбор действия прежний.
+ */
+function PortalPayFields({ pay }: { pay: EmployeePortalDto['pay'] }) {
+  const t = useT();
+  const start = pay.model === 'BONUS_ONLY' || pay.model === null ? 'FIXED' : pay.model;
+  const [model, setModel] = useState<'FIXED' | 'PERCENT' | 'FIXED_PLUS_PERCENT'>(start);
+  const fixed = model !== 'PERCENT';
+  const percent = model !== 'FIXED';
+  return <>
+    <Field label={t('Как платим')}>
+      <Select name="model" value={model} required onChange={(e) => setModel(e.target.value as typeof model)}>
+        <option value="FIXED">{t('Только оклад')}</option>
+        <option value="PERCENT">{t('Только процент')}</option>
+        <option value="FIXED_PLUS_PERCENT">{t('Оклад + процент')}</option>
+      </Select>
+    </Field>
+    {fixed
+      ? <Field label={t('Оклад за месяц, {currency}', { currency: currencySign(pay.currency) })}><Input name="fixedAmount" inputMode="decimal" required defaultValue={pay.fixedMinor === null || pay.fixedMinor === '0' ? '' : minorToInput(pay.fixedMinor)} /></Field>
+      : <input type="hidden" name="fixedAmount" value="0" />}
+    {percent
+      ? <Field label={t('Процент, от 1 до 100')}><Input name="percent" type="number" min={1} max={100} step={1} required defaultValue={pay.percent ? pay.percent : ''} /></Field>
+      : <input type="hidden" name="percent" value="0" />}
+    <p>{t('Сумма в валюте филиала. Зарплату за месяц WETOP посчитает сам. Премии и удержания добавляются в «Зарплате».')}</p>
+  </>;
 }
 
 /** Приглашение в личный кабинет (уровень PORTAL): то же приглашение, что в форме «Новый сотрудник», с привязкой к карточке */

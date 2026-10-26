@@ -98,3 +98,60 @@ export function money(value: string, currency: string): string {
       : (fmt.formatToParts(0).find((p) => p.type === 'currency')?.value ?? currency);
   return `${negative ? '−' : ''}${whole.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0')}${/[1-9]/.test(fraction) ? ',' + fraction : ''}\u00a0${symbol}`;
 }
+
+export function readCategories(
+  value: unknown,
+): import('./contracts').MenuPage<import('./contracts').MenuCategory> {
+  const v = obj(value);
+  return {
+    nextCursor: v.nextCursor === null ? null : str(v.nextCursor),
+    items: list(v.items, (value) => {
+      const c = obj(value);
+      return {
+        id: str(c.id),
+        name: str(c.name),
+        sortOrder: num(c.sortOrder),
+        active: bool(c.active),
+        station: str(c.station),
+      };
+    }),
+  };
+}
+export function readMenu(
+  value: unknown,
+): import('./contracts').MenuPage<import('./contracts').MenuItem> {
+  const v = obj(value);
+  return {
+    nextCursor: v.nextCursor === null ? null : str(v.nextCursor),
+    items: list(v.items, (value) => {
+      const i = obj(value);
+      return {
+        id: str(i.id),
+        categoryId: str(i.categoryId),
+        name: str(i.name),
+        priceMinor: minor(i.priceMinor),
+        currency: str(i.currency),
+        active: bool(i.active),
+        photoUrl: i.photoUrl === null ? null : str(i.photoUrl),
+        modifierGroups: list(i.modifierGroups, (value) => {
+          const g = obj(value);
+          return {
+            id: str(g.id),
+            name: str(g.name),
+            minSelect: num(g.minSelect),
+            maxSelect: num(g.maxSelect),
+            required: bool(g.required),
+            modifiers: list(g.modifiers, (value) => {
+              const m = obj(value);
+              return {
+                id: str(m.id),
+                name: str(m.name),
+                priceDeltaMinor: minor(m.priceDeltaMinor),
+              };
+            }),
+          };
+        }),
+      };
+    }),
+  };
+}

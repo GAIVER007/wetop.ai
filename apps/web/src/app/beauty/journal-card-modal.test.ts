@@ -61,7 +61,8 @@ it('offers an accessible compact calendar toggle', () => {
   const html = renderToStaticMarkup(createElement(JournalBoard, {
     day, customers: [], employees: [], readOnly: false,
   }));
-  expect(html).toMatch(/aria-pressed="false"[^>]*>Компактный вид/);
+  expect(html).toMatch(/aria-label="Компактный вид"[^>]*aria-pressed="false"/);
+  expect(html).not.toContain('Свободно: пустая клетка');
 });
 
 it('аудит 22.10.2026: «Новая запись» из карточки мастера открывает форму к этому мастеру', () => {
@@ -73,4 +74,16 @@ it('аудит 22.10.2026: «Новая запись» из карточки м�
     day, customers: [], employees: [], readOnly: false, newFor: 'unknown-master',
   }));
   expect(closed).not.toContain('synthetic-new-form');
+});
+
+it('плашка записи (владелец 25.10.2026): время и клиент сверху, услуга своей строкой, цена и оплата значком', () => {
+  const html = renderToStaticMarkup(createElement(JournalBoard, {
+    day: { ...day, appointments: [{ ...day.appointments[0]!, paidMinor: '2500' }] },
+    customers: [], employees: [], readOnly: false,
+  }));
+  const tile = html.slice(html.indexOf('class="beauty-tile beauty-tile--booked"'));
+  expect(tile).toMatch(/beauty-tile-top"><span class="beauty-tile-time">10:00–11:00<\/span><strong class="beauty-tile-name">Synthetic Customer<\/strong>/);
+  expect(tile).toContain('<span class="beauty-tile-service">Synthetic service</span>');
+  expect(tile).toMatch(/class="beauty-tile-pay beauty-tile-pay--partial" title="Оплачено частично"[^>]*><span class="beauty-tile-dot" aria-hidden="true"><\/span>Частично</);
+  expect(tile).not.toContain('Не опл.');
 });

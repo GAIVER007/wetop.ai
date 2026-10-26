@@ -51,13 +51,9 @@ export default async function BeautySchedulePage({
   const canEdit = mayAccess(shell.access, 'property') && !shell.readOnly;
   return (
     <Page
-      className="beauty-page"
+      className="beauty-page schedule-page"
       title={t('График работы')}
-      subtitle={
-        loaded.value.location
-          ? t('Кто работает в филиале «{name}» по дням недели.', { name: loaded.value.location.name ?? t('без имени') })
-          : t('График специалистов. Филиал пока не выбран.')
-      }
+      subtitle={loaded.value.location ? (loaded.value.location.name ?? t('без имени')) : t('Филиал пока не выбран')}
     >
       {setupPending && <SalonSetupLink />}
       <ScheduleBoard
@@ -117,5 +113,6 @@ async function loadGrid(
     elsewhere: first.employees.filter((e) => e.active && !e.worksHere).length,
     groups,
     group: chosen,
+    today,
   };
 }

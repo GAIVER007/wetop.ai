@@ -25,3 +25,28 @@ export function branchMethodsAll<T extends string>(
 ): T[] {
   return all.filter((m) => !OFF_BY_DEFAULT.has(m) || enabled?.includes(m) || withBalance.includes(m));
 }
+
+/**
+ * Остатки кассы филиала (и способы сверки и расхода «из»): включённые способы плюс любой способ, где есть деньги.
+ * Выключенный способ с нулём только мешает (салону в Катаре Kaspi и Halyk); с деньгами остаётся, чтобы их перевести.
+ */
+export function cashMethodsShown<B extends { method: string; balanceMinor: string }>(
+  balances: readonly B[],
+  enabled: readonly string[],
+): B[] {
+  return balances.filter((b) => enabled.includes(b.method) || BigInt(b.balanceMinor || '0') !== 0n);
+}
+
+/**
+ * Способы расхода «из» и сверки кассы: включённые в порядке настройки филиала (владелец поднял Kaspi вверх, касса
+ * показывает так же), затем выключенные, по которым есть деньги, в порядке общего списка.
+ */
+export function cashMethodsList<T extends string>(
+  all: readonly T[],
+  enabled: readonly string[],
+  balances: readonly { method: string; balanceMinor: string }[],
+): T[] {
+  const on = enabled.filter((m): m is T => (all as readonly string[]).includes(m));
+  const withMoney = new Set(balances.filter((b) => BigInt(b.balanceMinor || '0') !== 0n).map((b) => b.method));
+  return [...on, ...all.filter((m) => !on.includes(m) && withMoney.has(m))];
+}

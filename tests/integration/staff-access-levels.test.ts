@@ -121,4 +121,34 @@ describe.skipIf(!url)('уровни доступа сотрудника (integra
       expect(row.userId).toBe(other.id);
     });
   });
+
+  it('список входов отдаёт карточки человека только своей организации, приглашение отдаёт карточку (один экран «Сотрудники»)', async () => {
+    await rolledBack(async (tx) => {
+      const w = await world(tx);
+      await tx.employee.update({ where: { id: w.employee }, data: { userId: w.owner } });
+      // тот же человек с карточкой в чужой организации: сюда она не попадает
+      const otherOrg = await tx.organization.create({ data: { name: `Чужая ${w.mark}` }, select: { id: true } });
+      const otherBiz = await tx.business.create({
+        data: { organizationId: otherOrg.id, name: 'Кафе', vertical: 'FOOD_SERVICE' },
+        select: { id: true },
+      });
+      await tx.employee.create({ data: { businessId: otherBiz.id, name: 'Владелец в кафе', userId: w.owner } });
+      const newcomer = await tx.employee.create({ data: { businessId: w.biz, name: 'Новенькая' }, select: { id: true } });
+      await w.repo.createInvite({
+        organizationId: w.org,
+        email: `new-${w.mark}@example.invalid`,
+        tokenHash: randomUUID().replaceAll('-', '').padEnd(64, '0'),
+        expiresAt: new Date(Date.now() + 3600_000),
+        createdBy: w.owner,
+        role: 'EMPLOYEE',
+        employeeId: newcomer.id,
+      });
+      const members = await w.repo.members(w.org);
+      expect(members.map((m) => [m.userId, m.employees])).toEqual([
+        [w.owner, [{ employeeId: w.employee, businessId: w.biz }]],
+      ]);
+      const invites = await w.repo.pendingInvites(w.org, new Date());
+      expect(invites.map((i) => i.employeeId)).toEqual([newcomer.id]);
+    });
+  });
 });

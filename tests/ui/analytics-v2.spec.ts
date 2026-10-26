@@ -20,7 +20,7 @@ async function withHistory(page: Page) {
 
 // Direction depends on the calendar: the seeded rooms near today are reserved for other tests.
 // Verify the rendered comparison against the endpoint instead of assuming October grows.
-async function expectOccupancyDirection(page: Page, fund: string) {
+async function expectMetricDirection(page: Page, fund: string, metric: 'occupancy' | 'cancelled' = 'occupancy') {
   const today = new Date(Date.now() + 5 * 3600_000).toISOString().slice(0, 10);
   const [y, m] = today.split('-').map(Number) as [number, number];
   const from = `${today.slice(0, 7)}-01`;
@@ -47,13 +47,18 @@ async function expectOccupancyDirection(page: Page, fund: string) {
       ? Math.round((rows.reduce((n, c) => n + c.occupiedNights, 0) * 1000) / sellable) / 10
       : 0;
   };
-  const difference = Math.round((pct(current) - pct(previous)) * 10) / 10;
+  const difference = Math.round((metric === 'cancelled'
+    ? current.bookings.cancelledPercent - previous.bookings.cancelledPercent
+    : pct(current) - pct(previous)) * 10) / 10;
   const direction = difference > 0 ? 'up' : difference < 0 ? 'down' : 'flat';
   const arrow = direction === 'up' ? '▲' : direction === 'down' ? '▼' : '•';
   const points = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(
     Math.abs(difference),
   );
-  const delta = page.getByRole('main').locator(`.kpi--occupancy .kpi-delta--${direction}`);
+  const tone = metric === 'cancelled' && direction !== 'flat'
+    ? direction === 'up' ? 'down' : 'up'
+    : direction;
+  const delta = page.getByRole('main').locator(`.kpi--${metric} .kpi-delta--${tone}`);
   await expect(delta).toBeVisible();
   await expect(delta).toHaveText(`${arrow} ${points} п.п.`);
 }
@@ -104,7 +109,7 @@ test('обзор за месяц: четыре основных показате
   await expect(kpis.locator('.kpi')).toHaveCount(5);
   // При двух типах фонда первая плитка сравнивает номера, а не суммарную загрузку.
   // Направление и точные процентные пункты сверяются с API для текущего месяца.
-  await expectOccupancyDirection(page, 'all');
+  await expectMetricDirection(page, 'all');
   await expect(main.getByTestId('pa-kpis-detail')).not.toBeVisible();
   await main.locator('.pa-details > summary').click();
   await expect(main.getByTestId('pa-kpis-detail').locator('.kpi')).toHaveCount(2);
@@ -133,14 +138,14 @@ test('номера и койки считаются раздельно: своя
   await expect(economics).toContainText('Средняя цена номера');
   await expect(economics).toContainText('Доход на номер');
   await expect(economics).not.toContainText(/ADR|RevPAR/);
-  await expectOccupancyDirection(page, 'rooms');
+  await expectMetricDirection(page, 'rooms');
   await expect(main.getByTestId('pa-categories').locator('tbody tr')).toHaveCount(1);
 
   await main.getByTestId('pa-fund').getByRole('link', { name: 'Койки' }).click();
   await expect(page).toHaveURL(/fund=beds/);
   await expect(economics).toContainText('Средняя цена койки');
   await expect(economics).toContainText('Доход на койку');
-  await expectOccupancyDirection(page, 'beds');
+  await expectMetricDirection(page, 'beds');
   await expect(main.getByTestId('pa-categories').locator('tbody tr')).toHaveCount(2);
   // тип фонда не теряется при смене периода
   await main.getByRole('link', { name: 'Прошлый месяц' }).click();
@@ -148,13 +153,11 @@ test('номера и койки считаются раздельно: своя
   await expect(page).toHaveURL(/fund=beds/);
 });
 
-test('рост отмен — красный, падение — зелёный; сравнение выключается', async ({ page }) => {
+test('отмены: направление по данным, рост красный, падение зелёное; сравнение выключается', async ({ page }) => {
   const main = page.getByRole('main');
   await page.goto('/management/analytics');
-  // на стенде доля отмен в этом месяце выше прошлого: стрелка вверх, но тон «плохо»
-  const cancelled = main.locator('.kpi--cancelled .kpi-delta');
-  await expect(cancelled).toContainText('▲');
-  await expect(cancelled).toHaveClass(/kpi-delta--down/);
+  // История зависит от даты: проверяем точную дельту и обратный цвет относительно API.
+  await expectMetricDirection(page, 'all', 'cancelled');
   await main.getByTestId('pa-compare-toggle').click();
   await expect(page).toHaveURL(/compare=0/);
   await expect(main.locator('.kpi-delta')).toHaveCount(0);

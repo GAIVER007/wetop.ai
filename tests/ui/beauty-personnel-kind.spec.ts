@@ -64,14 +64,18 @@ test('вкладки по назначению и назначение стар�
   const tabs = tablist(page);
   // единый экран (вариант A, 20.10.2026): «Все» первой, «Не назначено» с числом; плиток сводки нет (владелец 20.10.2026)
   await expect(page.getByRole('main').locator('.staff-board__stats')).toHaveCount(0);
+  // общий экран «Сотрудники» (U2, 25.10.2026): владелец видит и входы стенда без карточки (себя, Марата, Юрия) и
+  // два ожидающих приглашения, поэтому «Все» 4 карточки + 5 строк входов
   await expect(tabs.getByRole('tab')).toHaveText([
-    'Все4',
+    'Все9',
     'Не назначено1',
     'Специалисты2',
     'Другие сотрудники2',
+    'С доступом3',
+    'Ждут приглашения2',
   ]);
   await expect(tabs.getByRole('tab', { name: /^Все/ })).toHaveAttribute('aria-selected', 'true');
-  await expect(panel(page).getByTestId('staff-row')).toHaveCount(4);
+  await expect(panel(page).getByTestId('staff-row')).toHaveCount(9);
   await tabs.getByRole('tab', { name: /^Не назначено/ }).click();
   await expect(panel(page)).toContainText('Укажите, кто это');
   await expect(panel(page).getByTestId('staff-row')).toHaveCount(1);
@@ -97,7 +101,13 @@ test('вкладки по назначению и назначение стар�
   // руководитель назначает старую запись: она уходит из «Не назначено», вкладка пропадает
   await tabs.getByRole('tab', { name: /^Не назначено/ }).click();
   await panel(page).getByLabel('Назначение: Алия Старая запись').selectOption('OTHER_EMPLOYEE');
-  await expect(tabs.getByRole('tab')).toHaveText(['Все4', 'Специалисты2', 'Другие сотрудники3']);
+  await expect(tabs.getByRole('tab')).toHaveText([
+    'Все9',
+    'Специалисты2',
+    'Другие сотрудники3',
+    'С доступом3',
+    'Ждут приглашения2',
+  ]);
   await page.reload();
   await tabs.getByRole('tab', { name: /^Другие сотрудники/ }).click();
   await expect(panel(page).getByLabel('Назначение: Алия Старая запись')).toHaveValue(
@@ -162,7 +172,13 @@ test('новый сотрудник: назначение выбирается �
   // карточка мастера остаётся отдельной страницей (решение владельца 20.10.2026)
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/, { timeout: 90_000 });
   await page.goto('/employees');
-  await expect(tablist(page).getByRole('tab')).toHaveText(['Все1', 'Специалисты1', 'Другие сотрудники1']);
+  await expect(tablist(page).getByRole('tab')).toHaveText([
+    'Все6',
+    'Специалисты1',
+    'Другие сотрудники1',
+    'С доступом3',
+    'Ждут приглашения2',
+  ]);
   await expect(panel(page).getByLabel('Назначение: Ержан Новый')).toHaveValue('BOTH');
 });
 

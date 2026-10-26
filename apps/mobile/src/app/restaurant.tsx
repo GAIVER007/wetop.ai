@@ -1,3 +1,7 @@
+import { GuestBill } from '../restaurant/guest-bill';
+import { CloseControls } from '../restaurant/close-controls';
+import { PaymentPanel } from '../restaurant/payment-panel';
+import { ServeControls } from '../restaurant/serve-controls';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,10 +31,19 @@ export default function RestaurantRoute() {
       key={state.identity}
       personal={state.personal || state.user.role === 'EMPLOYEE'}
       name={state.branch.name}
+      canSeeCash={state.user.role !== 'EMPLOYEE'}
     />
   );
 }
-function RestaurantWorkspace({ personal, name }: { personal: boolean; name: string }) {
+function RestaurantWorkspace({
+  personal,
+  name,
+  canSeeCash,
+}: {
+  personal: boolean;
+  name: string;
+  canSeeCash: boolean;
+}) {
   const { session } = useAccess();
   const theme = useTheme();
   const [orders, setOrders] = useState<RestaurantOrder[]>([]);
@@ -40,6 +53,8 @@ function RestaurantWorkspace({ personal, name }: { personal: boolean; name: stri
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState('');
   const [tab, setTab] = useState<'orders' | 'tables'>('orders');
+  const [payment, setPayment] = useState(false);
+  const [bill, setBill] = useState(false);
   const [detail, setDetail] = useState<RestaurantOrder | null>(null);
   const request = useRef(0);
   const locked = useRef(false);
@@ -83,6 +98,35 @@ function RestaurantWorkspace({ personal, name }: { personal: boolean; name: stri
   const card = { padding: 18, borderRadius: 16, backgroundColor: theme.surface, gap: 8 } as const;
   const title = { fontSize: 18, fontWeight: '700', color: theme.text } as const;
   const secondary = { fontSize: 14, lineHeight: 21, color: theme.secondary } as const;
+  if (bill && detail)
+    return (
+      <GuestBill
+        order={detail}
+        onBack={() => setBill(false)}
+        onRefresh={() => {
+          setBill(false);
+          setDetail(null);
+          void load();
+        }}
+      />
+    );
+  if (payment && detail)
+    return (
+      <PaymentPanel
+        order={detail}
+        onBack={(updated) => {
+          if (updated)
+            setOrders((old) =>
+              updated.status === 'CLOSED' || updated.status === 'CANCELLED'
+                ? old.filter((item) => item.id !== updated.id)
+                : old.map((item) => (item.id === updated.id ? updated : item)),
+            );
+          setPayment(false);
+          setDetail(null);
+          void load();
+        }}
+      />
+    );
   if (detail)
     return (
       <Screen title={`Заказ №${detail.number}`} subtitle={detail.table?.name ?? 'Заказ со стойки'}>
@@ -105,14 +149,51 @@ function RestaurantWorkspace({ personal, name }: { personal: boolean; name: stri
             </Text>
           </View>
         ))}
+        <ServeControls
+          key={`${detail.id}:${detail.updatedAt}`}
+          order={detail}
+          send={(orderId, itemId, version) => session.serveItem(orderId, itemId, version)}
+          onUpdated={(next) => {
+            setDetail(next);
+            setOrders((old) => old.map((order) => (order.id === next.id ? next : order)));
+          }}
+          onRefresh={() => {
+            setDetail(null);
+            void load();
+          }}
+        />
         <View style={card}>
           <Text style={secondary}>Сумма заказа</Text>
           <Text style={title}>{money(detail.totalMinor, detail.currency)}</Text>
           <Text style={secondary}>Оплачено: {money(detail.paidMinor, detail.currency)}</Text>
         </View>
+        {detail.status !== 'CANCELLED' && detail.status !== 'CLOSED' ? (
+          <ActionButton secondary label="Показать счёт" onPress={() => setBill(true)} />
+        ) : null}
+        {canSeeCash &&
+        detail.status !== 'CLOSED' &&
+        detail.status !== 'CANCELLED' &&
+        BigInt(detail.totalMinor) > BigInt(detail.paidMinor) ? (
+          <ActionButton label="Принять оплату" onPress={() => setPayment(true)} />
+        ) : null}
+        {canSeeCash ? (
+          <CloseControls
+            key={`close:${detail.id}:${detail.updatedAt}`}
+            order={detail}
+            send={(orderId, version) => session.closeOrder(orderId, version)}
+            onUpdated={(next) => {
+              setDetail(next);
+              setOrders((old) => old.filter((order) => order.id !== next.id));
+            }}
+            onRefresh={() => {
+              setDetail(null);
+              void load();
+            }}
+          />
+        ) : null}
         <Text style={secondary}>
-          Показан последний загруженный состав. Изменение заказа и расчёт пока доступны в
-          веб-версии.
+          Показан последний загруженный состав. Для проверки актуального состояния обновите список
+          заказов.
         </Text>
       </Screen>
     );
@@ -138,6 +219,17 @@ function RestaurantWorkspace({ personal, name }: { personal: boolean; name: stri
         ListHeaderComponent={
           <View style={{ gap: 16, paddingBottom: 8 }}>
             <ActionButton secondary label="В кабинет" onPress={() => router.replace('/')} />
+            <ActionButton
+              label="Меню кухни и бара"
+              onPress={() => router.push('/restaurant-menu')}
+            />
+            {canSeeCash ? (
+              <ActionButton
+                secondary
+                label="Касса филиала"
+                onPress={() => router.push('/restaurant-cash')}
+              />
+            ) : null}
             <View style={{ gap: 6 }}>
               <Text accessibilityRole="header" style={{ ...title, fontSize: 28 }}>
                 {personal ? 'Мои заказы' : 'Работа ресторана'}
@@ -264,8 +356,7 @@ function RestaurantWorkspace({ personal, name }: { personal: boolean; name: stri
             ) : null}
             <ActionButton secondary disabled={busy} label="Обновить" onPress={() => void load()} />
             <Text style={secondary}>
-              Создание заказа и расчёт подключаются следующим этапом. Сейчас они доступны в
-              веб-версии.
+              Откройте заказ, чтобы проверить состав, показать счёт и выполнить доступные действия.
             </Text>
           </View>
         }

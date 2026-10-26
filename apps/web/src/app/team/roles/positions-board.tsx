@@ -57,10 +57,10 @@ export const POSITION_TEMPLATES = {
       { section: 'customers', action: 'create', scope: 'BUSINESS' },
       { section: 'customers', action: 'update', scope: 'BUSINESS' },
       { section: 'services', action: 'view', scope: 'BUSINESS' },
+      // касса: принять оплату и провести расход; возврат денег и склад по отдельному решению владельца салона
+      // (запуск первых салонов 25.10.2026: шаблон без возврата и склада)
       { section: 'finance', action: 'view', scope: 'BUSINESS' },
-      { section: 'finance', action: 'refund', scope: 'BUSINESS' },
-      { section: 'stock', action: 'view', scope: 'BUSINESS' },
-      { section: 'stock', action: 'update', scope: 'BUSINESS' },
+      { section: 'finance', action: 'create', scope: 'BUSINESS' },
       { section: 'reviews', action: 'view', scope: 'BUSINESS' },
     ] satisfies BeautyPermission[],
   },

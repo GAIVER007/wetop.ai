@@ -17,18 +17,21 @@ export function customerSearch(raw: unknown): string | null {
 }
 
 /**
- * Условие Prisma. Запрос из цифр («8 700 000», «+7 (700)») ищется по телефону как есть и по цифрам
- * нормализованного телефона (ведущая 8 читается как 7, как в `customerPhoneKey`); иначе каждое слово встречается в имени, фамилии или
- * телефоне. Это только сужение: вызывающий обязан добавить organizationId и связь с бизнесом.
+ * Условие Prisma. Запрос из цифр («8 700 000», «+7 (700)», «+974 5186») ищется по телефону как есть и по цифрам
+ * нормализованного телефона: и сырыми цифрами, и вариантом с ведущей 8 → 7 (так `customerPhoneKey` хранит
+ * казахстанские номера). Только 8 → 7 ломало номера других стран (салон в Катаре, владелец 25.10.2026). Иначе каждое
+ * слово встречается в имени, фамилии или телефоне; слово с тремя и больше цифрами ещё и в цифрах телефона
+ * («Aidai 51865708» находит «+974 5186 5708»). Это только сужение: вызывающий обязан добавить organizationId и
+ * связь с бизнесом.
  */
 export function customerSearchWhere(q: string) {
   if (/^[\d\s()+.-]+$/.test(q)) {
     const raw = q.replace(/\D/g, '');
-    const digits = raw.startsWith('8') ? `7${raw.slice(1)}` : raw;
+    const variants = raw.length >= 3 ? [...new Set([raw, raw.startsWith('8') ? `7${raw.slice(1)}` : raw])] : [];
     return {
       OR: [
         { phone: { contains: q } },
-        ...(digits.length >= 3 ? [{ phoneNormalized: { contains: digits } }] : []),
+        ...variants.map((digits) => ({ phoneNormalized: { contains: digits } })),
       ],
     };
   }
@@ -36,12 +39,16 @@ export function customerSearchWhere(q: string) {
     AND: q
       .split(' ')
       .filter(Boolean)
-      .map((word) => ({
-        OR: [
-          { firstName: { contains: word, mode: 'insensitive' as const } },
-          { lastName: { contains: word, mode: 'insensitive' as const } },
-          { phone: { contains: word } },
-        ],
-      })),
+      .map((word) => {
+        const digits = word.replace(/\D/g, '');
+        return {
+          OR: [
+            { firstName: { contains: word, mode: 'insensitive' as const } },
+            { lastName: { contains: word, mode: 'insensitive' as const } },
+            { phone: { contains: word } },
+            ...(digits.length >= 3 ? [{ phoneNormalized: { contains: digits } }] : []),
+          ],
+        };
+      }),
   };
 }

@@ -13,14 +13,20 @@ export function DayNav({
   date,
   today,
   onGo,
-  presets,
+  onToday,
+  onWeek,
+  onMonth,
   testId,
 }: {
   date: string;
   today: string;
   onGo: (date: string) => void;
-  /** быстрые дни в окне; по умолчанию «Сегодня», «Завтра» */
-  presets?: Array<{ label: string; date?: string; onSelect?: () => void }>;
+  /** «Сегодня» своим адресом (журнал салона: без даты в адресе); по умолчанию переход на день `today` */
+  onToday?: () => void;
+  /** «Эта неделя»: только у экранов, где есть вид недели */
+  onWeek?: () => void;
+  /** «Этот месяц»: только у экранов, где есть список или сетка месяца */
+  onMonth?: () => void;
   testId?: string;
 }) {
   const t = useT();
@@ -29,9 +35,9 @@ export function DayNav({
     at.setUTCDate(at.getUTCDate() + n);
     return at.toISOString().slice(0, 10);
   };
-  const tomorrow = (() => {
+  const yesterday = (() => {
     const at = new Date(`${today}T12:00:00Z`);
-    at.setUTCDate(at.getUTCDate() + 1);
+    at.setUTCDate(at.getUTCDate() - 1);
     return at.toISOString().slice(0, 10);
   })();
   return (
@@ -42,12 +48,14 @@ export function DayNav({
         today={today}
         compact
         onDay={onGo}
-        dayPresets={
-          presets ?? [
-            { label: msg('Сегодня'), date: today },
-            { label: msg('Завтра'), date: tomorrow },
-          ]
-        }
+        // быстрые дни одни во всех журналах (владелец 25.10.2026): «Сегодня, Вчера», а где есть неделя и месяц,
+        // ещё «Эта неделя, Этот месяц»
+        dayPresets={[
+          onToday ? { label: msg('Сегодня'), date: today, onSelect: onToday } : { label: msg('Сегодня'), date: today },
+          { label: msg('Вчера'), date: yesterday },
+          ...(onWeek ? [{ label: msg('Эта неделя'), onSelect: onWeek }] : []),
+          ...(onMonth ? [{ label: msg('Этот месяц'), onSelect: onMonth }] : []),
+        ]}
         triggerTestId="day-nav-button"
       />
       <button type="button" className="icon-button" aria-label={t('Предыдущий день')} onClick={() => onGo(shift(-1))}>

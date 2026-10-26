@@ -138,6 +138,10 @@ services:
         SUPPORT_EMAIL="$${SUPPORT_EMAIL:-}" SUPPORT_HOURS="$${SUPPORT_HOURS:-}"
         MOBILE_GATEWAY_ENABLED="$${MOBILE_GATEWAY_ENABLED:-}"
         MOBILE_GATEWAY_TRUSTED_PROXY="$${MOBILE_GATEWAY_TRUSTED_PROXY:-}"
+        MOBILE_ORDER_CREATE_ENABLED="$${MOBILE_ORDER_CREATE_ENABLED:-}"
+        MOBILE_ORDER_SERVE_ENABLED="$${MOBILE_ORDER_SERVE_ENABLED:-}"
+        MOBILE_ORDER_PAYMENT_ENABLED="$${MOBILE_ORDER_PAYMENT_ENABLED:-}"
+        MOBILE_ORDER_CLOSE_ENABLED="$${MOBILE_ORDER_CLOSE_ENABLED:-}"
         npx next start --port 3000 --hostname 0.0.0.0
     environment:
       # Стойка ходит в API по имени службы; умолчание клиента (127.0.0.1:3001) в контейнере — это она сама.

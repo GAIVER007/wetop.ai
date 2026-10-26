@@ -29,14 +29,15 @@ test('fixture UI: mobile guest loads, saves citizenship and survives reload', as
   const original = page.url();
   const editor = await openEditor(page);
   await expect(editor.getByLabel(/Гражданство/)).toHaveValue('KAZ');
-  await editor.getByLabel(/Гражданство/).fill('KGZ');
+  // гражданство выбором страны, а не кодом руками (решение 24.10.2026); в форму уходит тот же код alpha-3
+  await editor.getByLabel(/Гражданство/).selectOption('KGZ');
   await editor.getByRole('button', { name: 'Сохранить', exact: true }).click();
-  await expect(page.getByTestId('booking-head')).toContainText('гражданство KGZ');
+  await expect(page.getByTestId('booking-head')).toContainText('гражданство: Кыргызстан');
   await expect(page).toHaveURL(original);
   // окно закрывается само после «Сохранить» (аудит 22.10.2026 P2-3: оставалось открытым, жали Esc)
   await expect(editor).toHaveCount(0);
   await page.reload();
-  await expect(page.getByTestId('booking-head')).toContainText('гражданство KGZ');
+  await expect(page.getByTestId('booking-head')).toContainText('гражданство: Кыргызстан');
   const reopened = await openEditor(page);
   await expect(reopened.getByLabel(/Гражданство/)).toHaveValue('KGZ');
   expect(await reopened.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
@@ -82,7 +83,7 @@ test('fixture UI: pseudonymized editor preserves warning and omits personal fiel
   const editor = await openEditor(page);
   await expect(editor.getByTestId('guest-pseudonymized')).toContainText('имя, контакты, заметки и документы');
   await expect(editor.locator('[name="firstName"], [name="lastName"], [name="phone"], [name="email"], [name="notes"]')).toHaveCount(0);
-  await expect(editor.getByLabel(/Гражданство/)).toBeEditable();
+  await expect(editor.getByLabel(/Гражданство/)).toBeEnabled();
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('guest-form')).toHaveCount(0);
 });

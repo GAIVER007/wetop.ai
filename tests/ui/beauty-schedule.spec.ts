@@ -60,8 +60,9 @@ async function addMaster(page: Page, name: string) {
   const main = page.getByRole('main');
   await main.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   const panel = page.getByRole('dialog');
-  await panel.getByLabel('Имя мастера').fill(name);
-  await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await panel.getByLabel('Имя').fill(name);
+  await panel.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('NONE');
+  await panel.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
   // После сохранения экран сразу переходит в карточку, временный status может исчезнуть.
   // Проверяем сохранённого сотрудника в том же филиале, а не успеваемость чтения уведомления.
   await expect.poll(async () => {
@@ -189,7 +190,9 @@ test('сетка: выходной по графику ведёт в окно н
 
   // у мастера запись в эту среду: выключение дня её не отменяет и предупреждает
   // Берём дату отображаемой ячейки: неделя филиала может отличаться от недели браузера.
-  const switchName = await cell(page, 'Дина', 2).getByRole('switch').getAttribute('name');
+  // Переключатель даты есть только в открытом окошке дня (вариант B), поэтому сначала открываем день.
+  const day = await openDay(page, 'Дина', 2);
+  const switchName = await day.getByRole('switch').getAttribute('name');
   const wednesday = switchName?.match(/(\d{4}-\d{2}-\d{2})$/)?.[1];
   expect(wednesday).toBeTruthy();
   await request.post(`${FIXTURE_API}/__test/control`, {

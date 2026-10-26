@@ -132,18 +132,19 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await expect(panel).toBeHidden();
   await expect(page).toHaveURL(/\/services$/);
   await expect(
-    page.locator('[data-service-list="salon"] .beauty-service-item').filter({
+    page.locator('[data-service-list="price"] .beauty-service-item').filter({
       has: page.getByText('Тестовая стрижка', { exact: true }),
     }),
-  ).not.toContainText('12 000');
+  ).toContainText('12 000 ₸');
   // созданная услуга не открывается заново после перезагрузки: незавершённой настройки нет
   await page.reload();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goto('/employees');
   await page.getByRole('button', { name: 'Добавить специалиста' }).click();
   panel = page.getByRole('dialog');
-  await panel.getByLabel('Имя мастера').fill('Тестовый мастер Анна');
-  await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
+  await panel.getByLabel('Имя').fill('Тестовый мастер Анна');
+  await panel.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('NONE');
+  await panel.getByRole('button', {name:'Добавить сотрудника',exact:true}).click();
   // Создание открывает полную карточку специалиста отдельной страницей, не диалог.
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   let profile = page.getByTestId('employee-manager');

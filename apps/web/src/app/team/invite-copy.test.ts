@@ -6,6 +6,6 @@ describe('приглашение сотрудника', () => {
   it('подсказка почты нейтральная, без «hotel»', () => {
     const source = readFileSync(new URL('./team-board.tsx', import.meta.url), 'utf8');
     expect(source).not.toContain('@hotel');
-    expect(source).toContain('placeholder="name@company.kz"');
+    expect(source).toContain('placeholder="example@example.com"');
   });
 });

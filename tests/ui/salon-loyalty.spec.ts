@@ -34,7 +34,7 @@ async function openSalon(page: Page, request: APIRequestContext) {
 
 test('настройки: напоминания с предпросмотром и бонусы сохраняются', async ({ page, request }) => {
   await openSalon(page, request);
-  await page.goto('/beauty-settings');
+  await page.goto('/beauty-settings?section=reminders');
   const reminders = page.getByTestId('reminder-settings');
   await expect(reminders.getByRole('heading', { name: 'Напоминания клиентам' })).toBeVisible({ timeout: 60_000 });
   await reminders.getByLabel('За сколько часов до записи').fill('24, 3');
@@ -42,6 +42,8 @@ test('настройки: напоминания с предпросмотром
   await expect(reminders.getByTestId('reminder-preview')).toHaveText('Здравствуйте, Айгуль! Ждём вас 23 октября в 10:30.');
   await reminders.getByRole('button', { name: 'Сохранить напоминания' }).click();
   await expect(reminders.getByText('Напоминания сохранены')).toBeVisible();
+  // единый вход (PR 879): бонусы открываются своим разделом
+  await page.goto('/beauty-settings?section=bonuses');
   const bonuses = page.getByTestId('bonus-settings');
   await bonuses.getByLabel('Начислять и принимать бонусы').check();
   await bonuses.getByLabel('Начислять, % от оплаты').fill('7');

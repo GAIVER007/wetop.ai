@@ -1,4 +1,51 @@
 @layer sections {
+  /* период «Аналитики» месяцем (владелец 26.10.2026): область отчёта слева, «‹ октябрь 2026 ›» справа */
+  .analytics-period {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .analytics-month {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .analytics-month__step,
+  .analytics-month__label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--touch-target);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+  }
+  .analytics-month__step {
+    min-width: var(--touch-target);
+    color: var(--primary);
+  }
+  .analytics-month__step.is-disabled {
+    color: var(--muted-2);
+  }
+  .analytics-month__label {
+    min-width: calc(3 * var(--space-16));
+    padding: 0 var(--space-4);
+    color: var(--text);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .analytics-month svg {
+    width: var(--icon-size);
+    height: var(--icon-size);
+  }
+  .pult-ltv {
+    display: block;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    white-space: nowrap;
+  }
   .vertical-report {
     display: grid;
     gap: var(--space-4);

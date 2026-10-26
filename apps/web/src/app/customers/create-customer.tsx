@@ -12,7 +12,7 @@ type CustomerFieldErrors = { firstName?: string | undefined; phone?: string | un
 export function customerFieldErrors(draft: { firstName: string; phone: string }): CustomerFieldErrors {
   const errors: CustomerFieldErrors = {};
   if (!draft.firstName.trim()) errors.firstName = msg('Укажите имя клиента');
-  if (!draft.phone.trim()) errors.phone = msg('Укажите телефон, например +7 701 000 00 00');
+  if (!draft.phone.trim()) errors.phone = msg('Укажите телефон');
   return errors;
 }
 
@@ -42,7 +42,7 @@ export function CreateCustomer({ businessId, onSaved }: {
       <Field label={t('Фамилия')}><Input name="lastName" autoComplete="family-name" maxLength={100}
         value={lastName} onChange={(e) => setLastName(e.target.value)} /></Field>
       <Field label={t('Телефон')} controlId="create-customer-phone" error={errors.phone && t(errors.phone)}><Input name="phone" type="tel" inputMode="tel" autoComplete="tel" required maxLength={32}
-        placeholder="+7 701 000 00 00" value={phone} onChange={(e) => { setPhone(formatPhoneInput(e.target.value)); setErrors((current) => ({ ...current, phone: undefined })); }} /></Field>
+        value={phone} onChange={(e) => { setPhone(formatPhoneInput(e.target.value)); setErrors((current) => ({ ...current, phone: undefined })); }} /></Field>
       <p className="muted">{t('Номер можно ввести с +7, с 8 или как 10 цифр местного номера.')}</p>
       {state?.error && <Alert>{state.error}</Alert>}
       <Button type="submit" disabled={pending}>{pending ? t('Сохраняем…') : t('Сохранить клиента')}</Button>

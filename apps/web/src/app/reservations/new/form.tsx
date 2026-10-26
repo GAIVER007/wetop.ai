@@ -328,7 +328,6 @@ export function NewReservationForm(props: {
                 type="tel"
                 name="phone"
                 inputMode="tel"
-                placeholder="+7 701 000 00 00"
                 defaultValue={phoneFieldValue(kept['phone'])}
                 onInput={phoneOnInput}
                 onChange={(e) => setPhone(e.target.value)}

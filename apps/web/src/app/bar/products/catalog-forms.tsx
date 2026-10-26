@@ -49,14 +49,21 @@ export function ProductForm({ categories, context }: { categories: BarCategoryRo
   const [codeTouched, setCodeTouched] = useState(false);
   return <form action={action} className="bar-product-form bar-dialog-form" noValidate onSubmit={check}>
     <BarContextFields context={context} />
-    <Field label={t('Название')} controlId="bar-product-name" error={errors.name && t(errors.name)}><Input name="name" id="bar-product-name" required onChange={(event) => { if (!codeTouched) setCode(suggestCode(event.target.value)); }} /></Field>
-    <Field label={t('Код')} controlId="bar-product-code" hint={t('Заполняется из названия, можно изменить')}><Input name="code" id="bar-product-code" value={code} onChange={(event) => { setCodeTouched(true); setCode(event.target.value); }} /></Field>
+    {/* главное сверху: название и категория, цена и минимум; редкое в «Ещё» (владелец 25.10.2026) */}
+    <Field className="bar-product-form__wide" label={t('Название')} controlId="bar-product-name" error={errors.name && t(errors.name)}><Input name="name" id="bar-product-name" required onChange={(event) => { if (!codeTouched) setCode(suggestCode(event.target.value)); }} /></Field>
     <Field label={t('Категория')} controlId="bar-product-category"><Select name="categoryId" id="bar-product-category" defaultValue=""><option value="">{t('Без категории')}</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</Select></Field>
-    <Field label={t('Штрихкод')} controlId="bar-product-barcode"><Input name="barcode" id="bar-product-barcode" /></Field>
-    <Field label={t('Штук в упаковке')} controlId="bar-product-units" error={errors.unitsPerPackage && t(errors.unitsPerPackage)}><Input name="unitsPerPackage" id="bar-product-units" inputMode="numeric" defaultValue="1" required /></Field>
-    <Field label={t('Своя наценка, %')} controlId="bar-product-markup"><Input name="markup" id="bar-product-markup" inputMode="decimal" placeholder={t('Из категории')} /></Field>
-    <Field label={t('Начальная цена, {currency}', { currency: context.currency === 'KZT' ? '₸' : context.currency })} controlId="bar-product-price" error={errors.salePrice && t(errors.salePrice)}><Input name="salePrice" id="bar-product-price" inputMode="decimal" required /></Field>
+    <Field label={t('Цена продажи, {currency}', { currency: context.currency === 'KZT' ? '₸' : context.currency })} controlId="bar-product-price" error={errors.salePrice && t(errors.salePrice)}><Input name="salePrice" id="bar-product-price" inputMode="decimal" required /></Field>
     <Field label={t('Мин. остаток')} controlId="bar-product-min" error={errors.minimumStockUnits && t(errors.minimumStockUnits)}><Input name="minimumStockUnits" id="bar-product-min" inputMode="numeric" defaultValue="0" required /></Field>
+    {/* поле с ошибкой раскрывает «Ещё», иначе ошибку не видно */}
+    <details className="bar-product-form__more" open={errors.unitsPerPackage ? true : undefined}>
+      <summary>{t('Ещё')}</summary>
+      <div className="bar-product-form__more-grid">
+        <Field label={t('Код')} controlId="bar-product-code" hint={t('Заполняется из названия, можно изменить')}><Input name="code" id="bar-product-code" value={code} onChange={(event) => { setCodeTouched(true); setCode(event.target.value); }} /></Field>
+        <Field label={t('Штрихкод')} controlId="bar-product-barcode"><Input name="barcode" id="bar-product-barcode" /></Field>
+        <Field label={t('Штук в упаковке')} controlId="bar-product-units" error={errors.unitsPerPackage && t(errors.unitsPerPackage)}><Input name="unitsPerPackage" id="bar-product-units" inputMode="numeric" defaultValue="1" required /></Field>
+        <Field label={t('Своя наценка, %')} controlId="bar-product-markup"><Input name="markup" id="bar-product-markup" inputMode="decimal" placeholder={t('Из категории')} /></Field>
+      </div>
+    </details>
     <Button type="submit" disabled={pending}>{pending ? t('Сохраняю…') : t('Добавить товар')}</Button>
     <Feedback state={state} />
   </form>;

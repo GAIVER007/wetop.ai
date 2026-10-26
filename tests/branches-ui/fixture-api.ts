@@ -533,6 +533,12 @@ app.use(
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
                 // способы оплаты филиала (миграция 151, #807): RESTRICT на филиал, уходят до филиала
                 await tx.branchPaymentMethodSetting.deleteMany({ where: { location: { business: b } } });
+                // касса филиала из шапки (миграции 160/161): NO ACTION на объект и филиал, уходит до них
+                const registers = { register: { organizationId: { in: [org, orgB] } } };
+                await tx.cashCommand.deleteMany({ where: registers });
+                await tx.cashHandover.deleteMany({ where: registers });
+                await tx.cashShift.deleteMany({ where: registers });
+                await tx.cashRegister.deleteMany({ where: { organizationId: { in: [org, orgB] } } });
                 const properties = { organizationId: org };
                 await tx.housekeepingEvent.deleteMany({ where: { inventoryUnit: { property: properties } } });
                 await tx.inventoryUnit.deleteMany({ where: { property: properties } });

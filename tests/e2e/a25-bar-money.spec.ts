@@ -204,6 +204,8 @@ async function createCatalog(page: Page, name: string) {
   await openDialog(page, 'Новый товар');
   await hydrated(page, '.bar-product-form');
   const products = page.locator('.bar-product-form');
+  // код в свёрнутом «Ещё» новой карточки товара (владелец 25.10.2026)
+  await products.locator('summary', { hasText: 'Ещё' }).click();
   await products.locator('input[name=code]').fill(randomUUID());
   await products.locator('input[name=name]').fill(name);
   await products.locator('input[name=salePrice]').fill('150');
@@ -350,8 +352,9 @@ test('UI-01 real KZT user flow and expected/API/SQL/DOM reconciliation', async (
   await expect(paidCell).toHaveText('Оплачено: 300 ₸');
   dom['Оплачено поставщику'] = (await paidCell.textContent())!;
   await page.goto('/bar/operations');
-  const sales = page.locator('tr').filter({ hasText: name }).filter({ hasText: 'Продано' });
-  await expect(sales).toContainText('420 ₸');
+  // продажи в общей ленте движений: строка «Продажа» с суммой выручки (лента вместо журнала продаж, 25.10.2026)
+  const sales = page.getByRole('region', { name: 'Движения остатка бара' }).locator('tbody tr').filter({ hasText: name }).filter({ hasText: 'Продажа' });
+  await expect(sales).toContainText('600 ₸');
   await page.goto('/finance?show=1#operations');
   await expect(page.locator('body')).toContainText('300 ₸');
   const cash = await call('KZT', '/finance/cash');
@@ -378,7 +381,7 @@ test('UI-02 real compatible USD retail, stock, history and cash', async ({ page 
   await expect(stat(page, 'Выручка бара')).toHaveText('20 USD');
   await expectStockCost(page, '20', 'USD');
   await page.goto('/bar/operations');
-  await expect(page.locator('tr').filter({ hasText: 'A25 USD goods' }).filter({ hasText: 'Продано' })).toContainText('10 USD');
+  await expect(page.getByRole('region', { name: 'Движения остатка бара' }).locator('tbody tr').filter({ hasText: 'A25 USD goods' }).filter({ hasText: 'Продажа' })).toContainText('20 USD');
   await page.goto('/bar/products');
   await expect(page.locator('.bar-price-form input[name=salePrice]').first()).toHaveAttribute('aria-label', 'Своя цена продажи в USD');
   await page.goto('/bar/receipts/new');

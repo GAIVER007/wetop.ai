@@ -22,6 +22,9 @@ import { RoleGuard } from './role.guard';
  * только служебный ключ.
  */
 const EXPECTED: Record<string, RouteAccess | 'public'> = {
+  'GET /cash-register': 'desk',
+  'POST /cash-register/command': 'desk',
+  'POST /cash-register/cashiers': 'settings',
   // Owner reporting and existing cash linkage: read reports, mutate only with settings.
   'GET /owner-summary': 'reports',
   'GET /expenses': 'reports',

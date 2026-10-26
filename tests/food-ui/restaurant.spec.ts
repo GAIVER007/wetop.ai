@@ -563,11 +563,18 @@ test('зарплата: оклад + процент, премия и штраф,
   await page.getByRole('tab', { name: 'Сотрудники' }).click();
   await row.getByRole('button', { name: 'Выплатить' }).click();
   await expect(dialog.getByLabel('Сумма, ₸')).toHaveValue('43195');
+  await expect(dialog.getByTestId('payout-after')).toContainText('После выплаты останется 0 ₸');
   await dialog.getByRole('button', { name: 'Выплатить' }).click();
   await expect(dialog).not.toBeVisible();
   await expect(page.getByTestId('payroll-paid')).toContainText('43 195 ₸');
   await expect(row.getByTestId('payroll-remaining')).toContainText('0 ₸');
-  await expect(row.getByRole('button', { name: 'Выплатить' })).toHaveCount(0);
+  // «Выплатить» остаётся в строке у всех (владелец 26.10.2026): окно говорит, что за месяц всё выплачено
+  await row.getByRole('button', { name: 'Выплатить' }).click();
+  await expect(dialog.getByTestId('payout-left')).toContainText('0 ₸');
+  await expect(dialog).toContainText('За этот месяц всё выплачено.');
+  // кнопка внизу окна (у крестика в шапке то же имя «Закрыть»)
+  await dialog.getByTestId('payout').getByRole('button', { name: 'Закрыть' }).click();
+  await expect(dialog).not.toBeVisible();
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);
 });

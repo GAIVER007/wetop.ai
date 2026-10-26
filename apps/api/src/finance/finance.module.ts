@@ -1,3 +1,5 @@
+import { CashShiftsController } from './cash-shifts.controller';
+import { CashShiftsService } from './cash-shifts.service';
 import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.provider';
@@ -16,9 +18,10 @@ import { OwnerSummaryController, OwnerSummaryService } from './owner-summary';
 
 @Module({
   imports: [UnitsModule],
-  controllers: [FinanceController, PaymentRequestsController, OwnerSummaryController, ExpenseDocumentsController],
+  controllers: [CashShiftsController, FinanceController, PaymentRequestsController, OwnerSummaryController, ExpenseDocumentsController],
   providers: [
     PrismaService,
+    CashShiftsService,
     FinanceService,
     OwnerSummaryService,
     { provide: FINANCE_REPOSITORY, useClass: PrismaFinanceRepository },

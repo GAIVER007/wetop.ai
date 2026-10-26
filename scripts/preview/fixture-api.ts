@@ -1,3 +1,4 @@
+import { cashRegisterFixture, resetCashRegisterFixture } from './cash-register-fixture';
 import { customerImportFixture, resetCustomerImportFixture } from './customer-import-fixture';
 import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-fixture';
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
@@ -5894,6 +5895,11 @@ createServer(async (req, res) => {
     ) {
       return send(403, { message: 'Fixture API is available only to the test runner' });
     }
+    if(path.startsWith('/cash-register')){
+      const token=sessionOf(req as never),who=token?uiSessions.get(token):null;
+      if(!who)return send(401,{message:'Войдите в систему'});
+      return cashRegisterFixture(String(req.headers['x-wetop-scope']??''),who.id,path,body,send);
+    }
     if (authLock && !openAtLock(path)) {
       const token = sessionOf(req as never);
       if (!token || !uiSessions.has(token)) return send(401, { message: 'Войдите в систему' });
@@ -6359,6 +6365,7 @@ createServer(async (req, res) => {
     // засев рынка для UI-тестов и снимков: конкуренты и снимки прошлых дней (изменение, «ИИ»)
     if (path === '/__test/market' && req.method === 'POST') {
       resetMarket();
+      resetCashRegisterFixture();
       for (const c of (body['competitors'] as Array<Partial<FixtureCompetitor>> | undefined) ?? [])
         marketCompetitors.push({
           id: String(c.id),

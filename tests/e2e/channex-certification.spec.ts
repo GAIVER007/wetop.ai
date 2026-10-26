@@ -238,8 +238,7 @@ test.describe.serial('Channex certification from the PMS UI', () => {
     await form.locator('select[name="source"]').selectOption('PHONE');
     await form.locator('select[name="accommodationTypeCode"]').selectOption(SINGLE);
     await form.locator('select[name="ratePlanCode"]').selectOption(OTA);
-    await form.locator('input[name="firstName"]').fill('Гость');
-    await form.locator('input[name="lastName"]').fill('Тест-сертификация');
+    await form.locator('input[name="guestQuery"]').fill('Гость Тест-сертификация');
     await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
     await form.getByRole('button', { name: 'Создать бронь' }).click();
     await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);

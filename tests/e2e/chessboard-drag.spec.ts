@@ -47,8 +47,7 @@ test('перетаскивание клетки брони на свободну
   const unitB = await unitOption(unitSelect, 1);
   expect(unitB).not.toBe(unitA);
   await unitSelect.selectOption(unitA);
-  await form.locator('input[name="firstName"]').fill('Гость');
-  await form.locator('input[name="lastName"]').fill('Тест-переезд');
+  await form.locator('input[name="guestQuery"]').fill('Гость Тест-переезд');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);

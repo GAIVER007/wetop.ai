@@ -51,8 +51,7 @@ test('бронь без ячейки видна в блоке «Без ячей�
   const categoryName = (optionText ?? '').replace(/\s*\(свободно \d+\)\s*$/, '').trim();
   expect(categoryName).not.toBe('');
   await form.locator('select[name="unitCode"]').selectOption({ value: '' }); // — назначить позже —
-  await form.locator('input[name="firstName"]').fill('Гость');
-  await form.locator('input[name="lastName"]').fill('Тест-без-ячейки');
+  await form.locator('input[name="guestQuery"]').fill('Гость Тест-без-ячейки');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);

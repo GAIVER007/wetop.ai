@@ -309,8 +309,7 @@ test('служебный код скрыт на плашке, источник �
 }) => {
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
-  await form.getByLabel('Имя *', { exact: true }).fill('Гость');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Стойка-a1b2c3');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Гость Стойка-a1b2c3');
   await form.getByRole('button', { name: '3 ночи', exact: true }).click();
   await form.getByRole('button', { name: 'Создать бронь', exact: true }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);

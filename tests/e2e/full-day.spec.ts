@@ -46,8 +46,7 @@ test('сутки гостя целиком: заезд, услуга на счё
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitCode = await unitOption(unitSelect);
   await unitSelect.selectOption(unitCode);
-  await form.locator('input[name="firstName"]').fill('Гость');
-  await form.locator('input[name="lastName"]').fill('Тест-сутки');
+  await form.locator('input[name="guestQuery"]').fill('Гость Тест-сутки');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);

@@ -10,7 +10,7 @@ import { countLabel, intlLocale, msg } from '../../../i18n';
 import { useLocale, useT } from '../../../i18n/locale-provider';
 import {
   createReservationAction,
-  findGuestsByPhoneAction,
+  findGuestsAction,
   type ActionResult,
   type BookingGuest,
 } from '../actions';
@@ -21,7 +21,7 @@ import { checkBookingAvailability } from './availability';
 import { CHANNELS, SOURCES } from '../sources';
 import { summarize } from './summary';
 import { isStayDate } from '../../../lib/stay-date';
-import { phoneFieldValue, phoneOnInput } from '../../../lib/phone';
+import { matchesCustomer, splitCustomerQuery } from '../../../lib/customer-match';
 import { BookingShell, PickButton, PickGroup, PickHeading } from '../../../components/booking-shell';
 import { roomChoices, type Housekeeping } from './room-choices';
 
@@ -143,7 +143,8 @@ export function NewReservationForm(props: {
   const kept = state.values ?? {};
   // выбранный гость живёт вне формы с ключом попытки: отказ API не сбрасывает выбор
   const [picked, setPicked] = useState<BookingGuest | null>(props.guest);
-  const [phone, setPhone] = useState('');
+  // гость одним полем (владелец 26.10.2026): имя, фамилия и телефон из одной строки
+  const [guestQuery, setGuestQuery] = useState(() => kept['guestQuery'] ?? '');
   const [placementIds, setPlacementIds] = useState(() =>
     props.prefill.length ? props.prefill.map((_, index) => String(index)) : ['0'],
   );
@@ -302,7 +303,7 @@ export function NewReservationForm(props: {
           guest={picked}
           onChange={() => {
             // поля нового гостя появятся пустыми — подсказка по прежнему телефону не нужна
-            setPhone('');
+            setGuestQuery('');
             setPicked(null);
             // гость из карточки пришёл адресом: без `guest` обновление страницы не вернёт его.
             // Переход здесь не нужен — перехват открыл бы вторую форму панелью поверх этой
@@ -315,26 +316,10 @@ export function NewReservationForm(props: {
         />
       ) : props.piiStorage === 'real' ? (
         <>
-          {/* порядок владельца 23.10.2026: сначала имя, затем телефон; отчество и почта в «Дополнительно» */}
-          <div className="booking-guest-fields">
-            <Field label={t('Имя *')}>
-              <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
-            </Field>
-            <Field label={t('Фамилия *')}>
-              <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
-            </Field>
-            <Field label={t('Телефон')} className="booking-guest-fields__phone">
-              <Input
-                type="tel"
-                name="phone"
-                inputMode="tel"
-                defaultValue={phoneFieldValue(kept['phone'])}
-                onInput={phoneOnInput}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </Field>
-          </div>
-          <GuestMatches phone={phone} onPick={setPicked} />
+          {/* одно поле (владелец 26.10.2026: «зачем тавтология»): при вводе имени или номера ниже гости из базы;
+              нет гостя, бронь заводит нового из введённого; отчество и почта в «Дополнительно» */}
+          <NewGuestField query={guestQuery} onQuery={setGuestQuery} />
+          <GuestMatches query={guestQuery} onPick={setPicked} />
         </>
       ) : null}
       <section className="booking-create__dates" aria-label={t('Даты проживания')}>
@@ -671,40 +656,86 @@ function PickedGuest({ guest, onChange }: { guest: BookingGuest; onChange: () =>
  * ТЗ «Гости v2» §34: набран полный телефон — сначала известные гости с ним. «Выбрать» переключает
  * шаг «Гость» на найденного; не выбрал — бронь заведёт нового гостя, как раньше.
  */
-function GuestMatches({ phone, onPick }: { phone: string; onPick: (guest: BookingGuest) => void }) {
+function NewGuestField({ query, onQuery }: { query: string; onQuery: (value: string) => void }) {
+  const t = useT();
+  const guest = splitCustomerQuery(query);
+  const typed = query.trim().length > 0;
+  // фамилия обязательна для гостиницы (регистрация гостя): без неё поле подсвечено, бронь не уходит
+  const missing = typed && (!guest.firstName ? 'name' : !guest.lastName ? 'last' : null);
+  return (
+    <div
+      className="booking-guest-fields booking-guest-fields--one"
+      // поле без управления значением, как прежние Имя/Фамилия: набранное до оживления страницы (поздняя загрузка
+      // гостиницы) браузер сохраняет, а форма подхватывает его здесь при монтировании
+      ref={(el) => {
+        const typed = el?.querySelector<HTMLInputElement>('input[name="guestQuery"]')?.value;
+        if (typed !== undefined && typed !== query) onQuery(typed);
+      }}
+    >
+      <Field label={t('Телефон или имя *')}>
+        <Input
+          type="search"
+          name="guestQuery"
+          defaultValue={query}
+          onChange={(e) => onQuery(e.target.value)}
+          autoComplete="off"
+          required
+          maxLength={200}
+          aria-invalid={missing ? true : undefined}
+        />
+      </Field>
+      <input type="hidden" name="firstName" value={guest.firstName} />
+      <input type="hidden" name="lastName" value={guest.lastName} />
+      <input type="hidden" name="phone" value={guest.phone} />
+      {typed && (
+        <p className={missing ? 'hint booking-guest-new is-missing' : 'hint booking-guest-new'} data-testid="booking-guest-new">
+          {missing === 'name'
+            ? t('Добавьте имя клиента к номеру')
+            : missing === 'last'
+              ? t('Добавьте фамилию гостя через пробел')
+              : t('Новый гость: {name}', { name: [guest.firstName, guest.lastName, guest.phone].filter(Boolean).join(', ') })}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function GuestMatches({ query, onPick }: { query: string; onPick: (guest: BookingGuest) => void }) {
   const t = useT();
   const locale = useLocale();
   const [matches, setMatches] = useState<BookingGuest[]>([]);
-  const digits = phone.replace(/\D/g, '');
+  const text = query.trim();
   useEffect(() => {
-    if (digits.length < 10) {
+    if (text.replace(/\D/g, '').length < 4 && text.replace(/[^\p{L}]/gu, '').length < 2) {
       setMatches([]);
       return;
     }
     let live = true;
-    // пауза, чтобы не спрашивать API на каждую цифру; ответ устаревшего набора отбрасывается
+    // пауза, чтобы не спрашивать API на каждую букву; ответ устаревшего набора отбрасывается
     const timer = window.setTimeout(() => {
-      void findGuestsByPhoneAction(digits).then((found) => {
-        if (live) setMatches(found);
+      void findGuestsAction(text).then((found) => {
+        if (live) setMatches(found.filter((g) => matchesCustomer(text, g)).slice(0, 3));
       });
     }, 350);
     return () => {
       live = false;
       window.clearTimeout(timer);
     };
-  }, [digits]);
+  }, [text]);
   if (matches.length === 0) return null;
   return (
     <div className="booking-matches" data-testid="guest-matches" role="status">
       <b className="booking-matches__title">
-        {matches.length === 1 ? t('Найден гость с этим телефоном') : t('Найдены гости с этим телефоном')}
+        {matches.length === 1 ? t('Найден гость') : t('Найдены гости')}
       </b>
       <ul>
         {matches.map((m) => (
           <li key={m.id} data-testid="guest-match">
             <span className="booking-matches__who">
               <strong>{m.name}</strong>
-              <span className="dir-sub">{countLabel(locale, t, m.visits, VISITS)}</span>
+              <span className="dir-sub">
+                {[m.phone, countLabel(locale, t, m.visits, VISITS)].filter(Boolean).join(', ')}
+              </span>
             </span>
             <Button type="button" tone="secondary" size="sm" onClick={() => onPick(m)}>
               {t('Выбрать')}

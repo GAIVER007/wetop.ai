@@ -362,8 +362,7 @@ test('ошибка создания сохраняет ввод; повтор о
   // источник, промокод и заметки — за свёрнутым «Дополнительно» (booking-compact)
   await form.locator('.booking-create__extras > summary').click();
   await form.locator('[name="source"]').selectOption('PHONE');
-  await form.getByLabel('Имя *', { exact: true }).fill('Новый');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Новый Тест');
   await form.getByLabel('Отчество').fill('Тестович');
   await form.getByLabel('Email').fill('new@example.invalid');
   await form.getByLabel('Заметки').fill('Тест сохранения полей');
@@ -578,8 +577,7 @@ test('групповая бронь: разные категории сохра�
   const second = form.getByTestId('placement-fields').nth(1);
   await second.getByLabel('Категория *').selectOption('MALE');
   await second.getByLabel('Количество мест').fill('4');
-  await form.getByLabel('Имя *', { exact: true }).fill('Тест');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Группа');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Тест Группа');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(form.getByRole('alert')).toContainText('Место уже занято');
   await expect(second.getByLabel('Категория *')).toHaveValue('MALE');
@@ -1478,8 +1476,7 @@ test('новая бронь: резюме выбора обновляется п
   await form.locator('.booking-create__extras > summary').click();
   await form.getByLabel('Источник *').selectOption('PHONE');
   await expect(summary).toContainText('Телефон');
-  await form.getByLabel('Имя *', { exact: true }).fill('Айгуль');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Тестовая');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Айгуль Тестовая');
   // §14: «Фамилия Имя»
   await expect(summary).toContainText('Тестовая Айгуль');
   await category.selectOption('ROOM');

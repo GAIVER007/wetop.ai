@@ -24,11 +24,11 @@ describe('меню словами направления', () => {
     expect(label('FOOD_SERVICE', '/menu')).toBe('Меню');
     expect(label('FOOD_SERVICE', '/table-reservations')).toBe('Брони столов');
     expect(label('FOOD_SERVICE', '/employees')).toBe('Сотрудники');
-    // учётные записи ресторана не второй пункт «Сотрудники»
-    expect(label('FOOD_SERVICE', '/team')).toBe('Доступ и роли');
+    // учётные записи на том же экране «Сотрудники», второго пункта нет (25.10.2026)
+    expect(label('FOOD_SERVICE', '/team')).toBeUndefined();
     expect(label('BEAUTY', '/services')).toBe('Каталог');
     expect(label('BEAUTY', '/appointments')).toBe('Записи');
-    expect(label('BEAUTY', '/employees')).toBe('Специалисты');
+    expect(label('BEAUTY', '/employees')).toBe('Сотрудники');
   });
 
   it('склад: «Бар» и «Кухня» у салона и гостиницы (решение владельца 24.10.2026)', () => {
@@ -54,7 +54,7 @@ describe('меню словами направления', () => {
     ]);
     expect(helpSteps(menuSectionsFor(owner, 'BEAUTY'), 'BEAUTY').map((s) => s.path)).toEqual([
       'Услуги → Каталог',
-      'Персонал → Специалисты',
+      'Персонал → Сотрудники',
       'Журнал',
       'Настройки → Салон',
     ]);

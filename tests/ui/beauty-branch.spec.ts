@@ -75,8 +75,8 @@ test('в салоне меню без гостиничных разделов: �
     'href',
     '/today',
   );
-  // мастера салона это «Специалисты» в «Персонале», учётные записи там же «Сотрудники»
-  await expect(menu.getByRole('link', { name: 'Специалисты', exact: true, includeHidden: true })).toHaveAttribute(
+  // люди салона одним пунктом «Сотрудники» в «Персонале»: карточки и вход в WETOP на одном экране (25.10.2026)
+  await expect(menu.getByRole('link', { name: 'Сотрудники', exact: true, includeHidden: true })).toHaveAttribute(
     'href',
     '/employees',
   );

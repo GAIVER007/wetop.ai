@@ -177,8 +177,12 @@ test('форма брони на телефоне: крупные поля, со
   }
   await page.setViewportSize({ width: 390, height: 480 });
   const submit = form.getByRole('button', { name: 'Создать бронь', exact: true });
-  await submit.scrollIntoViewIfNeeded();
-  await expect(submit).toBeInViewport({ ratio: 1 });
+  // форма ещё догружает поля выше кнопки и сдвигает её вниз после первой прокрутки: прокручиваем, пока раскладка не
+  // устоится (гейт PR #874: кнопка видна на 35 % после одной прокрутки, локально зелено)
+  await expect(async () => {
+    await submit.scrollIntoViewIfNeeded();
+    await expect(submit).toBeInViewport({ ratio: 1, timeout: 1_000 });
+  }).toPass({ timeout: 15_000 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
     true,
   );

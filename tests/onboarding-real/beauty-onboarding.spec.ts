@@ -224,7 +224,9 @@ async function goToEmployeesList(page: Page) {
   const personnel = page.getByRole('button', { name: 'Персонал', exact: true });
   if (!(await personnel.isVisible())) await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   await personnel.click();
-  await page.getByRole('link', { name: 'Специалисты', exact: true }).click();
+  // один пункт «Сотрудники» в «Персонале» салона (U3, 26.10.2026): общий экран /employees. Ищем в группе раздела:
+  // на самом экране есть ещё вкладка «Сотрудники | Роли и права» с тем же словом
+  await page.getByRole('group', { name: 'Персонал' }).getByRole('link', { name: 'Сотрудники', exact: true }).click();
   await expect(page).toHaveURL(/\/employees$/);
   await expect(page.getByTestId('employee-manager')).toHaveCount(0);
 }

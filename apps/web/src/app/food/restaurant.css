@@ -1915,35 +1915,38 @@
 /* «Зарплата», вариант A владельца 25.10.2026: месяц в строке заголовка, итоги месяца одной строкой, плотная таблица
    с числами вправо; окно оплаты тремя карточками способа и полями только выбранного способа */
 @layer sections {
+  /* владелец 26.10.2026: заголовок, итоги и месяц одной строкой, таблица сразу под ней */
   .page.payroll-page > .page__head {
     align-items: center;
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-2);
   }
-  .payroll-month {
-    display: inline-flex;
+  .page.payroll-page .page__actions {
     align-items: center;
     gap: var(--space-2);
   }
-  .payroll-month .date-field {
-    width: 11rem;
+  .payroll-page .tabs-local > .tabs {
+    margin-bottom: var(--space-2);
   }
-  .payroll-month .inp {
-    min-height: var(--control-h-sm);
+  .payroll-month.day-nav.board-period .date-field {
+    width: 10rem;
+  }
+  .payroll-month.day-nav.board-period .date-field .inp {
+    min-height: calc(var(--control-h) - 2px);
+    border: 0;
+    background: transparent;
+    box-shadow: none;
   }
   .payroll-totals {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2);
-    margin: 0 0 var(--space-4);
+    align-items: baseline;
+    gap: var(--space-4);
+    margin: 0;
   }
   .payroll-totals > div {
     display: flex;
     align-items: baseline;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--surface-solid);
+    gap: var(--space-1);
   }
   .payroll-totals dt {
     order: 2;
@@ -1953,7 +1956,7 @@
   .payroll-totals dd {
     margin: 0;
     color: var(--text);
-    font-size: var(--text-lg);
+    font-size: var(--text-md);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
@@ -1962,6 +1965,43 @@
   }
   .payroll-totals .payroll-totals__warn {
     color: var(--warning);
+  }
+  /* окно «Выплатить»: начислено, выплачено, остаток крупно */
+  .payout-sum {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .payout-sum > div {
+    padding: var(--space-2) var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .payout-sum dt {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .payout-sum dd {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .payout-sum .payout-sum__left dd {
+    color: var(--danger);
+  }
+  .payout-after {
+    margin: 0;
+    padding: var(--space-2) var(--space-2);
+    border-radius: var(--radius-control);
+    background: var(--success-soft);
+    color: var(--success);
+    font-size: var(--text-sm);
+  }
+  .payout-after--bad {
+    background: var(--danger-soft);
+    color: var(--danger);
   }
   .tbl.payroll-table th,
   .tbl.payroll-table td {

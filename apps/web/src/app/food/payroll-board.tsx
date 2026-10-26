@@ -14,6 +14,7 @@ import {
 } from '../../components/ui';
 import { ActionMenu } from '../../components/action-menu';
 import { MonthInput } from '../../components/date-field';
+import { Icon } from '../../components/icon';
 import { Tabs } from '../../components/tabs';
 import { Segmented } from '../../components/segmented';
 import { METHOD_RU } from '../../lib/dashboard-format';
@@ -237,25 +238,40 @@ export function shiftMonth(month: string, by: number): string {
 }
 
 /** Месяц зарплаты в строке заголовка (вариант A, 25.10.2026): стрелки и поле месяца, одна строка без подписи сверху */
+/**
+ * Месяц одной рамкой с стрелками, как день в журнале (`DayNav`, владелец 26.10.2026: «календарь переключения месяца
+ * криво»): поле месяца без своей рамки и две кнопки ‹ › внутри одной группы, у всех направлений.
+ */
 export function PayrollMonthNav({ month }: { month: string }) {
   const t = useT();
   const router = useRouter();
+  const go = (m: string) => router.push(`/payroll?month=${m}`);
   return (
-    <span className="payroll-month">
-      <Button tone="secondary" size="sm" aria-label={t('Прошлый месяц')} onClick={() => router.push(`/payroll?month=${shiftMonth(month, -1)}`)}>
-        <span aria-hidden="true">‹</span>
-      </Button>
+    <div className="board-period day-nav payroll-month" role="group" aria-label={t('Месяц')}>
       <MonthInput
         aria-label={t('Месяц')}
         value={month}
         onChange={(e) => {
-          if (e.target.value) router.push(`/payroll?month=${e.target.value}`);
+          if (e.target.value) go(e.target.value);
         }}
       />
-      <Button tone="secondary" size="sm" aria-label={t('Следующий месяц')} onClick={() => router.push(`/payroll?month=${shiftMonth(month, 1)}`)}>
-        <span aria-hidden="true">›</span>
-      </Button>
-    </span>
+      <button
+        type="button"
+        className="icon-button"
+        aria-label={t('Прошлый месяц')}
+        onClick={() => go(shiftMonth(month, -1))}
+      >
+        <Icon name="chevron" className="rotate-left" />
+      </button>
+      <button
+        type="button"
+        className="icon-button"
+        aria-label={t('Следующий месяц')}
+        onClick={() => go(shiftMonth(month, 1))}
+      >
+        <Icon name="chevron" />
+      </button>
+    </div>
   );
 }
 
@@ -341,19 +357,64 @@ function AdjustmentDrawer({
   );
 }
 
-/** Выплата из кассы филиала (§35.3): не больше остатка за месяц */
+/**
+ * Расчёт окна выплаты: сумма в минорных единицах и сколько останется. Больше остатка месяца не платим (API тоже
+ * не даст, §35.3), ноль и пустое поле это ошибка, а не молчаливый ноль.
+ */
+export function payoutPlan(
+  totalMinor: string,
+  paidMinor: string,
+  input: string,
+  currency: string,
+  t: Translate = translator('ru'),
+): { amountMinor: number; afterMinor: string; error: string | null } {
+  const left = BigInt(totalMinor) - BigInt(paidMinor);
+  if (left <= 0n)
+    return {
+      amountMinor: 0,
+      afterMinor: '0',
+      error: t('Нечего выплачивать: за месяц всё выплачено или начислений нет.'),
+    };
+  let amountMinor: number;
+  try {
+    amountMinor = payrollPositiveInputToMinor(input, currency, t);
+  } catch (cause) {
+    return {
+      amountMinor: 0,
+      afterMinor: left.toString(),
+      error: cause instanceof Error ? cause.message : t('Некорректная сумма'),
+    };
+  }
+  if (BigInt(amountMinor) > left)
+    return {
+      amountMinor,
+      afterMinor: left.toString(),
+      error: t('Больше остатка за месяц: можно выплатить не больше {sum}.', {
+        sum: formatMoney(left.toString(), currency),
+      }),
+    };
+  return { amountMinor, afterMinor: (left - BigInt(amountMinor)).toString(), error: null };
+}
+
+/**
+ * Окно «Выплатить» (владелец 26.10.2026): начислено, уже выплачено и остаток крупно, сумма с подставленным
+ * остатком (можно частями), способ из включённых в филиале и сколько останется после выплаты. Деньги уходят
+ * расходом из кассы филиала (§35.3). Если начислять нечего, окно ведёт в «Условия оплаты».
+ */
 function PayoutDrawer({
   scopeKey,
   month,
   currency,
   row,
   close,
+  onSettings,
 }: {
   scopeKey: string;
   month: string;
   currency: string;
   row: PayrollRow;
   close: () => void;
+  onSettings: () => void;
 }) {
   const t = useT();
   const router = useRouter();
@@ -362,22 +423,22 @@ function PayoutDrawer({
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
   // §21.7: выплата только включёнными в филиале способами
   const accepted = useBranchPaymentMethods(scopeKey);
-  const [amount, setAmount] = useState(payrollMinorToInput(row.remainingMinor));
+  const left = BigInt(row.totalMinor) - BigInt(row.paidMinor);
+  const [amount, setAmount] = useState(left > 0n ? payrollMinorToInput(left.toString()) : '');
   // One drawer is one payment intent; failures keep the same key.
   const [idempotencyKey] = useState(() => crypto.randomUUID());
+  const plan = payoutPlan(row.totalMinor, row.paidMinor, amount, currency, t);
+  const money = (minor: string) => formatMoney(minor, currency);
   function submit() {
-    let amountMinor: number;
-    try {
-      amountMinor = payrollPositiveInputToMinor(amount, currency, t);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : t('Некорректная сумма'));
+    if (plan.error) {
+      setError(plan.error);
       return;
     }
     start(async () => {
       const result = await mutateStaff(scopeKey, {
         kind: 'payout',
         id: row.employeeId,
-        body: { period: month, method, amount: amountMinor, idempotencyKey },
+        body: { period: month, method, amount: plan.amountMinor, idempotencyKey },
       });
       if (result.error) setError(result.error);
       else {
@@ -387,35 +448,101 @@ function PayoutDrawer({
     });
   }
   return (
-    <Overlay open onClose={close} title={t('Выплата: {name}', { name: row.name })} drawer className="food-drawer" trapFocus>
+    <Overlay
+      open
+      onClose={close}
+      title={t('Выплата: {name}', { name: row.name })}
+      drawer
+      className="food-drawer"
+      trapFocus
+    >
       <div className="food-form" data-testid="payout">
         {error && <Alert>{error}</Alert>}
-        <p className="muted">
-          {t('Начислено за месяц {total}, выплачено {paid}. Деньги уйдут расходом из кассы.', {
-            total: formatMoney(row.totalMinor, currency),
-            paid: formatMoney(row.paidMinor, currency),
-          })}
-        </p>
-        <Field label={t('Способ')}>
-          <Select value={method} onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}>
-            {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
-              <option key={m} value={m}>
-                {METHOD_RU[m] ? t(METHOD_RU[m]) : m}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field label={t('Сумма, {currency}', { currency: currencyLabel(currency) })}>
-          <Input type="number" inputMode="decimal" min={0.01} step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} />
-        </Field>
-        <div className="food-actions">
-          <Button disabled={pending} onClick={submit}>
-            {t('Выплатить')}
-          </Button>
-          <Button tone="secondary" disabled={pending} onClick={close}>
-            {t('Отмена')}
-          </Button>
-        </div>
+        <dl className="payout-sum" data-testid="payout-sum">
+          <div>
+            <dt>{t('Начислено')}</dt>
+            <dd>{money(row.totalMinor)}</dd>
+          </div>
+          <div>
+            <dt>{t('Уже выплачено')}</dt>
+            <dd>{money(row.paidMinor)}</dd>
+          </div>
+          <div className={left > 0n ? 'payout-sum__left' : undefined}>
+            <dt>{t('Остаток')}</dt>
+            <dd data-testid="payout-left">{money((left > 0n ? left : 0n).toString())}</dd>
+          </div>
+        </dl>
+        {left <= 0n ? (
+          <>
+            <p className="muted">
+              {payUnset(row)
+                ? t('Оплата сотрудника не настроена: начислять нечего. Задайте оклад или процент.')
+                : t('За этот месяц всё выплачено.')}
+            </p>
+            <div className="food-actions">
+              {payUnset(row) && (
+                <Button
+                  onClick={() => {
+                    close();
+                    onSettings();
+                  }}
+                >
+                  {t('Условия оплаты')}
+                </Button>
+              )}
+              <Button tone="secondary" onClick={close}>
+                {t('Закрыть')}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <Field
+              controlId={`payout-amount-${row.employeeId}`}
+              label={t('Сумма, {currency}', { currency: currencyLabel(currency) })}
+              hint={t('Подставлен весь остаток. Можно выплатить частями.')}
+            >
+              <Input
+                type="number"
+                inputMode="decimal"
+                min={0.01}
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+            </Field>
+            <Field label={t('Способ')}>
+              <Select
+                value={method}
+                onChange={(e) => setMethod(e.target.value as FoodPaymentMethod)}
+              >
+                {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, method).map((m) => (
+                  <option key={m} value={m}>
+                    {METHOD_RU[m] ? t(METHOD_RU[m]) : m}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <p
+              className={plan.error ? 'payout-after payout-after--bad' : 'payout-after'}
+              data-testid="payout-after"
+              aria-live="polite"
+            >
+              {plan.error ??
+                t('После выплаты останется {sum}. Деньги уйдут расходом из кассы.', {
+                  sum: money(plan.afterMinor),
+                })}
+            </p>
+            <div className="food-actions">
+              <Button disabled={pending || plan.error !== null} onClick={submit}>
+                {t('Выплатить')}
+              </Button>
+              <Button tone="secondary" disabled={pending} onClick={close}>
+                {t('Отмена')}
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </Overlay>
   );
@@ -430,6 +557,46 @@ function payTerms(t: Translate, r: PayrollRow, basis: PayBasis, currency: string
   if (r.model === 'FIXED_PLUS_PERCENT') return t('{fixed} + {n} %', { fixed, n: r.percent });
   if (r.model === 'PERCENT') return t(BASIS[basis].rate, { n: r.percent });
   return t('Оклад {fixed}', { fixed });
+}
+
+/**
+ * Итоги месяца в строке заголовка рядом с месяцем (владелец 26.10.2026: «сверху много пустого места, подними
+ * таблицу»): четыре коротких значения одной строкой, без отдельной полосы над вкладками.
+ */
+export function PayrollTotals({ payroll }: { payroll: PayrollView }) {
+  const t = useT();
+  const money = (minor: string) => formatMoney(minor, payroll.currency);
+  const remaining = payroll.rows.reduce((sum, r) => sum + BigInt(r.remainingMinor), 0n).toString();
+  const unset = payroll.rows.filter(payUnset).length;
+  return (
+    <dl className="payroll-totals" data-testid="payroll-totals">
+      <div>
+        <dt>{t('Начислено')}</dt>
+        <dd data-testid="payroll-sum-total">{money(payroll.totals.payoutMinor)}</dd>
+      </div>
+      <div>
+        <dt>{t('Выплачено')}</dt>
+        <dd data-testid="payroll-sum-paid">{money(payroll.totals.paidMinor)}</dd>
+      </div>
+      <div>
+        <dt>{t('Осталось')}</dt>
+        <dd
+          className={BigInt(remaining) > 0n ? 'payroll-totals__due' : undefined}
+          data-testid="payroll-due"
+        >
+          {money(remaining)}
+        </dd>
+      </div>
+      {unset > 0 && (
+        <div>
+          <dt>{t('Без настройки')}</dt>
+          <dd className="payroll-totals__warn" data-testid="payroll-unset">
+            {unset}
+          </dd>
+        </div>
+      )}
+    </dl>
+  );
 }
 
 /**
@@ -455,33 +622,8 @@ export function PayrollBoard({
   const [payout, setPayout] = useState<PayrollRow | null>(null);
   const names = new Map(payroll.rows.map((r) => [r.employeeId, r.name]));
   const remaining = payroll.rows.reduce((sum, r) => sum + BigInt(r.remainingMinor), 0n).toString();
-  const unset = payroll.rows.filter(payUnset).length;
   const money = (minor: string) => formatMoney(minor, payroll.currency);
   const cell = (minor: string) => (BigInt(minor) === 0n ? <span className="muted">—</span> : money(minor));
-  const totals = (
-    <dl className="payroll-totals" data-testid="payroll-totals">
-      <div>
-        <dt>{t('Начислено')}</dt>
-        <dd data-testid="payroll-sum-total">{money(payroll.totals.payoutMinor)}</dd>
-      </div>
-      <div>
-        <dt>{t('Выплачено')}</dt>
-        <dd data-testid="payroll-sum-paid">{money(payroll.totals.paidMinor)}</dd>
-      </div>
-      <div>
-        <dt>{t('Осталось выплатить')}</dt>
-        <dd className={BigInt(remaining) > 0n ? 'payroll-totals__due' : undefined} data-testid="payroll-due">
-          {money(remaining)}
-        </dd>
-      </div>
-      <div>
-        <dt>{t('Без настройки оплаты')}</dt>
-        <dd className={unset > 0 ? 'payroll-totals__warn' : undefined} data-testid="payroll-unset">
-          {unset}
-        </dd>
-      </div>
-    </dl>
-  );
   const staffTable = payroll.rows.length === 0 ? (
     <EmptyState title={t('Сотрудников пока нет')} />
   ) : (
@@ -529,15 +671,10 @@ export function PayrollBoard({
                 {/* одна главная кнопка, остальное в меню (аудит 21.10.2026, п. 42) */}
                 {write && (
                   <span className="food-inline-actions">
-                    {due ? (
-                      <Button size="sm" onClick={() => setPayout(r)}>
-                        {t('Выплатить')}
-                      </Button>
-                    ) : blank ? (
-                      <Button size="sm" tone="secondary" onClick={() => setSettings(r)}>
-                        {t('Настроить')}
-                      </Button>
-                    ) : null}
+                    {/* «Выплатить» у каждого (владелец 26.10.2026); окно само скажет, если платить нечего */}
+                    <Button size="sm" tone={due ? 'primary' : 'secondary'} onClick={() => setPayout(r)}>
+                      {t('Выплатить')}
+                    </Button>
                     <ActionMenu
                       size="sm"
                       label={t('Ещё: {name}', { name: r.name })}
@@ -597,7 +734,6 @@ export function PayrollBoard({
     );
   return (
     <div className="food-workspace payroll-workspace" data-testid="payroll-board">
-      {totals}
       <Tabs
         label={t('Зарплата')}
         panels={[
@@ -622,6 +758,7 @@ export function PayrollBoard({
           currency={payroll.currency}
           row={payout}
           close={() => setPayout(null)}
+          onSettings={() => setSettings(payout)}
         />
       )}
       {adjust && (

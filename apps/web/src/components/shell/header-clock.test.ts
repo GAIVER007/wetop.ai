@@ -19,4 +19,12 @@ describe('часы шапки', () => {
     expect(kk.time).toBe('20:00');
     expect(kk.date).not.toBe('24 октября');
   });
+  it('английский интерфейс: дата и день недели по-английски, время 24 часа', () => {
+    expect(headerClockParts(new Date('2026-10-24T15:00:00Z'), 'Asia/Almaty', 'en')).toEqual({
+      date: '24 October',
+      short: '24 Oct',
+      time: '20:00',
+      weekday: 'Saturday',
+    });
+  });
 });

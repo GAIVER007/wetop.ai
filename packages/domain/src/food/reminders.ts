@@ -14,6 +14,26 @@ export const FOOD_DEFAULT_REMINDER_TEMPLATE =
 export const FOOD_CONFIRMATION_TEMPLATE =
   'Здравствуйте, {имя}! Столик забронирован в {ресторан}: {дата} в {время}, {гостей}. Адрес: {адрес}. Телефон: {телефон}.';
 
+/** Тексты гостям на языке организации (ORG-LOCALE-20261026) */
+type FoodLocale = 'ru' | 'kk' | 'en';
+const FOOD_TEMPLATES: Record<FoodLocale, { reminder: string; confirmation: string }> = {
+  ru: { reminder: FOOD_DEFAULT_REMINDER_TEMPLATE, confirmation: FOOD_CONFIRMATION_TEMPLATE },
+  kk: {
+    reminder: 'Сәлеметсіз бе, {имя}! {ресторан} брондауыңызды еске саламыз: {дата}, {время}, {гостей}. Мекенжай: {адрес}. Телефон: {телефон}.',
+    confirmation: 'Сәлеметсіз бе, {имя}! {ресторан} үстел брондалды: {дата}, {время}, {гостей}. Мекенжай: {адрес}. Телефон: {телефон}.',
+  },
+  en: {
+    reminder: 'Hello, {имя}! This is a reminder of your table booking at {ресторан}: {дата} at {время}, {гостей}. Address: {адрес}. Phone: {телефон}.',
+    confirmation: 'Hello, {имя}! Your table at {ресторан} is booked: {дата} at {время}, {гостей}. Address: {адрес}. Phone: {телефон}.',
+  },
+};
+export const foodDefaultReminderTemplate = (locale: FoodLocale = 'ru') => FOOD_TEMPLATES[locale].reminder;
+export const foodConfirmationTemplate = (locale: FoodLocale = 'ru') => FOOD_TEMPLATES[locale].confirmation;
+const FOOD_INTL: Record<FoodLocale, string> = { ru: 'ru-RU', kk: 'kk-KZ', en: 'en-GB' };
+const FOOD_ALIASES: Record<string, FoodReminderPlaceholder> = {
+  name: 'имя', date: 'дата', time: 'время', guests: 'гостей', restaurant: 'ресторан', address: 'адрес', phone: 'телефон',
+};
+
 /** Брони этих состояний ещё ждут гостя: им напоминаем */
 export const FOOD_REMINDER_STATUSES: readonly string[] = ['BOOKED', 'CONFIRMED'];
 
@@ -38,7 +58,9 @@ export function foodReminderWanted(input: {
   };
 }
 
-function guests(n: number): string {
+function guests(n: number, locale: FoodLocale = 'ru'): string {
+  if (locale === 'en') return `${n} ${n === 1 ? 'guest' : 'guests'}`;
+  if (locale === 'kk') return `${n} қонақ`;
   const mod10 = n % 10,
     mod100 = n % 100;
   const word = mod10 === 1 && mod100 !== 11 ? 'гость' : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14) ? 'гостя' : 'гостей';
@@ -54,16 +76,19 @@ export function foodReminderVariables(input: {
   restaurantName: string;
   address: string | null;
   phone: string | null;
+  /** язык организации; без него русский */
+  locale?: FoodLocale;
 }): FoodReminderVariables {
-  const date = new Intl.DateTimeFormat('ru-RU', { timeZone: input.timezone, day: 'numeric', month: 'long' }).format(input.startsAt);
-  const time = new Intl.DateTimeFormat('ru-RU', { timeZone: input.timezone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(
+  const intl = FOOD_INTL[input.locale ?? 'ru'];
+  const date = new Intl.DateTimeFormat(intl, { timeZone: input.timezone, day: 'numeric', month: 'long' }).format(input.startsAt);
+  const time = new Intl.DateTimeFormat(intl, { timeZone: input.timezone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(
     input.startsAt,
   );
   return {
     имя: input.customerName.trim(),
     дата: date,
     время: time,
-    гостей: guests(input.partySize),
+    гостей: guests(input.partySize, input.locale),
     ресторан: input.restaurantName.trim(),
     адрес: (input.address ?? '').trim(),
     телефон: (input.phone ?? '').trim(),
@@ -74,10 +99,11 @@ export function foodReminderVariables(input: {
 export function renderFoodReminder(template: string | null | undefined, vars: FoodReminderVariables): string {
   const source = template && template.trim() ? template : FOOD_DEFAULT_REMINDER_TEMPLATE;
   return source
-    .replace(/\{([^{}]{1,20})\}/g, (whole, key: string) =>
-      (FOOD_REMINDER_PLACEHOLDERS as readonly string[]).includes(key) ? vars[key as FoodReminderPlaceholder] : whole,
-    )
-    .replace(/\s*(Адрес|Телефон):\s*\./g, '')
+    .replace(/\{([^{}]{1,20})\}/g, (whole, raw: string) => {
+      const key = FOOD_ALIASES[raw] ?? raw;
+      return (FOOD_REMINDER_PLACEHOLDERS as readonly string[]).includes(key) ? vars[key as FoodReminderPlaceholder] : whole;
+    })
+    .replace(/\s*(Адрес|Телефон|Address|Phone|Мекенжай):\s*\./g, '')
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/ ([!?.,:;])/g, '$1')
     .trim();

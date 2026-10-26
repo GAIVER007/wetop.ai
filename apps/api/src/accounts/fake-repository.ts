@@ -37,6 +37,10 @@ interface StoredSession {
 }
 
 export class FakeAccountsRepository implements AccountsRepository {
+  /** Язык организации (ORG-LOCALE-20261026); нет записи: `ru`, как у колонки по умолчанию */
+  readonly organizationLocales = new Map<string, 'ru' | 'kk' | 'en'>();
+  /** Язык человека (`users.locale`) по почте: что записало принятие приглашения */
+  readonly userLocales = new Map<string, string>();
   readonly sessions: StoredSession[] = [];
   readonly logins: Array<{ userId: string; at: Date }> = [];
   accounts: AccountRecord[] = [ACCOUNT];
@@ -166,6 +170,7 @@ export class FakeAccountsRepository implements AccountsRepository {
       id: `i-${this.seq}`,
       organizationId: input.organizationId,
       organizationName: org?.organizationName ?? input.organizationId,
+      organizationLocale: this.organizationLocales.get(input.organizationId) ?? 'ru',
       email: input.email,
       tokenHash: input.tokenHash,
       expiresAt: input.expiresAt,
@@ -209,6 +214,9 @@ export class FakeAccountsRepository implements AccountsRepository {
     );
     if (!invite) return null;
     invite.acceptedAt = input.now;
+    // новый человек на языке организации, знакомый остаётся на своём (как `users.locale` в базе)
+    if (!this.accounts.some((a) => a.email === invite.email) && !this.userLocales.has(invite.email))
+      this.userLocales.set(invite.email, this.organizationLocales.get(invite.organizationId) ?? 'ru');
     const joined = await this.joinOrganization({
       email: invite.email,
       organizationId: invite.organizationId,
@@ -526,6 +534,7 @@ function toInviteRecord(i: StoredInvite): InviteRecord {
     id: i.id,
     organizationId: i.organizationId,
     organizationName: i.organizationName,
+    organizationLocale: i.organizationLocale ?? 'ru',
     email: i.email,
     expiresAt: i.expiresAt,
     acceptedAt: i.acceptedAt,

@@ -501,6 +501,8 @@ export class AuthService {
             trialEndsAt: trialEndsAt(now),
             // страна телефона уже проверена `registrationPhone`: код из того же списка
             countryCode: input.phoneCountry,
+            // язык из окна регистрации: на нём уходят приглашения сотрудникам (ORG-LOCALE-20261026)
+            locale,
           },
           select: { id: true },
         });

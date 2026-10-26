@@ -482,9 +482,9 @@ test('archived service and employee preserve historical calendar appointments', 
   await expect(page.getByRole('button', { name: 'Новая запись', exact: true })).toBeDisabled();
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByTestId('beauty-mobile-calendar')).toContainText('Тестовая клиентка');
-  await page.goto(`/calendar?date=${day}&view=week`);
+  await page.goto(`/calendar?date=${day}&view=month`);
   await expect(
-    page.getByTestId('beauty-week').getByRole('link').filter({ hasText: 'Тестовая клиентка' }),
+    page.getByTestId('beauty-month').getByRole('link').filter({ hasText: 'Тестовая клиентка' }),
   ).toContainText('Тестовый мастер Анна');
   await page.goto(`/appointments?date=${day}`);
   await expect(page.getByRole('table')).toContainText('Тестовый мастер Анна');

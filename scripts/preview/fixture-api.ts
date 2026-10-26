@@ -7803,6 +7803,24 @@ createServer(async (req, res) => {
         }
         return send(200, { items });
       }
+      // месяц журнала (26.10.2026): записи периода одним запросом, как `beauty/appointments.ts` period()
+      if (path === '/beauty/appointments/period' && req.method === 'GET') {
+        const from = url.searchParams.get('from') ?? '';
+        const to = url.searchParams.get('to') ?? '';
+        const days: string[] = [];
+        for (let d = from; d && d <= to; ) {
+          days.push(d);
+          const at = new Date(`${d}T12:00:00Z`);
+          at.setUTCDate(at.getUTCDate() + 1);
+          d = at.toISOString().slice(0, 10);
+        }
+        const views = days.map((d) => dayView(d));
+        return send(200, {
+          location: views[0]?.location,
+          period: { from, to },
+          appointments: views.flatMap((v) => v.appointments.map((a) => ({ ...a, localDate: v.date }))),
+        });
+      }
       if (path === '/beauty/appointments' && req.method === 'GET')
         // без даты день филиала «сегодня» в его поясе, как у настоящего API (`beauty/appointments.ts`, todayIn)
         return send(

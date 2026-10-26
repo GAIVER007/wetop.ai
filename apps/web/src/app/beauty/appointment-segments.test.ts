@@ -39,7 +39,7 @@ const day = {
 } satisfies BeautyDay;
 
 
-import { WeekCalendar } from './week-calendar';
+import { MonthCalendar } from './month-calendar';
 describe('multi-service occupancy', () => {
   const multi: BeautyDay = {
     ...day,
@@ -63,8 +63,9 @@ describe('multi-service occupancy', () => {
       expect(html).toContain('Записей: 1');
     } finally { activeQuery = ''; }
   });
-  it('shows every service and master in the week without duplicating the visit', () => {
-    const html = renderToStaticMarkup(createElement(WeekCalendar, { days: [multi], selectedDate: multi.date, employees: [] }));
+  it('shows every service and master in the month without duplicating the visit', () => {
+    const rows = multi.appointments.map((a) => ({ ...a, localDate: multi.date }));
+    const html = renderToStaticMarkup(createElement(MonthCalendar, { day: multi, rows, selectedDate: multi.date, employees: [] }));
     expect(html).toContain('First service');
     expect(html).toContain('Second service');
     expect(html.match(/appointment=synthetic-appointment/g)).toHaveLength(1);

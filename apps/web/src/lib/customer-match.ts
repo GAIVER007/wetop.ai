@@ -41,3 +41,17 @@ export function matchesCustomer(
     return name.includes(word);
   });
 }
+
+/**
+ * Новый клиент из одного поля поиска (владелец 26.10.2026: «зачем нам тавтология», поиск «Телефон или имя» и
+ * отдельные «Имя / Фамилия / Телефон» дублировали друг друга). Номер телефона (от 7 цифр подряд, со знаками «+()-.»
+ * и пробелами) выделяется из строки, первое слово остатка становится именем, остальное фамилией.
+ */
+const PHONE_RUN = /\+?[\d(][\d\s()+.-]{5,}\d/;
+export function splitCustomerQuery(value: string): { firstName: string; lastName: string; phone: string } {
+  const text = value.replace(/\s+/g, ' ').trim();
+  const found = text.match(PHONE_RUN)?.[0]?.trim() ?? '';
+  const phone = digitsOf(found).length >= 7 ? found : '';
+  const words = (phone ? text.replace(found, ' ') : text).replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  return { firstName: words[0] ?? '', lastName: words.slice(1).join(' '), phone };
+}

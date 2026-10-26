@@ -19,6 +19,38 @@ export const CONFIRMATION_TEMPLATE =
   'Здравствуйте, {имя}! Вы записаны в {салон}: {услуга}, {дата} в {время}, мастер {мастер}. Адрес: {адрес}. ' +
   'Телефон: {телефон}.';
 
+/** Язык сообщений клиентам: язык организации (ORG-LOCALE-20261026) */
+export type ClientMessageLocale = 'ru' | 'kk' | 'en';
+
+const REMINDER_TEMPLATES: Record<ClientMessageLocale, { reminder: string; confirmation: string }> = {
+  ru: { reminder: DEFAULT_REMINDER_TEMPLATE, confirmation: CONFIRMATION_TEMPLATE },
+  kk: {
+    reminder:
+      'Сәлеметсіз бе, {имя}! {салон} жазылуыңызды еске саламыз: {услуга}, {дата}, {время}, шебер {мастер}. ' +
+      'Мекенжай: {адрес}. Жоспарыңыз өзгерсе, бізге қоңырау шалыңыз: {телефон}.',
+    confirmation:
+      'Сәлеметсіз бе, {имя}! Сіз {салон} жазылдыңыз: {услуга}, {дата}, {время}, шебер {мастер}. Мекенжай: {адрес}. ' +
+      'Телефон: {телефон}.',
+  },
+  en: {
+    reminder:
+      'Hello, {имя}! This is a reminder of your appointment at {салон}: {услуга}, {дата} at {время}, with {мастер}. ' +
+      'Address: {адрес}. If your plans change, please call us: {телефон}.',
+    confirmation:
+      'Hello, {имя}! You are booked at {салон}: {услуга}, {дата} at {время}, with {мастер}. Address: {адрес}. ' +
+      'Phone: {телефон}.',
+  },
+};
+/** Текст напоминания по умолчанию на языке салона */
+export const defaultReminderTemplate = (locale: ClientMessageLocale = 'ru') => REMINDER_TEMPLATES[locale].reminder;
+/** Текст подтверждения записи на языке салона */
+export const confirmationTemplate = (locale: ClientMessageLocale = 'ru') => REMINDER_TEMPLATES[locale].confirmation;
+/** Английские имена полей в своём шаблоне владельца: {name} то же, что {имя} */
+const PLACEHOLDER_ALIASES: Record<string, ReminderPlaceholder> = {
+  name: 'имя', service: 'услуга', date: 'дата', time: 'время', master: 'мастер', salon: 'салон', address: 'адрес', phone: 'телефон',
+};
+const INTL: Record<ClientMessageLocale, string> = { ru: 'ru-RU', kk: 'kk-KZ', en: 'en-GB' };
+
 /** Плановые моменты напоминаний: за N часов до начала, только будущие, без повторов, по возрастанию */
 export function reminderDueTimes(startsAt: Date, hoursBefore: readonly number[], now: Date): Date[] {
   const unique = [...new Set(hoursBefore.filter((h) => Number.isInteger(h) && h > 0))];
@@ -38,9 +70,12 @@ export function reminderVariables(input: {
   salonName: string;
   address: string | null;
   phone: string | null;
+  /** Язык салона: дата словами на нём («27 October»); без него русский */
+  locale?: ClientMessageLocale;
 }): ReminderVariables {
-  const date = new Intl.DateTimeFormat('ru-RU', { timeZone: input.timezone, day: 'numeric', month: 'long' }).format(input.startsAt);
-  const time = new Intl.DateTimeFormat('ru-RU', {
+  const intl = INTL[input.locale ?? 'ru'];
+  const date = new Intl.DateTimeFormat(intl, { timeZone: input.timezone, day: 'numeric', month: 'long' }).format(input.startsAt);
+  const time = new Intl.DateTimeFormat(intl, {
     timeZone: input.timezone,
     hour: '2-digit',
     minute: '2-digit',
@@ -62,9 +97,10 @@ export function reminderVariables(input: {
 export function renderReminder(template: string | null | undefined, vars: ReminderVariables): string {
   const source = template && template.trim() ? template : DEFAULT_REMINDER_TEMPLATE;
   return source
-    .replace(/\{([^{}]{1,20})\}/g, (whole, key: string) =>
-      (REMINDER_PLACEHOLDERS as readonly string[]).includes(key) ? vars[key as ReminderPlaceholder] : whole,
-    )
+    .replace(/\{([^{}]{1,20})\}/g, (whole, raw: string) => {
+      const key = PLACEHOLDER_ALIASES[raw] ?? raw;
+      return (REMINDER_PLACEHOLDERS as readonly string[]).includes(key) ? vars[key as ReminderPlaceholder] : whole;
+    })
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/ ([!?.,:;])/g, '$1')
     .trim();
@@ -161,8 +197,10 @@ export function reviewRequestDueAt(input: { endsAt: Date; doneAt: Date; timezone
 }
 
 /** Текст просьбы отзыва: коротко, имя и ссылка на страницу отзыва */
-export function reviewRequestText(customerName: string, url: string): string {
+export function reviewRequestText(customerName: string, url: string, locale: ClientMessageLocale = 'ru'): string {
   const name = customerName.trim();
+  if (locale === 'en') return `Thank you for visiting us${name ? `, ${name}` : ''}! Rate your visit: ${url}`;
+  if (locale === 'kk') return `Бізге келгеніңізге рахмет${name ? `, ${name}` : ''}! Сапарды бағалаңыз: ${url}`;
   return `Спасибо, что были у нас${name ? `, ${name}` : ''}! Оцените визит: ${url}`;
 }
 

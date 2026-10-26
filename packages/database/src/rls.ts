@@ -218,7 +218,7 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'staff_telegram_links',
   'staff_telegram_link_codes',
   'staff_notifications',
-  // CASH-SHIFTS-20261025: касса филиала, смены, передача денег и ключи команд (миграции 20261025000159/160,
+  // CASH-SHIFTS-20261025: касса филиала, смены, передача денег и ключи команд (миграции 20261025000160/161,
   // RLS с FORCE через cash_scope_visible)
   'cash_registers',
   'cash_shifts',

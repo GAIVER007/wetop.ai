@@ -148,7 +148,7 @@ BEGIN
     GRANT SELECT, INSERT ON TABLE staff_notifications TO wetop_app;
     GRANT SELECT, INSERT, UPDATE ON TABLE staff_telegram_links, staff_telegram_link_codes, staff_notifications TO wetop_service;
   END IF;
-  -- 159/160_cash_shifts: restore metadata ACL without replaying mixed DDL.
+  -- 160/161_cash_shifts: restore metadata ACL without replaying mixed DDL.
   -- схема по search_path (на проде public, в гейте pms_test): GRANT ниже тоже без схемы
   SELECT count(*) INTO installed FROM unnest(ARRAY['cash_registers','cash_shifts','cash_handovers','cash_commands']) AS t(name)
     WHERE to_regclass(quote_ident(name)) IS NOT NULL;

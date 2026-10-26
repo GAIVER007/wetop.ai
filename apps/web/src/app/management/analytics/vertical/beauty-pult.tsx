@@ -1,5 +1,6 @@
 import { Panel, Table } from '../../../../components/ui';
-import { DayBars } from '../../../../components/day-bars';
+import { LineChart } from '../../../../components/line-chart';
+import type { BeautyInsights } from '../../../../lib/api';
 import { METHOD_RU, wholeTenge } from '../../../../lib/dashboard-format';
 import { Tile, moneyDelta, pointsDelta } from '../tiles';
 import { msg, translator, type Translate } from '../../../../i18n';
@@ -26,27 +27,37 @@ export function BeautyPultView({
   p,
   prev,
   labels,
-  today,
+  insights = null,
+  prevInsights = null,
   t = translator('ru'),
 }: {
   p: BeautyPult;
   prev: BeautyPult | null;
   labels: Record<string, string>;
-  today: string;
+  /** день «сегодня» филиала; оставлен для совместимости вызова, график линией его не требует */
+  today?: string;
+  /** сводка API (оценки, новые и повторные, «давно не были»); null, если не загрузилась: блоки без этих строк */
+  insights?: BeautyInsights | null;
+  prevInsights?: BeautyInsights | null;
   t?: Translate;
 }) {
+  const stars = (tenths: number | null) =>
+    tenths === null ? '—' : `${(tenths / 10).toFixed(1).replace('.', ',')} ★`;
+  const rating = new Map((insights?.employees ?? []).map((e) => [e.employeeId, e]));
   const money = (minor: string) => wholeTenge(minor, p.currency);
   const compare = prev !== null;
   const base = prev ?? p;
-  const repeatShare = p.clients.total ? Math.round((p.clients.repeat * 100) / p.clients.total) : 0;
-  const prevRepeat = base.clients.total
-    ? Math.round((base.clients.repeat * 100) / base.clients.total)
-    : 0;
+  // «Вернулись»: по истории филиала из сводки API, без неё повторные внутри периода
+  const share = (part: number, whole: number) => (whole ? Math.round((part * 100) / whole) : 0);
+  const repeatShare = insights
+    ? share(insights.customers.repeat, insights.customers.total)
+    : share(p.clients.repeat, p.clients.total);
+  const prevRepeat = prevInsights
+    ? share(prevInsights.customers.repeat, prevInsights.customers.total)
+    : share(base.clients.repeat, base.clients.total);
   const statusTotal = Object.values(p.counts).reduce((a, b) => a + b, 0);
-  const maxDay = p.byDay.reduce(
-    (m, d) => (BigInt(d.revenueMinor) > m ? BigInt(d.revenueMinor) : m),
-    0n,
-  );
+  const hasRevenue = p.byDay.some((d) => d.revenueMinor !== '0');
+  const tenge = (minor: string) => Number(BigInt(minor) / 100n);
   return (
     <div className="pult" data-testid="pult-beauty">
       <section className="kpi-grid" aria-label={t('Главные цифры периода')}>
@@ -76,7 +87,7 @@ export function BeautyPultView({
         />
         <Tile
           id="repeat"
-          label={t('Повторные клиенты')}
+          label={t('Клиенты вернулись')}
           value={`${repeatShare}%`}
           hint={t('клиентов за период: {n}', { n: p.clients.total })}
           delta={pointsDelta(repeatShare, prevRepeat, base.clients.total)}
@@ -97,21 +108,44 @@ export function BeautyPultView({
 
       <div className="pult-row pult-row--main">
         <Panel title={t('Выручка по дням')}>
-          {maxDay > 0n ? (
-            <DayBars
+          {hasRevenue ? (
+            // эскиз владельца: линия «этот период» и пунктир «прошлый» по дням с начала отрезка
+            <LineChart
               testId="pult-days"
-              today={today}
-              days={p.byDay.map((d) => ({
-                date: d.date,
-                height: Number((BigInt(d.revenueMinor) * 100n) / maxDay),
-                facts: t('{sum}, визитов {n}', { sum: money(d.revenueMinor), n: d.visits }),
-              }))}
+              series={[
+                {
+                  name: t('Этот период'),
+                  values: p.byDay.map((d) => tenge(d.revenueMinor)),
+                  summary: money(p.revenueMinor),
+                },
+                ...(prev
+                  ? [
+                      {
+                        name: t('Прошлый период'),
+                        values: prev.byDay.map((d) => tenge(d.revenueMinor)),
+                        dashed: true,
+                        summary: money(prev.revenueMinor),
+                      },
+                    ]
+                  : []),
+              ]}
+              labels={p.byDay.map((d) => d.date.slice(8, 10) + '.' + d.date.slice(5, 7))}
+              format={(v) => wholeTenge(String(Math.round(v) * 100), p.currency)}
             />
           ) : (
             <p className="pult-empty">{t('Завершённых визитов за период нет.')}</p>
           )}
         </Panel>
-        <InsightsPanel items={beautyInsights(p)} money={money} t={t} />
+        <InsightsPanel
+          items={beautyInsights(p, insights ? { lapsed: insights.customers.lapsed } : {})}
+          money={money}
+          t={t}
+          words={(x) =>
+            x.id === 'idle-slot'
+              ? { day: t(String(x.vars?.['day'])), part: t(String(x.vars?.['part'])) }
+              : {}
+          }
+        />
       </div>
 
       <div className="pult-row pult-row--three">
@@ -142,7 +176,25 @@ export function BeautyPultView({
           <Facts
             rows={[
               { label: t('Пришли за период'), value: p.clients.total },
-              { label: t('Были больше одного раза'), value: p.clients.repeat },
+              ...(insights
+                ? [
+                    {
+                      label: t('Новые'),
+                      value: insights.customers.new,
+                      testId: 'pult-clients-new',
+                    },
+                    {
+                      label: t('Повторные'),
+                      value: insights.customers.repeat,
+                      testId: 'pult-clients-repeat',
+                    },
+                    {
+                      label: t('Не были больше 45 дней'),
+                      value: insights.customers.lapsed,
+                      testId: 'pult-clients-lapsed',
+                    },
+                  ]
+                : [{ label: t('Были больше одного раза'), value: p.clients.repeat }]),
               { label: t('Записались онлайн'), value: `${p.onlineShare}%` },
               {
                 label: t('Неявки'),
@@ -176,6 +228,8 @@ export function BeautyPultView({
                   <th className="num">{t('Выручка')}</th>
                   <th className="num">{t('Визиты')}</th>
                   <th className="num">{t('Загрузка')}</th>
+                  {insights && <th className="num">{t('Вернулись')}</th>}
+                  {insights && <th className="num">{t('Оценка')}</th>}
                 </tr>
               </thead>
               <tbody>
@@ -185,6 +239,16 @@ export function BeautyPultView({
                     <td className="num">{money(m.revenueMinor)}</td>
                     <td className="num">{m.visits}</td>
                     <td className="num">{m.loadPercent}%</td>
+                    {insights && (
+                      <td className="num">
+                        {rating.get(m.id)?.customers
+                          ? `${share(rating.get(m.id)!.returning, rating.get(m.id)!.customers)}%`
+                          : '—'}
+                      </td>
+                    )}
+                    {insights && (
+                      <td className="num">{stars(rating.get(m.id)?.avgTenths ?? null)}</td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -206,6 +270,14 @@ export function BeautyPultView({
           />
         </Panel>
       </div>
+      {insights && insights.reviews.count > 0 && (
+        <p className="pult-note" data-testid="pult-rating">
+          {t('Средняя оценка за период: {stars}, отзывов {n}', {
+            stars: stars(insights.reviews.avgTenths),
+            n: insights.reviews.count,
+          })}
+        </p>
+      )}
       <p className="pult-note muted">
         {t(
           'Выручка по цене завершённых записей. Загрузка это занятые часы мастеров от часов по графику. Сравнение с таким же отрезком сразу перед периодом.',

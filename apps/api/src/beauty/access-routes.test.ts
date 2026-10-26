@@ -51,6 +51,7 @@ describe('Beauty route action metadata', () => {
       financeDay: { section: 'finance', action: 'view' },
       financePeriod: { section: 'finance', action: 'view' },
       period: { section: 'appointments', action: 'view' },
+      insights: { section: 'journal', action: 'view' },
       create: { section: 'appointments', action: 'create' },
       move: { section: 'appointments', action: 'update' },
       setStatus: { section: 'appointments', action: 'update' },

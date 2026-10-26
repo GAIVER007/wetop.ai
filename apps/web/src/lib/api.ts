@@ -5275,6 +5275,26 @@ export const barApi = {
 };
 
 /** MV9: fixed read-only report queries for a branch returned by GET /branches. No mutations or arbitrary paths. */
+/** Сводка салона для пульта «Аналитики» (вариант A, 25.10.2026): оценки, новые и повторные, «давно не были» */
+export interface BeautyInsights {
+  period: { from: string; to: string };
+  reviews: { count: number; avgTenths: number | null };
+  customers: { total: number; new: number; repeat: number; lapsed: number };
+  employees: Array<{ employeeId: string; customers: number; returning: number; reviews: number; avgTenths: number | null }>;
+}
+export async function branchBeautyInsights(
+  branch: Pick<BranchItem, 'locationId' | 'location'>,
+  from: string,
+  to: string,
+): Promise<BeautyInsights> {
+  const response = await backendFetch(
+    `/beauty/appointments/insights?${new URLSearchParams({ from, to })}`,
+    {},
+    `business=${branch.location.businessId};location=${branch.locationId}`,
+  );
+  if (!response.ok) throw new ApiError(response.status, 'Данные филиала недоступны');
+  return response.json();
+}
 /** Отчёт ресторана за период по филиалу (контекст филиала заголовком, как у `branchReportDay`) */
 export async function branchFoodPeriod(
   branch: Pick<BranchItem, 'locationId' | 'location'>,

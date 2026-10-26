@@ -97,6 +97,34 @@ describe('пульт салона на экране', () => {
   });
 });
 
+describe('пульт салона со сводкой API', () => {
+  const insights = {
+    period: { from: '2026-10-20', to: '2026-10-20' },
+    reviews: { count: 2, avgTenths: 48 },
+    customers: { total: 1, new: 0, repeat: 1, lapsed: 3 },
+    employees: [{ employeeId: 'm1', customers: 1, returning: 1, reviews: 2, avgTenths: 48 }],
+  };
+  const p = beautyPult([day], 'KZT');
+  const html = renderToStaticMarkup(
+    BeautyPultView({ p, prev: p, labels: BEAUTY_LABELS, insights, prevInsights: insights }),
+  );
+  it('оценка и «вернулись» у мастера, средняя оценка периода', () => {
+    expect(html).toMatch(/data-testid="master-m1".*4,8 ★/);
+    expect(html).toMatch(/data-testid="master-m1".*100%/);
+    expect(html).toContain('Средняя оценка за период: 4,8 ★, отзывов 2');
+  });
+  it('клиенты: новые, повторные и «не были больше 45 дней»', () => {
+    expect(html).toMatch(/data-testid="pult-clients-new"[^>]*>0</);
+    expect(html).toMatch(/data-testid="pult-clients-repeat"[^>]*>1</);
+    expect(html).toMatch(/data-testid="pult-clients-lapsed"[^>]*>3</);
+    expect(html).toContain('data-testid="insight-lapsed"');
+  });
+  it('график линией: этот период и пунктиром прошлый', () => {
+    expect(html).toContain('data-testid="pult-days"');
+    expect(html).toContain('Прошлый период');
+  });
+});
+
 describe('пульт ресторана на экране', () => {
   const report = {
     from: '2026-10-20',

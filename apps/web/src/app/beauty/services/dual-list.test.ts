@@ -44,6 +44,26 @@ const service = (
 const board = (items: BeautyServiceRow[], canEdit = true) =>
   renderToStaticMarkup(createElement(ServicesBoard, { canEdit, locationCurrency: 'KZT', scopeKey: 'business:location', items }));
 
+describe('Услуги салона: группа без категории на языке интерфейса', () => {
+  it('на английском экране заголовок «Uncategorized», а не русская строка', async () => {
+    const { LocaleProvider } = await import('../../../i18n/locale-provider');
+    const html = renderToStaticMarkup(
+      createElement(LocaleProvider, {
+        locale: 'en',
+        children: createElement(ServicesBoard, {
+          canEdit: true,
+          locationCurrency: 'KZT',
+          scopeKey: 'business:location',
+          items: [service('x1', 'Manicure', { enabled: true, category: null })],
+        }),
+      }),
+    );
+    const heads = [...html.matchAll(/class="beauty-service-group">([^<]+) </g)].map((m) => m[1]);
+    expect(heads).toContain('Uncategorized');
+    expect(heads).not.toContain('Без категории');
+  });
+});
+
 describe('Услуги салона: прайс-лист (вариант B, 25.10.2026)', () => {
   it('одна таблица по категориям: цена филиала, длительность и доля визитов в строке', () => {
     const html = board([

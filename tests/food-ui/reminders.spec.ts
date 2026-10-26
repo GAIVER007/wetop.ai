@@ -61,9 +61,6 @@ test('напоминания гостям: настройки с предпро�
   const area = await post(request, headers, '/food-service/areas', { name: 'Основной зал', sortOrder: 0, active: true });
   await post(request, headers, '/food-service/tables', { areaId: area.id, name: '1', capacity: 4, sortOrder: 0, active: true });
   const startsAt = new Date(Date.now() + 150 * 60_000);
-  // «Напомнить сегодня» показывает день филиала: в последние полчаса суток по Алматы напоминание уже завтрашнее
-  const almatyDay = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(d);
-  test.skip(almatyDay(new Date(startsAt.getTime() - 2 * 3_600_000)) !== almatyDay(new Date()), 'около полуночи по Алматы');
   // Период строится вокруг самой брони (Алматы, UTC+5): «Весь день» до 23:59 не вмещал бронь, начатую после 22:59
   // (запуск после 20:29 по Алматы), и тест краснел каждый вечер. Окно начала брони плюс 90 минут, через полночь явно.
   const local = new Date(startsAt.getTime() + 5 * 3_600_000);

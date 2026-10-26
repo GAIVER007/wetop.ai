@@ -60,8 +60,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await page.goto('/beauty/masters');
   await main.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   panel = page.getByRole('dialog');
-  await panel.getByLabel('Имя мастера').fill('Дина');
-  await panel.getByRole('button', {name:'Создать мастера',exact:true}).click();
+  await panel.getByLabel('Имя').fill('Дина');
+  await panel.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('NONE');
+  await panel.getByRole('button', {name:'Добавить сотрудника',exact:true}).click();
   // Создание ведёт на полную карточку /employees/<id>/profile; назначение услуг через UI проверяет
   // real-portal набор (как в beauty-catalog.spec.ts), здесь услугу назначает фикстурный API.
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);

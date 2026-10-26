@@ -262,8 +262,8 @@ test('управляющий: журнал и платформа закрыты;
   );
   // единый блок доступа (20.10.2026): у управляющего без «Управляющего»; гостиница с 22.10.2026 ещё «Без входа» и
   // «Личный кабинет» (горничная, ресепшен)
-  await expect(drawer.getByTestId('staff-access').locator('[data-level]')).toHaveCount(3);
-  await expect(drawer.getByRole('radio', { name: /^Управляющий/ })).toHaveCount(0);
+  await expect(drawer.getByTestId('staff-access').getByRole('option')).toHaveCount(3);
+  await expect(drawer.getByRole('option', { name: 'Управляющий', exact: true })).toHaveCount(0);
   await drawer.getByRole('button', { name: 'Отмена' }).click();
   const rows = main.getByTestId('member-row');
   await expect(rows).toHaveCount(3);
@@ -302,11 +302,13 @@ test('владелец: зовёт управляющего и админист�
   const drawer = page.getByRole('dialog');
   // единый блок доступа (решение владельца 20.10.2026): уровни карточками, по умолчанию «Администратор»
   const access = drawer.getByTestId('staff-access');
-  await expect(access.locator('[data-level]')).toHaveCount(4);
-  await expect(access.getByRole('radio', { name: /^Администратор/ })).toBeChecked();
+  await expect(access.getByRole('option')).toHaveCount(4);
+  await expect(access.getByRole('combobox', { name: 'Уровень доступа' })).toHaveValue('STAFF');
 
-  await drawer.getByLabel('Почта приглашённого').fill('New.Manager@Example.com');
-  await access.getByRole('radio', { name: /^Управляющий/ }).check();
+  await drawer.getByLabel('Имя', { exact: true }).fill('Тестовый');
+
+  await drawer.getByLabel('Почта для входа').fill('New.Manager@Example.com');
+  await access.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('MANAGER');
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   // панель закрылась, приглашение — в «Ожидают ответа» с ролью словом
   await expect(page.getByRole('dialog')).toHaveCount(0);

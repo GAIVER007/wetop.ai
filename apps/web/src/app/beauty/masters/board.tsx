@@ -12,7 +12,12 @@ import { StaffBoard, type StaffColumn } from '../../../components/staff-board';
 import { Alert, Badge, Button, Select } from '../../../components/ui';
 import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs } from '@pms/domain';
 import { assignBeautyPersonnelKind } from '../actions';
-import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../../lib/staff-revenue';
+import {
+  periodTitle,
+  revenueCells,
+  unattributedLabel,
+  type StaffRevenue,
+} from '../../../lib/staff-revenue';
 import type {
   BeautyEmployeeRow,
   BeautyServiceRow,
@@ -113,8 +118,6 @@ export function MastersBoard({
   locations,
   scopeKey = '',
   initialEmployeeId = '',
-  businessName,
-  locationName,
   unavailable = false,
   scheduleAvailable = true,
   canAssignPersonnelKind = false,
@@ -156,7 +159,9 @@ export function MastersBoard({
   const earned = revenue ? revenueCells(revenue.items) : null;
   const unattributed = revenue ? unattributedLabel(revenue.items, 'BEAUTY', t) : null;
   const router = useRouter();
-  const [editing, setEditing] = useState<Editing>(() => (openNew && canCreate ? { mode: 'new' } : null));
+  const [editing, setEditing] = useState<Editing>(() =>
+    openNew && canCreate ? { mode: 'new' } : null,
+  );
   const [epoch, setEpoch] = useState(0);
   const [notice, setNotice] = useState('');
   const guard = useRef<(action: () => void) => void>((action) => action());
@@ -234,7 +239,10 @@ export function MastersBoard({
             <span className="staff-person__role">
               {categoriesOf(row) ||
                 (row.serviceIds.length
-                  ? row.serviceIds.map((id) => names.get(id)).filter(Boolean).join(', ')
+                  ? row.serviceIds
+                      .map((id) => names.get(id))
+                      .filter(Boolean)
+                      .join(', ')
                   : t('Специализация не указана'))}
             </span>
           </span>
@@ -242,7 +250,11 @@ export function MastersBoard({
         </span>
       ),
     },
-    { key: 'kind', label: t('Назначение'), cell: (row) => <PersonnelKindPicker row={row} canAssign={canAssignPersonnelKind} /> },
+    {
+      key: 'kind',
+      label: t('Назначение'),
+      cell: (row) => <PersonnelKindPicker row={row} canAssign={canAssignPersonnelKind} />,
+    },
     {
       key: 'shift',
       label: t('Смена сегодня'),
@@ -259,7 +271,11 @@ export function MastersBoard({
         const day = beautyMasterDayStatus(scheduleAvailable ? today : null, row.id);
         if (!row.active) return <Badge>{t('В архиве')}</Badge>;
         if (day.state === 'UNAVAILABLE') return <Badge>{t('График недоступен')}</Badge>;
-        return day.state === 'ON_SHIFT' ? <Badge tone="ok">{t('На смене')}</Badge> : <Badge>{t('Не на смене')}</Badge>;
+        return day.state === 'ON_SHIFT' ? (
+          <Badge tone="ok">{t('На смене')}</Badge>
+        ) : (
+          <Badge>{t('Не на смене')}</Badge>
+        );
       },
     },
     {
@@ -273,7 +289,10 @@ export function MastersBoard({
       label: revenue ? t('Принёс {period}', { period: t(periodTitle(revenue.period)) }) : '',
       align: 'end',
       hidden: !earned,
-      cell: (row) => (earned?.get(row.id) ? <strong data-testid="employee-earned">{earned.get(row.id)}</strong> : null),
+      cell: (row) =>
+        earned?.get(row.id) ? (
+          <strong data-testid="employee-earned">{earned.get(row.id)}</strong>
+        ) : null,
     },
     {
       key: 'locations',
@@ -290,7 +309,11 @@ export function MastersBoard({
       align: 'end',
       cell: (row) => (
         <span className="staff-actions">
-          <Link className="btn btn--secondary btn--sm" href={employeeProfileHref(row.id)} aria-label={t('Открыть: {name}', { name: row.name })}>
+          <Link
+            className="btn btn--secondary btn--sm"
+            href={employeeProfileHref(row.id)}
+            aria-label={t('Открыть: {name}', { name: row.name })}
+          >
             {t('Открыть')}
           </Link>
         </span>
@@ -361,7 +384,7 @@ export function MastersBoard({
         open={editing !== null}
         onClose={() => guard.current(close)}
         title={t('Новый специалист')}
-        drawer
+        className="staff-form-dialog"
         size="md"
         trapFocus
       >
@@ -372,17 +395,6 @@ export function MastersBoard({
           <div key={`${scopeKey}:new:${epoch}`}>
             {editing && (
               <>
-                <section aria-label={t('Бизнес и филиал')} className="employee-workspace-heading">
-                  <p>{t('Бизнес: {name}', { name: businessName ?? t('Название недоступно') })}</p>
-                  <p>
-                    {t('Филиал: {name}', {
-                      name:
-                        locationName ??
-                        locations.find((item) => item.id === scopeKey)?.name ??
-                        t('Название недоступно'),
-                    })}
-                  </p>
-                </section>
                 <EmployeeProfile
                   row={null}
                   onCancelCreate={() => guard.current(close)}

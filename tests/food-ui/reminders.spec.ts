@@ -83,9 +83,18 @@ test('напоминания гостям: настройки с предпро�
   expect(run.ok(), await run.text()).toBe(true);
   expect((await run.json()).manual, 'напоминание без почты ушло в «Вручную»').toBe(1);
 
-  // 3. «Бронирования»: «Напомнить сегодня» с WhatsApp и «Напомнил»
+  // 3. «Бронирования» без блока «Напомнить сегодня» (владелец 26.10.2026: «убери, не о чём», как в салоне, #881):
+  //    напоминание лежит в «Вручную», на экране броней его нет
   for (const [scheme, width] of [['light', 1440], ['dark', 390]] as const) {
     await page.emulateMedia({ colorScheme: scheme });
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/table-reservations');
+    await expect(page.getByRole('main').getByRole('heading').first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId('food-reminders-today')).toHaveCount(0);
+    await expect(page.getByText(/Напомнить сегодня/)).toHaveCount(0);
+    await noHorizontalScroll(page);
+  }
+});
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/table-reservations');
     // потоковая отрисовка оставляет в DOM скрытую копию раздела: берём видимую, в main

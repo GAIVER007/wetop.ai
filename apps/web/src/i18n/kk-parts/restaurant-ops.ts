@@ -16,7 +16,6 @@ export const restaurantOps: KkPart = {
     'app/food/load.ts',
     'app/food/payroll-board.tsx',
     'app/food/rating-parts.tsx',
-    'app/food/reminders-today.tsx',
     'app/food/reservation-drawer.tsx',
     'app/food/reservation-form.tsx',
     'app/food/restaurant-actions.ts',

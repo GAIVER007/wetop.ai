@@ -126,6 +126,8 @@ export const salonJournal: Record<string, string> = {
   'Месяц журнала': 'Journal month',
   'Записей за месяц': 'Bookings this month',
   'Месяц специалистов': 'Specialists month',
+  "Новый клиент: {name}": 'New client: {name}',
+  "Добавьте имя клиента к номеру": 'Add the client name to the number',
   "+ Новый клиент": '+ New client',
   "Новый клиент": 'New client',
   " (в архиве)": ' (archived)',

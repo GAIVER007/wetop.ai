@@ -107,7 +107,7 @@ async function book(page: Page, time: string, name: string, existing = false) {
     await panel.getByRole('listbox', { name: 'Найденные клиенты' }).getByRole('button', { name }).first().click();
     await expect(panel.getByTestId('appointment-customer-chip')).toContainText(name);
   }
-  else await panel.getByLabel('Имя клиента').fill(name);
+  else await panel.getByLabel('Телефон или имя', { exact: true }).fill(name);
   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 }

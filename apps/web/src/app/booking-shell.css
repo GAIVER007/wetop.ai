@@ -243,7 +243,7 @@
     cursor: not-allowed;
     opacity: 0.6;
   }
-  .booking-map__cell[aria-pressed='true'] {
+  .booking-map__cell[aria-pressed='true']:not(:disabled) {
     border-color: var(--primary);
     background: var(--primary);
     color: var(--on-primary);
@@ -283,6 +283,82 @@
   }
   @media (max-width: 600px) {
     .booking-map__row {
+      grid-template-columns: minmax(0, 1fr);
+      padding: var(--space-1) 0;
+    }
+  }
+
+  /* салон: карта дня мастеров (26.10.2026, тот же вариант C): строка на мастера, ячейка на 30 минут */
+  .booking-time-map {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .booking-time-map__row {
+    display: grid;
+    grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
+    gap: var(--space-2);
+    align-items: center;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+  }
+  .booking-time-map__row[data-selected] {
+    background: var(--primary-soft);
+  }
+  .booking-time-map__cells {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    gap: var(--space-1);
+  }
+  .booking-time-map__head span {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+  }
+  .booking-time-map__cell {
+    min-height: var(--space-8);
+    padding: 0;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-xs);
+    background: var(--surface-solid);
+    cursor: pointer;
+  }
+  .booking-time-map__cell:hover:not(:disabled) {
+    border-color: var(--primary);
+  }
+  .booking-time-map__cell:focus-visible {
+    outline: var(--focus-ring-w) solid var(--focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .booking-time-map__cell[data-state='busy'] {
+    border-color: var(--border);
+    background: var(--surface-muted);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .booking-time-map__cell[data-state='closed'] {
+    border-color: transparent;
+    background: transparent;
+    cursor: not-allowed;
+  }
+  .booking-time-map__cell[aria-pressed='true'] {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+  /* ресторан: все столы залов карточками, занятые серые */
+  .booking-map__cells--tables {
+    grid-template-columns: repeat(auto-fill, minmax(var(--space-16), 1fr));
+  }
+  .booking-map__cells--tables .booking-map__cell {
+    display: grid;
+    place-content: center;
+    min-height: var(--space-10);
+  }
+  .booking-map__cells--tables .booking-map__cell small {
+    font-weight: var(--weight-regular);
+  }
+  @media (max-width: 600px) {
+    .booking-time-map__row {
       grid-template-columns: minmax(0, 1fr);
       padding: var(--space-1) 0;
     }

@@ -629,14 +629,25 @@ test('новая запись: свободное время мастера кн
   const panel = page.getByRole('dialog');
   await expect(panel.getByRole('region', { name: 'Выбор времени записи' })).toBeVisible();
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
+  // карта дня мастеров (решение 26.10.2026, вариант C): строка на мастера, ячейка на 30 минут
   const slots = panel.getByTestId('slot-group');
   await expect(slots).toBeVisible();
-  const first = slots.getByRole('button', { name: /^Время / }).first();
-  const label = (await first.getAttribute('aria-label'))!.replace('Время ', '');
+  await expect(slots.getByTestId('master-row').first()).toBeVisible();
+  const first = slots.getByRole('button', { name: /, время \d\d:\d\d$/ }).first();
+  const label = (await first.getAttribute('aria-label'))!.replace(/^.*, время /, '');
   await first.click();
   await expect(first).toHaveAttribute('aria-pressed', 'true');
   await expect(panel.getByLabel('Время', { exact: true })).toHaveValue(label);
   await expect(panel.getByTestId('appointment-digest')).toContainText(label);
+  // занятое и закрытое время не нажимается
+  const blocked = slots.getByRole('button', { name: /(занято|недоступно)$/ }).first();
+  if (await blocked.count()) await expect(blocked).toBeDisabled();
+  // окно на один экран: карта и «Записать» без прокрутки
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const save = panel.getByRole('button', { name: 'Записать', exact: true });
+  const sb = await save.boundingBox();
+  expect(sb!.y + sb!.height).toBeLessThanOrEqual(800);
+  await page.screenshot({ path: 'reports/booking-fund-map-2026-10-26/salon-new-appointment-1280.png' });
   // имя идёт раньше телефона
   const nameBox = await panel.getByLabel('Имя клиента', { exact: true }).boundingBox();
   const phoneBox = await panel.locator('[name="phone"]').boundingBox();

@@ -298,4 +298,7 @@ export const restaurantOps: Record<string, string> = {
   'Осталось выплатить': 'Left to pay',
   'Без настройки оплаты': 'Pay not set up',
   'Не настроено': 'Not set up',
+  // карта зала в окне брони (26.10.2026)
+  '{table}, занят': '{table}, occupied',
+  '{table}, мало мест': '{table}, too small',
 };

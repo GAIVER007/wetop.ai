@@ -13,13 +13,7 @@ import { useLocale, useT } from '../../i18n/locale-provider';
 import { compareTables, tableTitle } from '../../lib/table-title';
 import { formatPhone, phoneOnInput } from '../../lib/phone';
 import { reservationProblem, WALK_IN_GUEST, walkInFirstName } from '../../lib/food-reservation-check';
-import {
-  BookingFooter,
-  BookingShell,
-  PickButton,
-  PickGroup,
-  PickHeading,
-} from '../../components/booking-shell';
+import { BookingFooter, BookingShell, PickHeading } from '../../components/booking-shell';
 export function ReservationForm({
   data,
   walkIn = false,
@@ -346,27 +340,60 @@ export function ReservationForm({
                 {suitable.length === 0 && (
                   <p className="booking-pick__muted">{t('Свободных столов на это время нет')}</p>
                 )}
-                {byArea.map(({ area, tables: free }) => (
-                  <PickGroup
-                    key={area.id}
-                    title={area.name}
-                    testId="table-group"
-                    selected={free.some((t) => t.id === table)}
-                    facts={t('свободно {n}', { n: free.length })}
-                    unavailable={free.length === 0 ? t('нет подходящих столов') : undefined}
-                  >
-                    {free.map((tb) => (
-                      <PickButton
-                        key={tb.id}
-                        selected={table === tb.id}
-                        label={t('Выбрать: {table}', { table: tableTitle(tb.name, t) })}
-                        onClick={() => setTable(table === tb.id ? '' : tb.id)}
+                {/* карта зала (решение 26.10.2026, вариант C «весь фонд одной картой»): все столы зала, занятые
+                    и маленькие для этой компании серые, свободные нажимаются */}
+                <div className="booking-map" data-testid="table-map">
+                  {byArea.map(({ area, tables: free }) => {
+                    const all = tables.filter((tb) => tb.areaId === area.id);
+                    return (
+                      <div
+                        key={area.id}
+                        className="booking-map__row"
+                        data-testid="table-group"
+                        data-selected={all.some((tb) => tb.id === table) || undefined}
+                        data-unavailable={free.length === 0 || undefined}
                       >
-                        {`${tableTitle(tb.name, t)}, ${countLabel(locale, t, tb.capacity, [msg('место@@стол'), 'места', msg('мест@@стол')])}`}{/* kk-allow: форма склонения */}
-                      </PickButton>
-                    ))}
-                  </PickGroup>
-                ))}
+                        <div className="booking-map__name">
+                          <b>{area.name}</b>
+                          <small>{t('свободно {n} из {all}', { n: free.length, all: all.length })}</small>
+                        </div>
+                        <div className="booking-map__cells booking-map__cells--tables">
+                          {all.map((tb) => {
+                            const ok = free.some((f) => f.id === tb.id);
+                            const name = tableTitle(tb.name, t);
+                            return (
+                              <button
+                                key={tb.id}
+                                type="button"
+                                className="booking-map__cell"
+                                aria-pressed={table === tb.id}
+                                aria-label={
+                                  ok
+                                    ? t('Выбрать: {table}', { table: name })
+                                    : busy(tb.id)
+                                      ? t('{table}, занят', { table: name })
+                                      : t('{table}, мало мест', { table: name })
+                                }
+                                title={
+                                  ok
+                                    ? t('Выбрать: {table}', { table: name })
+                                    : busy(tb.id)
+                                      ? t('{table}, занят', { table: name })
+                                      : t('{table}, мало мест', { table: name })
+                                }
+                                disabled={!ok || pending}
+                                onClick={() => setTable(table === tb.id ? '' : tb.id)}
+                              >
+                                {tb.name}
+                                <small>{countLabel(locale, t, tb.capacity, [msg('место@@стол'), 'места', msg('мест@@стол')])}{/* kk-allow: форма склонения */}</small>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
                 {/* полный список: и занятые столы, если администратор сажает вручную; занятость проверит сервер */}
                 <Field label={t('Стол')}>
                   <Select

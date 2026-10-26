@@ -378,6 +378,11 @@ test('бронирования: шкала по столам, бронь пол�
   // подбор столов по макету (экран 4): на 19:00 стол 7 занят бронью Ольги, свободных нет
   await dialog.getByLabel('Время', { exact: true }).fill('19:00');
   await expect(dialog.getByRole('heading', { name: 'Доступные столы (0)' })).toBeVisible();
+  // карта зала (решение 26.10.2026, вариант C): занятый стол виден серым и не нажимается
+  await expect(dialog.getByRole('button', { name: 'Стол 7, занят', exact: true })).toBeDisabled();
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.screenshot({ path: 'reports/booking-fund-map-2026-10-26/food-new-booking-1280.png' });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   // на 12:00 стол свободен и выбирается карточкой
   await dialog.getByLabel('Время', { exact: true }).fill('12:00');
   await expect(dialog.getByRole('heading', { name: 'Доступные столы (1)' })).toBeVisible();

@@ -19,11 +19,12 @@ export default async function BeautySettingsPage({
 }) {
   const { section } = await searchParams;
   if (section !== 'hours' && section !== 'reminders' && section !== 'bonuses') redirect('/settings');
-  const title = section === 'hours' ? 'Режим работы салона' : section === 'reminders' ? 'Напоминания клиентам' : 'Бонусы';
   await requireFeature('/beauty-settings');
   const me = await currentMe();
   const shell = await deskShell();
   const t = await serverT();
+  const title =
+    section === 'hours' ? t('Режим работы салона') : section === 'reminders' ? t('Напоминания клиентам') : t('Бонусы');
   try {
     const initial = section === 'hours' ? await beautyApi.locationHours() : null;
     const reminders = section === 'reminders' ? await beautyApi.reminderSettings() : null;
@@ -36,7 +37,7 @@ export default async function BeautySettingsPage({
       locationId: me.context?.locationId,
     });
     return (
-      <Page title={t(title)} subtitle={initial?.location.name ?? t('Выбранный филиал')}>
+      <Page title={title} subtitle={initial?.location.name ?? t('Выбранный филиал')}>
         <SettingsLinks />
         {initial && <SalonHoursForm key={scopeKey} initial={initial} scopeKey={scopeKey} canEdit={canEdit} />}
         {reminders && <ReminderSettingsForm key={`r${scopeKey}`} initial={reminders} scopeKey={scopeKey} canEdit={canEdit} />}
@@ -46,7 +47,7 @@ export default async function BeautySettingsPage({
   } catch (error) {
     unstable_rethrow(error);
     return (
-      <Page title={t(title)}>
+      <Page title={title}>
         <LoadError testId="beauty-settings-error" {...loadErrorProps(error)} />
       </Page>
     );

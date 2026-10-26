@@ -423,7 +423,7 @@ function MainInfoCard({
         />
         <Field label={t('Телефон')}>
           <IconField icon="phone">
-            <Input name="phone" type="tel" inputMode="tel" placeholder="+7 701 000 00 00" onInput={phoneOnInput} defaultValue={phoneFieldValue(value('phone'))} />
+            <Input name="phone" type="tel" inputMode="tel" onInput={phoneOnInput} defaultValue={phoneFieldValue(value('phone'))} />
           </IconField>
         </Field>
         <Field label={t('Почта')}>

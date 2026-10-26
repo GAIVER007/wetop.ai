@@ -72,6 +72,8 @@ describe('salon terminology regression', () => {
     const services = source('app/beauty/services/board.tsx');
     expect(services).toContain('Поиск услуг');
     expect(services).toContain('Категория');
-    expect(services).toContain('row.effective.priceMinor');
+    // прайс-лист (вариант B, 25.10.2026): цена филиала в строке через shownPriceMinor (price-list.ts)
+    expect(services).toContain('shownPriceMinor(row)');
+    expect(source('app/beauty/services/price-list.ts')).toContain('row.effective.priceMinor');
   });
 });

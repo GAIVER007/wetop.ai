@@ -218,7 +218,6 @@ export function ReservationForm({
                     name="phone"
                     type="tel"
                     inputMode="tel"
-                    placeholder="+7 701 000 00 00"
                     maxLength={40}
                     onInput={phoneOnInput}
                   />

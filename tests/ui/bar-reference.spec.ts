@@ -16,13 +16,15 @@ for(const width of [1333,390]) test(`bar reference layout ${width}`,async({page}
 });
 test('inventory direct entry and existing handler',async({page})=>{
  await page.goto('/bar');await page.getByRole('link',{name:'Инвентаризация',exact:true}).click();
- await expect(page.getByRole('heading',{name:'Инвентаризация',exact:true})).toBeVisible();
- await expect(page.getByRole('button',{name:'Зафиксировать пересчёт',exact:true})).toBeVisible();
+ const dialog=page.getByRole('dialog',{name:'Инвентаризация',exact:true});
+ await expect(dialog).toBeVisible();
+ await expect(dialog.getByRole('button',{name:'Зафиксировать пересчёт',exact:true})).toBeVisible();
+ await expect(page).toHaveURL(/type=inventory/);
 });
 
 test('inventory uses the existing stock and action',async({page})=>{
  await page.goto('/bar/operations#bar-inventory');
- const panel=page.getByRole('tabpanel',{name:'Инвентаризация',exact:true}).filter({visible:true});
+ const panel=page.getByRole('dialog',{name:'Инвентаризация',exact:true});
  await panel.getByRole('combobox',{name:'Товар',exact:true}).selectOption({label:'Сок Rich 0.2, по системе 12'});
  await expect(panel.getByLabel('По системе, шт.',{exact:true})).toHaveValue('12');
  await panel.getByLabel('Факт, шт.').fill('10');
@@ -79,5 +81,5 @@ for (const width of [1333,390]) test(`direct sale visible labels and journal ${w
  await expect(panel.locator('.bar-retail-product-info')).toHaveCount(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
  await page.goto('/bar/operations');
- await expect(page.getByRole('region',{name:'Продажи бара'}).locator('tbody tr').first()).toContainText('Coca-Cola 0.5 × 3');
+ await expect(page.getByRole('region',{name:'Движения остатка бара'}).locator('tbody tr').first()).toContainText('Coca-Cola 0.5 × 3');
 });

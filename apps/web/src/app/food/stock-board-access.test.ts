@@ -159,4 +159,50 @@ describe('shared stock controls', () => {
     }));
     expect(onlyPrep).not.toContain('+ Приход товара');
   });
+  it('владелец 25.10.2026: неиспользуемые скрыты, переключатель «Показать неиспользуемые», кнопки строк компактные', () => {
+    const idle: StockProductView = { ...product, id: 'synthetic-idle', name: 'Старый расходник', active: false };
+    const html = renderToStaticMarkup(createElement(StockBoard as never, {
+      ctx: { scopeKey: 's', currency: 'USD', vertical: 'BEAUTY', canCreate: true, canUpdate: true, canDelete: false },
+      products: [product, idle],
+      movements: [],
+    }));
+    expect(html).toContain('Synthetic consumable');
+    expect(html).not.toContain('Старый расходник');
+    expect(html).not.toContain('>Не используется<');
+    expect(html).toMatch(/<button[^>]*aria-pressed="false"[^>]*>Показать неиспользуемые/);
+    expect(html).toContain('aria-label="Партии: Synthetic consumable"');
+    const row = html.slice(html.indexOf('aria-label="Партии: Synthetic consumable"') - 80);
+    expect(row).toMatch(/class="btn btn--secondary btn--xs"[^>]*aria-label="Партии: Synthetic consumable"/);
+    // одни только неиспользуемые: переключатель есть, пусто одной строкой
+    const onlyIdle = renderToStaticMarkup(createElement(StockBoard as never, {
+      ctx: { scopeKey: 's', currency: 'USD', vertical: 'BEAUTY', canCreate: true, canUpdate: true, canDelete: false },
+      products: [idle],
+      movements: [],
+    }));
+    expect(onlyIdle).not.toContain('Старый расходник');
+    expect(onlyIdle).toContain('Показать неиспользуемые');
+    // без неиспользуемых переключателя нет
+    const none = renderToStaticMarkup(createElement(StockBoard as never, {
+      ctx: { scopeKey: 's', currency: 'USD', vertical: 'BEAUTY', canCreate: true, canUpdate: true, canDelete: false },
+      products: [product],
+      movements: [],
+    }));
+    expect(none).not.toContain('Показать неиспользуемые');
+  });
+  it('владелец 25.10.2026: склад кухни ресторана в том же виде, что /bar (таблица, кнопки строк, пусто одной строкой)', () => {
+    const idle: StockProductView = { ...product, id: 'synthetic-idle-food', name: 'Старый ингредиент', active: false };
+    const ctx = { scopeKey: 's', currency: 'KZT', canDesk: true, canProperty: true };
+    const html = renderToStaticMarkup(createElement(StockBoard as never, { ctx, products: [product, idle], movements: [] }));
+    expect(html).toMatch(/class="[^"]*\bbar-products-tools\b/);
+    expect(html).toMatch(/<table[^>]*class="[^"]*bar-products-grid/);
+    expect(html).toMatch(/<th class="bar-products-grid__name">/);
+    expect(html).not.toContain('Старый ингредиент');
+    expect(html).toMatch(/<button[^>]*aria-pressed="false"[^>]*>Показать неиспользуемые/);
+    expect(html).toMatch(/class="btn btn--secondary btn--xs"[^>]*aria-label="Партии: Synthetic consumable"/);
+    // пустая лента движений одной строкой, как на /bar
+    expect(html).toContain('<p class="bar-muted">Движений пока нет</p>');
+    const empty = renderToStaticMarkup(createElement(StockBoard as never, { ctx, products: [], movements: [] }));
+    expect(empty).toContain('<p class="bar-muted">Добавьте первый ингредиент</p>');
+    expect(empty).not.toContain('empty-state');
+  });
 });

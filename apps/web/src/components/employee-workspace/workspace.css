@@ -8,6 +8,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-4);
   }
+  .employee-workspace-form--creating .employee-workspace-contacts {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .employee-workspace-actions {
     display: flex;
     flex-wrap: wrap;

@@ -35,12 +35,14 @@ test('вошедший видит ожидающие приглашения и �
 
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const drawer = page.getByRole('dialog');
-  await drawer.getByLabel('Почта приглашённого').fill('admin@wetop.test');
+  await drawer.getByLabel('Имя', { exact: true }).fill('Тестовый');
+  await drawer.getByLabel('Почта для входа').fill('admin@wetop.test');
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   await expect(drawer.getByRole('alert')).toHaveText('Этот человек уже в организации.');
 
   // почта приводится к нижнему регистру; после отправки панель закрывается, строка в списке ожидающих
-  await drawer.getByLabel('Почта приглашённого').fill('Novyj@Example.com');
+  await drawer.getByLabel('Имя', { exact: true }).fill('Тестовый');
+  await drawer.getByLabel('Почта для входа').fill('Novyj@Example.com');
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(list).toContainText('novyj@example.com');

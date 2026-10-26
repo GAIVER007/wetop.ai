@@ -10,7 +10,7 @@ describe('«Добавить клиента» с пустыми полями (а
   it('пустые имя и телефон называются под полями', () => {
     expect(customerFieldErrors({ firstName: ' ', phone: '' })).toEqual({
       firstName: 'Укажите имя клиента',
-      phone: 'Укажите телефон, например +7 701 000 00 00',
+      phone: 'Укажите телефон',
     });
     expect(customerFieldErrors({ firstName: 'Мария', phone: '+7 701 111 22 33' })).toEqual({});
   });

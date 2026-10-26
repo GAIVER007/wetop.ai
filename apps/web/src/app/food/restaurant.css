@@ -2033,9 +2033,10 @@
   .tbl.payroll-table td:last-child .food-inline-actions {
     justify-content: flex-end;
   }
+  /* окно «Оплата», вариант B владельца 26.10.2026: способы строками на всю ширину, иконка, пояснение, кружок выбора */
   .pay-choices {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2);
     margin: 0;
     padding: 0;
@@ -2044,20 +2045,24 @@
   .pay-choices > legend {
     margin-bottom: var(--space-2);
     padding: 0;
-    color: var(--text);
-    font-weight: 600;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
   }
   .pay-choice {
     position: relative;
     display: grid;
-    gap: var(--space-1);
-    padding: var(--space-2) var(--space-4);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: var(--touch-target);
+    padding: var(--space-4);
     border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius);
     background: var(--surface-solid);
     cursor: pointer;
   }
-  /* радио на всю карточку прозрачным: нажатие по карточке и есть выбор, клавиатура и читалка как у радио */
+  /* радио на всю строку прозрачным: нажатие по строке и есть выбор, клавиатура и читалка как у радио */
   .pay-choice > input {
     position: absolute;
     inset: 0;
@@ -2076,33 +2081,81 @@
     outline: var(--focus-ring-w) solid var(--focus);
     outline-offset: var(--focus-ring-offset);
   }
-  .pay-choice__title {
-    color: var(--text);
-    font-weight: 600;
-  }
-  .pay-choice__note {
-    color: var(--muted);
-    font-size: var(--text-xs);
-  }
-  .pay-example {
-    margin: 0;
-    padding: var(--space-2) var(--space-4);
-    border: 1px solid var(--border);
+  .pay-choice__icon {
+    display: grid;
+    place-items: center;
+    width: var(--control-h);
+    height: var(--control-h);
     border-radius: var(--radius-sm);
     background: var(--surface-muted);
     color: var(--text-2);
+  }
+  .pay-choice:has(> input:checked) .pay-choice__icon {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .pay-choice__text {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  .pay-choice__title {
+    color: var(--text);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .pay-choice__note {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .pay-choice__mark {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    border: 2px solid var(--border-input);
+    border-radius: var(--radius-full);
+  }
+  .pay-choice:has(> input:checked) .pay-choice__mark {
+    border: var(--space-2) solid var(--primary);
+  }
+  .pay-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--space-4);
+  }
+  .pay-input {
+    position: relative;
+    display: block;
+  }
+  .pay-input > .inp {
+    width: 100%;
+    min-height: var(--touch-target);
+    padding-right: var(--space-12);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
     font-variant-numeric: tabular-nums;
   }
-  .pay-example strong {
-    color: var(--text);
+  .pay-unit {
+    position: absolute;
+    top: 50%;
+    right: var(--space-4);
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .pay-form {
+    display: grid;
+    gap: var(--space-6);
   }
   .pay-form__actions {
     justify-content: flex-end;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-soft);
+  }
+  .pay-form__actions > .btn {
+    min-height: var(--touch-target);
+    min-width: 8rem;
   }
   @media (max-width: 600px) {
-    .pay-choices {
-      grid-template-columns: minmax(0, 1fr);
-    }
     .payroll-totals > div {
       flex: 1 1 calc(50% - var(--space-2));
     }

@@ -273,6 +273,7 @@ export const restaurantOps: Record<string, string> = {
   'От суммы выполненных записей специалиста за месяц, от 1 до 100': 'Of the specialist’s completed appointments for the month, 1 to 100',
   '{percent} % от записей на {sales}': '{percent} % of appointments worth {sales}',
   'Только оклад': 'Base salary only',
+  'Оклад в месяц': 'Monthly salary',
   'Одна сумма каждый месяц': 'One amount every month',
   'Только процент': 'Percent only',
   'Процент: целое число от 1 до 100': 'Percent: a whole number from 1 to 100',

@@ -36,11 +36,21 @@ type OrderCommand =
   | { kind: 'edit'; id: string; body: OrderPatch }
   | { kind: 'status'; id: string; body: OrderToken & { status: OrderStatus } }
   // §33.6: позиция на своей станции (кухня, бар) или «Подано» у официанта
-  | { kind: 'item-status'; id: string; itemId: string; body: { status: OrderItemStatus; expectedUpdatedAt: string } }
+  | {
+      kind: 'item-status';
+      id: string;
+      itemId: string;
+      body: { status: OrderItemStatus; expectedUpdatedAt: string };
+    }
   | {
       kind: 'pay';
       id: string;
-      body: { method: FoodPaymentMethod; amount: number; idempotencyKey: string; itemIds?: string[] };
+      body: {
+        method: FoodPaymentMethod;
+        amount: number;
+        idempotencyKey: string;
+        itemIds?: string[];
+      };
     }
   | { kind: 'void-payment'; id: string; reason: string }
   | {
@@ -52,7 +62,10 @@ type OrderCommand =
 type CashCommand =
   | { kind: 'operation'; body: FoodCashOperationInput }
   | { kind: 'void'; id: string }
-  | { kind: 'reconcile'; body: { method: FoodPaymentMethod; counted: number; note?: string | null } };
+  | {
+      kind: 'reconcile';
+      body: { method: FoodPaymentMethod; counted: number; note?: string | null };
+    };
 type StaffCommand =
   | {
       kind: 'create';
@@ -66,11 +79,29 @@ type StaffCommand =
   | {
       kind: 'edit';
       id: string;
-      body: { name?: string; phone?: string | null; email?: string | null; status?: string; expectedProfileRevision: string };
+      body: {
+        name?: string;
+        phone?: string | null;
+        email?: string | null;
+        status?: string;
+        expectedProfileRevision: string;
+      };
     }
-  | { kind: 'pay-settings'; id: string; body: { model: PayModel; fixedMinor: number; percent: number } }
-  | { kind: 'adjustment'; id: string; body: { period: string; amountMinor: number; reason: string } }
-  | { kind: 'payout'; id: string; body: { period: string; method: FoodPaymentMethod; amount: number; idempotencyKey: string } };
+  | {
+      kind: 'pay-settings';
+      id: string;
+      body: { model: PayModel; fixedMinor: number; percent: number };
+    }
+  | {
+      kind: 'adjustment';
+      id: string;
+      body: { period: string; amountMinor: number; reason: string };
+    }
+  | {
+      kind: 'payout';
+      id: string;
+      body: { period: string; method: FoodPaymentMethod; amount: number; idempotencyKey: string };
+    };
 
 /** §62.3: меню (категории, позиции, техкарты, добавки) у всех трёх направлений, остальное только у ресторана */
 async function menuScope(key: string) {
@@ -102,7 +133,33 @@ async function scope(key: string) {
     !context.locationId ||
     key !== `${context.businessId}:${context.locationId}`
   )
-    throw new ApiError(409, (await serverT())(msg('Выбран другой ресторан. Откройте форму заново.')));
+    throw new ApiError(
+      409,
+      (await serverT())(msg('Выбран другой ресторан. Откройте форму заново.')),
+    );
+}
+/**
+ * Зарплата общая у ресторана и салона (ADR-SALON-PAYROLL-20261016, API BranchPayrollController): условия оплаты,
+ * премия или удержание и выплата пускают оба направления. Карточка сотрудника и остальное только у ресторана.
+ * Права проверяет API (payroll.update/create), здесь только что форма открыта в том же филиале.
+ */
+async function payrollScope(key: string) {
+  const { context } = await currentMe();
+  const vertical = context?.vertical;
+  if (
+    (vertical !== 'FOOD_SERVICE' && vertical !== 'BEAUTY') ||
+    !context?.businessId ||
+    !context.locationId ||
+    key !== `${context.businessId}:${context.locationId}`
+  )
+    throw new ApiError(
+      409,
+      (await serverT())(
+        vertical === 'BEAUTY'
+          ? msg('Выбран другой салон. Откройте форму заново.')
+          : msg('Выбран другой ресторан. Откройте форму заново.'),
+      ),
+    );
 }
 async function failure(error: unknown) {
   unstable_rethrow(error);
@@ -174,7 +231,16 @@ export async function mutateOrder(
         order = await restaurantApi.rateOrder(command.id, command.body);
         break;
     }
-    for (const path of ['/orders', '/kitchen', '/drinks', '/waiter', '/floor-plan', '/today', '/cashbox', '/employees'])
+    for (const path of [
+      '/orders',
+      '/kitchen',
+      '/drinks',
+      '/waiter',
+      '/floor-plan',
+      '/today',
+      '/cashbox',
+      '/employees',
+    ])
       revalidatePath(path);
     return { error: null, order };
   } catch (error) {
@@ -215,9 +281,12 @@ export async function mutateStaff(
   command: StaffCommand,
 ): Promise<{ error: string | null; createdId?: string }> {
   try {
-    await scope(scopeKey);
+    const payroll =
+      command.kind === 'pay-settings' || command.kind === 'adjustment' || command.kind === 'payout';
+    await (payroll ? payrollScope(scopeKey) : scope(scopeKey));
     let createdId: string | undefined;
-    if (command.kind === 'create') createdId = (await restaurantApi.createEmployee(command.body)).id;
+    if (command.kind === 'create')
+      createdId = (await restaurantApi.createEmployee(command.body)).id;
     else if (command.kind === 'edit') await restaurantApi.updateEmployee(command.id, command.body);
     else if (command.kind === 'pay-settings')
       await restaurantApi.setPaySettings(command.id, command.body);
@@ -237,8 +306,14 @@ export async function assignFoodPersonnelKind(
   personnelKind: string,
   expectedProfileRevision: string,
 ): Promise<{ error: string | null }> {
-  if (personnelKind !== 'SPECIALIST' && personnelKind !== 'OTHER_EMPLOYEE' && personnelKind !== 'BOTH')
-    return { error: (await serverT())(msg('Выберите назначение: специалист, другой сотрудник или оба.')) };
+  if (
+    personnelKind !== 'SPECIALIST' &&
+    personnelKind !== 'OTHER_EMPLOYEE' &&
+    personnelKind !== 'BOTH'
+  )
+    return {
+      error: (await serverT())(msg('Выберите назначение: специалист, другой сотрудник или оба.')),
+    };
   try {
     await scope(scopeKey);
     await restaurantApi.assignEmployeePersonnelKind(id, { personnelKind, expectedProfileRevision });
@@ -246,7 +321,11 @@ export async function assignFoodPersonnelKind(
     return { error: null };
   } catch (error) {
     if (error instanceof ApiError && error.status === 409)
-      return { error: (await serverT())(msg('Сотрудника изменили в другом окне. Список обновлён, выберите назначение ещё раз.')) };
+      return {
+        error: (await serverT())(
+          msg('Сотрудника изменили в другом окне. Список обновлён, выберите назначение ещё раз.'),
+        ),
+      };
     return failure(error);
   }
 }
@@ -288,7 +367,8 @@ export async function dishPhoto(
     if (form === null) await dishPhotoApi.remove(id);
     else {
       const file = form.get('file');
-      if (!(file instanceof File) || file.size === 0) return { error: (await serverT())(msg('Выберите файл: JPEG, PNG или WebP')) };
+      if (!(file instanceof File) || file.size === 0)
+        return { error: (await serverT())(msg('Выберите файл: JPEG, PNG или WebP')) };
       await dishPhotoApi.upload(id, file);
     }
     revalidatePath(vertical === 'FOOD_SERVICE' ? '/menu' : '/bar/menu');
@@ -308,11 +388,19 @@ export async function saveFoodShifts(
   try {
     intervals = JSON.parse(String(form.get('intervals') ?? '[]'));
   } catch {
-    return { error: (await serverT())(msg('Не удалось прочитать график. Обновите страницу перед повтором.')) };
+    return {
+      error: (await serverT())(
+        msg('Не удалось прочитать график. Обновите страницу перед повтором.'),
+      ),
+    };
   }
   try {
     await scope(scopeKey);
-    const saved = await restaurantApi.setShifts(String(form.get('id') ?? ''), intervals, String(form.get('expectedRevision') ?? ''));
+    const saved = await restaurantApi.setShifts(
+      String(form.get('id') ?? ''),
+      intervals,
+      String(form.get('expectedRevision') ?? ''),
+    );
     for (const path of ['/employees', '/employees/shifts', '/today']) revalidatePath(path);
     return { message: (await serverT())(msg('График сохранён')), revision: saved.weekRevision };
   } catch (error) {
@@ -337,13 +425,14 @@ export async function saveFloorLayout(
   }
 }
 
-
 /** Explicit reread, never a silent rebase of the editor's original token. */
 export async function loadFoodShift(scopeKey: string, employeeId: string) {
   try {
     await scope(scopeKey);
-    const row = (await restaurantApi.shifts()).employees.find(e => e.id === employeeId);
-    return row ? { data: { week: row.week, weekRevision: row.weekRevision, location: { id: scopeKey } } } : { error: (await serverT())(msg('Сотрудник не найден')) };
+    const row = (await restaurantApi.shifts()).employees.find((e) => e.id === employeeId);
+    return row
+      ? { data: { week: row.week, weekRevision: row.weekRevision, location: { id: scopeKey } } }
+      : { error: (await serverT())(msg('Сотрудник не найден')) };
   } catch (error) {
     return failure(error);
   }

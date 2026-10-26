@@ -5,6 +5,7 @@ import { EN_PARTS } from './en-parts';
  * Каркас здесь, экраны областей в `en-parts/`. Правка перевода меняет только значение, ключ не трогать.
  */
 export const enShell: Record<string, string> = {
+  'Настройка салона': 'Salon setup',
   "Анализ конкурентов": 'Competitor analysis',
   "Аналитика бизнеса": 'Business analytics',
   "Аналитика маркетинга": 'Marketing analytics',

@@ -3768,3 +3768,125 @@
     }
   }
 }
+
+/* Compact staff forms approved by owner, 25.10.2026. */
+@layer components {
+  .staff-access--compact {
+    padding: var(--space-4) 0 0;
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    gap: var(--space-2);
+  }
+  .staff-access--compact .staff-access__legend { padding: 0; }
+  .staff-access__permissions summary { cursor: pointer; color: var(--primary); font-size: var(--text-sm); }
+  .staff-access__permissions[open] .staff-access__details { padding-top: var(--space-2); }
+  .staff-phone { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: var(--space-2); min-width: 0; }
+  .staff-phone .inp { min-width: 0; width: 100%; }
+  .staff-form-names { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+  .employee-workspace-actions, .team-invite-form__actions {
+    border-top: 1px solid var(--border); padding-top: var(--space-4); justify-content: flex-end;
+  }
+  .employee-workspace-actions .btn--secondary, .team-invite-form__actions .btn--secondary { order: -1; }
+  .team-invite-form > .muted, .team-invite-form > .employee-workspace-note { margin: 0; }
+  @media (max-width: 600px) {
+    .staff-form-names { grid-template-columns: minmax(0, 1fr); }
+    .employee-workspace-actions .btn, .team-invite-form__actions .btn { min-height: var(--touch-target); }
+  }
+}
+
+@layer sections {
+  .ui-overlay:has(.team-invite-form) > .overlay-content,
+  .ui-overlay:has(.employee-workspace-form--creating) > .overlay-content {
+    background: var(--surface-solid);
+  }
+}
+
+/* Exact owner-selected reference, 25.10.2026. */
+@layer sections {
+  .ui-overlay.staff-form-dialog {
+    width: min(690px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    background: var(--surface-solid);
+    border-radius: calc(var(--radius-control) + var(--radius-xs));
+    font-size: var(--text-lg);
+    line-height: 1.4;
+  }
+  .staff-form-dialog .overlay-heading {
+    padding: var(--space-6) calc(var(--space-6) + var(--space-1)) calc(var(--space-2) + var(--space-1));
+    border: 0;
+    background: var(--surface-solid);
+  }
+  .staff-form-dialog .overlay-heading h2 { font-size: var(--text-4xl); font-weight: 700; }
+  .staff-form-dialog .overlay-content { padding: calc(var(--space-2) + var(--space-1)) calc(var(--space-6) + var(--space-1)) calc(var(--space-6) - var(--space-1) / 2); }
+  .staff-form-dialog :is(.employee-workspace-form, .team-invite-form) { gap: calc(var(--space-4) + var(--space-1)); }
+  .staff-form-dialog :is(h3, p, fieldset) { margin: 0; }
+  .staff-form-dialog .field { gap: var(--space-2); color: var(--text); }
+  .staff-form-dialog :is(.field__label, .staff-access__legend, .staff-personnel-kind legend, .team-scope legend) { font-weight: 500; color: var(--text); }
+  .staff-form-dialog .staff-form-section-title { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-2); }
+  .staff-form-dialog .field__label--required::after { color: var(--danger); }
+  /* .ui-overlay: на телефоне `.employee-workspace-form .inp` (workspace.css, тот же слой, грузится позже) опускал поле
+     до 44 px; высота окна по образцу 48 px держится на всех ширинах (onboarding-compatibility, 320/390/600) */
+  .ui-overlay.staff-form-dialog .inp {
+    min-height: calc(var(--touch-target) + var(--space-1)); height: calc(var(--touch-target) + var(--space-1)); border-color: var(--border); border-radius: var(--radius-sm);
+    background-color: var(--surface-solid); padding: calc(var(--space-2) + var(--space-1) / 2) var(--space-4); font-size: var(--text-lg); box-shadow: none;
+  }
+  .staff-form-dialog .staff-phone { gap: 0; grid-template-columns: 94px minmax(0, 1fr); }
+  .staff-form-dialog .staff-phone select { border-radius: var(--radius-sm) 0 0 var(--radius-sm); background-color: var(--surface-muted); }
+  .staff-form-dialog .staff-phone input[type='tel'] { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: 0; }
+  .staff-form-dialog .employee-workspace-contacts { gap: calc(var(--space-4) + var(--space-1)); }
+  .staff-form-dialog :is(.field__hint, .employee-workspace-note, .staff-access__invite) { color: var(--muted); font-size: var(--text-md); line-height: 1.4; }
+  .staff-form-dialog .employee-workspace-note { margin-top: calc(-1 * calc(var(--space-2) + var(--space-1))); }
+  .staff-personnel-kind { border: 0; border-top: 1px solid var(--border); padding: calc(var(--space-4) + var(--space-1)) 0 0; min-width: 0; }
+  .staff-personnel-kind legend { float: left; width: 100%; margin-bottom: var(--space-2); }
+  .staff-choice-row { clear: both; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  .staff-choice { display: flex; align-items: center; gap: calc(var(--space-2) + var(--space-1)); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: calc(var(--space-2) + var(--space-1)) calc(var(--space-4) + var(--space-1)); min-height: calc(var(--touch-target) + var(--space-1) + var(--space-1) / 2); cursor: pointer; }
+  .staff-choice:has(input:checked), .staff-form-dialog .team-scope__row:has(input:checked) { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); font-weight: 600; }
+  .staff-choice input { accent-color: var(--primary); margin: 0; width: 18px; height: calc(var(--space-4) + var(--space-1) / 2); flex-shrink: 0; }
+  .staff-choice--no-login { align-items: flex-start; margin-top: var(--space-2); }
+  .staff-choice--no-login small { display: block; color: var(--muted); font-weight: 400; font-size: var(--text-sm); margin-top: var(--space-1); }
+  .staff-form-dialog .staff-access--compact { padding: 0; border: 0; gap: var(--space-2); }
+  .staff-form-dialog .staff-access__legend { float: left; width: 100%; margin-bottom: var(--space-2); }
+  .staff-form-dialog .staff-access--compact > .inp { clear: both; }
+  .staff-form-dialog .team-scope { border: 0; padding: 0; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  .staff-form-dialog .team-scope legend { float: left; width: 100%; margin-bottom: var(--space-2); }
+  .staff-form-dialog .team-scope__row { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: calc(var(--space-2) + var(--space-1)) var(--space-4); min-height: calc(var(--touch-target) + var(--space-1) + var(--space-1) / 2); }
+  .staff-form-dialog .team-scope__tree { grid-column: 1 / -1; }
+  .staff-form-dialog .staff-form-footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); border-top: 1px solid var(--border); padding-top: var(--space-4); margin-top: var(--space-1); }
+  .staff-form-dialog .staff-form-footer > p { font-size: var(--text-sm); color: var(--muted); }
+  .staff-form-dialog .staff-form-footer :is(.employee-workspace-actions, .team-invite-form__actions) { border: 0; padding: 0; gap: calc(var(--space-4) - var(--space-1) / 2); flex-wrap: nowrap; }
+  .staff-form-dialog .staff-form-footer .btn { min-height: calc(var(--touch-target) + var(--space-1) / 2); border-radius: var(--radius-sm); padding-inline: calc(var(--space-4) + var(--space-1) / 2); font-size: var(--text-sm); white-space: nowrap; }
+  .staff-form-dialog .staff-form-footer .btn--secondary { background: var(--surface-muted); border-color: transparent; }
+  .staff-form-dialog .team-invite-form > .staff-access { border-top: 1px solid var(--border); padding-top: calc(var(--space-4) + var(--space-1)); margin-top: var(--space-1); }
+  @media (max-width: 600px) {
+    .ui-overlay.staff-form-dialog { width: calc(100vw - 16px); }
+    .staff-form-dialog .overlay-heading { padding: calc(var(--space-4) + var(--space-1)) var(--space-4) var(--space-2); }
+    .staff-form-dialog .overlay-heading h2 { font-size: var(--text-2xl); }
+    .staff-form-dialog .overlay-content { padding: calc(var(--space-2) + var(--space-1)) var(--space-4) calc(var(--space-4) + var(--space-1)); }
+    .staff-form-dialog .staff-form-names { grid-template-columns: 1fr 1fr; gap: calc(var(--space-2) + var(--space-1)); }
+    .staff-form-dialog .staff-form-footer { flex-wrap: wrap; }
+    .staff-form-dialog .staff-form-footer > p { flex-basis: 100%; }
+    .staff-form-dialog .staff-form-footer > div { margin-left: auto; }
+    .staff-choice { padding: calc(var(--space-2) + var(--space-1)); }
+  }
+}
+
+@layer sections {
+  .staff-form-dialog :is(.employee-workspace-form--creating, .team-invite-form) {
+    display: flex;
+    flex-direction: column;
+    min-height: 760px;
+  }
+  .staff-form-dialog .staff-form-footer { margin-top: auto; }
+  @media (max-height: 920px), (max-width: 600px) {
+    .staff-form-dialog :is(.employee-workspace-form--creating, .team-invite-form) { min-height: 0; }
+    .staff-form-dialog .staff-form-footer { margin-top: var(--space-1); }
+  }
+}
+
+@layer sections {
+  .staff-form-dialog .team-scope { display: block; }
+  .staff-form-dialog .team-scope legend { float: none; }
+  .staff-form-dialog .team-scope__tree { margin-top: var(--space-4); }
+  .staff-form-dialog .team-scope__row input { width: 18px; height: calc(var(--space-4) + var(--space-1) / 2); accent-color: var(--primary); }
+}

@@ -46,3 +46,67 @@
     }
   }
 }
+@layer sections {
+  /* Отчёты, вариант B владельца 26.10.2026: список отчётов слева, отчёт справа */
+  .salon-reports__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 4fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .salon-reports__body {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .salon-reports__menu ul {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: var(--space-2);
+    list-style: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .salon-reports__menu li {
+    display: grid;
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+  }
+  .salon-reports__menu li:has(> a[aria-current='page']) {
+    background: var(--primary-soft);
+  }
+  .salon-reports__menu a {
+    font-weight: var(--weight-medium);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .salon-reports__menu a[aria-current='page'] {
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+  }
+  .salon-reports__menu .muted {
+    font-size: var(--text-sm);
+  }
+  .salon-reports .tbl tfoot th,
+  .salon-reports .tbl tfoot td {
+    font-weight: var(--weight-semibold);
+  }
+  @media (max-width: 960px) {
+    .salon-reports__layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .salon-reports__menu ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-1) var(--space-2);
+    }
+    .salon-reports__menu li {
+      padding: var(--space-1) var(--space-2);
+    }
+    .salon-reports__menu .muted {
+      display: none;
+    }
+  }
+}

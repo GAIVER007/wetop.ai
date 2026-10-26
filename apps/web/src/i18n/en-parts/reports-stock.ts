@@ -500,4 +500,11 @@ export const reportsStock: Record<string, string> = {
   "продуктов": 'products',
   "позиций": 'items',
   "броням": 'bookings',
+  'главные цифры': 'key figures',
+  'что продаётся': 'what sells',
+  'кто сколько принёс': 'who brought how much',
+  'записи и неявки': 'appointments and no-shows',
+  'каждая запись': 'every appointment',
+  'сравнение': 'comparison',
+  'Итого': 'Total',
 };

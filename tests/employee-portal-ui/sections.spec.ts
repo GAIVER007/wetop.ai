@@ -56,7 +56,7 @@ async function capture(page: Page, section: string) {
 }
 test('services: real saved catalog and clear searchable prices', async ({ page, request }) => {
   const f = await seed(page, request); await page.goto('/services');
-  const catalog = page.locator('[data-service-list="catalog"]');
+  const catalog = page.locator('[data-service-list="price"]');
   await catalog.locator('.beauty-service-item').filter({ has: catalog.getByText('Маникюр', { exact: true }) }).getByRole('button', { name: 'Изменить', exact: true }).click();
   const card = page.getByRole('dialog'); await card.getByLabel('Название', { exact: true }).fill('Маникюр классический');
   await card.getByRole('button', { name: 'Сохранить услугу', exact: true }).click(); await expect(card.getByRole('status')).toContainText('Услуга');

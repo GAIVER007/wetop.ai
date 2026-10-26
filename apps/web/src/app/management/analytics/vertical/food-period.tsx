@@ -139,7 +139,7 @@ export function FoodPeriodPanel({
         />
       </section>
 
-      <div className="pult-row pult-row--main">
+      <div className="pult-row pult-row--chart">
         <Panel title={t('Выручка по дням')}>
           {maxDay > 0n ? (
             <DayBars
@@ -155,35 +155,6 @@ export function FoodPeriodPanel({
             <p className="pult-empty">{t('Закрытых заказов за период нет')}</p>
           )}
         </Panel>
-        <InsightsPanel items={foodInsights(report, counts ?? {})} money={money} t={t} />
-      </div>
-
-      <div className="pult-row pult-row--three">
-        {counts && labels && (
-          <Panel title={t('{title}, всего {n}', { title: t('Брони по статусам'), n: statusTotal })}>
-            <ShareList
-              t={t}
-              empty={msg('Броней за период нет.')}
-              rows={Object.entries(labels).map(([status, label]) => ({
-                key: status,
-                label: t(label),
-                value: counts[status] ?? 0,
-                text: counts[status] ?? 0,
-                tone: TONES[status as keyof typeof TONES] ?? 'neutral',
-                testId: `period-${status}`,
-              }))}
-            />
-            {statusTotal === 0 && (
-              <ul className="sr-only">
-                {Object.keys(labels).map((status) => (
-                  <li key={status} data-testid={`period-${status}`}>
-                    0
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
-        )}
         <Panel title={t('Оплаты по способам')}>
           <ShareList
             t={t}
@@ -222,7 +193,7 @@ export function FoodPeriodPanel({
         </Panel>
       </div>
 
-      <div className="pult-row pult-row--two">
+      <div className="pult-row pult-row--lists">
         <Panel title={t('Популярные блюда')}>
           {table(
             [msg('Блюдо'), msg('Порций'), msg('Выручка')],
@@ -248,6 +219,36 @@ export function FoodPeriodPanel({
             )}
           </Panel>
         )}
+        <div className="pult-stack">
+          <InsightsPanel items={foodInsights(report, counts ?? {})} money={money} t={t} />
+          {counts && labels && (
+            <Panel
+              title={t('{title}, всего {n}', { title: t('Брони по статусам'), n: statusTotal })}
+            >
+              <ShareList
+                t={t}
+                empty={msg('Броней за период нет.')}
+                rows={Object.entries(labels).map(([status, label]) => ({
+                  key: status,
+                  label: t(label),
+                  value: counts[status] ?? 0,
+                  text: counts[status] ?? 0,
+                  tone: TONES[status as keyof typeof TONES] ?? 'neutral',
+                  testId: `period-${status}`,
+                }))}
+              />
+              {statusTotal === 0 && (
+                <ul className="sr-only">
+                  {Object.keys(labels).map((status) => (
+                    <li key={status} data-testid={`period-${status}`}>
+                      0
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Panel>
+          )}
+        </div>
       </div>
 
       <div className="pult-row pult-row--two">

@@ -459,3 +459,161 @@
     }
   }
 }
+@layer sections {
+  /* Окно настройки салона, вариант C владельца 26.10.2026: всё в одной карточке на один экран, шаги короткими
+     строками, справа превью записи телефоном */
+  .setup-c .setup-b__region {
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .setup-c .setup-b__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
+    gap: var(--space-6);
+  }
+  .setup-c .setup-b__main {
+    gap: var(--space-2);
+  }
+  .setup-c__lead {
+    margin: 0;
+    color: var(--muted);
+  }
+  .setup-c .onboarding__actions {
+    margin: var(--space-2) 0;
+  }
+  .setup-c__group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+  }
+  .setup-c__count {
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--warning-soft);
+    color: var(--warning);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .setup-c__count.is-done {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  .setup-c .setup-path,
+  .setup-c .setup-next {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  .setup-c .setup-path__row {
+    grid-template-columns: var(--space-6) minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    align-items: center;
+    padding: var(--space-2) 0;
+    border-radius: 0;
+  }
+  .setup-c .setup-path__row--current {
+    padding-inline: var(--space-2);
+    border-radius: var(--radius-sm);
+  }
+  .setup-c .setup-path__num {
+    width: var(--space-6);
+    height: var(--space-6);
+    font-size: var(--text-xs);
+  }
+  .setup-c .setup-path__body h2 {
+    font-size: var(--text-sm);
+    line-height: var(--space-6);
+  }
+  /* готовый шаг одной строкой: название и итог рядом */
+  .setup-c .setup-path__row--done .setup-path__body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-4);
+  }
+  .setup-c .setup-path__row--done .setup-path__body h2 {
+    flex: 0 0 auto;
+    min-width: 12em;
+  }
+  .setup-c .setup-path__edit {
+    min-height: var(--control-h-sm);
+  }
+  .setup-c .setup-next h2 {
+    display: inline;
+    padding: 0;
+    font-size: var(--text-md);
+  }
+  .setup-c__optional {
+    margin-left: var(--space-2);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--surface-muted);
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .setup-c .setup-next__list {
+    margin-top: var(--space-2);
+  }
+  .setup-c .setup-next__item {
+    grid-template-columns: var(--space-6) minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    border-radius: 0;
+  }
+  .setup-c .setup-next__item > span:nth-child(2) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-2);
+  }
+  .setup-c .setup-next__item > span:nth-child(2) > span {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  /* превью телефоном внутри той же карточки */
+  .setup-c .setup-preview {
+    padding: 0;
+    border: 0;
+    background: none;
+    gap: var(--space-2);
+  }
+  .setup-c .setup-preview__phone {
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: var(--space-2) solid var(--text);
+    border-radius: var(--space-8);
+    background: var(--surface);
+  }
+  .setup-c .setup-preview__services li {
+    padding: var(--space-1) var(--space-2);
+  }
+  .setup-c .setup-preview__masters span {
+    width: var(--space-8);
+    height: var(--space-8);
+    font-size: var(--text-xs);
+  }
+  .setup-c .setup-preview__foot {
+    display: none;
+  }
+  @media (max-width: 960px) {
+    .setup-c .setup-b__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .setup-c .setup-b__region {
+      padding: var(--space-4);
+    }
+    .setup-c .setup-path__row {
+      grid-template-columns: var(--space-6) minmax(0, 1fr);
+    }
+    .setup-c .setup-path__row--done .setup-path__body h2 {
+      min-width: 0;
+    }
+  }
+}

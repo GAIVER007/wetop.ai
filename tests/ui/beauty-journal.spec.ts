@@ -50,9 +50,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
   await expect(panel).toBeHidden();
   await page.goto('/beauty/services');
-  // услуги салона показаны карточками каталога, не строками таблицы
+  // услуги салона: строка прайс-листа (вариант B, 25.10.2026)
   await main
-    .locator('[data-service-list="catalog"] .beauty-service-item')
+    .locator('[data-service-list="price"] .beauty-service-item')
     .filter({ has: page.getByText('Маникюр', { exact: true }) })
     .getByRole('button', { name: 'Изменить' })
     .click();
@@ -64,8 +64,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await page.goto('/beauty/masters');
   await main.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   panel = page.getByRole('dialog');
-  await panel.getByLabel('Имя мастера').fill('Дина');
-  await panel.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await panel.getByLabel('Имя').fill('Дина');
+  await panel.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('NONE');
+  await panel.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
   // Создание ведёт на полную карточку /employees/<id>/profile (решение владельца 20.10); назначение
   // услуг через UI проверяет real-portal набор, здесь услугу назначает фикстурный API.
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);

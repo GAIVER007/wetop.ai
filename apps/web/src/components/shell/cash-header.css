@@ -53,7 +53,7 @@
   }
   @media (min-width: 1280px) {
     .workspace .workspace-header .workspace-header__row:has(.cash-header) {
-      grid-template-columns: auto minmax(0, 1fr) auto auto minmax(140px, 220px) auto;
+      grid-template-columns: auto minmax(0, 1fr) auto auto minmax(200px, 280px) auto;
       column-gap: var(--space-2);
     }
     .workspace-header__row > .cash-header {
@@ -77,14 +77,21 @@
       padding-left: var(--space-2);
     }
   }
+  /* расход и итоги значками на любой ширине (подпись в aria-label): название филиала не обрезается (header-two-rows) */
+  .cash-header > .btn:not(:first-child) {
+    width: var(--space-10);
+    min-width: var(--space-10);
+    padding: 0;
+    justify-content: center;
+  }
+  .cash-header > .btn:not(:first-child) > .cash-header__label {
+    display: none;
+  }
   @media (max-width: 1279px) {
+    /* дата словами остаётся до 600 px (тест header-search): место берём у названия и дня недели */
     .workspace-header__row:has(.cash-header) .brand-name,
-    .workspace-header__row:has(.cash-header) .header-clock__weekday,
-    .workspace-header__row:has(.cash-header) .header-clock__long {
+    .workspace-header__row:has(.cash-header) .header-clock__weekday {
       display: none;
-    }
-    .workspace-header__row:has(.cash-header) .header-clock__short {
-      display: inline;
     }
 
     .workspace-header__row:has(.cash-header) {
@@ -104,42 +111,40 @@
       display: none;
     }
     .workspace-header__row:has(.cash-header) .workspace-header__property {
-      max-width: 128px;
+      max-width: 200px;
     }
     .cash-header > .btn > .icon {
       display: none;
     }
   }
+  /* планшет и телефон: шапка остаётся одной строкой 56 px (ui31-shell), смена и итоги значками в той же строке,
+     подписи словами в aria-label; расход открывается из «Итоги смены» */
   @media (max-width: 960px) {
-    .workspace .workspace-header__row:has(.cash-header) {
-      height: auto;
-      min-height: var(--header-row-h);
-      flex-wrap: wrap;
-      padding-bottom: var(--space-2);
+    .cash-header > .btn {
+      width: var(--space-10);
+      min-width: var(--space-10);
+      padding: 0;
+      justify-content: center;
     }
-    .cash-header {
-      order: 10;
-      flex: 1 1 100%;
-      justify-content: flex-end;
+    .cash-header > .btn > .icon {
+      display: inline-block;
     }
-    .workspace:has(.cash-header) {
-      --header-h: 112px;
+    .cash-header__label {
+      display: none;
+    }
+    .cash-header > .cash-header__expense {
+      display: none;
     }
   }
+  /* телефон: одна кнопка смены, профиль не уезжает за край (header-search 320/390) */
   @media (max-width: 600px) {
-    .cash-header {
-      flex-wrap: wrap;
-      justify-content: flex-start;
+    .cash-header > .btn:not(:first-child) {
+      display: none;
     }
-    .cash-header > .btn {
-      min-height: 44px;
-      flex: 1 1 auto;
-    }
-    .cash-header > .btn:first-child {
-      flex-basis: 100%;
-    }
-    .workspace:has(.cash-header) {
-      --header-h: 160px;
+  }
+  @media (min-width: 601px) {
+    .cash-header__summary-link {
+      display: none;
     }
   }
 }

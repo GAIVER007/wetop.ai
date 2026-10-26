@@ -5,7 +5,14 @@ import { Alert, Button, Field, Input, Select, Textarea } from '../ui';
 import { Icon } from '../icon';
 import { formatMoney, minorToInput } from '../../lib/money';
 import type { CashRegisterView } from '../../lib/cash-register';
-import { loadCashHeader, saveCashiers, sendCashHeader } from './cash-header-actions';
+import { saveCashiers, sendCashHeader } from './cash-header-actions';
+
+/** Чтение кассы GET-запросом: серверное действие перерисовало бы страницу и сбросило её несохранённые правки */
+async function loadCashHeader(scopeKey: string): Promise<CashRegisterView> {
+  const response = await fetch(`/api/cash-register?scope=${encodeURIComponent(scopeKey)}`, { cache: 'no-store' });
+  if (!response.ok) throw new Error('Не удалось получить кассу');
+  return (await response.json()) as CashRegisterView;
+}
 import { METHOD_RU } from '../../app/finance/labels';
 
 type Panel = 'open' | 'close' | 'expense' | 'income' | 'summary' | null;
@@ -151,6 +158,13 @@ export function CashHeader({
       ))}
     </section>
   );
+  const shiftLabel = failed
+    ? 'Касса недоступна'
+    : !cash
+      ? 'Смена…'
+      : cash.active
+        ? 'Закрыть смену'
+        : 'Открыть смену';
   return (
     <>
       <div className="cash-header" aria-label="Кассовая смена" data-testid="cash-header">
@@ -160,29 +174,32 @@ export function CashHeader({
           disabled={
             busy || (!failed && !cash) || (!failed && (!mayWrite || (!!cash?.active && !owns)))
           }
+          aria-label={shiftLabel}
           onClick={() => show(failed ? 'summary' : cash?.active ? 'close' : 'open')}
         >
           <Icon name="clock" />
-          {failed
-            ? 'Касса недоступна'
-            : !cash
-              ? 'Смена…'
-              : cash.active
-                ? 'Закрыть смену'
-                : 'Открыть смену'}
+          <span className="cash-header__label">{shiftLabel}</span>
         </Button>
         <Button
           type="button"
           tone="secondary"
           disabled={!mayWrite || !owns || busy}
+          aria-label="Добавить расход"
+          className="cash-header__expense"
           onClick={() => show('expense')}
         >
           <Icon name="plus" />
-          Добавить расход
+          <span className="cash-header__label">Добавить расход</span>
         </Button>
-        <Button type="button" tone="secondary" disabled={busy} onClick={() => show('summary')}>
+        <Button
+          type="button"
+          tone="secondary"
+          disabled={busy}
+          aria-label="Итоги смены"
+          onClick={() => show('summary')}
+        >
           <Icon name="chart" />
-          Итоги смены
+          <span className="cash-header__label">Итоги смены</span>
         </Button>
         <span className="sr-only" role="status">
           {saved}
@@ -265,9 +282,15 @@ export function CashHeader({
                     </section>
                   ))}
                   {mayWrite && owns && (
-                    <Button tone="secondary" onClick={() => show('income')}>
-                      Внести деньги
-                    </Button>
+                    <div className="cash-header__footer">
+                      {/* на телефоне расход открывается отсюда: в шапке только смена и итоги */}
+                      <Button tone="secondary" onClick={() => show('expense')}>
+                        Добавить расход
+                      </Button>
+                      <Button tone="secondary" onClick={() => show('income')}>
+                        Внести деньги
+                      </Button>
+                    </div>
                   )}
                   {!cash.mayOperate && <p>Права кассира выдаёт владелец или управляющий.</p>}
                   {cash.active && !owns && (
@@ -332,6 +355,17 @@ export function CashHeader({
                 </>
               ) : (
                 <form onSubmit={submit}>
+                  {(panel === 'open' || panel === 'close') && (
+                    // на телефоне в шапке только кнопка смены: итоги, расход и внесение открываются отсюда
+                    <Button
+                      type="button"
+                      tone="secondary"
+                      className="cash-header__summary-link"
+                      onClick={() => show('summary')}
+                    >
+                      Итоги смены
+                    </Button>
+                  )}
                   <p>
                     Наличные по системе:{' '}
                     <strong>{money(cash.snapshot.balances.CASH ?? '0')}</strong>

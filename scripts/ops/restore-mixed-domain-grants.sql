@@ -149,8 +149,9 @@ BEGIN
     GRANT SELECT, INSERT, UPDATE ON TABLE staff_telegram_links, staff_telegram_link_codes, staff_notifications TO wetop_service;
   END IF;
   -- 159/160_cash_shifts: restore metadata ACL without replaying mixed DDL.
+  -- схема по search_path (на проде public, в гейте pms_test): GRANT ниже тоже без схемы
   SELECT count(*) INTO installed FROM unnest(ARRAY['cash_registers','cash_shifts','cash_handovers','cash_commands']) AS t(name)
-    WHERE to_regclass('public.' || name) IS NOT NULL;
+    WHERE to_regclass(quote_ident(name)) IS NOT NULL;
   IF installed NOT IN (0,4) THEN RAISE EXCEPTION 'Incomplete cash-shift schema during ACL restore'; END IF;
   IF installed = 4 THEN
     REVOKE ALL ON cash_registers,cash_shifts,cash_handovers,cash_commands FROM PUBLIC,wetop_app,wetop_service;

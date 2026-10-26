@@ -8,7 +8,9 @@ const url = process.env.DATABASE_URL;
 describe.skipIf(!url)('cash shift ACL after backup restoration', () => {
   it('restores the exact metadata grants without replaying the table migration', async () => {
     if (!isLocalDatabase(url!)) throw new Error('Requires isolated localhost PostgreSQL');
-    const db = new pg.Client({ connectionString: url, options: '-c search_path=public' });
+    // схема набора (в гейте pms_test), как в rls-credential-grants.test.ts
+    const schema = process.env.DATABASE_SCHEMA?.trim() || 'public';
+    const db = new pg.Client({ connectionString: url, options: `-c search_path=${schema},public` });
     await db.connect();
     try {
       await db.query('BEGIN');
@@ -28,12 +30,12 @@ describe.skipIf(!url)('cash shift ACL after backup restoration', () => {
         const {
           rows: [grants],
         } = await db.query(
-          `SELECT has_table_privilege($1,'public.cash_registers','SELECT') readable,
-          has_table_privilege($1,'public.cash_shifts','INSERT') writable,
-          has_table_privilege($1,'public.cash_commands','UPDATE') mutable,
-          has_table_privilege($1,'public.cash_handovers','DELETE') deletable,
-          has_function_privilege($1,'public.cash_scope_visible(uuid,uuid)','EXECUTE') executable`,
-          [role],
+          `SELECT has_table_privilege($1,$2::text||'.cash_registers','SELECT') readable,
+          has_table_privilege($1,$2::text||'.cash_shifts','INSERT') writable,
+          has_table_privilege($1,$2::text||'.cash_commands','UPDATE') mutable,
+          has_table_privilege($1,$2::text||'.cash_handovers','DELETE') deletable,
+          has_function_privilege($1,$2::text||'.cash_scope_visible(uuid,uuid)','EXECUTE') executable`,
+          [role, schema],
         );
         expect(grants).toEqual({
           readable: true,

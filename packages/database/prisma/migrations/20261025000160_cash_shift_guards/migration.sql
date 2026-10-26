@@ -50,3 +50,15 @@ CREATE TRIGGER cash_handover_integrity_guard BEFORE INSERT OR UPDATE ON cash_han
 CREATE TRIGGER cash_shift_operation_guard BEFORE INSERT OR UPDATE ON restaurant_cash_operations FOR EACH ROW EXECUTE FUNCTION cash_shift_operation_guard();
 
 REVOKE UPDATE ON cash_commands FROM wetop_app,wetop_service;
+
+-- search_path закреплён у функций кассы, как у остальных функций схемы (20261003000043, тест function-search-path)
+DO $$
+DECLARE s text := current_schema(); path text;
+BEGIN
+  path := CASE WHEN s='public' THEN 'public, pg_temp' ELSE format('%I, public, pg_temp',s) END;
+  EXECUTE format('ALTER FUNCTION %I.cash_scope_visible(uuid,uuid) SET search_path = %s',s,path);
+  EXECUTE format('ALTER FUNCTION %I.cash_register_scope_guard() SET search_path = %s',s,path);
+  EXECUTE format('ALTER FUNCTION %I.cash_shift_integrity_guard() SET search_path = %s',s,path);
+  EXECUTE format('ALTER FUNCTION %I.cash_shift_operation_guard() SET search_path = %s',s,path);
+  EXECUTE format('ALTER FUNCTION %I.cash_handover_integrity_guard() SET search_path = %s',s,path);
+END $$;

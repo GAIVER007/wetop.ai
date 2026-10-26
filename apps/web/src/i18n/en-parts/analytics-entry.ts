@@ -193,6 +193,8 @@ export const analyticsEntry: Record<string, string> = {
   'Броней за период нет.': 'No bookings in this period.',
   'Гостиничная сводка недоступна.': 'Hotel summary is unavailable.',
   'Даты по часам каждого филиала, период до 31 дня. Показаны текущие статусы записей и броней, начавшихся за период.': 'Dates follow each branch\'s local time, period up to 31 days. Current statuses of appointments and bookings that started in the period are shown.',
+  'Месяц по часам каждого филиала, текущий месяц до сегодня. Сравнение с теми же днями прошлого месяца. Показаны текущие статусы записей и броней, начавшихся за месяц.': 'Months follow each branch\'s local time, the current month up to today. Compared with the same days of the previous month. Current statuses of appointments and bookings that started in the month are shown.',
+  'ЗП': 'Pay',
   'Не удалось загрузить отчёт': 'Could not load the report',
   'Обновить отчёт': 'Refresh report',
   'Продолжить': 'Continue',

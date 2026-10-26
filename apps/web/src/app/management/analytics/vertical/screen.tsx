@@ -8,15 +8,17 @@ import { currentMe, deskShell } from '../../../../lib/desk-shell';
 import { localInput } from '../../../beauty/time';
 import { BEAUTY_LABELS, FOOD_LABELS, moneyText, periodDates } from './metrics';
 import { loadBeautyInsights, loadBranchPeriod, loadPreviousPeriod } from './load';
-import { beautyPult, previousRange } from './pult';
+import { beautyPult } from './pult';
+import { analyticsMonth } from './month';
+import { AnalyticsMonthNav } from './month-nav';
+import { restaurantApi } from '../../../../lib/food-api';
 import { BeautyPultView } from './beauty-pult';
 import { FoodPeriodPanel } from './food-period';
 import './vertical.css';
 import { Chip, ChipGroup } from '../../../../components/chip';
-import { PeriodBar } from '../../../../components/period-bar';
 import { BranchReport } from './branch-report';
 import { msg } from '../../../../i18n';
-import { serverT } from '../../../../i18n/server';
+import { currentLocale, serverT } from '../../../../i18n/server';
 const path = '/management/analytics';
 export async function VerticalAnalytics({ sp }: { sp: Record<string, string | undefined> }) {
   const shell = await deskShell();
@@ -37,8 +39,9 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
     );
     if (!selected) throw new Error(msg('Выбранный филиал недоступен'));
     const today = localInput(new Date().toISOString(), selected.timezone).slice(0, 10);
-    const from = sp.from ?? today;
-    const to = sp.to ?? from;
+    // только месяц (владелец 26.10.2026): текущий до сегодня, прошлые целиком; старые ссылки `?from=` ведут в месяц даты
+    const period = analyticsMonth(sp, today);
+    const { from, to } = period;
     const dates = periodDates(from, to);
     const organization = sp.scope === 'organization';
     const targets = organization ? items.filter((b) => b.vertical !== 'HOSPITALITY') : [selected];
@@ -52,8 +55,8 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
       };
       error: string | null;
     }> = [];
-    // Пульт владельца (вариант A, 25.10.2026) сравнивает с таким же отрезком перед периодом; у «Всех филиалов» без него
-    const prevRange = previousRange(from, to);
+    // сравнение с тем же отрезком прошлого месяца; у «Всех филиалов» без него
+    const prevRange = period.prev;
     const prevDates = periodDates(prevRange.from, prevRange.to);
     for (const branch of targets) {
       try {
@@ -84,34 +87,44 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
             return null;
           })
         : undefined;
-    const q = new URLSearchParams({ from, to });
+    // ЗП мастеров и официантов за месяц из «Зарплаты» (итого начислено); нет права или сбой: колонка с прочерками
+    const pay =
+      !organization && selected.vertical !== 'HOSPITALITY'
+        ? await restaurantApi
+            .payroll(period.month)
+            .then((v) => new Map(v.rows.map((r) => [r.employeeId, r.totalMinor])))
+            .catch((error) => {
+              unstable_rethrow(error);
+              return null;
+            })
+        : null;
+    const locale = await currentLocale();
+    const monthHref = (month: string, org = organization) =>
+      `${path}?${new URLSearchParams({ month, ...(org ? { scope: 'organization' } : {}) })}`;
     return (
       <Page
         title={t('Аналитика')}
         subtitle={organization ? t('Отчёты по филиалам, отдельно по направлениям.') : selected.name}
       >
         <div className="vertical-report" data-testid="vertical-analytics">
-          <PeriodBar
-            action={path}
-            from={from}
-            to={to}
-            today={today}
-            label={t('Период отчёта')}
-            {...(organization ? { hidden: { scope: 'organization' } } : {})}
-            href={(f, to) =>
-              `${path}?${new URLSearchParams({ from: f, to, ...(organization ? { scope: 'organization' } : {}) })}`
-            }
-            lead={
-              <ChipGroup as="nav" label={t('Область отчёта')}>
-                <Chip href={`${path}?${q}`} selected={!organization}>
-                  {t('Выбранный филиал')}
-                </Chip>
-                <Chip href={`${path}?${q}&scope=organization`} selected={organization}>
-                  {t('Все филиалы')}
-                </Chip>
-              </ChipGroup>
-            }
-          />
+          <div className="analytics-period">
+            <ChipGroup as="nav" label={t('Область отчёта')}>
+              <Chip href={monthHref(period.month, false)} selected={!organization}>
+                {t('Выбранный филиал')}
+              </Chip>
+              <Chip href={monthHref(period.month, true)} selected={organization}>
+                {t('Все филиалы')}
+              </Chip>
+            </ChipGroup>
+            <AnalyticsMonthNav
+              month={period.month}
+              previous={period.previousMonth}
+              next={period.next}
+              href={(m) => monthHref(m)}
+              locale={locale}
+              t={t}
+            />
+          </div>
           {(['BEAUTY', 'FOOD_SERVICE'] as const).map((vertical) => {
             const group = results.filter((r) => r.branch.vertical === vertical);
             if (!group.length) return null;
@@ -134,6 +147,7 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
                           today={today}
                           insights={insights?.now ?? null}
                           prevInsights={insights?.prev ?? null}
+                          pay={pay}
                           t={t}
                         />
                       ) : (
@@ -143,6 +157,7 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
                             previous={previous?.food ?? null}
                             counts={report.counts}
                             labels={labels}
+                            pay={pay}
                             t={t}
                           />
                         )
@@ -201,7 +216,7 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
           )}
           <p className="muted">
             {t(
-              'Даты по часам каждого филиала, период до 31 дня. Показаны текущие статусы записей и броней, начавшихся за период.',
+              'Месяц по часам каждого филиала, текущий месяц до сегодня. Сравнение с теми же днями прошлого месяца. Показаны текущие статусы записей и броней, начавшихся за месяц.',
             )}
           </p>
         </div>

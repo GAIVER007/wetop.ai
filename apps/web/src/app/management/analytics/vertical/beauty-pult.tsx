@@ -29,6 +29,7 @@ export function BeautyPultView({
   labels,
   insights = null,
   prevInsights = null,
+  pay = null,
   t = translator('ru'),
 }: {
   p: BeautyPult;
@@ -39,6 +40,8 @@ export function BeautyPultView({
   /** сводка API (оценки, новые и повторные, «давно не были»); null, если не загрузилась: блоки без этих строк */
   insights?: BeautyInsights | null;
   prevInsights?: BeautyInsights | null;
+  /** ЗП мастера за месяц из «Зарплаты» (итого начислено, минорные единицы); null, если не загрузилась */
+  pay?: Map<string, string> | null;
   t?: Translate;
 }) {
   const stars = (tenths: number | null) =>
@@ -205,36 +208,44 @@ export function BeautyPultView({
       <div className="pult-row pult-row--lists">
         <Panel title={t('Мастера')}>
           {p.masters.length ? (
-            <Table>
+            // колонки владельца 26.10.2026: выручка, визиты, вернулись (к этому мастеру, с LTV), ЗП, оценка
+            <Table className="pult-masters">
               <thead>
                 <tr>
                   <th>{t('Мастер')}</th>
                   <th className="num">{t('Выручка')}</th>
                   <th className="num">{t('Визиты')}</th>
-                  <th className="num">{t('Загрузка')}</th>
-                  {insights && <th className="num">{t('Вернулись')}</th>}
-                  {insights && <th className="num">{t('Оценка')}</th>}
+                  <th className="num">{t('Вернулись')}</th>
+                  <th className="num">{t('ЗП')}</th>
+                  <th className="num">{t('Оценка')}</th>
                 </tr>
               </thead>
               <tbody>
-                {p.masters.map((m) => (
-                  <tr key={m.id} data-testid={`master-${m.id}`}>
-                    <td>{m.name}</td>
-                    <td className="num">{money(m.revenueMinor)}</td>
-                    <td className="num">{m.visits}</td>
-                    <td className="num">{m.loadPercent}%</td>
-                    {insights && (
+                {p.masters.map((m) => {
+                  const r = rating.get(m.id);
+                  const paid = pay?.get(m.id);
+                  return (
+                    <tr key={m.id} data-testid={`master-${m.id}`}>
+                      <td>{m.name}</td>
+                      <td className="num">{money(m.revenueMinor)}</td>
+                      <td className="num">{m.visits}</td>
                       <td className="num">
-                        {rating.get(m.id)?.customers
-                          ? `${share(rating.get(m.id)!.returning, rating.get(m.id)!.customers)}%`
-                          : '—'}
+                        <span data-testid={`master-${m.id}-returned`}>
+                          {r?.customers ? `${share(r.returnedToMaster ?? r.returning, r.customers)}%` : '—'}
+                        </span>
+                        {r?.customers && r.ltvMinor !== undefined ? (
+                          <small className="pult-ltv" data-testid={`master-${m.id}-ltv`}>
+                            LTV {money(r.ltvMinor)}
+                          </small>
+                        ) : null}
                       </td>
-                    )}
-                    {insights && (
-                      <td className="num">{stars(rating.get(m.id)?.avgTenths ?? null)}</td>
-                    )}
-                  </tr>
-                ))}
+                      <td className="num" data-testid={`master-${m.id}-pay`}>
+                        {paid !== undefined ? money(paid) : '—'}
+                      </td>
+                      <td className="num">{stars(r?.avgTenths ?? null)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </Table>
           ) : (

@@ -30,6 +30,7 @@ export function FoodPeriodPanel({
   previous = null,
   counts = null,
   labels = null,
+  pay = null,
   t = translator('ru'),
 }: {
   report: FoodPeriodReport;
@@ -38,6 +39,8 @@ export function FoodPeriodPanel({
   /** брони по статусам за период */
   counts?: Record<string, number> | null;
   labels?: Record<string, string> | null;
+  /** ЗП официанта за месяц из «Зарплаты» (итого начислено); null: прочерк (владелец 26.10.2026, как у мастеров) */
+  pay?: Map<string, string> | null;
   t?: Translate;
 }) {
   const money = (minor: string) => wholeTenge(minor, report.currency);
@@ -254,8 +257,11 @@ export function FoodPeriodPanel({
       <div className="pult-row pult-row--two">
         <Panel title={t('Официанты')}>
           {table(
-            [msg('Официант'), msg('Заказов'), msg('Выручка')],
-            report.waiters.map((w) => [w.name, w.orders, money(w.revenueMinor)]),
+            [msg('Официант'), msg('Заказов'), msg('Выручка'), msg('ЗП')],
+            report.waiters.map((w) => {
+              const paid = w.waiterId ? pay?.get(w.waiterId) : undefined;
+              return [w.name, w.orders, money(w.revenueMinor), paid !== undefined ? money(paid) : '—'];
+            }),
             msg('Заказов с официантом за период нет'),
           )}
         </Panel>

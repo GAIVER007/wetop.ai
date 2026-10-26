@@ -174,3 +174,40 @@ describe('пульт ресторана на экране', () => {
     expect(html).toContain('Kaspi');
   });
 });
+
+/**
+ * Таблица мастеров (владелец 26.10.2026): Выручка, Визиты, Вернулись (к этому мастеру, с LTV), ЗП, Оценка.
+ * «Загрузки» в таблице нет.
+ */
+describe('мастера: выручка, визиты, вернулись с LTV, ЗП, оценка', () => {
+  const insights = {
+    period: { from: '2026-10-01', to: '2026-10-31' },
+    reviews: { count: 1, avgTenths: 50 },
+    customers: { total: 2, new: 1, repeat: 1, lapsed: 0 },
+    employees: [
+      { employeeId: 'm1', customers: 2, returning: 1, returnedToMaster: 1, ltvMinor: '4500000', reviews: 1, avgTenths: 50 },
+    ],
+  };
+  const p = beautyPult([day], 'KZT');
+  const html = renderToStaticMarkup(
+    BeautyPultView({ p, prev: null, labels: BEAUTY_LABELS, insights, pay: new Map([['m1', '18000000']]) }),
+  ).replace(/<!-- -->/g, '');
+  it('пять колонок в порядке владельца, без загрузки', () => {
+    const table = html.slice(html.indexOf('pult-masters'));
+    const head = table.slice(table.indexOf('<thead'), table.indexOf('</thead>'));
+    expect([...head.matchAll(/<th[^>]*>([^<]*)<\/th>/g)].map((m) => m[1])).toEqual(['Мастер', 'Выручка', 'Визиты', 'Вернулись', 'ЗП', 'Оценка']);
+  });
+  it('вернулись: доля клиентов, бывших у этого мастера раньше, и LTV одного клиента', () => {
+    expect(html).toMatch(/data-testid="master-m1-returned"[^>]*>50%/);
+    expect(html).toMatch(/data-testid="master-m1-ltv"[^>]*>LTV 45 000 ₸/);
+  });
+  it('ЗП мастера за месяц из зарплаты и оценка', () => {
+    expect(html).toMatch(/data-testid="master-m1-pay"[^>]*>180 000 ₸/);
+    expect(html).toMatch(/data-testid="master-m1".*5,0 ★/);
+  });
+  it('без зарплаты и сводки прочерки, а не нули', () => {
+    const bare = renderToStaticMarkup(BeautyPultView({ p, prev: null, labels: BEAUTY_LABELS })).replace(/<!-- -->/g, '');
+    expect(bare).toMatch(/data-testid="master-m1-pay"[^>]*>—/);
+    expect(bare).toMatch(/data-testid="master-m1-returned"[^>]*>—/);
+  });
+});

@@ -460,160 +460,166 @@
   }
 }
 @layer sections {
-  /* Окно настройки салона, вариант C владельца 26.10.2026: всё в одной карточке на один экран, шаги короткими
-     строками, справа превью записи телефоном */
-  .setup-c .setup-b__region {
+  /* Окно настройки салона, вариант B владельца 26.10.2026: шаги плитками в ряд, ниже «Дальше» карточками 2×2 и
+     превью онлайн-записи справа; у готового салона кнопки в шапке справа. Один экран ноутбука. */
+  .setup-tiles .setup-b__region {
     gap: var(--space-4);
-    padding: var(--space-6);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--surface);
   }
-  .setup-c .setup-b__grid {
-    grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
-    gap: var(--space-6);
-  }
-  .setup-c .setup-b__main {
-    gap: var(--space-2);
-  }
-  .setup-c__lead {
-    margin: 0;
-    color: var(--muted);
-  }
-  .setup-c .onboarding__actions {
-    margin: var(--space-2) 0;
-  }
-  .setup-c__group {
+  .setup-tiles .setup-b__title {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-    margin: var(--space-2) 0 0;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
   }
-  .setup-c__count {
-    padding: 0 var(--space-2);
-    border-radius: var(--radius-full);
-    background: var(--warning-soft);
+  .setup-tiles__count {
     color: var(--warning);
-    font-size: var(--text-xs);
+    font-size: var(--text-sm);
     font-weight: var(--weight-semibold);
   }
-  .setup-c__count.is-done {
-    background: var(--success-soft);
+  .setup-tiles__count.is-done {
     color: var(--success);
   }
-  .setup-c .setup-path,
-  .setup-c .setup-next {
+  .setup-tiles__head-actions .onboarding__actions {
+    margin: 0;
+  }
+  .setup-tiles .setup-path {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-2);
     padding: 0;
     border: 0;
-    border-radius: 0;
     background: none;
   }
-  .setup-c .setup-path__row {
-    grid-template-columns: var(--space-6) minmax(0, 1fr) auto;
-    gap: var(--space-2);
-    align-items: center;
-    padding: var(--space-2) 0;
-    border-radius: 0;
+  .setup-tiles .setup-path__row {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
   }
-  .setup-c .setup-path__row--current {
-    padding-inline: var(--space-2);
-    border-radius: var(--radius-sm);
+  .setup-tiles .setup-path__row + .setup-path__row {
+    border-top: 1px solid var(--border);
   }
-  .setup-c .setup-path__num {
+  .setup-tiles .setup-path__row--done {
+    border-color: var(--success);
+    background: var(--success-soft);
+  }
+  .setup-tiles .setup-path__row--current {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  /* шаг с формой основных сведений во всю ширину ряда, иначе поля тесно */
+  .setup-tiles .setup-path__row:has(.setup-fields) {
+    grid-column: 1 / -1;
+  }
+  .setup-tiles .setup-path__num {
     width: var(--space-6);
     height: var(--space-6);
     font-size: var(--text-xs);
   }
-  .setup-c .setup-path__body h2 {
+  .setup-tiles__step {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .setup-tiles .setup-path__body h2 {
     font-size: var(--text-sm);
-    line-height: var(--space-6);
+    line-height: 1.3;
   }
-  /* готовый шаг одной строкой: название и итог рядом */
-  .setup-c .setup-path__row--done .setup-path__body {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 var(--space-4);
+  .setup-tiles .setup-path__action {
+    align-self: end;
   }
-  .setup-c .setup-path__row--done .setup-path__body h2 {
-    flex: 0 0 auto;
-    min-width: 12em;
-  }
-  .setup-c .setup-path__edit {
-    min-height: var(--control-h-sm);
-  }
-  .setup-c .setup-next h2 {
-    display: inline;
+  .setup-tiles .setup-path__edit {
+    min-height: auto;
     padding: 0;
-    font-size: var(--text-md);
+    color: var(--primary);
   }
-  .setup-c__optional {
-    margin-left: var(--space-2);
-    padding: 0 var(--space-2);
-    border-radius: var(--radius-full);
-    background: var(--surface-muted);
-    color: var(--muted);
-    font-size: var(--text-xs);
+  .setup-tiles .setup-path__action .btn:not(.btn--ghost) {
+    width: 100%;
   }
-  .setup-c .setup-next__list {
-    margin-top: var(--space-2);
+  .setup-tiles .setup-b__grid {
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    gap: var(--space-4);
   }
-  .setup-c .setup-next__item {
-    grid-template-columns: var(--space-6) minmax(0, 1fr) auto;
-    gap: var(--space-2);
-    padding: var(--space-2) 0;
-    border-radius: 0;
-  }
-  .setup-c .setup-next__item > span:nth-child(2) {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 var(--space-2);
-  }
-  .setup-c .setup-next__item > span:nth-child(2) > span {
-    color: var(--muted);
-    font-size: var(--text-xs);
-  }
-  /* превью телефоном внутри той же карточки */
-  .setup-c .setup-preview {
+  .setup-tiles .setup-next {
     padding: 0;
     border: 0;
     background: none;
+  }
+  .setup-tiles .setup-next h2 {
+    padding: 0 0 var(--space-2);
+    font-size: var(--text-md);
+  }
+  .setup-tiles .setup-next__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-2);
   }
-  .setup-c .setup-preview__phone {
-    gap: var(--space-2);
+  .setup-tiles .setup-next__list li + li {
+    border-top: 0;
+  }
+  .setup-tiles .setup-next__item {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: var(--space-1);
+    height: 100%;
     padding: var(--space-4);
-    border: var(--space-2) solid var(--text);
-    border-radius: var(--space-8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     background: var(--surface);
   }
-  .setup-c .setup-preview__services li {
+  .setup-tiles .setup-next__go {
+    justify-self: start;
+  }
+  .setup-tiles .setup-next__item > span:nth-child(2) > span {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .setup-tiles .setup-preview {
+    position: static;
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+  .setup-tiles .setup-preview__phone {
+    gap: var(--space-2);
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .setup-tiles .setup-preview__services li {
     padding: var(--space-1) var(--space-2);
   }
-  .setup-c .setup-preview__masters span {
-    width: var(--space-8);
-    height: var(--space-8);
-    font-size: var(--text-xs);
-  }
-  .setup-c .setup-preview__foot {
+  .setup-tiles .setup-preview__foot {
     display: none;
   }
+  @media (max-width: 1279px) {
+    .setup-tiles .setup-path {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
   @media (max-width: 960px) {
-    .setup-c .setup-b__grid {
+    .setup-tiles .setup-b__grid {
       grid-template-columns: minmax(0, 1fr);
+    }
+    .setup-tiles .setup-path {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   @media (max-width: 600px) {
-    .setup-c .setup-b__region {
-      padding: var(--space-4);
+    .setup-tiles .setup-path,
+    .setup-tiles .setup-next__list {
+      grid-template-columns: minmax(0, 1fr);
     }
-    .setup-c .setup-path__row {
-      grid-template-columns: var(--space-6) minmax(0, 1fr);
+    .setup-tiles .setup-path__row {
+      grid-template-columns: minmax(0, 1fr);
+      padding: var(--space-2) var(--space-4);
     }
-    .setup-c .setup-path__row--done .setup-path__body h2 {
-      min-width: 0;
+    .setup-tiles__step {
+      top: var(--space-2);
     }
   }
 }

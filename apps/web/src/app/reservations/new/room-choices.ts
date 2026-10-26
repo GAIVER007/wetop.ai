@@ -13,8 +13,6 @@ export interface RoomChoice {
   /** почему не подходит: «до 1 гостя» */
   why: string;
   units: Array<{ code: string; dirty: boolean }>;
-  /** весь фонд категории для карты (решение 26.10.2026, «весь фонд одной картой»): свободные и занятые по порядку */
-  cells: Array<{ code: string; free: boolean; dirty: boolean }>;
 }
 
 const byNumber = (a: string, b: string) =>
@@ -30,8 +28,6 @@ export function roomChoices(
     name: string;
     capacityAdults: number;
     availableUnitCodes: string[];
-    /** все действующие места категории; без них карта показывает только свободные */
-    unitCodes?: string[];
   }>,
   { guests, housekeeping }: { guests: number; housekeeping: Housekeeping },
   locale: DeskLocale = 'ru',
@@ -51,13 +47,6 @@ export function roomChoices(
       units: [...c.availableUnitCodes]
         .sort(byNumber)
         .map((code) => ({ code, dirty: housekeeping[code] === 'DIRTY' })),
-      cells: [...new Set([...(c.unitCodes ?? []), ...c.availableUnitCodes])]
-        .sort(byNumber)
-        .map((code) => ({
-          code,
-          free: c.availableUnitCodes.includes(code),
-          dirty: housekeeping[code] === 'DIRTY',
-        })),
     };
   });
 }

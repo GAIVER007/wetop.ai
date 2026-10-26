@@ -17,7 +17,7 @@ export default async function StaffSchedulePage() {
     const shell = await hotelShell();
     const { employees } = await hotelStaffApi.shifts();
     return (
-      <Page title={t('График работы')} subtitle={t('Обычная неделя горничных и ресепшена')}>
+      <Page className="schedule-page" title={t('График работы')} subtitle={t('Обычная неделя горничных и ресепшена')}>
         <div key={shell.scopeKey}>
           <HotelShiftsBoard scopeKey={shell.scopeKey} write={shell.canStaff && !shell.readOnly} employees={employees} />
         </div>

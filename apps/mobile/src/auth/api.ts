@@ -155,6 +155,14 @@ export function createAccessApi(base: string, fetcher: typeof fetch = fetch): Ac
     logout: async (token) => {
       await request('logout', 'POST', token);
     },
+    report: (token, scope, action, from, to) =>
+      request(
+        `food/${action}?${action === 'overview' ? `date=${encodeURIComponent(from)}` : `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to ?? '')}`}`,
+        'GET',
+        token,
+        undefined,
+        scope,
+      ),
     food: (token, scope, action, cursor) =>
       request(
         `food/${action}${cursor ? '?cursor=' + encodeURIComponent(cursor) : ''}`,
@@ -163,6 +171,14 @@ export function createAccessApi(base: string, fetcher: typeof fetch = fetch): Ac
         undefined,
         scope,
       ),
+    staffRevenue: (token, scope, period) =>
+      request(`food/staff-revenue?period=${period}`, 'GET', token, undefined, scope),
+    createOrder: (token, scope, payload) => request('food/orders', 'POST', token, payload, scope),
+    serveItem: (token, scope, orderId, itemId, expectedUpdatedAt) =>
+      request('food/serve', 'POST', token, { orderId, itemId, expectedUpdatedAt }, scope),
+    closeOrder: (token, scope, orderId, expectedUpdatedAt) =>
+      request('food/close', 'POST', token, { orderId, expectedUpdatedAt }, scope),
+    payOrder: (token, scope, payload) => request('food/pay', 'POST', token, payload, scope),
     reset: async (email) => {
       await request('password-reset', 'POST', undefined, { email });
     },

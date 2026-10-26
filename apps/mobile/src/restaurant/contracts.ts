@@ -33,3 +33,40 @@ export type RestaurantOrder = {
   }[];
 };
 export type RestaurantOrders = { items: RestaurantOrder[]; nextCursor: string | null };
+export type MenuCategory = {
+  id: string;
+  name: string;
+  sortOrder: number;
+  active: boolean;
+  station: string;
+};
+export type MenuItem = {
+  id: string;
+  categoryId: string;
+  name: string;
+  priceMinor: string;
+  currency: string;
+  active: boolean;
+  photoUrl: string | null;
+  modifierGroups: {
+    id: string;
+    name: string;
+    minSelect: number;
+    maxSelect: number;
+    required: boolean;
+    modifiers: { id: string; name: string; priceDeltaMinor: string }[];
+  }[];
+};
+export type MenuPage<T> = { items: T[]; nextCursor: string | null };
+export type CashSummary = {
+  currency: string;
+  balances: { method: string; balanceMinor: string }[];
+  payments: {
+    id: string;
+    orderNumber: number;
+    method: string;
+    amountMinor: string;
+    status: string;
+    paidAt: string;
+  }[];
+};

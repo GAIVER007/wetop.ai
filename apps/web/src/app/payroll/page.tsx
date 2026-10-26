@@ -3,7 +3,7 @@ import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { restaurantApi } from '../../lib/food-api';
-import { PayrollBoard } from '../food/payroll-board';
+import { PayrollBoard, PayrollMonthNav } from '../food/payroll-board';
 import { restaurantShell } from '../food/restaurant-load';
 import { requireFeature } from '../../lib/vertical-guard';
 import { HotelPayrollPage } from './hotel-page';
@@ -29,14 +29,7 @@ export default async function PayrollPage({
       month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month) ? month : shell.date.slice(0, 7);
     const payroll = await restaurantApi.payroll(chosen);
     return (
-      <Page
-        title={t('Зарплата')}
-        subtitle={
-          salon
-            ? t('Оклады, процент от выполненных записей, премии и штрафы. Выплата уходит расходом из кассы')
-            : t('Оклады, процент от заказов, премии и штрафы. Выплата уходит расходом из кассы')
-        }
-      >
+      <Page className="payroll-page" title={t('Зарплата')} actions={<PayrollMonthNav month={payroll.month} />}>
         <div key={shell.scopeKey}>
           <PayrollBoard
             scopeKey={shell.scopeKey}

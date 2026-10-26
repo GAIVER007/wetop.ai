@@ -2079,3 +2079,285 @@
     }
   }
 }
+
+
+/* График работы, вариант B владельца 25.10.2026, один вид у салона, ресторана и гостиницы: шапка, неделя и отбор
+   одной строкой, строка специалиста ровно на плашку, плашка дня цветом (зелёная часы, красная «Выходной», жёлтая
+   «Отсутствует»), окошко дня по нажатию. Пустого верха нет: подзаголовок филиала в строке заголовка. */
+@layer sections {
+  .page.schedule-page > .page__head {
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+  .page.schedule-page > .page__head .page__heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-4);
+  }
+  .page.schedule-page > .page__head .page__subtitle {
+    margin-top: 0;
+  }
+  .page.schedule-page > p:has(> a[href='/register/setup']) {
+    margin: 0 0 var(--space-2);
+  }
+  .schedule-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-2);
+  }
+  .schedule-week {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .schedule-week__step {
+    min-width: var(--control-h-sm);
+    justify-content: center;
+    font-size: var(--text-lg);
+  }
+  .schedule-week__range {
+    min-width: 12rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .schedule-filter {
+    margin-left: auto;
+  }
+  .schedule-filter .inp {
+    min-height: var(--control-h-sm);
+  }
+  .schedule-grid {
+    table-layout: fixed;
+  }
+  .table-scroll > .tbl.schedule-grid {
+    min-width: 760px;
+  }
+  .tbl.schedule-grid th,
+  .tbl.schedule-grid td {
+    height: auto;
+    padding: var(--space-1);
+    border-right: 1px solid var(--border-soft);
+  }
+  .tbl.schedule-grid thead th {
+    padding: var(--space-2) var(--space-1);
+    text-align: center;
+  }
+  .tbl.schedule-grid thead th:first-child,
+  .tbl.schedule-grid tbody th {
+    width: 220px;
+    padding-inline: var(--space-4) var(--space-2);
+    text-align: left;
+  }
+  .tbl.schedule-grid tbody th {
+    background: var(--surface-solid);
+    color: var(--text);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .tbl.schedule-grid :is(th, td).is-today {
+    background: var(--primary-soft);
+  }
+  .tbl.schedule-grid tr:hover td {
+    background: transparent;
+  }
+  .tbl.schedule-grid tr:hover td.is-today {
+    background: var(--primary-soft);
+  }
+  .schedule-person {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .schedule-avatar {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: var(--control-h-xs);
+    height: var(--control-h-xs);
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+  .schedule-person__name {
+    overflow: hidden;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  button.schedule-person__name {
+    cursor: pointer;
+  }
+  button.schedule-person__name:hover {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+  .tbl.schedule-grid tbody th .beauty-week-unset {
+    margin-top: var(--space-1);
+  }
+  .schedule-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: var(--control-h-sm);
+    padding: 0 var(--space-1);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .schedule-chip:disabled {
+    cursor: default;
+  }
+  .schedule-chip:not(:disabled):hover,
+  .schedule-chip[aria-expanded='true'] {
+    border-color: var(--primary);
+  }
+  .schedule-chip--on {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  .schedule-chip--off,
+  .schedule-chip--rest {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .schedule-chip--off {
+    border-style: dashed;
+    border-color: var(--danger-border);
+  }
+  .schedule-chip--away {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .schedule-chip__note {
+    display: block;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .schedule-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin: var(--space-2) 0 0;
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .schedule-legend > span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .schedule-dot {
+    display: inline-block;
+    width: var(--space-2);
+    height: var(--space-2);
+    border-radius: var(--radius-xs);
+  }
+  .schedule-dot--on {
+    background: var(--success);
+  }
+  .schedule-dot--off {
+    background: var(--danger);
+  }
+  .schedule-dot--away {
+    background: var(--warning);
+  }
+  .schedule-legend__hint {
+    margin-left: auto;
+  }
+  .schedule-menu {
+    position: fixed;
+    z-index: var(--layer-overlay);
+    display: grid;
+    gap: var(--space-2);
+    width: min(260px, calc(100vw - var(--space-8)));
+    overflow: auto;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-solid);
+    box-shadow: var(--shadow-floating);
+    font-size: var(--text-sm);
+  }
+  .schedule-menu:not([data-placed]) {
+    visibility: hidden;
+  }
+  .schedule-menu__title {
+    margin: 0;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .schedule-menu__line {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin: 0;
+    color: var(--text-2);
+  }
+  @media (max-width: 600px) {
+    .schedule-filter {
+      margin-left: 0;
+      width: 100%;
+    }
+    .schedule-filter .inp {
+      width: 100%;
+      min-height: var(--touch-target);
+    }
+    /* неделя своей строкой над стрелками: на 390 px диапазон дат не жмётся между кнопками (аудит 21.10.2026, п. 41) */
+    .schedule-week {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      width: 100%;
+    }
+    .schedule-week__range {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      min-width: 0;
+    }
+    .schedule-week .btn {
+      min-height: var(--touch-target);
+    }
+    .table-scroll > .tbl.schedule-grid {
+      min-width: 640px;
+    }
+    .tbl.schedule-grid thead th:first-child,
+    .tbl.schedule-grid tbody th {
+      position: sticky;
+      left: 0;
+      z-index: var(--layer-sticky);
+      width: 132px;
+    }
+    .schedule-avatar {
+      display: none;
+    }
+    .schedule-chip {
+      min-height: var(--touch-target);
+      font-size: var(--text-xs);
+    }
+    .schedule-legend__hint {
+      margin-left: 0;
+    }
+  }
+}

@@ -110,13 +110,13 @@ test('у всех трёх направлений одни и те же разд
   const keys = Object.keys(seen);
   expect(keys.filter((key) => key.startsWith('beauty-')).length).toBeGreaterThan(0);
   expect(keys.filter((key) => key.startsWith('food-')).length).toBeGreaterThan(0);
-  for (const key of keys) {
+  for (const [key, tabs] of Object.entries(seen)) {
     if (key.startsWith('beauty-')) {
       expect(
-        seen[key].map((tab) => tab.trim()),
+        tabs.map((tab) => tab.trim()),
         key,
       ).not.toContain('Продвижение');
-      expect(seen[key], key).toEqual(salon);
-    } else expect(seen[key], key).toEqual(base);
+      expect(tabs, key).toEqual(salon);
+    } else expect(tabs, key).toEqual(base);
   }
 });

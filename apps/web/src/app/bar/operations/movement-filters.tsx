@@ -47,7 +47,7 @@ export function MovementFilters({ type, period, query }: { type: MovementType | 
     // якоря окон (#bar-writeoff, #bar-inventory) остаются в адресе: по ним открывается окно
     const keep = location.hash === '#bar-writeoff' || location.hash === '#bar-inventory' ? location.hash : '';
     router.replace(href({ type: mapped }, keep), { scroll: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // только при открытии: старый якорь вкладки переводится в отбор один раз
   }, []);
   return (
     <div className="journal-head__filters bar-movement-filters" role="group" aria-label={t('Отборы движений')}>

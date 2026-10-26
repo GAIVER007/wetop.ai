@@ -628,7 +628,9 @@ test('новая запись: свободное время мастера кн
   await page.getByRole('button', { name: 'Новая запись', exact: true }).click();
   const panel = page.getByRole('dialog');
   await expect(panel.getByRole('region', { name: 'Выбор времени записи' })).toBeVisible();
-  await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
+  // вариант A (владелец 26.10.2026): услуга карточкой, мастер карточкой, время сеткой
+  await panel.getByTestId('service-cards').getByRole('button').first().click();
+  await expect(panel.getByTestId('master-card').first()).toBeVisible();
   const slots = panel.getByTestId('slot-group');
   await expect(slots).toBeVisible();
   const first = slots.getByRole('button', { name: /^Время / }).first();
@@ -637,6 +639,11 @@ test('новая запись: свободное время мастера кн
   await expect(first).toHaveAttribute('aria-pressed', 'true');
   await expect(panel.getByLabel('Время', { exact: true })).toHaveValue(label);
   await expect(panel.getByTestId('appointment-digest')).toContainText(label);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const save = panel.getByRole('button', { name: 'Записать', exact: true });
+  const sb = await save.boundingBox();
+  expect(sb!.y + sb!.height).toBeLessThanOrEqual(800);
+  await page.screenshot({ path: 'reports/booking-window-a-2026-10-26/salon-1280.png' });
   // имя идёт раньше телефона
   const nameBox = await panel.getByLabel('Имя клиента', { exact: true }).boundingBox();
   const phoneBox = await panel.locator('[name="phone"]').boundingBox();

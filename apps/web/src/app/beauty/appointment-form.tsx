@@ -8,8 +8,8 @@ import { createAppointment, moveAppointment } from './journal-actions';
 import { instantOf, localInput } from './time';
 import { zoneLabel } from '../../lib/human-period';
 import { formatPhone, formatPhoneInput } from '../../lib/phone';
-import { BookingShell, PickButton, PickGroup } from '../../components/booking-shell';
-import { freeSlots } from './free-slots';
+import { BookingShell, PickButton, PickHeading } from '../../components/booking-shell';
+import { masterDayMap } from './master-map';
 import { useT } from '../../i18n/locale-provider';
 
 // A5 (паритет с zapis.kz): кого выбирали в прошлый раз на этой вкладке; удобство, не данные
@@ -256,17 +256,50 @@ export function AppointmentForm({
     ? totalMinutes
     : firstDuration;
   const nowLocal = localInput(new Date().toISOString(), day.location.timezone);
-  const slots =
-    slotMaster && date === day.date && slotDuration > 0
-      ? freeSlots(
-          slotMaster,
+  // Окно записи вариант A (владелец 26.10.2026): справа мастера карточками и свободное время сеткой
+  // (утро, день, вечер); занятое серым. Только мастера первой услуги, длительность всего визита
+  const dayMap =
+    date === day.date && slotDuration > 0
+      ? masterDayMap(
+          day.columns,
           day.appointments.filter((a) => a.id !== editing?.id),
           slotDuration,
+          lines[0]?.serviceId ?? '',
           nowLocal.slice(0, 10) === day.date
             ? Number(nowLocal.slice(11, 13)) * 60 + Number(nowLocal.slice(14, 16))
             : undefined,
         )
-      : [];
+      : null;
+  const masterRow = dayMap?.rows.find((row) => row.id === lines[0]?.employeeId);
+  const dayParts = (
+    [
+      [t('Утро'), 0, 12 * 60],
+      [t('День'), 12 * 60, 17 * 60],
+      [t('Вечер'), 17 * 60, 24 * 60],
+    ] as const
+  )
+    .map(([title, from, to]) => ({
+      title,
+      cells: (masterRow?.cells ?? []).filter((cell) => {
+        const m = Number(cell.time.slice(0, 2)) * 60 + Number(cell.time.slice(3, 5));
+        return m >= from && m < to;
+      }),
+    }))
+    .filter((part) => part.cells.length > 0);
+  const sellable = day.services.filter((service) => service.sellable);
+  const categories = [...new Set(sellable.map((service) => service.category).filter(Boolean))] as string[];
+  const [category, setCategory] = useState('');
+  const [needService, setNeedService] = useState(false);
+  const shownServices = sellable.filter((service) => !category || service.category === category);
+  const pickService = (serviceId: string) => {
+    setNeedService(false);
+    const first = lines[0];
+    if (!first) return;
+    const master =
+      day.columns.find((c) => c.id === first.employeeId && c.serviceIds.includes(serviceId)) ??
+      day.columns.find((c) => c.serviceIds.includes(serviceId) && !c.timeOff);
+    selectLine(first, { serviceId, employeeId: master?.id ?? first.employeeId });
+  };
   const chosenServices = lines
     .map((line) => day.services.find((service) => service.id === line.serviceId)?.name)
     .filter(Boolean);
@@ -288,6 +321,11 @@ export function AppointmentForm({
         }
         if (!validMoney || !validDuration) {
           event.preventDefault();
+          return;
+        }
+        if (lines.length === 1 && !lines[0]?.serviceId) {
+          event.preventDefault();
+          setNeedService(true);
           return;
         }
         inFlight.current = true;
@@ -397,13 +435,40 @@ export function AppointmentForm({
           )}
         </fieldset>
       )}
-      {state?.error && <Alert>{state.error}</Alert>}
-          </>
-        }
-        pick={
-          <>
       <fieldset className="appointment-pick">
-        <legend>{t('Услуга и время')}</legend>
+        <legend className="sr-only">{t('Услуга')}</legend>
+        {!editing && lines.length === 1 && (
+          <div className="appointment-services" data-testid="service-cards">
+            {categories.length > 1 && (
+              <div className="appointment-services__cats">
+                <PickButton wide selected={category === ''} label={t('Все услуги')} onClick={() => setCategory('')}>
+                  {t('Все')}
+                </PickButton>
+                {categories.map((name) => (
+                  <PickButton key={name} wide selected={category === name} label={name} onClick={() => setCategory(name)}>
+                    {name}
+                  </PickButton>
+                ))}
+              </div>
+            )}
+            <div className="appointment-services__list" role="group" aria-label={t('Выбор услуги')}>
+              {shownServices.map((service) => (
+                <button
+                  key={service.id}
+                  type="button"
+                  className="appointment-services__card"
+                  aria-pressed={lines[0]?.serviceId === service.id}
+                  onClick={() => pickService(service.id)}
+                >
+                  <b>{service.name}</b>
+                  <span>{durationText(service.durationMinutes)}</span>
+                  <strong>{formatMoney(service.priceMinor, day.location.currency)}</strong>
+                </button>
+              ))}
+            </div>
+            {needService && <p className="beauty-note" role="alert">{t('Выберите услугу')}</p>}
+          </div>
+        )}
         {lines.map((line, index) => {
           const effective = effectiveFor(line);
           const duration = Number(line.duration || effective.duration || 0);
@@ -415,7 +480,7 @@ export function AppointmentForm({
           return (
             <fieldset key={line.key} className="appointment-service-line">
               <legend className={lines.length === 1 ? 'sr-only' : undefined}>{t('Услуга {n}', { n: index + 1 })}</legend>
-              <Field label={t('Услуга')}>
+              <Field label={t('Услуга')} className={lines.length === 1 ? 'sr-only' : undefined}>
                 <Select
                   aria-label={index === 0 ? t('Услуга') : t('Услуга {n}', { n: index + 1 })}
                   required
@@ -434,7 +499,7 @@ export function AppointmentForm({
                     ))}
                 </Select>
               </Field>
-              <Field label={t('Специалист')}>
+              <Field label={t('Специалист')} className={lines.length === 1 ? 'sr-only' : undefined}>
                 <Select
                   aria-label={index === 0 ? t('Специалист') : t('Специалист услуги {n}', { n: index + 1 })}
                   required
@@ -605,7 +670,17 @@ export function AppointmentForm({
         >
           {t('Добавить услугу')}
         </Button>
-        <div className="beauty-fields-pair">
+      </fieldset>
+      {state?.error && <Alert>{state.error}</Alert>}
+          </>
+        }
+        pick={
+          <>
+            <PickHeading
+              title={t('Мастер и время')}
+              note={slotDuration > 0 ? durationText(slotDuration) : t('Выберите услугу')}
+            />
+        <div className="beauty-fields-pair appointment-when">
           <Field label={t('Дата')}>
             <Input type="date" required value={date} onChange={(e) => setDate(e.target.value)} />
           </Field>
@@ -618,34 +693,63 @@ export function AppointmentForm({
           name="startsAt"
           value={instantOf(`${date}T${hour}`, day.location.timezone)}
         />
-        {slotMaster ? (
-          <PickGroup
-            title={t('Свободное время: {name}', { name: slotMaster.name })}
-            facts={slotDuration > 0 ? durationText(slotDuration) : undefined}
-            testId="slot-group"
-            unavailable={
-              date !== day.date
-                ? t('на другой день время проверится при сохранении')
-                : slotMaster.timeOff
-                  ? t('выходной')
-                  : slots.length === 0
-                    ? t('свободного времени нет')
-                    : undefined
-            }
-          >
-            {slots.map((slot) => (
-              <PickButton
-                key={slot}
-                selected={hour === slot}
-                label={t('Время {time}', { time: slot })}
-                disabled={pending}
-                onClick={() => setHour(slot)}
-              >
-                {slot}
-              </PickButton>
-            ))}
-          </PickGroup>
-        ) : null}
+            {dayMap && dayMap.rows.length > 0 && (
+              <div className="appointment-masters" role="group" aria-label={t('Выбор мастера')}>
+                {dayMap.rows.map((row) => (
+                  <button
+                    key={row.id}
+                    type="button"
+                    className="appointment-masters__card"
+                    data-testid="master-card"
+                    aria-pressed={row.id === lines[0]?.employeeId}
+                    disabled={row.timeOff || pending}
+                    onClick={() => lines[0] && selectLine(lines[0], { employeeId: row.id })}
+                  >
+                    <span className="appointment-masters__avatar" aria-hidden="true">
+                      {row.name.slice(0, 1)}
+                    </span>
+                    <b>{row.name}</b>
+                    <small>
+                      {row.timeOff ? t('выходной') : t('свободно {n}', { n: row.free })}
+                    </small>
+                  </button>
+                ))}
+              </div>
+            )}
+            {slotMaster && (
+              <div className="appointment-slots" data-testid="slot-group">
+                {date !== day.date ? (
+                  <p className="booking-pick__muted">{t('на другой день время проверится при сохранении')}</p>
+                ) : slotMaster.timeOff ? (
+                  <p className="booking-pick__muted">{t('выходной')}</p>
+                ) : !masterRow || masterRow.free === 0 ? (
+                  <p className="booking-pick__muted">{t('свободного времени нет')}</p>
+                ) : (
+                  dayParts.map((part) => (
+                    <div key={part.title} className="appointment-slots__part">
+                      <span className="appointment-slots__title">{part.title}</span>
+                      <div className="appointment-slots__grid">
+                        {part.cells.map((cell) => (
+                          <PickButton
+                            key={cell.time}
+                            selected={hour === cell.time}
+                            label={
+                              cell.state === 'free'
+                                ? t('Время {time}', { time: cell.time })
+                                : t('{time} занято', { time: cell.time })
+                            }
+                            disabled={cell.state !== 'free' || pending}
+                            onClick={() => setHour(cell.time)}
+                          >
+                            {cell.time}
+                          </PickButton>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
         <p className="beauty-note">
           {t('Время филиала: {zone}. Доступность подтвердится при сохранении.', { zone: zoneLabel(day.location.timezone, t) })}
         </p>
@@ -656,7 +760,7 @@ export function AppointmentForm({
             {t('Время: {time} ({zone})', { time: hour, zone: zoneLabel(day.location.timezone, t) })}
           </span>
         </p>
-      </fieldset>
+            {/* заметка справа под временем: левая колонка на один экран (26.10.2026) */}
       <fieldset className="appointment-note">
         <legend>{t('Дополнительно')}</legend>
         <Field label={t('Заметка')}>

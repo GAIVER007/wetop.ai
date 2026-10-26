@@ -306,4 +306,11 @@ export const restaurantOps: Record<string, string> = {
   'Уже выплачено': 'Already paid',
   'Без настройки оплаты': 'Pay not set up',
   'Не настроено': 'Not set up',
+  // окно брони вариант A (26.10.2026)
+  '{table}, занят': '{table}, occupied',
+  '{table}, мало мест': '{table}, too small',
+  'занят': 'occupied',
+  'мало мест': 'too small',
+  'Быстрый выбор гостей': 'Quick guest count',
+  'Быстрый выбор времени': 'Quick time',
 };

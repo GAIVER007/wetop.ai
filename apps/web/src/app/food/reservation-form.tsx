@@ -13,13 +13,7 @@ import { useLocale, useT } from '../../i18n/locale-provider';
 import { compareTables, tableTitle } from '../../lib/table-title';
 import { formatPhone, phoneOnInput } from '../../lib/phone';
 import { reservationProblem, WALK_IN_GUEST, walkInFirstName } from '../../lib/food-reservation-check';
-import {
-  BookingFooter,
-  BookingShell,
-  PickButton,
-  PickGroup,
-  PickHeading,
-} from '../../components/booking-shell';
+import { BookingFooter, BookingShell, PickButton, PickHeading } from '../../components/booking-shell';
 export function ReservationForm({
   data,
   walkIn = false,
@@ -81,6 +75,19 @@ export function ReservationForm({
   const suitable = tables
     .filter((t) => t.capacity >= party && !busy(t.id))
     .sort((a, b) => a.capacity - b.capacity || compareTables(a, b));
+  // кнопки времени (вариант A): каждые 30 минут выбранного периода, без прошедшего сегодня
+  const chosenPeriod = periods.find((p) => p.id === period);
+  const toMin = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+  const nowMin = date === data.date ? toMin(data.time) : -1;
+  const quickTimes: string[] = [];
+  if (chosenPeriod)
+    for (
+      let m = Math.ceil(toMin(chosenPeriod.timeFrom) / 30) * 30;
+      m < (chosenPeriod.endsNextDay ? 24 * 60 : toMin(chosenPeriod.timeTo)) && quickTimes.length < 12;
+      m += 30
+    )
+      if (m >= nowMin)
+        quickTimes.push(`${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
   const areaName = (id: string) => data.areas.find((a) => a.id === id)?.name ?? '';
   return (
     <form
@@ -228,6 +235,35 @@ export function ReservationForm({
         );
         const when = (
           <>
+            {/* вариант A (владелец 26.10.2026): число гостей и время кнопками, поля ниже остаются источником */}
+            {!reservation && (
+              <div className="rest-book__quick" role="group" aria-label={t('Быстрый выбор гостей')}>
+                {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => (
+                  <PickButton
+                    key={n}
+                    selected={party === n}
+                    label={countLabel(locale, t, n, [msg('гость'), 'гостя', msg('гостей')])} /* kk-allow: форма склонения */
+                    onClick={() => setParty(n)}
+                  >
+                    {String(n)}
+                  </PickButton>
+                ))}
+              </div>
+            )}
+            {!reservation && quickTimes.length > 0 && (
+              <div className="rest-book__quick rest-book__times" role="group" aria-label={t('Быстрый выбор времени')}>
+                {quickTimes.map((time) => (
+                  <PickButton
+                    key={time}
+                    selected={clockValue === time}
+                    label={t('Время {time}', { time })}
+                    onClick={() => setClockValue(time)}
+                  >
+                    {time}
+                  </PickButton>
+                ))}
+              </div>
+            )}
             {/* общий FormGrid и обязательность словами Field (MV8.5 DS1c) */}
             <FormGrid columns={2}>
               <Field label={t('Дата')} required>
@@ -332,7 +368,6 @@ export function ReservationForm({
               <>
                 {guest}
                 {when}
-                {extra}
               </>
             }
             pickLabel={t('Доступные столы')}
@@ -345,27 +380,51 @@ export function ReservationForm({
                 {suitable.length === 0 && (
                   <p className="booking-pick__muted">{t('Свободных столов на это время нет')}</p>
                 )}
-                {byArea.map(({ area, tables: free }) => (
-                  <PickGroup
-                    key={area.id}
-                    title={area.name}
-                    testId="table-group"
-                    selected={free.some((t) => t.id === table)}
-                    facts={t('свободно {n}', { n: free.length })}
-                    unavailable={free.length === 0 ? t('нет подходящих столов') : undefined}
-                  >
-                    {free.map((tb) => (
-                      <PickButton
-                        key={tb.id}
-                        selected={table === tb.id}
-                        label={t('Выбрать: {table}', { table: tableTitle(tb.name, t) })}
-                        onClick={() => setTable(table === tb.id ? '' : tb.id)}
-                      >
-                        {`${tableTitle(tb.name, t)}, ${countLabel(locale, t, tb.capacity, [msg('место@@стол'), 'места', msg('мест@@стол')])}`}{/* kk-allow: форма склонения */}
-                      </PickButton>
-                    ))}
-                  </PickGroup>
-                ))}
+                {byArea.map(({ area, tables: free }) => {
+                  const all = tables.filter((tb) => tb.areaId === area.id);
+                  return (
+                    <div
+                      key={area.id}
+                      className="rest-book__area"
+                      data-testid="table-group"
+                      data-selected={free.some((tb) => tb.id === table) || undefined}
+                    >
+                      <span className="rest-book__area-name">
+                        {area.name} <small>{t('свободно {n}', { n: free.length })}</small>
+                      </span>
+                      <div className="rest-book__tiles">
+                        {all.map((tb) => {
+                          const ok = free.some((f) => f.id === tb.id);
+                          const name = tableTitle(tb.name, t);
+                          return (
+                            <PickButton
+                              key={tb.id}
+                              selected={ok && table === tb.id}
+                              disabled={!ok || pending}
+                              label={
+                                ok
+                                  ? t('Выбрать: {table}', { table: name })
+                                  : busy(tb.id)
+                                    ? t('{table}, занят', { table: name })
+                                    : t('{table}, мало мест', { table: name })
+                              }
+                              onClick={() => setTable(table === tb.id ? '' : tb.id)}
+                            >
+                              <b>{name}</b>
+                              <small>
+                                {ok
+                                  ? countLabel(locale, t, tb.capacity, [msg('место@@стол'), 'места', msg('мест@@стол')]) /* kk-allow: форма склонения */
+                                  : busy(tb.id)
+                                    ? t('занят')
+                                    : t('мало мест')}
+                              </small>
+                            </PickButton>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
                 {/* полный список: и занятые столы, если администратор сажает вручную; занятость проверит сервер */}
                 <Field label={t('Стол')}>
                   <Select
@@ -384,6 +443,8 @@ export function ReservationForm({
                     ))}
                   </Select>
                 </Field>
+                {/* «Принял бронь» и заметка справа под столами: левая часть на один экран (26.10.2026) */}
+                {extra}
               </>
             }
             footer={

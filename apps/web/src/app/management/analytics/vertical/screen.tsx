@@ -87,9 +87,9 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
             return null;
           })
         : undefined;
-    // ЗП мастеров за месяц из «Зарплаты» (итого начислено); нет права или сбой: колонка с прочерками
+    // ЗП мастеров и официантов за месяц из «Зарплаты» (итого начислено); нет права или сбой: колонка с прочерками
     const pay =
-      !organization && selected.vertical === 'BEAUTY'
+      !organization && selected.vertical !== 'HOSPITALITY'
         ? await restaurantApi
             .payroll(period.month)
             .then((v) => new Map(v.rows.map((r) => [r.employeeId, r.totalMinor])))
@@ -157,6 +157,7 @@ export async function VerticalAnalytics({ sp }: { sp: Record<string, string | un
                             previous={previous?.food ?? null}
                             counts={report.counts}
                             labels={labels}
+                            pay={pay}
                             t={t}
                           />
                         )

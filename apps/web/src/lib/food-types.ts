@@ -613,7 +613,7 @@ export interface FoodPeriodReport {
   averageCheckMinor: string | null;
   payments: Array<{ method: string; amountMinor: string; count: number }>;
   topDishes: Array<{ name: string; qty: number; revenueMinor: string }>;
-  waiters: Array<{ name: string; orders: number; revenueMinor: string }>;
+  waiters: Array<{ waiterId?: string; name: string; orders: number; revenueMinor: string }>;
   /** §38: себестоимость проданного по ленте склада, валовая прибыль, фудкост и недостачи */
   costMinor: string;
   grossProfitMinor: string;

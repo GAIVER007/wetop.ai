@@ -1482,8 +1482,9 @@
     .bar-overview-grid .bar-board {
       padding: var(--space-2) var(--space-4);
     }
+    /* таблица прокручивается внутри: обзор 1440×900 без прокрутки страницы (владелец 25.10.2026, гейт PR 869) */
     .bar-overview-grid .bar-board .table-scroll {
-      max-height: calc(var(--space-16) * 5);
+      max-height: calc(var(--space-16) * 5 - var(--space-12));
     }
   }
 }

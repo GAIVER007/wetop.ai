@@ -81,5 +81,5 @@ for (const width of [1333,390]) test(`direct sale visible labels and journal ${w
  await expect(panel.locator('.bar-retail-product-info')).toHaveCount(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBeTruthy();
  await page.goto('/bar/operations');
- await expect(page.getByRole('region',{name:'Продажи бара'}).locator('tbody tr').first()).toContainText('Coca-Cola 0.5 × 3');
+ await expect(page.getByRole('region',{name:'Движения остатка бара'}).locator('tbody tr').first()).toContainText('Coca-Cola 0.5 × 3');
 });

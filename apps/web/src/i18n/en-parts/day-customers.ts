@@ -208,7 +208,7 @@ export const dayCustomers: Record<string, string> = {
   "дня": 'days',
   "дней": 'days',
   "Укажите имя клиента": 'Enter the client\'s name',
-  "Укажите телефон, например +7 701 000 00 00": 'Enter a phone number, for example +7 701 000 00 00',
+  "Укажите телефон": 'Enter a phone number',
   "Имя": 'First name',
   "Номер можно ввести с +7, с 8 или как 10 цифр местного номера.": 'You can enter the number with +7, with 8, or as a 10-digit local number.',
   "Сохранить клиента": 'Save client',

@@ -50,6 +50,8 @@ test('обзор как на макете: пять KPI, графики, ком�
   // доска: шесть товаров макета, поставщик и фактическая наценка, статус словом
   const board = m.getByRole('region', { name: 'Товары и остатки бара' });
   await expect(board.locator('tbody tr')).toHaveCount(6);
+  // обзор без открытой карточки помещается на один экран 1440×900 без прокрутки страницы (владелец 25.10.2026)
+  expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1)).toBe(true);
   const cola = board.locator('tbody tr', { hasText: 'Coca-Cola 0.5' });
   await expect(cola).toContainText('320 ₸');
   await expect(cola).toContainText('В норме');
@@ -63,8 +65,8 @@ test('обзор как на макете: пять KPI, графики, ком�
   await expect(card.getByLabel('Поставщик')).toHaveValue('FoodMaster');
   await expect(card.getByLabel('Наценка')).toHaveValue('88');
   await expect(card.getByLabel('Артикул (SKU)')).toHaveValue('CC-050');
-  // Дополнительные сведения доступны по раскрытию.
-  await m.getByText('Последние приходы',{exact:true}).click();
+  // приходы колонкой рядом с остатками, без раскрытия (владелец 25.10.2026: обзор на один экран)
+  await expect(m.getByRole('heading', { name: 'Приходы от поставщиков', exact: true })).toBeVisible();
   const receipts = m.getByRole('region', { name: 'Последние приходы поставщиков' });
   await expect(receipts.locator('tbody tr')).toHaveCount(4);
   await expect(receipts.locator('tbody tr', { hasText: 'П-000122' })).toContainText('Не оплачен');
@@ -281,9 +283,11 @@ test('подстраницы: оплата долга в приходах, но�
   await products.getByRole('button', { name: 'Новый товар', exact: true }).click();
   const productForm = page.getByRole('dialog', { name: 'Новый товар' }).locator('.bar-product-form');
   await productForm.getByLabel('Название').fill('Чай чёрный');
+  // код, штрихкод, упаковка и своя наценка в свёрнутом «Ещё» (владелец 25.10.2026)
+  await productForm.locator('summary', { hasText: 'Ещё' }).click();
   // подсказка «Заполняется из названия» входит в подпись поля, поэтому имя начинается с «Код»
   await expect(productForm.getByRole('textbox', { name: /^Код(\s|$)/ })).toHaveValue('CHAY-CHERNYY');
-  await productForm.getByLabel('Начальная цена, ₸').fill('500');
+  await productForm.getByLabel('Цена продажи, ₸').fill('500');
   await productForm.getByRole('button', { name: 'Добавить товар' }).click();
   await expect(productForm.getByRole('status')).toContainText('Товар добавлен');
   await page.keyboard.press('Escape');
@@ -302,26 +306,39 @@ test('подстраницы: оплата долга в приходах, но�
 test('операции: списание с причиной, журнал продаж и лента движений', async ({ page }) => {
   await page.goto('/bar/operations');
   const m = main(page);
-  await m.getByRole('tab',{name:'Списание',exact:true}).click();
-  const writeOff = m.locator('.bar-sale-form').first();
+  // одна лента вместо вкладок: «Списать» в шапке открывает окно с прежней формой
+  await expect(m.getByRole('tab', { name: 'Списание', exact: true })).toHaveCount(0);
+  await m.getByRole('button', { name: 'Списать', exact: true }).first().click();
+  const writeOffDialog = page.getByRole('dialog', { name: 'Списание' });
+  const writeOff = writeOffDialog.locator('.bar-sale-form').first();
   await writeOff.getByLabel('Товар').selectOption({ index: 1 });
   await writeOff.getByLabel('Кол-во, шт.').fill('1');
   await writeOff.getByLabel('Причина').selectOption('Бой');
   await writeOff.getByRole('button', { name: 'Списать' }).click();
   await expect(writeOff.getByRole('status')).toContainText('Товар списан');
-  await m.getByRole('tab',{name:'Продажи',exact:true}).click();
-  await expect(m.getByRole('region', { name: 'Продажи бара' })).toContainText('Coca-Cola 0.5');
+  await page.keyboard.press('Escape');
+  const feed = m.getByRole('region', { name: 'Движения остатка бара' });
+  const types = m.getByRole('group', { name: 'Тип движения' });
+  await types.getByRole('link', { name: 'Списание', exact: true }).click();
+  await expect(page).toHaveURL(/type=writeoff/);
+  await expect(feed.locator('tbody tr').first()).toContainText('Бой');
+  await types.getByRole('link', { name: 'Продажи', exact: true }).click();
+  await expect(page).toHaveURL(/type=sales/);
+  await expect(feed).toContainText('Coca-Cola 0.5');
   // возврат продажи только через подтверждение (ADR-182): отказ ничего не меняет
-  const saleRow = m.getByRole('region', { name: 'Продажи бара' }).locator('tbody tr').first();
+  const saleRow = feed.locator('tbody tr').first();
   await saleRow.getByRole('button', { name: 'Вернуть на склад' }).click();
   const confirm = page.getByTestId('confirm-dialog');
   await confirm.getByRole('button', { name: 'Оставить как есть' }).click();
-  await expect(saleRow).toContainText('Продано');
+  await expect(saleRow.getByRole('button', { name: 'Вернуть на склад' })).toBeVisible();
   await saleRow.getByRole('button', { name: 'Вернуть на склад' }).click();
   await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Вернуть на склад' }).click();
-  await expect(m.getByRole('region', { name: 'Продажи бара' }).locator('tbody tr').first()).toContainText('Возврат');
-  await m.getByRole('tab',{name:'Движения',exact:true}).click();
-  await expect(m.getByRole('region', { name: 'Движения остатка бара' })).toContainText('Приход');
+  await expect(feed.locator('tbody tr').first()).toContainText('Возврат');
+  await types.getByRole('link', { name: 'Приходы', exact: true }).click();
+  await expect(feed).toContainText('Приход');
+  await types.getByRole('link', { name: 'Все', exact: true }).click();
+  await expect(feed).toContainText('Списание');
+  await expect(feed).toContainText('Продажа');
 });
 
 for (const theme of ['light', 'dark'] as const) {

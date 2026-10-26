@@ -41,7 +41,8 @@ describe('меню салона', () => {
     expect(sectionsOf('BEAUTY')).toEqual([
       ['Главная', ['/today']],
       ['Журнал', ['/calendar']],
-      ['Персонал', ['/employees', '/team', '/beauty/schedule', '/payroll']],
+      // один пункт на людей (25.10.2026, plans/unified-team-screen): /team переадресует на /employees
+      ['Персонал', ['/employees', '/beauty/schedule', '/payroll']],
       ['Клиенты', ['/customers', '/appointments']],
       ['Услуги', ['/services']],
       // Отдельные отчёты салона больше не перенаправляют в аналитику.
@@ -89,13 +90,13 @@ describe('меню салона', () => {
    * подпись на тот же адрес разошлась бы с экраном. Экран назван так же, путь `beauty/masters` и подпись
    * под заголовком про мастера сети не менялись.
    */
-  it('«Специалисты» и «Сотрудники» в меню салона не путаются', () => {
+  it('люди салона одним пунктом «Сотрудники», без второго пункта учётных записей', () => {
     const labels = new Map(
       menuSectionsFor(owner, 'BEAUTY').flatMap((s) => s.items.map((i) => [i.href, i.label] as const)),
     );
-    // подписи верхнего меню 17.10.2026: мастера филиала это «Специалисты», учётные записи это «Сотрудники»
-    expect(labels.get('/employees')).toBe('Специалисты');
-    expect(labels.get('/team')).toBe('Сотрудники');
+    // общий экран (plans/unified-team-screen-2026-10-25.md, В1): карточки и входы на /employees
+    expect(labels.get('/employees')).toBe('Сотрудники');
+    expect(labels.has('/team')).toBe(false);
   });
 
   it('у каждого пункта салона есть право: закрытую страницу меню не обещает', () => {

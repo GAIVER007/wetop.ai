@@ -256,8 +256,17 @@ export function barFixture(
     sale.status = 'REVERSED';
     return ok({ id: sale.id, status: 'REVERSED', restocked: body.restock === true });
   }
-  if (method === 'POST' && path === '/bar/write-offs')
+  if (method === 'POST' && path === '/bar/write-offs') {
+    // списание попадает в ленту движений, как в настоящем API (отбор «Списание» на /bar/operations)
+    const product = products.find((p) => p.id === body.productId);
+    const units = str(body.quantityUnits) || '1';
+    movements.unshift({
+      id: nextId('g'), productId: str(body.productId), kind: 'WRITE_OFF', units: `-${units}`, unitCost: '15000',
+      amountMinor: (15000n * BigInt(/^\d+$/.test(units) ? units : '1')).toString(), note: strOrNull(body.reason),
+      createdAt: new Date().toISOString(), product: { name: product?.name ?? 'Товар' },
+    });
     return ok({ id: nextId('g'), movementsCreated: 1, costMinor: '15000' });
+  }
   if (method === 'POST' && path === '/bar/inventory-counts')
     return ok({ id: nextId('g'), systemUnits: '12', actualUnits: str(body.actualUnits), differenceUnits: (BigInt(str(body.actualUnits) || '0') - 12n).toString(), costMinor: '0' });
   return undefined;

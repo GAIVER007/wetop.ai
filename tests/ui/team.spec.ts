@@ -55,8 +55,9 @@ test('приглашение — панелью из шапки: почта, р�
   await main.getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const drawer = page.getByRole('dialog');
   await expect(drawer.getByRole('heading', { name: 'Пригласить сотрудника' })).toBeVisible();
-  await drawer.getByLabel('Почта приглашённого').fill('novyj-admin@example.com');
-  await drawer.getByTestId('staff-access').getByRole('radio', { name: /^Управляющий/ }).check();
+  await drawer.getByLabel('Имя', { exact: true }).fill('Тестовый');
+  await drawer.getByLabel('Почта для входа').fill('novyj-admin@example.com');
+  await drawer.getByTestId('staff-access').getByRole('combobox', { name: 'Уровень доступа' }).selectOption('MANAGER');
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   // панель закрылась, приглашение видно в списке ожидающих
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -71,10 +72,11 @@ test('ошибка приглашения — словами в панели, в
   await page.getByRole('main').getByRole('button', { name: 'Пригласить сотрудника' }).click();
   const drawer = page.getByRole('dialog');
   // этот человек уже в организации — подставной API отвечает отказом словами
-  await drawer.getByLabel('Почта приглашённого').fill('urij@example.com');
+  await drawer.getByLabel('Имя', { exact: true }).fill('Тестовый');
+  await drawer.getByLabel('Почта для входа').fill('urij@example.com');
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   await expect(drawer.getByRole('alert')).toContainText('уже в организации');
-  await expect(drawer.getByLabel('Почта приглашённого')).toHaveValue('urij@example.com');
+  await expect(drawer.getByLabel('Почта для входа')).toHaveValue('urij@example.com');
 });
 
 test('«Отключить» — только после подтверждения с последствием', async ({ page }) => {
@@ -219,10 +221,10 @@ test('«Сотрудники и доступ»: таблица без плито
   expect(Math.abs(box.x + box.width / 2 - viewport.width / 2)).toBeLessThan(4);
   const access = dialog.getByTestId('staff-access');
   // гостиница (кабинет горничной 22.10.2026): все четыре уровня, «Без входа» и «Личный кабинет» тоже
-  await expect(access.locator('[data-level]')).toHaveCount(4);
-  await expect(access.getByTestId('staff-access-details')).toContainText('Шахматка');
-  await access.getByRole('radio', { name: /^Управляющий/ }).check();
-  await expect(access.getByTestId('staff-access-details')).toContainText('Сотрудники и доступ');
+  await expect(access.getByRole('option')).toHaveCount(4);
+  await expect(access).toContainText('Сможет выполнять ежедневную работу');
+  await access.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('MANAGER');
+  await expect(access).toContainText('Всё, кроме владельческого');
   await page.screenshot({ path: 'reports/personnel-kind-2026-10-20/team-invite-1440.png' });
   // свободного текста «Должность» в приглашении нет: только выбор
   await expect(page.getByRole('dialog').locator('input[name="memberPosition"]')).toHaveCount(0);
@@ -360,9 +362,10 @@ test('приглашение с именем, телефоном и филиал
   const drawer = page.getByRole('dialog');
   await drawer.getByLabel('Имя', { exact: true }).fill('Айгерим');
   await drawer.getByLabel('Фамилия').fill('Тестова');
-  await drawer.getByLabel('Почта приглашённого').fill('scoped@example.com');
-  await drawer.getByLabel('Телефон (необязательно)').fill('8 701 000 11 22');
-  await drawer.getByLabel('Выбранные филиалы').check();
+  await drawer.getByLabel('Имя', { exact: true }).fill('Тестовый');
+  await drawer.getByLabel('Почта для входа').fill('scoped@example.com');
+  await drawer.getByLabel(/^Телефон/).fill('8 701 000 11 22');
+  await drawer.getByLabel('Выбрать филиалы').check();
   await drawer.getByLabel('Филиал Алматы', { exact: true }).check();
   await drawer.getByRole('button', { name: 'Отправить приглашение' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { IconField } from '../../components/icon-field';
 import { Tabs } from '../../components/tabs';
+import { Chip } from '../../components/chip';
 import {
   Alert,
   Badge,
@@ -592,6 +593,8 @@ export function StockBoard({
   const locale = useLocale();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [query, setQuery] = useState('');
+  // неиспользуемые позиции скрыты, пока их не попросили (владелец 25.10.2026)
+  const [showIdle, setShowIdle] = useState(false);
   const close = () => setDraft(null);
   const canCreateProduct = ctx.canCreate ?? ctx.canProperty ?? false;
   const canReceive = ctx.canCreate ?? ctx.canDesk ?? false;
@@ -605,7 +608,10 @@ export function StockBoard({
   const timeZone = ctx.timezone ?? 'UTC';
   const moment = (iso: string) =>
     `${dateFormat(intlLocale(locale), { day: 'numeric', month: 'short', timeZone }).format(new Date(iso))}, ${dateFormat(intlLocale(locale), { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone }).format(new Date(iso))}`;
-  const shown = products.filter((p) => q === '' || p.name.toLocaleLowerCase('ru').includes(q));
+  const idleCount = products.filter((p) => !p.active).length;
+  const shown = products.filter(
+    (p) => (showIdle || p.active) && (q === '' || p.name.toLocaleLowerCase('ru').includes(q)),
+  );
 
   // кнопки в строке поиска над таблицей, а не отдельной строкой с пустым местом (аудит 21.10.2026 п.40)
   const actions = (canCreateProduct || (canReceive && products.some((p) => p.active))) && (
@@ -622,23 +628,33 @@ export function StockBoard({
   );
   const stockTable =
     products.length === 0 ? (
-      <EmptyState title={t(nouns.first)} actions={actions || undefined} />
+      // пусто одной короткой строкой, как на /bar (владелец 25.10.2026)
+      <>
+        <p className="bar-muted">{t(nouns.first)}</p>
+        {actions}
+      </>
     ) : (
       <div className="rest-card">
-        <div className="rest-card__tools">
+        {/* строка поиска с кнопками (аудит 21.10.2026 п.40) в виде /bar (владелец 25.10.2026) */}
+        <div className="rest-card__tools bar-products-tools">
           <IconField icon="search">
             <Input aria-label={t(nouns.search)} placeholder={t(nouns.search)} value={query} onChange={(e) => setQuery(e.target.value)} />
           </IconField>
+          {idleCount > 0 && (
+            <Chip size="sm" selected={showIdle} count={idleCount} onClick={() => setShowIdle((v) => !v)}>
+              {t('Показать неиспользуемые')}
+            </Chip>
+          )}
           {actions}
         </div>
         {shown.length === 0 ? (
-          <EmptyState title={t('Ничего не найдено')} />
+          <p className="bar-muted">{t('Ничего не найдено')}</p>
         ) : (
-          <Table density="normal" aria-label={t('Остатки склада')}>
+          <Table density="compact" sticky="header" className="bar-products-grid" aria-label={t('Остатки склада')}>
             <thead>
               <tr>
-                {[nouns.oneTitle, msg('Остаток'), msg('Минимум'), msg('Стоимость'), msg('Годен до'), msg('Статус')].map((h) => (
-                  <th key={h}>{t(h)}</th>
+                {[nouns.oneTitle, msg('Остаток'), msg('Минимум'), msg('Стоимость'), msg('Годен до'), msg('Статус')].map((h, i) => (
+                  <th key={h} className={i === 0 ? 'bar-products-grid__name' : undefined}>{t(h)}</th>
                 ))}
                 <th>
                   <span className="sr-only">{t('Действия')}</span>
@@ -676,30 +692,30 @@ export function StockBoard({
                   <td>
                     <div className="food-inline-actions">
                       {p.kind === 'PREP' && canReceive && p.active && (
-                        <Button tone="ghost" size="sm" aria-label={t('Приготовили: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'produce', product: p })}>
+                        <Button tone="secondary" size="xs" aria-label={t('Приготовили: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'produce', product: p })}>
                           {t('Приготовили')}
                         </Button>
                       )}
                       {p.kind === 'PREP' && (
-                        <Button tone="ghost" size="sm" aria-label={t('Техкарта: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'recipe', product: p })}>
+                        <Button tone="secondary" size="xs" aria-label={t('Техкарта: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'recipe', product: p })}>
                           {t('Техкарта')}
                         </Button>
                       )}
-                      <Button tone="ghost" size="sm" aria-label={t('Партии: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'lots', product: p })}>
+                      <Button tone="secondary" size="xs" aria-label={t('Партии: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'lots', product: p })}>
                         {t('Партии')}
                       </Button>
                       {canUpdateStock && p.onHand !== '0' && (
-                        <Button tone="ghost" size="sm" aria-label={t('Списать: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'write-off', product: p })}>
+                        <Button tone="secondary" size="xs" aria-label={t('Списать: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'write-off', product: p })}>
                           {t('Списать')}
                         </Button>
                       )}
                       {canUpdateStock && (
-                        <Button tone="ghost" size="sm" aria-label={t('Инвентаризация: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'inventory', product: p })}>
+                        <Button tone="secondary" size="xs" aria-label={t('Инвентаризация: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'inventory', product: p })}>
                           {t('Инвентаризация')}
                         </Button>
                       )}
                       {canUpdateProduct && (
-                        <Button tone="ghost" size="sm" aria-label={t('Изменить: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'product', product: p })}>
+                        <Button tone="secondary" size="xs" aria-label={t('Изменить: {name}', { name: p.name })} onClick={() => setDraft({ kind: 'product', product: p })}>
                           {t('Изменить')}
                         </Button>
                       )}
@@ -721,7 +737,7 @@ export function StockBoard({
 
   const movementTable =
     movements.length === 0 ? (
-      <EmptyState title={t('Движений пока нет')} />
+      <p className="bar-muted">{t('Движений пока нет')}</p>
     ) : (
       <Table density="compact" caption={t('Последние 200 движений склада')} captionHidden>
         <thead>

@@ -5089,7 +5089,7 @@ MOBILE-FOOD-1, утверждение 25.10.2026: после предложен�
 
 ## CASH-SHIFTS-20261025: смены общей кассы (УТВЕРЖДЕНО 25.10.2026)
 
-Решение владельца: docs/decisions/2026-10-25-cash-shifts.md. Номера 159/160 зарезервированы для этого среза, 158 занята способом оплаты «Другое».
+Решение владельца: docs/decisions/2026-10-25-cash-shifts.md. Номера 160/161 (159 занял ключ создания заказа ресторана из #842, 158 способ оплаты «Другое»).
 
 CashRegister: uuid id, organization_id, ровно одно property_id/location_id, уникальная область, name, currency, cashier_ids uuid[], created_at UTC. CashShift: id, register_id, responsible_user_id, opened_at, closed_at/closed_by_id nullable, opening/closing JSON-снимки с целыми minor units строками и fingerprint исходного реестра. Не более одной открытой смены на кассу; начало и закрытый снимок неизменяемы. cash_operations и restaurant_cash_operations получают nullable cash_shift_id, исторические строки без backfill. Область операции соответствует кассе, новая операция только в открытой смене.
 

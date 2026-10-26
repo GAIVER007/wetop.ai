@@ -106,8 +106,9 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
   await page.getByRole('link', { name: 'Добавить специалиста', exact: true }).click();
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Тестовый Мастер');
-  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await dialog.getByLabel('Имя', { exact: true }).fill('Тестовый Мастер');
+  await dialog.getByRole('radio', { name: /^Без входа/ }).check();
+  await dialog.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const manager = page.getByTestId('employee-manager');
@@ -223,7 +224,9 @@ async function goToEmployeesList(page: Page) {
   const personnel = page.getByRole('button', { name: 'Персонал', exact: true });
   if (!(await personnel.isVisible())) await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   await personnel.click();
-  await page.getByRole('link', { name: 'Специалисты', exact: true }).click();
+  // один пункт «Сотрудники» в «Персонале» салона (U3, 26.10.2026): общий экран /employees. Ищем в группе раздела:
+  // на самом экране есть ещё вкладка «Сотрудники | Роли и права» с тем же словом
+  await page.getByRole('group', { name: 'Персонал' }).getByRole('link', { name: 'Сотрудники', exact: true }).click();
   await expect(page).toHaveURL(/\/employees$/);
   await expect(page.getByTestId('employee-manager')).toHaveCount(0);
 }
@@ -304,8 +307,9 @@ test('O07c: a closed employee card leaves the router on the list, so later actio
   await page.goto('/employees?onboarding=1');
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   let dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Закрытый');
-  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await dialog.getByLabel('Имя', { exact: true }).fill('Мастер Закрытый');
+  await dialog.getByRole('radio', { name: /^Без входа/ }).check();
+  await dialog.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   const firstId = new URL(page.url()).pathname.split('/')[2]!;
   await expect(page.getByTestId('employee-manager')).toBeVisible();
@@ -313,9 +317,10 @@ test('O07c: a closed employee card leaves the router on the list, so later actio
   await goToEmployeesList(page);
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Следующий');
+  await dialog.getByLabel('Имя', { exact: true }).fill('Мастер Следующий');
   const action = page.waitForRequest((r) => r.method() === 'POST' && Boolean(r.headers()['next-action']));
-  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await dialog.getByRole('radio', { name: /^Без входа/ }).check();
+  await dialog.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
   // действие уходит на тот адрес, который маршрутизатор считает текущим: это список, а не закрытая карточка
   const actionUrl = new URL((await action).url());
   expect(actionUrl.pathname).toBe('/employees');
@@ -364,8 +369,9 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   await page.goto('/employees?onboarding=1');
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   let dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Частичный');
-  await dialog.getByRole('button', {name:'Создать мастера',exact:true}).click();
+  await dialog.getByLabel('Имя', { exact: true }).fill('Мастер Частичный');
+  await dialog.getByRole('radio', { name: /^Без входа/ }).check();
+  await dialog.getByRole('button', {name:'Добавить сотрудника',exact:true}).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const manager = page.getByTestId('employee-manager');
@@ -403,7 +409,7 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
   await goToEmployeesList(page);
   await page.getByRole('button', { name: 'Добавить специалиста', exact: true }).click();
   dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Имя мастера', { exact: true }).fill('Мастер Потерянный Ответ');
+  await dialog.getByLabel('Имя', { exact: true }).fill('Мастер Потерянный Ответ');
   let dropped!: () => void;
   const responseDropped = new Promise<void>((resolve) => {
     dropped = resolve;
@@ -421,7 +427,8 @@ test('O07/O08: partial assignment and a lost create response recover one Employe
       dropped();
     } else await route.continue();
   });
-  await dialog.getByRole('button', { name: 'Создать мастера', exact: true }).click();
+  await dialog.getByRole('radio', { name: /^Без входа/ }).check();
+  await dialog.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
   await responseDropped;
   await page.unroute('**/employees*');
   saved = await (await page.request.get(`${api}/beauty/employees`, { headers })).json();

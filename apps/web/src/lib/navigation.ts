@@ -642,12 +642,15 @@ const ROW: Array<{
     label: 'Персонал',
     icon: 'person',
     items: [
+      // один пункт на людей (plans/unified-team-screen-2026-10-25.md, В1): у салона и ресторана карточки и входы на
+      // общем экране /employees, у гостиницы список людей это /team
       { label: { word: 'specialists' }, at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
-      { label: { word: 'team' }, at: ALL('/team') },
+      { label: { word: 'team' }, at: { HOSPITALITY: '/team' } },
       { label: 'График работы', at: { HOSPITALITY: '/staff-schedule', BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
       { label: 'Зарплата', at: ALL('/payroll') },
     ],
-    match: ['/staff', '/beauty/masters'],
+    // `/team` салона и ресторана без своего пункта: «Роли и права» и переадресация горят в «Персонале»
+    match: ['/staff', '/beauty/masters', '/team'],
   },
   {
     id: 'clients',

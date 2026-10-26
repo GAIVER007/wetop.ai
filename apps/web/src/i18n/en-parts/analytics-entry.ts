@@ -633,7 +633,6 @@ export const analyticsEntry: Record<string, string> = {
   'Записей': 'Appointments',
   'завершено {n}': 'completed {n}',
   '{n}% записей': '{n}% of appointments',
-  'Обязательно': 'Required',
   '{done} из {total}': '{done} of {total}',
-  'по желанию': 'optional',
+  'шаг {n}': 'step {n}',
 };

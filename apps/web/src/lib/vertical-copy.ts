@@ -114,7 +114,8 @@ const COPY: Record<WebVertical, VerticalCopy> = {
       place: 'Салон',
       catalog: 'Каталог',
       bookings: 'Записи',
-      specialists: 'Специалисты',
+      // общий экран людей салона: специалисты и вход в WETOP одним списком (план unified-team-screen, U3)
+      specialists: 'Сотрудники',
       team: 'Сотрудники',
       goods: 'Бар',
       catalogSettings: 'Каталог услуг',

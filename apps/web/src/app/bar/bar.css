@@ -137,15 +137,93 @@
     border-top: 1px solid var(--border-soft);
     padding-top: var(--space-1);
   }
+  /* цена в строке номенклатуры: поле с валютой справа и квадратная кнопка высотой с поле (владелец 25.10.2026) */
   .bar-price-form {
-    display: grid;
-    grid-template-columns: minmax(100px, 130px) auto;
+    display: flex;
+    flex-wrap: wrap;
     gap: var(--space-1);
     align-items: center;
-    min-width: 230px;
+  }
+  .bar-price-form__field {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: calc(var(--space-16) * 2);
+  }
+  .bar-price-form__field .inp {
+    width: 100%;
+    padding-right: calc(var(--space-8) + var(--space-4));
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .bar-price-form__suffix {
+    position: absolute;
+    right: var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-sm);
+    pointer-events: none;
+  }
+  .bar-price-form .bar-price-form__save {
+    width: var(--control-h);
+    min-width: var(--control-h);
+    height: var(--control-h);
+    padding: 0;
+    justify-content: center;
   }
   .bar-price-form small {
+    flex-basis: 100%;
+  }
+  /* поиск и категория над таблицей номенклатуры, как в журналах */
+  .bar-products-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+    margin-bottom: var(--space-2);
+  }
+  .bar-products-tools > .field-icon {
+    flex: 1 1 calc(var(--space-16) * 4);
+    max-width: calc(var(--space-16) * 6);
+  }
+  .bar-products-tools > .inp {
+    width: auto;
+    min-width: calc(var(--space-16) * 3);
+  }
+  .bar-products-grid {
+    width: 100%;
+  }
+  .bar-products-grid .bar-products-grid__name {
+    width: 40%;
+  }
+  .bar-products-grid td,
+  .bar-products-grid th {
+    vertical-align: middle;
+  }
+  .bar-products-grid .bar-products-grid__price {
+    white-space: nowrap;
+  }
+  .bar-product-code {
+    font-size: var(--text-xs);
+  }
+  /* «Новый товар»: название шире категории, цена и минимум вторым рядом, редкое в «Ещё» */
+  .bar-product-form.bar-dialog-form {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .bar-product-form__more {
     grid-column: 1 / -1;
+  }
+  .bar-product-form__more > summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .bar-product-form__more-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: start;
+    margin-top: var(--space-2);
   }
   .bar-accounting-note {
     max-width: 920px;
@@ -1262,7 +1340,9 @@
     align-self: end;
   }
   @media (max-width: 600px) {
-    .bar-dialog-form {
+    .bar-dialog-form,
+    .bar-product-form.bar-dialog-form,
+    .bar-product-form__more-grid {
       grid-template-columns: minmax(0, 1fr);
     }
   }
@@ -1292,6 +1372,173 @@
   @media (max-width: 600px) {
     main.page.bar-page {
       padding-bottom: calc(var(--space-8) + var(--space-8) + 64px);
+    }
+  }
+}
+
+@layer sections {
+  /* «Склад: бар» на один экран ПК (владелец 25.10.2026): шапка с действиями в строку, итоги месяца строкой,
+     три низких блока аналитики в ряд, остатки и приходы рядом. Общий вид для салона, гостиницы и ресторана. */
+  .bar-page .bar-totals {
+    margin: 0 0 var(--space-2);
+  }
+  .bar-empty-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .bar-empty-line > svg {
+    flex: 0 0 auto;
+    color: var(--muted);
+  }
+  .bar-empty-line > span:first-of-type {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .bar-empty-line__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .bar-receipts-aside {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    min-width: 0;
+  }
+  .bar-receipts-aside .tbl th,
+  .bar-receipts-aside .tbl td {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+  }
+  .bar-one-line {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  .bar-overview-grid {
+    display: grid;
+    gap: var(--space-4);
+    align-items: start;
+  }
+  @media (min-width: 961px) {
+    .bar-page .page__head {
+      align-items: center;
+      margin-bottom: var(--space-2);
+    }
+    .bar-page .page__head .page__title {
+      font-size: var(--text-xl);
+    }
+    .bar-page .bar-low-warning {
+      margin-bottom: var(--space-2);
+      padding-block: var(--space-1);
+    }
+    .bar-page .bar-analytics {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-block: 0 var(--space-2);
+    }
+    .bar-page .bar-chart-panel {
+      height: calc(var(--space-16) * 3);
+      overflow: hidden;
+      padding: var(--space-2) var(--space-4);
+      gap: var(--space-1);
+      align-content: start;
+    }
+    .bar-page .bar-chart-panel header a {
+      min-height: 0;
+    }
+    .bar-page .bar-chart-empty {
+      display: block;
+      min-height: 0;
+      text-align: left;
+      font-size: var(--text-xs);
+    }
+    .bar-page .bar-day-chart {
+      height: calc(var(--space-16) * 2 - var(--space-4));
+      padding-top: var(--space-2);
+    }
+    .bar-page .bar-category-chart svg {
+      max-height: calc(var(--space-16) * 2 - var(--space-4));
+    }
+    .bar-page .bar-category-chart ul {
+      gap: var(--space-1);
+    }
+    .bar-page .bar-top-products ol {
+      gap: 0;
+    }
+    .bar-page .bar-top-products li {
+      min-height: var(--space-6);
+    }
+    .bar-overview-grid {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+    /* открытая карточка товара занимает место приходов: ряд становится одной колонкой */
+    .bar-overview-grid:has(.bar-main--editing) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .bar-overview-grid .bar-board {
+      padding: var(--space-2) var(--space-4);
+    }
+    /* таблица прокручивается внутри: обзор 1440×900 без прокрутки страницы (владелец 25.10.2026, гейт PR 869) */
+    .bar-overview-grid .bar-board .table-scroll {
+      max-height: calc(var(--space-16) * 5 - var(--space-12));
+    }
+  }
+}
+
+/* «Склад: движение товаров» (ТЗ склада 25.10.2026, пункт E): одна лента движений с отборами журналов */
+@layer sections {
+  .bar-movement-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .bar-movement-filters {
+    margin-block: var(--space-2);
+  }
+  .bar-movement-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .bar-movement-empty {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .bar-movement-empty > p {
+    margin: 0;
+  }
+  .bar-movement-feed .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .bar-movement-feed .bar-qty--in {
+    color: var(--success);
+  }
+  .bar-movement-feed .bar-qty--out {
+    color: var(--danger);
+  }
+  /* ПК: страница на один экран, лента прокручивается внутри */
+  @media (min-width: 961px) {
+    .page.bar-movements-page {
+      display: flex;
+      flex-direction: column;
+      height: calc(100dvh - var(--space-16));
+      overflow: hidden;
+    }
+    .bar-movements-page .bar-movement-feed {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
     }
   }
 }

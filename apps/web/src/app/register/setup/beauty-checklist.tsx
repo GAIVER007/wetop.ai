@@ -289,7 +289,7 @@ export function BeautyChecklist({
       </Link>
     );
   };
-  // кнопки окна: у готового салона сверху, сразу под заголовком (вариант C владельца 26.10.2026), иначе под шагами
+  // кнопки окна: у готового салона в шапке справа (вариант B владельца 26.10.2026), иначе под шагами
   const actions = welcome ? (
     <div className="onboarding__actions">
       {state.canEdit && (
@@ -339,7 +339,7 @@ export function BeautyChecklist({
   return (
     <main
       id="main-content"
-      className="onboarding setup-shell setup-b setup-c"
+      className="onboarding setup-shell setup-b setup-tiles"
       data-testid="beauty-onboarding"
     >
       <section className="setup-b__region" aria-label={t('Первые шаги')}>
@@ -355,6 +355,11 @@ export function BeautyChecklist({
                   ? t('Салон готов к работе')
                   : t('Подготовьте салон к работе')}
             </h1>
+            {!welcome && state.profileApplied && (
+              <span className={done === 4 ? 'setup-tiles__count is-done' : 'setup-tiles__count'}>
+                {t('{done} из {total}', { done, total: 4 })}
+              </span>
+            )}
             {welcome && (
               <p className="setup-b__lead">
                 {t(
@@ -363,7 +368,8 @@ export function BeautyChecklist({
               </p>
             )}
           </div>
-          {!welcome && state.profileApplied && (
+          {ready && !welcome && <div className="setup-tiles__head-actions">{actions}</div>}
+          {!welcome && state.profileApplied && !ready && (
             <div className="setup-b__progress">
               <p role="status">{t('Выполнено {done} из 4 обязательных шагов', { done })}</p>
               <progress className="setup-b__bar" max={4} value={done} aria-hidden="true" />
@@ -373,6 +379,53 @@ export function BeautyChecklist({
             </div>
           )}
         </header>
+        <ol className="setup-path" aria-label={t('Шаги настройки')}>
+          {path.map((row, i) => {
+            const status = welcome ? 'todo' : row.status;
+            return (
+              <li
+                key={row.id}
+                className={`setup-path__row setup-path__row--${status}`}
+                data-step={row.id}
+              >
+                <span className="setup-path__num" aria-hidden="true">
+                  {status === 'done' ? <Icon name="check" width={16} height={16} /> : i + 1}
+                </span>
+                <span className="setup-tiles__step" aria-hidden="true">
+                  {t('шаг {n}', { n: i + 1 })}
+                </span>
+                <div className="setup-path__body">
+                  <h2>{t(TITLES[row.id]!)}</h2>
+                  <p className="setup-path__sr">
+                    {status === 'done'
+                      ? t('Готово')
+                      : status === 'current'
+                        ? t('Сейчас')
+                        : status === 'locked'
+                          ? t('Недоступно')
+                          : t('Дальше')}
+                  </p>
+                  {status === 'done' && row.id !== 'profile' && (
+                    <p className="setup-path__summary">
+                      {setupCountLine(row.id, row.count, locale, t)}
+                    </p>
+                  )}
+                  {status === 'done' && row.id === 'profile' && (
+                    <p className="setup-path__summary">
+                      {String(state.draft.businessName ?? '')}, {String(state.draft.currency ?? '')}
+                    </p>
+                  )}
+                  {(status === 'current' || welcome) && (
+                    <p className="setup-path__hint">{t(HINTS[row.id]!)}</p>
+                  )}
+                  {status === 'current' && row.id === 'profile' && !welcome && profileForm}
+                </div>
+                {!welcome && <div className="setup-path__action">{stepAction(row)}</div>}
+              </li>
+            );
+          })}
+        </ol>
+        {!(ready && !welcome) && actions}
         <div className="setup-b__grid">
           <div className="setup-b__main">
             {completed && !state.readiness?.ready && (
@@ -385,65 +438,6 @@ export function BeautyChecklist({
             {state.profileApplied && !state.readiness && (
               <Alert boxed>{t('Не удалось определить готовность. Обновите проверку.')}</Alert>
             )}
-            {ready && !welcome && (
-              <p className="setup-c__lead">
-                {t('Клиенты уже могут записываться: через сайт WETOP или по ссылке.')}
-              </p>
-            )}
-            {ready && !welcome && actions}
-            {!welcome && state.profileApplied && (
-              <p className="setup-c__group" aria-hidden="true">
-                <b>{t('Обязательно')}</b>
-                <span className={done === 4 ? 'setup-c__count is-done' : 'setup-c__count'}>
-                  {t('{done} из {total}', { done, total: 4 })}
-                </span>
-              </p>
-            )}
-            <ol className="setup-path" aria-label={t('Шаги настройки')}>
-              {path.map((row, i) => {
-                const status = welcome ? 'todo' : row.status;
-                return (
-                  <li
-                    key={row.id}
-                    className={`setup-path__row setup-path__row--${status}`}
-                    data-step={row.id}
-                  >
-                    <span className="setup-path__num" aria-hidden="true">
-                      {status === 'done' ? <Icon name="check" width={16} height={16} /> : i + 1}
-                    </span>
-                    <div className="setup-path__body">
-                      <h2>{t(TITLES[row.id]!)}</h2>
-                      <p className="setup-path__sr">
-                        {status === 'done'
-                          ? t('Готово')
-                          : status === 'current'
-                            ? t('Сейчас')
-                            : status === 'locked'
-                              ? t('Недоступно')
-                              : t('Дальше')}
-                      </p>
-                      {status === 'done' && row.id !== 'profile' && (
-                        <p className="setup-path__summary">
-                          {setupCountLine(row.id, row.count, locale, t)}
-                        </p>
-                      )}
-                      {status === 'done' && row.id === 'profile' && (
-                        <p className="setup-path__summary">
-                          {String(state.draft.businessName ?? '')},{' '}
-                          {String(state.draft.currency ?? '')}
-                        </p>
-                      )}
-                      {(status === 'current' || welcome) && (
-                        <p className="setup-path__hint">{t(HINTS[row.id]!)}</p>
-                      )}
-                      {status === 'current' && row.id === 'profile' && !welcome && profileForm}
-                    </div>
-                    {!welcome && <div className="setup-path__action">{stepAction(row)}</div>}
-                  </li>
-                );
-              })}
-            </ol>
-            {!(ready && !welcome) && actions}
             {!welcome && state.profileApplied && (
               /* полная настройка салона (решение владельца 20.10.2026): то, без чего салон не принимает клиентов сам;
                не влияет на «Завершить настройку» */
@@ -453,7 +447,6 @@ export function BeautyChecklist({
                 data-testid="beauty-setup-next"
               >
                 <h2 id="setup-next-heading">{t('Дальше: чтобы клиенты записывались сами')}</h2>
-                <span className="setup-c__optional">{t('по желанию')}</span>
                 <ul className="setup-next__list">
                   {NEXT.map((item) => (
                     <li key={item.href}>

@@ -22,6 +22,7 @@ import { FloorLayoutEditor, SHAPE_CSS, spotStyle } from './floor-layout-editor';
 import { layoutSpots, tableShapeOf } from '@pms/domain';
 import { QuickReport } from '../../components/quick-report';
 import { JournalExpandButton } from '../../components/journal-expand';
+import { matchesCustomer } from '../../lib/customer-match';
 import { DayNav } from '../../components/day-nav';
 import { JournalFilter, JournalHead, JournalSearch, FiltersTitle } from '../../components/journal-head';
 import { useNarrow } from '../../lib/use-narrow';
@@ -120,9 +121,10 @@ export function WorkspaceBoard({
         (!period || r.servicePeriodId === period) &&
         (!status || r.status === status) &&
         (!area || r.table?.areaId === area) &&
-        `${r.customer.firstName} ${r.customer.lastName ?? ''} ${r.customer.phone ?? ''}`
-          .toLocaleLowerCase('ru')
-          .includes(search.toLocaleLowerCase('ru')),
+        matchesCustomer(search, {
+          name: `${r.customer.firstName} ${r.customer.lastName ?? ''}`,
+          phone: r.customer.phone,
+        }),
     )
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const customer = (r: RestaurantReservation) =>
@@ -218,7 +220,7 @@ export function WorkspaceBoard({
     </>
   );
   return (
-    <div className="food-workspace rest-ws">
+    <div className="food-workspace rest-ws journal-screen__pass">
       <JournalHead
         title={floor ? t('Журнал') : t('Брони столов')}
         subtitle={floor ? t('Бронирования столов и загрузка зала') : t('Расписание столов на день')}
@@ -378,7 +380,7 @@ export function WorkspaceBoard({
             }
           />
         ) : (
-          <div className="rest-fp" data-card={panel ? 'open' : undefined}>
+          <div className="rest-fp journal-screen__board" data-card={panel ? 'open' : undefined}>
             <nav className="rest-fp__zones" aria-label={t('Зоны')}>
               {[{ id: '', name: t('Все зоны') }, ...areas].map((a) => (
                 <button
@@ -515,7 +517,7 @@ export function WorkspaceBoard({
           </div>
         )
       ) : (
-        <>
+        <div className="journal-screen__board">
           {view === 'timeline' ? (
             <TimelineBoard
               data={data}
@@ -595,7 +597,7 @@ export function WorkspaceBoard({
               </div>
             </>
           )}
-        </>
+        </div>
       )}
       {draft && (
         <ReservationDrawer

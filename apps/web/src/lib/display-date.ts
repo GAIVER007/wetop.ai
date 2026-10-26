@@ -3,6 +3,8 @@ import { dateFormat, type DateFormat } from '../i18n/dates';
 type IntlLocale = 'ru-RU' | 'kk-KZ' | 'en-GB';
 const STYLES = {
   short: { timeZone: 'UTC', day: 'numeric', month: 'short' },
+  /** «21 октября»: дата визита в карточке записи салона */
+  long: { timeZone: 'UTC', day: 'numeric', month: 'long' },
   /** §14: основной формат даты 20.09.2026; «20 сент.» только в таблицах и на плашках */
   numeric: { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' },
   full: { timeZone: 'UTC', day: 'numeric', month: 'long', weekday: 'long', year: 'numeric' },
@@ -20,7 +22,7 @@ const formatOf = (style: keyof typeof STYLES, locale: IntlLocale) => {
  */
 export function displayDate(
   value: string,
-  style: 'short' | 'full' | 'numeric' = 'short',
+  style: 'short' | 'long' | 'full' | 'numeric' = 'short',
   locale: IntlLocale = 'ru-RU',
 ): string {
   const date = new Date(`${value}T00:00:00Z`);

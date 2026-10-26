@@ -43,10 +43,11 @@ export async function FoodScreen({
         title={title}
         // эталон владельца 13.10.2026 (зал ресторана): подпись под заголовком плана
         subtitle={kind === 'floor' ? t('Бронирования столов и загрузка зала') : undefined}
-        // журнал (план зала и расписание): видимая шапка общая `JournalHead` (23.10.2026)
-        className={kind === 'catalog' ? '' : 'journal-page'}
+        // журнал (план зала и расписание): видимая шапка общая `JournalHead` (23.10.2026); на ПК в один экран
+        // (ТЗ 25.10.2026, п. 9): страница не прокручивается, план зала и шкала листаются внутри
+        className={kind === 'catalog' ? '' : 'journal-page journal-screen'}
       >
-        <div key={data.scopeKey}>
+        <div key={data.scopeKey} className={kind === 'catalog' ? undefined : 'journal-screen__pass'}>
           {/* «Брони столов» вторая вкладка раздела «Клиенты», как «Записи» салона (эталон 25.10.2026) */}
           {kind === 'list' && (
             <CustomerSectionTabs access={(await deskShell()).access} vertical="FOOD_SERVICE" current="/table-reservations" t={t} />

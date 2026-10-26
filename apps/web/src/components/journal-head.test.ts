@@ -111,3 +111,42 @@ describe('единая шапка журнала: части и порядок',
     expect(at('aria-label="Статус места"')).toBeLessThan(at('board-filters-open'));
   });
 });
+
+/**
+ * Журнал на ПК в один экран (ТЗ 25.10.2026, п. 9): страница не прокручивается, шапка видна целиком, сетка занимает
+ * остаток высоты и прокручивается внутри себя, панель дня справа тоже. Общий слой `.journal-screen` в
+ * `journal-head.css` только для ширины ПК; телефон и планшет листают страницу как раньше.
+ */
+describe('журнал в один экран на ПК: общий слой', () => {
+  it('общий класс в CSS шапки: колонка во весь экран под верхней панелью, сетка тянется и листается внутри', () => {
+    const css = source('app/journal-head.css');
+    const desk = css.slice(css.indexOf('@media (min-width: 961px) {\n    div.workspace .page.journal-screen'));
+    expect(desk.length).toBeLessThan(css.length);
+    expect(desk).toContain('height: calc(100dvh - var(--header-h))');
+    expect(desk).toMatch(/\.page\.journal-screen > \.journal-screen__board \{[^}]*flex: 1 1 0;[^}]*min-height: 0;/);
+  });
+  it('салон: день журнала собран слоем одного экрана, сетка и панель дня листаются внутри', () => {
+    expect(source('app/beauty/page.tsx')).toContain('journal-screen');
+    expect(source('app/beauty/journal.tsx')).toContain('beauty-layout journal-screen__board');
+    const css = source('app/beauty/day-panel.css');
+    expect(css).toMatch(/\.journal-screen \.beauty-day-panel \{[^}]*overflow-y: auto;/);
+  });
+  it('ресторан: журнал и расписание собраны слоем одного экрана, план зала и шкала листаются внутри', () => {
+    const screen = source('app/food/screen.tsx');
+    expect(screen).toContain("'journal-page journal-screen'");
+    expect(screen).toContain('<div key={data.scopeKey} className={kind === \'catalog\' ? undefined : \'journal-screen__pass\'}>');
+    const board = source('app/food/workspace-board.tsx');
+    expect(board).toContain('food-workspace rest-ws journal-screen__pass');
+    expect(board).toContain('rest-fp journal-screen__board');
+    expect(board).toContain('<div className="journal-screen__board">');
+    const css = source('app/journal-head.css');
+    const desk = css.slice(css.indexOf('@media (min-width: 961px) {\n    div.workspace .page.journal-screen'));
+    expect(desk).toMatch(/\.page\.journal-screen \.journal-screen__pass \{[^}]*flex: 1 1 0;[^}]*min-height: 0;/);
+    expect(desk).toMatch(/\.journal-screen__pass > \.journal-screen__board \{[^}]*overflow: auto;/);
+    // вложенная обёртка (срез `scopeKey` > колонка экрана) тянется на остаток, а не по содержимому: иначе доска
+    // с основой 0 сжимается в ноль, брони без стола вылезают поверх и клики ловит обёртка (гейт PR #867)
+    const nested = desk.indexOf('.journal-screen__pass > .journal-screen__pass {');
+    expect(nested).toBeGreaterThan(desk.indexOf('.journal-screen__pass > * {'));
+    expect(desk.slice(nested)).toMatch(/^[^}]*flex: 1 1 0;[^}]*min-height: 0;/);
+  });
+});

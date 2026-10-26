@@ -1,12 +1,28 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { INVITE_ROLE_MESSAGE } from '@pms/domain';
 import { authApi } from '../../lib/api';
-import { inviteAction, inviteNewStaffAction, setMemberScopesAction, signOut, signIn } from './actions';
+import {
+  acceptInviteAction,
+  inviteAction,
+  inviteNewStaffAction,
+  setMemberScopesAction,
+  setPassword,
+  signOut,
+  signIn,
+} from './actions';
 import { redirect } from 'next/navigation';
 import { clearScopeCookie } from '../../lib/session';
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('next/navigation', () => ({ redirect: vi.fn() }));
+const jar = vi.hoisted(() => new Map<string, string>());
+vi.mock('next/headers', () => ({
+  cookies: async () => ({
+    get: (name: string) => (jar.has(name) ? { name, value: jar.get(name)! } : undefined),
+    set: (name: string, value: string) => void jar.set(name, value),
+  }),
+  headers: async () => new Headers(),
+}));
 vi.mock('../../lib/session', () => ({
   sessionToken: async () => 'ui-session',
   clientInfo: async () => ({ userAgent: 'test', ip: null }),
@@ -153,4 +169,42 @@ it('новый сотрудник: «Без входа» ничего не шл�
     employeeId: 'e-1',
     allBranches: true,
   });
+});
+
+/** Язык организации (ORG-LOCALE-20261026): от приглашения до входа один язык, без русского сайта посередине */
+it('принятие приглашения английской организации ставит английский язык до экрана пароля', async () => {
+  jar.clear();
+  vi.spyOn(authApi, 'acceptInvite').mockResolvedValue({
+    organizationName: 'Lashes by Kyial salon',
+    locale: 'en',
+    email: 'admin@example.invalid',
+    expiresAt: '2030-01-01T00:00:00Z',
+    setPasswordToken: 'set-token',
+  } as never);
+  await acceptInviteAction('raw-token');
+  expect(jar.get('wetop_locale')).toBe('en');
+  expect(redirect).toHaveBeenLastCalledWith('/login/set-password?token=set-token');
+});
+
+it('пароль сохранён на английском: вход здесь же, на английской форме, а не на русском сайте', async () => {
+  jar.clear();
+  jar.set('wetop_locale', 'en');
+  vi.spyOn(authApi, 'confirmReset').mockResolvedValue({ ok: true } as never);
+  const form = new FormData();
+  form.set('token', 'set-token');
+  form.set('password', 'synthetic-password-2026');
+  form.set('again', 'synthetic-password-2026');
+  await setPassword({ error: null }, form);
+  expect(redirect).toHaveBeenLastCalledWith('/auth/fallback?password=set');
+});
+
+it('пароль сохранён на русском: как раньше, на главную wetop.ai', async () => {
+  jar.clear();
+  vi.spyOn(authApi, 'confirmReset').mockResolvedValue({ ok: true } as never);
+  const form = new FormData();
+  form.set('token', 'set-token');
+  form.set('password', 'synthetic-password-2026');
+  form.set('again', 'synthetic-password-2026');
+  await setPassword({ error: null }, form);
+  expect(redirect).toHaveBeenLastCalledWith('https://wetop.ai/?next=%2Ftoday&password=set#login');
 });

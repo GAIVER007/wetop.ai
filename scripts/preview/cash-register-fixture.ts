@@ -78,7 +78,10 @@ export function cashRegisterFixture(
       view.snapshot.balances.CASH = String(
         BigInt(view.snapshot.balances.CASH!) - BigInt(String(body.amount)) * 100n,
       );
-      view.totals!.expenses.CASH = String(BigInt(String(body.amount)) * 100n);
+      // расходы за смену копятся, как в API (cashDelta от снимка открытия)
+      view.totals!.expenses.CASH = String(
+        BigInt(view.totals!.expenses.CASH ?? '0') + BigInt(String(body.amount)) * 100n,
+      );
       view.snapshot.fingerprint = randomUUID();
     }
     if (body.action === 'close' && view.active) {

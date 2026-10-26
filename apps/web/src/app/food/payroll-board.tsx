@@ -14,7 +14,7 @@ import {
 } from '../../components/ui';
 import { ActionMenu } from '../../components/action-menu';
 import { MonthInput } from '../../components/date-field';
-import { Icon } from '../../components/icon';
+import { Icon, type IconName } from '../../components/icon';
 import { Tabs } from '../../components/tabs';
 import { Segmented } from '../../components/segmented';
 import { METHOD_RU } from '../../lib/dashboard-format';
@@ -43,6 +43,7 @@ const BASIS = {
     plus: msg('Оклад плюс доля от заказов'),
     hint: msg('От суммы закрытых заказов сотрудника за месяц, от 1 до 100'),
     example: msg('{percent} % от заказов на {sales}'),
+    income: msg('Сумма закрытых заказов сотрудника за месяц: с неё считается процент'),
   },
   visits: {
     percent: msg('Процент от записей'),
@@ -52,6 +53,7 @@ const BASIS = {
     plus: msg('Оклад плюс доля от записей'),
     hint: msg('От суммы выполненных записей специалиста за месяц, от 1 до 100'),
     example: msg('{percent} % от записей на {sales}'),
+    income: msg('На какую сумму специалист оказал услуг за месяц: с неё считается процент'),
   },
 } as const;
 
@@ -79,10 +81,10 @@ export const payrollMinorToInput = minorToInput;
 export const PAY_CHOICES = ['FIXED', 'PERCENT', 'FIXED_PLUS_PERCENT'] as const satisfies readonly PayModel[];
 export type PayChoice = (typeof PAY_CHOICES)[number];
 const CHOICE = {
-  FIXED: { title: msg('Только оклад'), note: msg('Одна сумма каждый месяц') },
-  PERCENT: { title: msg('Только процент'), note: null },
-  FIXED_PLUS_PERCENT: { title: msg('Оклад + процент'), note: null },
-} as const;
+  FIXED: { title: msg('Только оклад'), note: msg('Одна сумма каждый месяц'), icon: 'coins' },
+  PERCENT: { title: msg('Только процент'), note: null, icon: 'pie' },
+  FIXED_PLUS_PERCENT: { title: msg('Оклад + процент'), note: null, icon: 'plus' },
+} as const satisfies Record<string, { title: string; note: string | null; icon: IconName }>;
 /** Какие поля нужны способу: только оклад, только процент, оба */
 export const payFields = (model: PayChoice) => ({
   fixed: model === 'FIXED' || model === 'FIXED_PLUS_PERCENT',
@@ -113,19 +115,17 @@ export function paySettingsBody(
   return { model, fixedMinor, percent: pct };
 }
 
-function PayDrawer({
+export function PayDrawer({
   scopeKey,
   row,
   basis,
   currency,
-  month,
   close,
 }: {
   scopeKey: string;
   row: PayrollRow;
   basis: PayBasis;
   currency: string;
-  month: string;
   close: () => void;
 }) {
   const t = useT();
@@ -136,14 +136,6 @@ function PayDrawer({
   const [fixed, setFixed] = useState(BigInt(row.fixedMinor) > 0n ? payrollMinorToInput(row.fixedMinor) : '');
   const [percent, setPercent] = useState(row.percent > 0 ? String(row.percent) : '');
   const need = payFields(model);
-  const sales = BigInt(row.salesMinor);
-  const fixedMinor = (() => {
-    const v = inputToMinor(fixed);
-    return need.fixed && v ? BigInt(v) : 0n;
-  })();
-  const pct = need.percent && /^\d{1,3}$/.test(percent.trim()) ? Math.min(100, Number(percent)) : 0;
-  const percentPart = (sales * BigInt(pct) + 50n) / 100n;
-  const money = (minor: bigint | string) => formatMoney(minor, currency);
   function submit() {
     setError('');
     let body: ReturnType<typeof paySettingsBody>;
@@ -166,47 +158,44 @@ function PayDrawer({
     <Overlay open onClose={close} title={t('Оплата: {name}', { name: row.name })} drawer className="food-drawer pay-drawer" trapFocus>
       <div className="food-form pay-form" data-testid="pay-settings">
         {error && <Alert>{error}</Alert>}
+        {/* вариант B владельца 26.10.2026: способ строкой с иконкой и пояснением; расчёта «к выплате» здесь нет,
+            условия задаются один раз, суммы месяца видны в таблице зарплаты */}
         <fieldset className="pay-choices">
           <legend>{t('Как платим')}</legend>
           {PAY_CHOICES.map((value) => (
             <label key={value} className="pay-choice">
               <input type="radio" name="pay-model" value={value} checked={model === value} onChange={() => setModel(value)} />
-              <span className="pay-choice__title">{t(CHOICE[value].title)}</span>
-              <span className="pay-choice__note">
-                {CHOICE[value].note ? t(CHOICE[value].note) : t(value === 'PERCENT' ? BASIS[basis].only : BASIS[basis].plus)}
+              <span className="pay-choice__icon" aria-hidden="true">
+                <Icon name={CHOICE[value].icon} width={20} />
               </span>
+              <span className="pay-choice__text">
+                <span className="pay-choice__title">{t(CHOICE[value].title)}</span>
+                <span className="pay-choice__note">
+                  {CHOICE[value].note ? t(CHOICE[value].note) : t(value === 'PERCENT' ? BASIS[basis].only : BASIS[basis].plus)}
+                </span>
+              </span>
+              <span className="pay-choice__mark" aria-hidden="true" />
             </label>
           ))}
         </fieldset>
-        <div className="food-form-row">
+        <div className="pay-fields">
           {need.fixed && (
-            <Field
-              label={t('Оклад за месяц, {currency}', { currency: currencyLabel(currency) })}
-              controlId={`pay-fixed-${row.employeeId}`}
-              hint={t('Платится каждый месяц, даже без продаж')}
-            >
-              <Input id={`pay-fixed-${row.employeeId}`} type="number" inputMode="decimal" min={0.01} step="0.01" value={fixed} onChange={(e) => setFixed(e.target.value)} />
+            <Field label={t('Оклад в месяц')} controlId={`pay-fixed-${row.employeeId}`}>
+              <span className="pay-input" id={`pay-fixed-${row.employeeId}-box`}>
+                <Input id={`pay-fixed-${row.employeeId}`} type="number" inputMode="decimal" min={0.01} step="0.01" value={fixed} onChange={(e) => setFixed(e.target.value)} />
+                <span className="pay-unit">{currencyLabel(currency)}</span>
+              </span>
             </Field>
           )}
           {need.percent && (
-            <Field label={t(BASIS[basis].percent)} controlId={`pay-percent-${row.employeeId}`} hint={t(BASIS[basis].hint)}>
-              <Input id={`pay-percent-${row.employeeId}`} type="number" inputMode="numeric" min={1} max={100} step={1} value={percent} onChange={(e) => setPercent(e.target.value)} />
+            <Field label={t(BASIS[basis].percent)} controlId={`pay-percent-${row.employeeId}`}>
+              <span className="pay-input" id={`pay-percent-${row.employeeId}-box`}>
+                <Input id={`pay-percent-${row.employeeId}`} type="number" inputMode="numeric" min={1} max={100} step={1} value={percent} onChange={(e) => setPercent(e.target.value)} />
+                <span className="pay-unit">%</span>
+              </span>
             </Field>
           )}
         </div>
-        <p className="pay-example" data-testid="pay-example">
-          {t('Расчёт за {month}:', { month: monthName(month, t) })}{' '}
-          {need.fixed && <span>{t('оклад {sum}', { sum: money(fixedMinor) })}</span>}
-          {need.fixed && need.percent && ' + '}
-          {need.percent && (
-            <span>
-              {t(BASIS[basis].example, { percent: pct, sales: money(sales) })} = {money(percentPart)}
-            </span>
-          )}
-          {' = '}
-          <strong>{money(fixedMinor + percentPart)}</strong>
-        </p>
-        <p className="hint">{t('Премии и удержания добавляются отдельно: «Ещё» → «Премия или удержание».')}</p>
         <div className="food-actions pay-form__actions">
           <Button tone="secondary" disabled={pending} onClick={close}>
             {t('Отмена')}
@@ -621,6 +610,7 @@ export function PayrollBoard({
   const [adjust, setAdjust] = useState<PayrollRow | null>(null);
   const [payout, setPayout] = useState<PayrollRow | null>(null);
   const names = new Map(payroll.rows.map((r) => [r.employeeId, r.name]));
+  const income = payroll.rows.reduce((sum, r) => sum + BigInt(r.salesMinor), 0n).toString();
   const remaining = payroll.rows.reduce((sum, r) => sum + BigInt(r.remainingMinor), 0n).toString();
   const money = (minor: string) => formatMoney(minor, payroll.currency);
   const cell = (minor: string) => (BigInt(minor) === 0n ? <span className="muted">—</span> : money(minor));
@@ -631,6 +621,8 @@ export function PayrollBoard({
       <thead>
         <tr>
           <th>{t('Сотрудник')}</th>
+          {/* «Доход» первым (владелец 26.10.2026): видно, с какой суммы считается оплата */}
+          <th className="num" title={t(BASIS[basis].income)}>{t('Доход')}</th>
           <th>{t('Как платим')}</th>
           <th className="num">{t('Оклад')}</th>
           <th className="num">{t(BASIS[basis].column)}</th>
@@ -651,6 +643,9 @@ export function PayrollBoard({
           return (
             <tr key={r.employeeId}>
               <th scope="row">{r.name}</th>
+              <td className="num" data-testid="payroll-income">
+                <strong>{cell(r.salesMinor)}</strong>
+              </td>
               <td className="rest-pay-model">
                 {blank ? <Badge tone="warn">{t('Не настроено')}</Badge> : payTerms(t, r, basis, payroll.currency)}
               </td>
@@ -694,6 +689,9 @@ export function PayrollBoard({
       <tfoot>
         <tr>
           <th scope="row">{t('Итого')}</th>
+          <td className="num" data-testid="payroll-income-total">
+            <strong>{money(income)}</strong>
+          </td>
           <td colSpan={3} data-testid="payroll-fund">
             {t('Фонд оплаты {sum}', { sum: money(payroll.totals.fundMinor) })}
           </td>
@@ -747,7 +745,6 @@ export function PayrollBoard({
           row={settings}
           basis={basis}
           currency={payroll.currency}
-          month={payroll.month}
           close={() => setSettings(null)}
         />
       )}

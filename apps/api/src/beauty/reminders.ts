@@ -19,9 +19,9 @@ import {
 } from '@nestjs/common';
 import type { mail } from '@pms/integrations';
 import {
-  CONFIRMATION_TEMPLATE,
   DEFAULT_REMINDER_HOURS,
-  DEFAULT_REMINDER_TEMPLATE,
+  confirmationTemplate,
+  defaultReminderTemplate,
   REMINDER_MAX_ATTEMPTS,
   parseReminderSettings,
   redactText,
@@ -34,6 +34,7 @@ import {
   reviewUrl,
   timeOffWindow,
   whatsappLink,
+  type ClientMessageLocale,
   type ReminderVariables,
 } from '@pms/domain';
 import { createHmac } from 'node:crypto';
@@ -191,7 +192,8 @@ export interface WhatsAppTemplateMessage {
   /** только цифры номера */
   to: string;
   templateName: string;
-  language: 'ru';
+  /** язык одобренного шаблона: язык салона (ORG-LOCALE-20261026) */
+  language: ClientMessageLocale;
   /** значения {{1}}..{{8}} одобренного шаблона в порядке: имя, услуга, дата, время, мастер, салон, адрес, телефон */
   parameters: string[];
 }
@@ -227,11 +229,15 @@ export interface ReminderRunResult {
 
 type DueRow = { id: string; kind: 'REMINDER' | 'CONFIRMATION' | 'REVIEW_REQUEST'; attempts: number; appointmentId: string; locationId: string };
 
-const SUBJECT: Record<DueRow['kind'], string> = {
-  REMINDER: 'Напоминание о записи',
-  CONFIRMATION: 'Запись подтверждена',
-  REVIEW_REQUEST: 'Как прошёл визит',
+const SUBJECT: Record<ClientMessageLocale, Record<DueRow['kind'], string>> = {
+  ru: { REMINDER: 'Напоминание о записи', CONFIRMATION: 'Запись подтверждена', REVIEW_REQUEST: 'Как прошёл визит' },
+  kk: { REMINDER: 'Жазылу туралы еске салу', CONFIRMATION: 'Жазылу расталды', REVIEW_REQUEST: 'Сапар қалай өтті' },
+  en: { REMINDER: 'Appointment reminder', CONFIRMATION: 'Appointment confirmed', REVIEW_REQUEST: 'How was your visit' },
 };
+/** Тема письма клиенту на языке салона (ORG-LOCALE-20261026) */
+export const reminderSubject = (kind: DueRow['kind'], locale: ClientMessageLocale = 'ru') => SUBJECT[locale][kind];
+/** Язык организации из базы; незнакомое значение (CHECK его не пустит) и старая база без колонки: русский */
+const clientLocale = (raw: unknown): ClientMessageLocale => (raw === 'en' || raw === 'kk' ? raw : 'ru');
 
 /** Данные для текста: читаются в момент отправки, в очереди их нет */
 export async function reminderMessage(db: Pick<DbTx, 'appointment' | 'beautyReminderSettings'>, appointmentId: string, kind: DueRow['kind'] = 'REMINDER') {
@@ -243,10 +249,16 @@ export async function reminderMessage(db: Pick<DbTx, 'appointment' | 'beautyRemi
       employee: { select: { name: true } },
       service: { select: { name: true } },
       lines: { orderBy: { position: 'asc' }, select: { service: { select: { name: true } }, employee: { select: { name: true } } } },
-      location: { select: { name: true, address: true, phone: true, timezone: true, business: { select: { name: true } } } },
+      location: {
+        select: {
+          name: true, address: true, phone: true, timezone: true,
+          business: { select: { name: true, organization: { select: { locale: true } } } },
+        },
+      },
     },
   });
   if (!a) return null;
+  const locale = clientLocale(a.location.business.organization?.locale);
   const settings = await settingsOf(db, a.locationId);
   const services = a.lines.length ? [...new Set(a.lines.map((l) => l.service.name))].join(', ') : a.service.name;
   const vars: ReminderVariables = reminderVariables({
@@ -258,10 +270,13 @@ export async function reminderMessage(db: Pick<DbTx, 'appointment' | 'beautyRemi
     salonName: a.location.business.name || a.location.name,
     address: a.location.address,
     phone: a.location.phone,
+    locale,
   });
-  const template = kind === 'CONFIRMATION' ? CONFIRMATION_TEMPLATE : settings.template ?? DEFAULT_REMINDER_TEMPLATE;
+  // язык салона (ORG-LOCALE-20261026): свой шаблон владельца как есть, по умолчанию текст на языке организации
+  const template = kind === 'CONFIRMATION' ? confirmationTemplate(locale) : settings.template ?? defaultReminderTemplate(locale);
   const text = renderReminder(template, vars);
   return {
+    locale,
     status: a.status,
     startsAt: a.startsAt,
     text,
@@ -296,6 +311,7 @@ export function reviewRequestToken(notificationId: string, env: Record<string, s
 }
 
 type ReviewTarget = {
+  locale: ClientMessageLocale;
   status: string;
   locationId: string;
   organizationId: string;
@@ -310,11 +326,12 @@ async function reviewTarget(db: Pick<DbTx, 'appointment'>, appointmentId: string
     select: {
       status: true, locationId: true,
       customer: { select: { firstName: true, phone: true, email: true } },
-      location: { select: { business: { select: { organizationId: true } } } },
+      location: { select: { business: { select: { organizationId: true, organization: { select: { locale: true } } } } } },
     },
   });
   if (!a) return null;
   return {
+    locale: clientLocale(a.location.business.organization?.locale),
     status: a.status,
     locationId: a.locationId,
     organizationId: a.location.business.organizationId,
@@ -325,7 +342,7 @@ async function reviewTarget(db: Pick<DbTx, 'appointment'>, appointmentId: string
 }
 
 function reviewText(target: ReviewTarget, token: string) {
-  const text = reviewRequestText(target.customerName, reviewUrl(appUrlFromEnv(), `/reviews/${token}`));
+  const text = reviewRequestText(target.customerName, reviewUrl(appUrlFromEnv(), `/reviews/${token}`), target.locale);
   return { text, whatsappUrl: whatsappLink(target.phone, text) };
 }
 
@@ -440,7 +457,7 @@ export class ClientReminderWorker implements OnModuleInit, OnModuleDestroy {
     });
     if (!issued.ok) return cancel(REVIEW_REFUSAL[issued.reason]);
     const { text } = reviewText(target, token);
-    return this.send(tx, row, now, { text, phone: target.phone, email: target.email, whatsappTemplateName: null, vars: null });
+    return this.send(tx, row, now, { text, phone: target.phone, email: target.email, whatsappTemplateName: null, vars: null, locale: target.locale });
   }
 
   private async retry(tx: DbTx, row: DueRow, now: Date, channel: 'EMAIL' | 'WHATSAPP' | null, e: unknown): Promise<'failed' | 'retried'> {
@@ -470,6 +487,7 @@ export class ClientReminderWorker implements OnModuleInit, OnModuleDestroy {
       email: string | null;
       whatsappTemplateName: string | null;
       vars: ReminderVariables | null;
+      locale?: ClientMessageLocale;
     },
   ): Promise<keyof ReminderRunResult> {
     let channel: 'EMAIL' | 'WHATSAPP' | null = null;
@@ -481,12 +499,13 @@ export class ClientReminderWorker implements OnModuleInit, OnModuleDestroy {
           locationId: row.locationId,
           to: message.phone.replace(/\D/g, ''),
           templateName: message.whatsappTemplateName,
-          language: 'ru',
+          // язык утверждённого шаблона WhatsApp: язык салона (ORG-LOCALE-20261026)
+          language: message.locale ?? 'ru',
           parameters: [v.имя, v.услуга, v.дата, v.время, v.мастер, v.салон, v.адрес, v.телефон],
         });
       } else if (message.email && this.mailer) {
         channel = 'EMAIL';
-        await this.mailer.send({ to: message.email.toLowerCase(), subject: SUBJECT[row.kind], text: message.text });
+        await this.mailer.send({ to: message.email.toLowerCase(), subject: reminderSubject(row.kind, message.locale), text: message.text });
       }
     } catch (e) {
       return this.retry(tx, row, now, channel, e);
@@ -533,6 +552,11 @@ export class BeautyRemindersService {
     const locationId = scope.locationId!;
     const row = await this.prisma.db.beautyReminderSettings.findUnique({ where: { locationId } });
     const s = row ?? DEFAULT_SETTINGS;
+    // текст по умолчанию в настройке на языке салона (ORG-LOCALE-20261026)
+    const org = await this.prisma.db.location.findUnique({
+      where: { id: locationId },
+      select: { business: { select: { organization: { select: { locale: true } } } } },
+    });
     return {
       locationId,
       configured: row !== null,
@@ -540,7 +564,7 @@ export class BeautyRemindersService {
       enabled: s.enabled,
       hoursBefore: s.hoursBefore,
       template: s.template,
-      defaultTemplate: DEFAULT_REMINDER_TEMPLATE,
+      defaultTemplate: defaultReminderTemplate(clientLocale(org?.business.organization?.locale)),
       whatsappTemplateName: s.whatsappTemplateName,
       whatsappConnected: await (this.whatsapp ?? new NoWhatsAppSender()).connected(locationId),
     };

@@ -412,7 +412,7 @@ export class BeautyAppointmentsService {
       timezone: tz,
     });
     const db = this.prisma.db;
-    const [reviews, done, history] = await Promise.all([
+    const [reviews, done, history, masterHistory] = await Promise.all([
       db.beautyAppointmentReview.findMany({
         where: { submittedAt: { gte: window.fromUtc, lt: window.toUtcExclusive }, appointment: { locationId: scope.locationId } },
         select: { employeeId: true, stars: true },
@@ -426,6 +426,18 @@ export class BeautyAppointmentsService {
         where: { locationId: scope.locationId, status: 'DONE', startsAt: { lt: window.toUtcExclusive } },
         _min: { startsAt: true },
         _max: { startsAt: true },
+      }),
+      // «Вернулись» и LTV мастера (владелец 26.10.2026): вся история завершённых визитов филиала до конца периода по
+      // строкам записи; без строк (старые записи) цена записи целиком мастеру записи
+      db.appointment.findMany({
+        where: { locationId: scope.locationId, status: 'DONE', startsAt: { lt: window.toUtcExclusive } },
+        select: {
+          customerId: true,
+          employeeId: true,
+          price: true,
+          startsAt: true,
+          lines: { select: { employeeId: true, priceMinor: true } },
+        },
       }),
     ]);
     const first = new Map(history.map((h) => [h.customerId, h._min.startsAt]));
@@ -450,6 +462,21 @@ export class BeautyAppointmentsService {
       x.count += 1;
       stars.set(r.employeeId, x);
     }
+    // по мастеру и клиенту: сумма завершённого за всё время и был ли визит до начала периода
+    const byMaster = new Map<string, Map<string, { minor: bigint; before: boolean }>>();
+    for (const a of masterHistory) {
+      const parts = a.lines.length
+        ? a.lines.map((l) => [l.employeeId, BigInt(l.priceMinor)] as const)
+        : [[a.employeeId, BigInt(a.price)] as const];
+      for (const [master, minor] of parts) {
+        const clients = byMaster.get(master) ?? new Map<string, { minor: bigint; before: boolean }>();
+        const c = clients.get(a.customerId) ?? { minor: 0n, before: false };
+        c.minor += minor;
+        if (a.startsAt < window.fromUtc) c.before = true;
+        clients.set(a.customerId, c);
+        byMaster.set(master, clients);
+      }
+    }
     const tenths = (sum: number, count: number) => (count ? Math.round((sum * 10) / count) : null);
     const lapsed = history.filter(
       (h) => h._max.startsAt && h._max.startsAt >= lapse.fromUtc && h._max.startsAt < lapse.toUtcExclusive,
@@ -463,10 +490,15 @@ export class BeautyAppointmentsService {
       employees: [...new Set([...perEmployee.keys(), ...stars.keys()])].sort().map((employeeId) => {
         const served = [...(perEmployee.get(employeeId) ?? [])];
         const s = stars.get(employeeId);
+        const own = byMaster.get(employeeId);
+        const lifetime = served.reduce((sum, c) => sum + (own?.get(c)?.minor ?? 0n), 0n);
         return {
           employeeId,
           customers: served.length,
           returning: served.filter((c) => !isNew(c)).length,
+          returnedToMaster: served.filter((c) => own?.get(c)?.before).length,
+          // средняя выручка мастера с одного его клиента периода за всё время, в минорных единицах строкой
+          ltvMinor: String(served.length ? lifetime / BigInt(served.length) : 0n),
           reviews: s?.count ?? 0,
           avgTenths: s ? tenths(s.sum, s.count) : null,
         };

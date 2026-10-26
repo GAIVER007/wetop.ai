@@ -200,3 +200,40 @@ it('canonical read projection includes only active owned Beauty/Food Locations',
     }),
   );
 });
+
+/** Язык организации (ORG-LOCALE-20261026): меняет только владелец, только из списка, с журналом «было/стало» */
+describe('язык организации', () => {
+  function localeSetup(current = 'ru') {
+    const tx = {
+      $executeRaw: vi.fn(async () => 1),
+      organization: {
+        findUniqueOrThrow: vi.fn(async () => ({ locale: current })),
+        update: vi.fn(async () => ({})),
+      },
+      auditLog: { create: vi.fn(async () => undefined) },
+    };
+    const transaction = vi.fn(async (fn: (db: unknown) => unknown) => fn(tx));
+    const service = new BranchesService({ db: { $transaction: transaction } } as unknown as PrismaService);
+    return { service, transaction, tx };
+  }
+  it('владелец ставит английский: запись в организации и в журнале', async () => {
+    const { service, tx } = localeSetup('ru');
+    expect(await run(() => service.setLocale({ locale: 'en' }))).toEqual({ locale: 'en' });
+    expect(tx.organization.update).toHaveBeenCalledWith({ where: { id: 'org-test' }, data: { locale: 'en' } });
+    expect(tx.auditLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'organization.locale.changed',
+          before: { locale: 'ru' },
+          after: { locale: 'en' },
+        }),
+      }),
+    );
+  });
+  it('не владелец и чужой язык: отказ до записи', async () => {
+    const { service, transaction } = localeSetup();
+    await expect(run(() => service.setLocale({ locale: 'en' }), 'STAFF')).rejects.toThrow('владелец');
+    await expect(run(() => service.setLocale({ locale: 'de' }))).rejects.toThrow('язык');
+    expect(transaction).not.toHaveBeenCalled();
+  });
+});

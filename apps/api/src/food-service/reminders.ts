@@ -20,7 +20,8 @@ import {
 import type { mail } from '@pms/integrations';
 import {
   DEFAULT_REMINDER_HOURS,
-  FOOD_CONFIRMATION_TEMPLATE,
+  foodConfirmationTemplate,
+  foodDefaultReminderTemplate,
   FOOD_DEFAULT_REMINDER_TEMPLATE,
   FOOD_REMINDER_STATUSES,
   REMINDER_MAX_ATTEMPTS,
@@ -151,10 +152,17 @@ export async function foodReminderMessage(
     select: {
       status: true, startsAt: true, partySize: true, locationId: true,
       customer: { select: { firstName: true, lastName: true, phone: true, email: true } },
-      location: { select: { name: true, address: true, phone: true, timezone: true, business: { select: { name: true } } } },
+      location: {
+        select: {
+          name: true, address: true, phone: true, timezone: true,
+          business: { select: { name: true, organization: { select: { locale: true } } } },
+        },
+      },
     },
   });
   if (!r) return null;
+  const raw = r.location.business.organization?.locale;
+  const locale: 'ru' | 'kk' | 'en' = raw === 'en' || raw === 'kk' ? raw : 'ru';
   const settings = await settingsOf(db, r.locationId);
   const vars = foodReminderVariables({
     customerName: [r.customer.firstName, r.customer.lastName].filter(Boolean).join(' '),
@@ -164,9 +172,12 @@ export async function foodReminderMessage(
     restaurantName: r.location.business.name || r.location.name,
     address: r.location.address,
     phone: r.location.phone,
+    locale,
   });
-  const text = renderFoodReminder(kind === 'CONFIRMATION' ? FOOD_CONFIRMATION_TEMPLATE : settings.template ?? FOOD_DEFAULT_REMINDER_TEMPLATE, vars);
+  // язык организации (ORG-LOCALE-20261026): свой шаблон владельца как есть, по умолчанию текст на языке ресторана
+  const text = renderFoodReminder(kind === 'CONFIRMATION' ? foodConfirmationTemplate(locale) : settings.template ?? foodDefaultReminderTemplate(locale), vars);
   return {
+    locale,
     status: r.status,
     startsAt: r.startsAt,
     text,
@@ -188,9 +199,10 @@ export interface FoodReminderRunResult {
 
 type DueRow = { id: string; kind: 'REMINDER' | 'CONFIRMATION'; attempts: number; reservationId: string; locationId: string };
 
-const SUBJECT: Record<DueRow['kind'], string> = {
-  REMINDER: 'Напоминание о брони',
-  CONFIRMATION: 'Столик забронирован',
+const SUBJECT: Record<'ru' | 'kk' | 'en', Record<DueRow['kind'], string>> = {
+  ru: { REMINDER: 'Напоминание о брони', CONFIRMATION: 'Столик забронирован' },
+  kk: { REMINDER: 'Брондау туралы еске салу', CONFIRMATION: 'Үстел брондалды' },
+  en: { REMINDER: 'Table booking reminder', CONFIRMATION: 'Table booked' },
 };
 
 @Injectable()
@@ -270,12 +282,12 @@ export class FoodReminderWorker implements OnModuleInit, OnModuleDestroy {
           locationId: row.locationId,
           to: message.phone.replace(/\D/g, ''),
           templateName: message.whatsappTemplateName,
-          language: 'ru',
+          language: message.locale ?? 'ru',
           parameters: [v.имя, v.дата, v.время, v.гостей, v.ресторан, v.адрес, v.телефон],
         });
       } else if (message.email && this.mailer) {
         channel = 'EMAIL';
-        await this.mailer.send({ to: message.email.toLowerCase(), subject: SUBJECT[row.kind], text: message.text });
+        await this.mailer.send({ to: message.email.toLowerCase(), subject: SUBJECT[message.locale ?? 'ru'][row.kind], text: message.text });
       }
     } catch (e) {
       const attempts = row.attempts + 1;

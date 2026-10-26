@@ -105,7 +105,9 @@ export class SharedOnboardingService {
           select: {
             name: true,
             vertical: true,
-            organization: { select: { status: true, trialEndsAt: true, countryCode: true } },
+            organization: {
+              select: { status: true, trialEndsAt: true, countryCode: true, locale: true },
+            },
           },
         },
       },
@@ -375,6 +377,9 @@ export class SharedOnboardingService {
       draft,
       // страна организации из регистрации: от неё настройка подставляет пояс и валюту (Q-SCHED-3)
       organizationCountry: location.business.organization.countryCode,
+      // язык организации (ORG-LOCALE-20261026): меняет только владелец (`POST /branches/organization/locale`)
+      organizationLocale: location.business.organization.locale ?? 'ru',
+      canEditLocale: currentRole() === 'OWNER' && writable,
       profileApplied,
       completedFlowVersion,
       readiness,

@@ -3,9 +3,10 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Overlay } from '../overlay';
 import { Alert, Button, Field, Input, Select, Textarea } from '../ui';
 import { Icon } from '../icon';
-import { formatMoney, minorToInput } from '../../lib/money';
+import { formatMoney } from '../../lib/money';
 import type { CashRegisterView } from '../../lib/cash-register';
 import { saveCashiers, sendCashHeader } from './cash-header-actions';
+import { CloseShiftForm, OpenShiftForm } from './cash-shift-forms';
 
 /** Чтение кассы GET-запросом: серверное действие перерисовало бы страницу и сбросило её несохранённые правки */
 async function loadCashHeader(scopeKey: string): Promise<CashRegisterView> {
@@ -42,6 +43,7 @@ export function CashHeader({
     mounted = useRef(true);
   // После неопределённого сетевого результата повторяется тот же ключ и то же тело.
   const command = useRef<{ signature: string; key: string } | null>(null);
+  const afterExpense = useRef<Panel>(null);
   const initialLoad = useRef<{ scopeKey: string; promise: Promise<CashRegisterView> } | null>(null);
   useEffect(() => {
     mounted.current = true;
@@ -115,7 +117,9 @@ export function CashHeader({
       if (mounted.current) {
         setCash(data);
         setSaved('Изменения сохранены');
-        setPanel(body.action === 'close' ? 'summary' : null);
+        const back = body.action === 'expense' ? afterExpense.current : null;
+        afterExpense.current = null;
+        setPanel(body.action === 'close' ? 'summary' : back);
       }
     } catch (e) {
       if (mounted.current) setError(e instanceof Error ? e.message : 'Не удалось сохранить кассу');
@@ -233,14 +237,31 @@ export function CashHeader({
               )}
             </Alert>
           )}
-          {saved && <p role="status">{saved}</p>}
+          {saved && (
+            <p role="status" className={panel === 'close' ? 'sr-only' : undefined}>
+              {saved}
+            </p>
+          )}
           {!cash ? (
             <p>Не удалось получить кассу выбранного филиала.</p>
           ) : (
             <>
               <p className="cash-header__context">
-                {cash.name}, {cash.active ? 'Смена открыта' : 'Смена закрыта'}
+                {panel === 'open' || panel === 'close'
+                  ? cash.name
+                  : `${cash.name}, ${cash.active ? 'Смена открыта' : 'Смена закрыта'}`}
               </p>
+              {(panel === 'open' || panel === 'close') && (
+                // на телефоне в шапке только кнопка смены: итоги, расход и внесение открываются отсюда
+                <Button
+                  type="button"
+                  tone="secondary"
+                  className="cash-header__summary-link"
+                  onClick={() => show('summary')}
+                >
+                  Итоги смены
+                </Button>
+              )}
               {panel === 'summary' ? (
                 <>
                   {totals('Остатки по системе', cash.snapshot.balances)}
@@ -353,63 +374,37 @@ export function CashHeader({
                     </details>
                   )}
                 </>
+              ) : panel === 'open' ? (
+                <OpenShiftForm
+                  cash={cash}
+                  busy={busy}
+                  disabled={!mayWrite}
+                  money={money}
+                  send={(b) => mutate({ ...b, fingerprint: cash.snapshot.fingerprint })}
+                  onCancel={() => setPanel(null)}
+                />
+              ) : panel === 'close' ? (
+                <CloseShiftForm
+                  key={cash.snapshot.fingerprint}
+                  cash={cash}
+                  busy={busy}
+                  disabled={!mayWrite || !owns}
+                  money={money}
+                  send={(b) =>
+                    mutate({ ...b, shiftId: cash.active?.id, fingerprint: cash.snapshot.fingerprint })
+                  }
+                  onCancel={() => setPanel(null)}
+                  onExpense={() => {
+                    afterExpense.current = 'close';
+                    void show('expense');
+                  }}
+                />
               ) : (
                 <form onSubmit={submit}>
-                  {(panel === 'open' || panel === 'close') && (
-                    // на телефоне в шапке только кнопка смены: итоги, расход и внесение открываются отсюда
-                    <Button
-                      type="button"
-                      tone="secondary"
-                      className="cash-header__summary-link"
-                      onClick={() => show('summary')}
-                    >
-                      Итоги смены
-                    </Button>
-                  )}
                   <p>
                     Наличные по системе:{' '}
                     <strong>{money(cash.snapshot.balances.CASH ?? '0')}</strong>
                   </p>
-                  {(panel === 'open' || panel === 'close') && (
-                    <Field label="Фактически пересчитано">
-                      <Input
-                        name="counted"
-                        inputMode="decimal"
-                        required
-                        autoFocus
-                        disabled={busy}
-                      />
-                    </Field>
-                  )}
-                  {panel === 'close' && (
-                    <>
-                      <Field label="Оставить в кассе">
-                        <Input
-                          name="retained"
-                          inputMode="decimal"
-                          required
-                          defaultValue={minorToInput(cash.snapshot.balances.CASH ?? '0')}
-                          disabled={busy}
-                        />
-                      </Field>
-                      <Field label="Кто примет деньги">
-                        <Select name="recipientId" defaultValue="" disabled={busy}>
-                          <option value="">Без передачи (вся сумма остаётся)</option>
-                          {cash.members
-                            .filter((m) => m.id !== cash.currentUserId)
-                            .map((m) => (
-                              <option key={m.id} value={m.id}>
-                                {m.name}
-                              </option>
-                            ))}
-                        </Select>
-                      </Field>
-                      <p>
-                        Закрытие создаёт запрос передачи. Деньги считаются сданными после
-                        подтверждения получателем.
-                      </p>
-                    </>
-                  )}
                   {(panel === 'expense' || panel === 'income') && (
                     <>
                       <Field label="Сумма">
@@ -450,7 +445,7 @@ export function CashHeader({
                       </Field>
                     </>
                   )}
-                  <Field label="Комментарий (обязателен при расхождении)">
+                  <Field label="Комментарий">
                     <Textarea name="note" rows={3} maxLength={1000} disabled={busy} />
                   </Field>
                   <div className="cash-header__footer">
@@ -458,7 +453,12 @@ export function CashHeader({
                       type="button"
                       tone="secondary"
                       disabled={busy}
-                      onClick={() => setPanel(null)}
+                      onClick={() => {
+                        // расход, начатый из окна закрытия, отменяется обратно в закрытие
+                        const back = afterExpense.current;
+                        afterExpense.current = null;
+                        setPanel(back);
+                      }}
                     >
                       Отмена
                     </Button>

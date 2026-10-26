@@ -76,14 +76,14 @@ export function HotelPayDrawer({ scopeKey, row, currency, close }: { scopeKey: s
         <div className="pay-fields">
           {model === 'FIXED' && (
             <Field label={t('Оклад в месяц')} controlId={`hotel-pay-fixed-${row.employeeId}`}>
-              <span className="pay-input">
+              <span className="pay-input" id={`hotel-pay-fixed-${row.employeeId}-box`}>
                 <Input id={`hotel-pay-fixed-${row.employeeId}`} type="number" inputMode="decimal" min={0} step="0.01" value={fixed} onChange={(e) => setFixed(e.target.value)} />
                 <span className="pay-unit">{currencySign(currency)}</span>
               </span>
             </Field>
           )}
           <Field label={t('За одну уборку')} controlId={`hotel-pay-piece-${row.employeeId}`}>
-            <span className="pay-input">
+            <span className="pay-input" id={`hotel-pay-piece-${row.employeeId}-box`}>
               <Input id={`hotel-pay-piece-${row.employeeId}`} name="perCleaning" type="number" inputMode="decimal" min={0} step="0.01" value={piece} onChange={(e) => setPiece(e.target.value)} />
               <span className="pay-unit">{currencySign(currency)}</span>
             </span>

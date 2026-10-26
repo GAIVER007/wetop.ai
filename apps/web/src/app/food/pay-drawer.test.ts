@@ -49,4 +49,13 @@ describe('окно оплаты: вариант B', () => {
     expect(html).not.toContain('Расчёт за');
     expect(html).not.toContain('Премии');
   });
+  it('подпись поля ведёт на само поле ввода, id без повторов (читалка и тесты находят поле по подписи)', () => {
+    const html = render();
+    const fors = [...html.matchAll(/<label[^>]*for="([^"]+)"/g)].map((m) => m[1]);
+    expect(fors.length).toBeGreaterThan(0);
+    for (const id of fors) {
+      expect(html.match(new RegExp(`id="${id}"`, 'g'))).toHaveLength(1);
+      expect(html).toMatch(new RegExp(`<input[^>]*id="${id}"`));
+    }
+  });
 });

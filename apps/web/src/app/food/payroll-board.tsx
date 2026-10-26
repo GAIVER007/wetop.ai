@@ -181,7 +181,7 @@ export function PayDrawer({
         <div className="pay-fields">
           {need.fixed && (
             <Field label={t('Оклад в месяц')} controlId={`pay-fixed-${row.employeeId}`}>
-              <span className="pay-input">
+              <span className="pay-input" id={`pay-fixed-${row.employeeId}-box`}>
                 <Input id={`pay-fixed-${row.employeeId}`} type="number" inputMode="decimal" min={0.01} step="0.01" value={fixed} onChange={(e) => setFixed(e.target.value)} />
                 <span className="pay-unit">{currencyLabel(currency)}</span>
               </span>
@@ -189,7 +189,7 @@ export function PayDrawer({
           )}
           {need.percent && (
             <Field label={t(BASIS[basis].percent)} controlId={`pay-percent-${row.employeeId}`}>
-              <span className="pay-input">
+              <span className="pay-input" id={`pay-percent-${row.employeeId}-box`}>
                 <Input id={`pay-percent-${row.employeeId}`} type="number" inputMode="numeric" min={1} max={100} step={1} value={percent} onChange={(e) => setPercent(e.target.value)} />
                 <span className="pay-unit">%</span>
               </span>

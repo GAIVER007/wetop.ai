@@ -123,6 +123,8 @@ export const salonJournal: Record<string, string> = {
   "Частично": 'Partial',
   "Гость": 'Guest',
   "Последний клиент": 'Last client',
+  "Новый клиент: {name}": 'New client: {name}',
+  "Добавьте имя клиента к номеру": 'Add the client name to the number',
   "+ Новый клиент": '+ New client',
   "Новый клиент": 'New client',
   " (в архиве)": ' (archived)',

@@ -47,9 +47,9 @@ async function readySalon(page: Page, request: APIRequestContext) {
   await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
   await expect(panel).toBeHidden();
   await page.goto('/beauty/services');
-  // услуги салона показаны карточками каталога, не строками таблицы
+  // услуги салона: строка прайс-листа (вариант B, 25.10.2026)
   await main
-    .locator('[data-service-list="catalog"] .beauty-service-item')
+    .locator('[data-service-list="price"] .beauty-service-item')
     .filter({ has: page.getByText('Маникюр', { exact: true }) })
     .getByRole('button', { name: 'Изменить' })
     .click();

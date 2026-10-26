@@ -35,14 +35,15 @@ test('catalog services branch price duration precede secondary full catalog data
   await expect(search).toBeVisible();
   expect((await search.boundingBox())!.width).toBeGreaterThanOrEqual(260);
   await page.setViewportSize({ width: 1440, height: 1000 });
-  const salon = page.locator('[data-service-list="salon"]');
-  const catalog = page.locator('[data-service-list="catalog"]');
-  const salonItem = salon.locator('.beauty-service-item').filter({ hasText: 'Тест стрижка' });
-  const catalogItem = catalog.locator('.beauty-service-item').filter({ hasText: 'Тест стрижка' });
-  await expect(salonItem).toContainText('75 мин');
-  await expect(catalogItem).toContainText('60 мин');
-  await expect(catalogItem).not.toContainText('Нет завершённых визитов');
-  await expect(catalogItem).not.toContainText('0%');
+  const item = page
+    .locator('[data-service-list="price"] .beauty-service-item')
+    .filter({ hasText: 'Тест стрижка' })
+    .first();
+  // цена и длительность филиала в строке прайс-листа (вариант B, 25.10.2026)
+  await expect(item).toContainText('75 мин');
+  await expect(item).toContainText('15 000 ₸');
+  await expect(item).not.toContainText('Нет завершённых визитов');
+  await expect(item).not.toContainText('0%');
 });
 
 for (const width of [390, 768, 1440])
@@ -55,7 +56,7 @@ for (const width of [390, 768, 1440])
       for (const route of ['customers', 'services']) {
         await page.goto(`/${route}?date=${date}`);
         if (route === 'customers') await expect(page.getByRole('table')).toBeVisible();
-        else await expect(page.locator('.beauty-service-transfer-board')).toBeVisible();
+        else await expect(page.locator('[data-service-list="price"]')).toBeVisible();
         const axe = await new AxeBuilder({ page })
           .include('main')
           .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])

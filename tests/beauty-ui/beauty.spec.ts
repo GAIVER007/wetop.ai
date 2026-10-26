@@ -132,10 +132,10 @@ test('empty setup through real UI, persisted appointment, move, confirm, complet
   await expect(panel).toBeHidden();
   await expect(page).toHaveURL(/\/services$/);
   await expect(
-    page.locator('[data-service-list="salon"] .beauty-service-item').filter({
+    page.locator('[data-service-list="price"] .beauty-service-item').filter({
       has: page.getByText('Тестовая стрижка', { exact: true }),
     }),
-  ).not.toContainText('12 000');
+  ).toContainText('12 000 ₸');
   // созданная услуга не открывается заново после перезагрузки: незавершённой настройки нет
   await page.reload();
   await expect(page.getByRole('dialog')).toHaveCount(0);

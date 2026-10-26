@@ -941,6 +941,8 @@ export function carriesBeautyAccess(path: string): boolean {
 export function pageOpen(access: NavigationAccess, permission: Permission, path?: string): boolean {
   if (!path || !access.beautyAccess) return mayAccess(access, permission) || access.unknown === true;
   if (access.role === 'OWNER') return true;
+  // салон: по прямому адресу тоже закрыто то, что скрыто в меню при запуске (выручка, недоделанные разделы)
+  if (beautyLaunchHidden(path, access)) return false;
   if (path === '/my-work' || path.startsWith('/my-work/')) return personalBeautyWork(access);
   if (path === '/team' || path.startsWith('/team/'))
     return mayAccess(access, 'staff') && mayBeautyAccess(access, 'employees', 'view', { legacy: 'staff' });
@@ -993,6 +995,27 @@ export function routeRule(
  * Меню вошедшего: закрытые пункты убраны, раздел без пунктов не показывается. Вертикаль решает набор разделов
  * (Q-254): у филиала-салона свой, гостиничный ему нечем наполнить. Не передана, значит гостиница, как было до B2.
  */
+/**
+ * Запуск первых салонов (владелец 25.10.2026): недоделанные разделы салона не показываются никому, кроме главного
+ * администратора платформы (он их доделывает). Вернуть раздел: убрать его адрес отсюда.
+ */
+const BEAUTY_NOT_READY = ['/marketing', '/ai-agents', '/sales', '/finance/certificates'];
+/** Выручка салона за период: только владелец и управляющий; администратор работает с кассой, не с итогами */
+const BEAUTY_OWNER_TOTALS = ['/finance', '/management/analytics', '/reports'];
+
+/** Видит ли вошедший итоги салона за период (сводка «Главной», финансы, аналитика) */
+export function beautyTotalsVisible(access: NavigationAccess): boolean {
+  return !beautyLaunchHidden('/finance', access);
+}
+
+function beautyLaunchHidden(href: string, access: NavigationAccess): boolean {
+  if (!access.platform && BEAUTY_NOT_READY.some((root) => within(href, root))) return true;
+  // должность салона с явным правом решает сама (владелец её настроил); без должности администратор итогов не видит
+  const positioned = access.beautyAccess !== undefined && access.beautyAccess.mode !== 'LEGACY';
+  const totals = positioned || access.role === 'OWNER' || access.role === 'MANAGER' || access.platform;
+  return !totals && BEAUTY_OWNER_TOTALS.some((root) => href === root || (root !== '/finance' && within(href, root)));
+}
+
 export function menuSectionsFor(
   access: NavigationAccess,
   vertical: WebVertical = 'HOSPITALITY',
@@ -1003,6 +1026,7 @@ export function menuSectionsFor(
       // реестр функций (У1): пункт чужого направления в меню не попадает, даже если его поставили в состав по ошибке
       items: section.items.filter((item) => {
         if (!featureVerticals(item.href).includes(vertical)) return false;
+        if (vertical === 'BEAUTY' && beautyLaunchHidden(item.href, access)) return false;
         if (vertical !== 'BEAUTY' || !access.beautyAccess) return allowedItem(item, access);
         if (!item.requires || item.requires === 'platform') return allowedItem(item, access);
         return pageOpen(access, item.requires, item.href);

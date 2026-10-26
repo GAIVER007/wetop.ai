@@ -515,11 +515,12 @@ test('зарплата: оклад + процент, премия и штраф,
   await row.getByRole('button', { name: 'Ещё: Иванова Анна' }).click();
   await page.getByRole('menuitem', { name: 'Условия оплаты' }).click();
   const dialog = page.getByRole('dialog');
-  // способ оплаты карточкой (владелец 25.10.2026): поля только выбранного способа
-  await expect(dialog.getByLabel('Оклад за месяц, ₸')).toBeVisible();
+  // способ оплаты строкой (вариант B владельца 26.10.2026): поля только выбранного способа, валюта внутри поля
+  await expect(dialog.getByLabel('Оклад в месяц')).toBeVisible();
+  await expect(dialog).not.toContainText('К выплате');
   await expect(dialog.getByRole('spinbutton', { name: 'Процент от заказов' })).toHaveCount(0);
   await dialog.getByRole('radio', { name: /^Оклад \+ процент/ }).check();
-  await dialog.getByLabel('Оклад за месяц, ₸').fill('40000');
+  await dialog.getByLabel('Оклад в месяц').fill('40000');
   await dialog.getByRole('spinbutton', { name: 'Процент от заказов' }).fill('5');
   await dialog.getByRole('button', { name: 'Сохранить' }).click();
   await expect(dialog).not.toBeVisible();

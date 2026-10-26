@@ -16,7 +16,7 @@ const label = (v: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', href: string) =>
 describe('меню словами направления', () => {
   it('настройки места: «Объект» только у гостиницы', () => {
     expect(label('HOSPITALITY', '/hotel-settings')).toBe('Объект');
-    expect(label('BEAUTY', '/beauty-settings')).toBe('Салон');
+    expect(label('BEAUTY', '/beauty-settings')).toBeUndefined();
     expect(label('FOOD_SERVICE', '/restaurant-settings')).toBe('Ресторан');
   });
 
@@ -56,7 +56,7 @@ describe('меню словами направления', () => {
       'Услуги → Каталог',
       'Персонал → Специалисты',
       'Журнал',
-      'Настройки → Салон',
+      'Настройки → Все настройки',
     ]);
   });
 

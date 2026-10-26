@@ -34,7 +34,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     links: [
       { label: 'Карточка объекта', at: { HOSPITALITY: '/hotel-settings' } },
       { label: 'Филиалы и реквизиты', at: ALL('/branches') },
-      { label: 'Режим работы', at: { HOSPITALITY: '/hotel-settings/stay', BEAUTY: '/beauty-settings#hours', FOOD_SERVICE: '/restaurant-settings?section=hours' } },
+      { label: 'Режим работы', at: { HOSPITALITY: '/hotel-settings/stay', BEAUTY: '/beauty-settings?section=hours', FOOD_SERVICE: '/restaurant-settings?section=hours' } },
       { label: 'Сотрудники и доступ', at: ALL('/team') },
       { label: 'Права ролей', at: ALL('/team/roles') },
       { label: 'Мой профиль', at: ALL('/profile') },
@@ -60,8 +60,8 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     title: 'Клиенты и продажи',
     icon: 'guests',
     links: [
-      { label: 'Напоминания клиентам', at: { BEAUTY: '/beauty-settings#reminders', FOOD_SERVICE: '/restaurant-settings?section=reminders' } },
-      { label: 'Бонусы', at: { BEAUTY: '/beauty-settings#bonuses' } },
+      { label: 'Напоминания клиентам', at: { BEAUTY: '/beauty-settings?section=reminders', FOOD_SERVICE: '/restaurant-settings?section=reminders' } },
+      { label: 'Бонусы', at: { BEAUTY: '/beauty-settings?section=bonuses' } },
       { label: 'Сертификаты', at: { BEAUTY: '/finance/certificates' } },
       { label: 'Каналы продаж', at: { HOSPITALITY: '/channels' } },
       { label: { word: 'siteSettings' }, at: { HOSPITALITY: '/website', BEAUTY: '/marketing/site/editor', FOOD_SERVICE: '/marketing/site/editor' } },

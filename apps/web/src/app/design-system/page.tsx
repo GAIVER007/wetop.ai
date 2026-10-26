@@ -1391,7 +1391,6 @@ export default function DesignSystemPage() {
       subtitle="Компоненты стойки в восьми состояниях, светлая, тёмная и контрастная темы. Правила: DESIGN.md. Только при разработке."
       width="full"
     >
-      <section aria-label="Кассовые действия шапки"><h2>Кассовая смена</h2><CashHeaderPreview /></section>
       <ThemeSwitcher>
         <div className="kit-theme" data-theme="light" data-testid="kit-light">
           <h2 className="kit-theme__title">Светлая тема</h2>
@@ -1423,6 +1422,8 @@ export default function DesignSystemPage() {
           </div>
         ))}
       </ThemeSwitcher>
+      {/* касса шапки после образцов тем: блок над ними сдвигал эталонные снимки секций на долю пикселя */}
+      <section aria-label="Кассовые действия шапки"><h2>Кассовая смена</h2><CashHeaderPreview /></section>
       <section aria-label="Телефон с кодом страны">
         <h2>Телефон с кодом страны</h2>
         <PhoneInputExample />

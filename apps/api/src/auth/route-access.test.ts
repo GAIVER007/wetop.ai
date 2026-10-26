@@ -387,6 +387,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /beauty/finance/day': 'desk',
   'GET /beauty/finance/appointments': 'desk',
   'GET /beauty/appointments/period': 'desk',
+  'GET /beauty/appointments/insights': 'desk',
   'POST /beauty/appointments': 'desk',
   'PATCH /beauty/appointments/:id': 'desk',
   'POST /beauty/appointments/:id/status': 'desk',

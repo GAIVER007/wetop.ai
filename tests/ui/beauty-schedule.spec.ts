@@ -63,7 +63,16 @@ async function addMaster(page: Page, name: string) {
   await panel.getByLabel('Имя').fill(name);
   await panel.getByRole('combobox', { name: 'Уровень доступа' }).selectOption('NONE');
   await panel.getByRole('button', { name: 'Добавить сотрудника', exact: true }).click();
-  await expect(page.getByRole('status').filter({hasText:'Специалист создан'})).toBeVisible();
+  // После сохранения экран сразу переходит в карточку, временный status может исчезнуть.
+  // Проверяем сохранённого сотрудника в том же филиале, а не успеваемость чтения уведомления.
+  await expect.poll(async () => {
+    const response = await page.request.get(`${FIXTURE_API}/beauty/employees`, {
+      headers: await apiHeaders(page),
+    });
+    expect(response.ok()).toBe(true);
+    const { items } = await response.json() as { items: Array<{ name: string }> };
+    return items.some((item) => item.name === name);
+  }).toBe(true);
 }
 
 /** Окно часов мастера открывается по его имени в сетке */
@@ -86,12 +95,23 @@ async function setWeek(page: Page, day: string, from: string, to: string) {
 
 /** Ячейка сетки: строка мастера, колонка дня недели по её номеру (0 это понедельник) */
 function cell(page: Page, master: string, index: number) {
+  return row(page, master).getByRole('cell').nth(index);
+}
+
+/** Окошко дня (вариант B владельца 25.10.2026): нажатие на плашку открывает переключатель даты и правку недели */
+async function openDay(page: Page, master: string, index: number) {
+  const day = cell(page, master, index);
+  if ((await day.getByRole('dialog').count()) === 0) await day.getByRole('button').first().click();
+  const menu = day.getByRole('dialog');
+  await expect(menu).toBeVisible();
+  return menu;
+}
+
+function row(page: Page, master: string) {
   return page
     .getByRole('main')
     .getByRole('row')
-    .filter({ has: page.getByRole('rowheader', { name: master }) })
-    .getByRole('cell')
-    .nth(index);
+    .filter({ has: page.getByRole('rowheader', { name: master }) });
 }
 
 async function apiHeaders(page: Page) {
@@ -121,18 +141,6 @@ test('«Сделать рабочим» и «Сохранить» сохраня
   await expect(cell(page, 'Дина', 0)).toContainText('09:00–18:00');
 });
 
-/** Понедельник текущей недели, как его считает страница по умолчанию */
-async function thisMonday(page: Page) {
-  // неделя салона по его часовому поясу (Алматы), как у страницы: по часам раннера (UTC) с 19:00 до полуночи
-  // воскресенья «эта неделя» теста была прошлой неделей страницы (гейт #863, 25.10.2026, 20:00 UTC)
-  return page.evaluate(() => {
-    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
-    const d = new Date(`${today}T12:00:00Z`);
-    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
-    return d.toISOString().slice(0, 10);
-  });
-}
-
 async function masterId(page: Page, request: APIRequestContext, name: string) {
   const { items } = (await (
     await request.get(`${FIXTURE_API}/beauty/employees`, { headers: await apiHeaders(page) })
@@ -152,7 +160,7 @@ test('сетка: выходной по графику ведёт в окно н
   // выходной по шаблону включить на одну дату нельзя: модели доп. рабочего дня нет
   await expect(cell(page, 'Дина', 2)).toContainText('Выходной по графику');
   await expect(cell(page, 'Дина', 2).getByRole('switch')).toHaveCount(0);
-  await cell(page, 'Дина', 2).getByRole('button', { name: /Изменить график/ }).click();
+  await (await openDay(page, 'Дина', 2)).getByRole('button', { name: /Изменить график недели/ }).click();
   const panel = page.getByRole('dialog', { name: 'Часы работы: Дина' });
   await expect(panel.getByTestId('beauty-week-hint')).toContainText('каждую среду');
   await panel
@@ -181,14 +189,14 @@ test('сетка: выходной по графику ведёт в окно н
   await expect(main.getByRole('row').filter({ hasText: 'Ева' }).getByTestId('beauty-week-unset')).toHaveCount(0);
 
   // у мастера запись в эту среду: выключение дня её не отменяет и предупреждает
-  const monday = await thisMonday(page);
-  const wednesday = new Date(Date.parse(`${monday}T12:00:00Z`) + 2 * 86_400_000)
-    .toISOString()
-    .slice(0, 10);
+  // Берём дату отображаемой ячейки: неделя филиала может отличаться от недели браузера.
+  const switchName = await cell(page, 'Дина', 2).getByRole('switch').getAttribute('name');
+  const wednesday = switchName?.match(/(\d{4}-\d{2}-\d{2})$/)?.[1];
+  expect(wednesday).toBeTruthy();
   await request.post(`${FIXTURE_API}/__test/control`, {
     data: { beautyAppointments: [{ employeeId: await masterId(page, request, 'Дина'), date: wednesday }] },
   });
-  await cell(page, 'Дина', 2).getByRole('switch').uncheck();
+  await (await openDay(page, 'Дина', 2)).getByRole('switch').uncheck();
   await expect(cell(page, 'Дина', 2)).toContainText('Не работает');
   await expect(main.getByRole('alert')).toContainText('никто не отменил');
 
@@ -201,7 +209,7 @@ test('сетка: выходной по графику ведёт в окно н
   await expect(main.getByTestId('beauty-week-range')).toHaveText(range ?? '');
 
   // включить дату обратно значит снять её однодневное отсутствие
-  await cell(page, 'Дина', 2).getByRole('switch').check();
+  await (await openDay(page, 'Дина', 2)).getByRole('switch').check();
   await expect(cell(page, 'Дина', 2)).toContainText('Работает');
   await page.reload();
   await expect(cell(page, 'Дина', 2)).toContainText('Работает');
@@ -230,8 +238,9 @@ test('отбор «Профессия» по группам услуг маст�
   await page.goto('/beauty/schedule');
   const main = page.getByRole('main');
   await expect(main.getByLabel('Роль')).toHaveCount(0);
+  // отбор применяется сразу при выборе: кнопки «Показать» в строке недели нет (вариант B, 25.10.2026)
+  await expect(main.getByRole('button', { name: 'Показать', exact: true })).toHaveCount(0);
   await main.getByLabel('Профессия').selectOption('Ногти');
-  await main.getByRole('button', { name: 'Показать', exact: true }).click();
   await expect(page).toHaveURL(/group=/);
   await expect(main.getByRole('rowheader', { name: 'Дина' })).toBeVisible();
   await expect(main.getByRole('rowheader', { name: 'Асель' })).toHaveCount(0);

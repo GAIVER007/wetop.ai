@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { DraftStore } from '../src/restaurant/draft-store';
 import { AccessScreen } from '../src/auth/access-screen';
 import { useAccess } from '../src/auth/provider';
 jest.mock('../src/auth/provider', () => ({ useAccess: jest.fn() }));
@@ -7,6 +8,7 @@ function setup() {
   const login = jest.fn().mockResolvedValue(undefined);
   const reset = jest.fn().mockResolvedValue(undefined);
   mocked.mockReturnValue({
+    draft: new DraftStore(),
     state: { kind: 'signed-out' },
     session: { login } as unknown as ReturnType<typeof useAccess>['session'],
     reset,

@@ -1,3 +1,5 @@
+import { parseOrderCreate, parseFoodPayment, FOOD_PAYMENT_METHODS } from '@pms/domain';
+
 export type MobileFoodGatewayEnv = Record<string, string | undefined>;
 type MobileFetch = (input: string, init: RequestInit) => Promise<Response>;
 type JsonRecord = Record<string, unknown>;
@@ -8,10 +10,22 @@ const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const UUID_RE = new RegExp(`^${UUID}$`, 'i');
 const LOCATION_SCOPE = new RegExp(`^business=${UUID};location=${UUID}$`, 'i');
 const MINOR_UNITS = /^\d+$/;
+const SIGNED_MINOR_UNITS = /^-?\d+$/;
 
 const ACTIONS = {
+  'payment-methods': '/food-service/payment-methods',
+  close: '/food-service/orders',
+  pay: '/food-service/orders',
+  serve: '/food-service/orders',
   tables: '/food-service/waiter/tables',
   orders: '/food-service/orders',
+  categories: '/food-service/menu/categories',
+  items: '/food-service/menu/items',
+  cash: '/food-service/cash',
+  overview: '/food-service/report',
+  analytics: '/food-service/period-report',
+  shifts: '/food-service/shifts',
+  'staff-revenue': '/food-service/staff-revenue',
 } as const;
 
 type FoodAction = keyof typeof ACTIONS;
@@ -26,7 +40,8 @@ function json(body: unknown, status: number, extra: HeadersInit = {}): Response 
 }
 
 function record(value: unknown): JsonRecord {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new InvalidUpstreamResponse();
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    throw new InvalidUpstreamResponse();
   return value as JsonRecord;
 }
 
@@ -47,7 +62,8 @@ function boolean(value: unknown): boolean {
 }
 
 function integer(value: unknown, minimum = 0): number {
-  if (!Number.isSafeInteger(value) || (value as number) < minimum) throw new InvalidUpstreamResponse();
+  if (!Number.isSafeInteger(value) || (value as number) < minimum)
+    throw new InvalidUpstreamResponse();
   return value as number;
 }
 
@@ -55,6 +71,25 @@ function minorUnits(value: unknown): string {
   const result = string(value);
   if (!MINOR_UNITS.test(result)) throw new InvalidUpstreamResponse();
   return result;
+}
+
+function signedMinorUnits(value: unknown): string {
+  const result = string(value);
+  if (!SIGNED_MINOR_UNITS.test(result)) throw new InvalidUpstreamResponse();
+  return result;
+}
+
+function nullableInteger(value: unknown, minimum = 0): number | null {
+  return value === null ? null : integer(value, minimum);
+}
+
+function nullableNonEmptyString(value: unknown): string | null {
+  return value === null ? null : nonEmptyString(value);
+}
+
+function station(value: unknown): 'KITCHEN' | 'BAR' {
+  if (value !== 'KITCHEN' && value !== 'BAR') throw new InvalidUpstreamResponse();
+  return value;
 }
 
 function nullableNamed(value: unknown): JsonRecord | null {
@@ -114,6 +149,23 @@ function orderDto(value: unknown): JsonRecord {
   };
 }
 
+function paymentMethodsDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!Array.isArray(source.methods) || source.methods.length > FOOD_PAYMENT_METHODS.length)
+    throw new InvalidUpstreamResponse();
+  const seen = new Set<string>();
+  return {
+    methods: source.methods.map((value) => {
+      const row = record(value);
+      const method = nonEmptyString(row.method);
+      if (!(FOOD_PAYMENT_METHODS as readonly string[]).includes(method) || seen.has(method))
+        throw new InvalidUpstreamResponse();
+      seen.add(method);
+      return { method, enabled: boolean(row.enabled), sortOrder: integer(row.sortOrder) };
+    }),
+  };
+}
+
 function ordersDto(value: unknown): JsonRecord {
   const source = record(value);
   if (!Array.isArray(source.items)) throw new InvalidUpstreamResponse();
@@ -123,42 +175,344 @@ function ordersDto(value: unknown): JsonRecord {
   return { items: source.items.map(orderDto), nextCursor };
 }
 
+function cashDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!Array.isArray(source.balances) || !Array.isArray(source.payments))
+    throw new InvalidUpstreamResponse();
+  return {
+    currency: nonEmptyString(source.currency),
+    balances: source.balances.map((value) => {
+      const balance = record(value);
+      return {
+        method: nonEmptyString(balance.method),
+        balanceMinor: signedMinorUnits(balance.balanceMinor),
+      };
+    }),
+    payments: source.payments.map((value) => {
+      const payment = record(value);
+      return {
+        id: nonEmptyString(payment.id),
+        orderNumber: integer(payment.orderNumber, 1),
+        method: nonEmptyString(payment.method),
+        amountMinor: minorUnits(payment.amountMinor),
+        status: nonEmptyString(payment.status),
+        paidAt: nonEmptyString(payment.paidAt),
+      };
+    }),
+  };
+}
+
+function dateText(value: unknown): string {
+  const date = string(value);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new InvalidUpstreamResponse();
+  const parsed = new Date(date);
+  if (!Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== date)
+    throw new InvalidUpstreamResponse();
+  return date;
+}
+
+function overviewDto(value: unknown): JsonRecord {
+  const source = record(value);
+  const tiles = record(source.tiles);
+  return {
+    date: dateText(source.date),
+    currency: nonEmptyString(source.currency),
+    tiles: {
+      tablesOccupied: integer(tiles.tablesOccupied),
+      tablesTotal: integer(tiles.tablesTotal),
+      ordersCount: integer(tiles.ordersCount),
+      revenueMinor: minorUnits(tiles.revenueMinor),
+      kitchenQueue: integer(tiles.kitchenQueue),
+      kitchenAvgWaitMinutes:
+        tiles.kitchenAvgWaitMinutes === null ? null : integer(tiles.kitchenAvgWaitMinutes),
+      staffOnShift: integer(tiles.staffOnShift),
+      staffTotal: integer(tiles.staffTotal),
+    },
+  };
+}
+
+function analyticsDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (
+    !Array.isArray(source.payments) ||
+    !Array.isArray(source.topDishes) ||
+    !Array.isArray(source.revenueByDay) ||
+    !Array.isArray(source.waiters)
+  )
+    throw new InvalidUpstreamResponse();
+  const stationRanks = record(source.topByStation);
+  function stationItems(value: unknown): JsonRecord[] {
+    if (!Array.isArray(value) || value.length > 3) throw new InvalidUpstreamResponse();
+    return value.map((entry) => {
+      const row = record(entry);
+      return {
+        name: nonEmptyString(row.name),
+        qty: integer(row.qty),
+        revenueMinor: minorUnits(row.revenueMinor),
+      };
+    });
+  }
+  return {
+    from: dateText(source.from),
+    to: dateText(source.to),
+    currency: nonEmptyString(source.currency),
+    ordersCount: integer(source.ordersCount),
+    revenueMinor: minorUnits(source.revenueMinor),
+    averageCheckMinor:
+      source.averageCheckMinor === null ? null : minorUnits(source.averageCheckMinor),
+    payments: source.payments.map((value) => {
+      const row = record(value);
+      return {
+        method: nonEmptyString(row.method),
+        amountMinor: minorUnits(row.amountMinor),
+        count: integer(row.count),
+      };
+    }),
+    topDishes: source.topDishes.map((value) => {
+      const row = record(value);
+      return {
+        name: nonEmptyString(row.name),
+        qty: integer(row.qty),
+        revenueMinor: minorUnits(row.revenueMinor),
+      };
+    }),
+    topByStation: {
+      KITCHEN: stationItems(stationRanks.KITCHEN),
+      BAR: stationItems(stationRanks.BAR),
+    },
+    revenueByDay: source.revenueByDay.map((value) => {
+      const row = record(value);
+      return {
+        date: dateText(row.date),
+        revenueMinor: minorUnits(row.revenueMinor),
+        orders: integer(row.orders),
+      };
+    }),
+    waiters: source.waiters.map((value) => {
+      const row = record(value);
+      return {
+        waiterId: nonEmptyString(row.waiterId),
+        name: nonEmptyString(row.name),
+        orders: integer(row.orders),
+        revenueMinor: minorUnits(row.revenueMinor),
+      };
+    }),
+  };
+}
+
+function nextCursorOf(source: JsonRecord): string | null {
+  const nextCursor = source.nextCursor;
+  if (nextCursor !== null && (typeof nextCursor !== 'string' || !UUID_RE.test(nextCursor)))
+    throw new InvalidUpstreamResponse();
+  return nextCursor;
+}
+
+function categoriesDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!Array.isArray(source.items)) throw new InvalidUpstreamResponse();
+  return {
+    items: source.items.map((entry) => {
+      const category = record(entry);
+      return {
+        id: nonEmptyString(category.id),
+        name: nonEmptyString(category.name),
+        sortOrder: integer(category.sortOrder, Number.MIN_SAFE_INTEGER),
+        active: boolean(category.active),
+        station: station(category.station),
+      };
+    }),
+    nextCursor: nextCursorOf(source),
+  };
+}
+
+function modifierGroupDto(value: unknown): JsonRecord {
+  const group = record(value);
+  if (!Array.isArray(group.modifiers)) throw new InvalidUpstreamResponse();
+  const minSelect = integer(group.minSelect);
+  const maxSelect = integer(group.maxSelect, 1);
+  const required = boolean(group.required);
+  if (minSelect > maxSelect || required !== minSelect >= 1) throw new InvalidUpstreamResponse();
+  return {
+    id: nonEmptyString(group.id),
+    name: nonEmptyString(group.name),
+    minSelect,
+    maxSelect,
+    required,
+    modifiers: group.modifiers.map((entry) => {
+      const modifier = record(entry);
+      return {
+        id: nonEmptyString(modifier.id),
+        name: nonEmptyString(modifier.name),
+        priceDeltaMinor: signedMinorUnits(modifier.priceDeltaMinor),
+      };
+    }),
+  };
+}
+
+function menuItemDto(value: unknown): JsonRecord {
+  const item = record(value);
+  if (!Array.isArray(item.modifierGroups)) throw new InvalidUpstreamResponse();
+  return {
+    id: nonEmptyString(item.id),
+    categoryId: nonEmptyString(item.categoryId),
+    name: nonEmptyString(item.name),
+    weightGrams: nullableInteger(item.weightGrams, 1),
+    priceMinor: minorUnits(item.priceMinor),
+    currency: nonEmptyString(item.currency),
+    active: boolean(item.active),
+    sortOrder: integer(item.sortOrder, Number.MIN_SAFE_INTEGER),
+    updatedAt: nonEmptyString(item.updatedAt),
+    photoUrl: nullableNonEmptyString(item.photoUrl),
+    modifierGroups: item.modifierGroups.map(modifierGroupDto),
+  };
+}
+
+function menuItemsDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!Array.isArray(source.items)) throw new InvalidUpstreamResponse();
+  return { items: source.items.map(menuItemDto), nextCursor: nextCursorOf(source) };
+}
+
+function shiftsDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!Array.isArray(source.employees)) throw new InvalidUpstreamResponse();
+  return {
+    employees: source.employees.map((entry) => {
+      const employee = record(entry);
+      if (!Array.isArray(employee.week)) throw new InvalidUpstreamResponse();
+      return {
+        id: nonEmptyString(employee.id),
+        name: nonEmptyString(employee.name),
+        week: employee.week.map((dayValue) => {
+          const day = record(dayValue);
+          if (!Array.isArray(day.intervals)) throw new InvalidUpstreamResponse();
+          return {
+            weekday: integer(day.weekday),
+            intervals: day.intervals.map((value) => {
+              const interval = record(value);
+              const timeFrom = nonEmptyString(interval.timeFrom);
+              const timeTo = nonEmptyString(interval.timeTo);
+              if (
+                !/^([01]\d|2[0-3]):[0-5]\d$/.test(timeFrom) ||
+                !/^([01]\d|2[0-3]):[0-5]\d$/.test(timeTo)
+              )
+                throw new InvalidUpstreamResponse();
+              return { timeFrom, timeTo };
+            }),
+          };
+        }),
+      };
+    }),
+  };
+}
+
+function staffRevenueDto(value: unknown): JsonRecord {
+  const source = record(value);
+  if (!['day', 'week', 'month'].includes(string(source.period)) || !Array.isArray(source.items))
+    throw new InvalidUpstreamResponse();
+  return {
+    period: source.period,
+    fromDate: dateText(source.fromDate),
+    toDate: dateText(source.toDate),
+    items: source.items.map((entry) => {
+      const row = record(entry);
+      const paidMinor = minorUnits(row.paidMinor);
+      const refundedMinor = minorUnits(row.refundedMinor);
+      const netMinor = signedMinorUnits(row.netMinor);
+      if (BigInt(paidMinor) - BigInt(refundedMinor) !== BigInt(netMinor))
+        throw new InvalidUpstreamResponse();
+      return {
+        employeeId: row.employeeId === null ? null : nonEmptyString(row.employeeId),
+        currency: nonEmptyString(row.currency),
+        paidMinor,
+        refundedMinor,
+        netMinor,
+      };
+    }),
+  };
+}
+
 function bearerOf(request: Request): string | null {
   const authorization = request.headers.get('authorization') ?? '';
   if (!authorization.startsWith('Bearer ')) return null;
   const token = authorization.slice(7);
   if (!token || token.length > 4096) return null;
-  if ([...token].some((character) => {
-    const code = character.charCodeAt(0);
-    return code <= 32 || code === 127;
-  })) return null;
+  if (
+    [...token].some((character) => {
+      const code = character.charCodeAt(0);
+      return code <= 32 || code === 127;
+    })
+  )
+    return null;
   return token;
 }
 
 function hasServiceCredential(request: Request): boolean {
-  return ['x-wetop-service-key', 'x-service-key', 'x-api-key'].some((name) => request.headers.has(name));
+  return ['x-wetop-service-key', 'x-service-key', 'x-api-key'].some((name) =>
+    request.headers.has(name),
+  );
 }
 
 function upstreamPath(request: Request, action: FoodAction): string | Response {
   const params = new URL(request.url).searchParams;
-  if (action === 'tables') {
+  if (
+    action === 'tables' ||
+    action === 'cash' ||
+    action === 'shifts' ||
+    action === 'payment-methods'
+  ) {
     if ([...params].length) return json({ message: 'Некорректный запрос' }, 400);
-    return ACTIONS.tables;
+    return ACTIONS[action];
+  }
+  if (action === 'staff-revenue') {
+    if (params.getAll('period').length !== 1 || [...params.keys()].some((key) => key !== 'period'))
+      return json({ message: 'Некорректный период' }, 400);
+    const period = params.get('period');
+    if (period !== 'day' && period !== 'week' && period !== 'month')
+      return json({ message: 'Некорректный период' }, 400);
+    return `${ACTIONS['staff-revenue']}?period=${period}`;
+  }
+  if (action === 'overview' || action === 'analytics') {
+    const required = action === 'overview' ? ['date'] : ['from', 'to'];
+    if (
+      [...params.keys()].some((key) => !required.includes(key)) ||
+      required.some((key) => params.getAll(key).length !== 1)
+    )
+      return json({ message: 'Некорректный период' }, 400);
+    try {
+      if (action === 'overview') return `${ACTIONS.overview}?date=${dateText(params.get('date'))}`;
+      const from = dateText(params.get('from'));
+      const to = dateText(params.get('to'));
+      if (from > to || (Date.parse(to) - Date.parse(from)) / 86_400_000 > 92)
+        throw new InvalidUpstreamResponse();
+      return `${ACTIONS.analytics}?from=${from}&to=${to}`;
+    } catch {
+      return json({ message: 'Некорректный период' }, 400);
+    }
   }
   const cursorValues = params.getAll('cursor');
   if ([...params.keys()].some((key) => key !== 'cursor') || cursorValues.length > 1)
     return json({ message: 'Некорректный запрос' }, 400);
   const cursor = cursorValues[0];
-  if (cursor !== undefined && !UUID_RE.test(cursor)) return json({ message: 'Некорректный запрос' }, 400);
-  const query = new URLSearchParams({ open: '1', limit: '100' });
+  if (cursor !== undefined && !UUID_RE.test(cursor))
+    return json({ message: 'Некорректный запрос' }, 400);
+  const query = new URLSearchParams(
+    action === 'orders' ? { open: '1', limit: '100' } : { limit: '100' },
+  );
   if (cursor) query.set('cursor', cursor);
-  return `${ACTIONS.orders}?${query.toString()}`;
+  return `${ACTIONS[action]}?${query.toString()}`;
 }
 
 function endpoint(env: MobileFoodGatewayEnv, path: string): string | null {
   try {
     const base = new URL(env.APP_API_URL?.trim() || 'http://127.0.0.1:3001');
-    if (!['http:', 'https:'].includes(base.protocol) || base.username || base.password || base.search || base.hash)
+    if (
+      !['http:', 'https:'].includes(base.protocol) ||
+      base.username ||
+      base.password ||
+      base.search ||
+      base.hash
+    )
       return null;
     return `${base.toString().replace(/\/$/, '')}${path}`;
   } catch {
@@ -166,30 +520,45 @@ function endpoint(env: MobileFoodGatewayEnv, path: string): string | null {
   }
 }
 
-async function boundedResponse(response: Response): Promise<string | null> {
+async function boundedResponse(
+  response: Response | Request,
+  signal?: AbortSignal,
+): Promise<string | null> {
   const declared = response.headers.get('content-length');
-  if (declared !== null && (!/^\d+$/.test(declared) || Number(declared) > RESPONSE_LIMIT)) return null;
+  if (declared !== null && (!/^\d+$/.test(declared) || Number(declared) > RESPONSE_LIMIT))
+    return null;
   if (!response.body) return '';
   const reader = response.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > RESPONSE_LIMIT) {
-      await reader.cancel();
-      return null;
+  const cancel = () => {
+    void reader.cancel().catch(() => {});
+  };
+  signal?.addEventListener('abort', cancel, { once: true });
+  try {
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    for (;;) {
+      signal?.throwIfAborted();
+      const { done, value } = await reader.read();
+      signal?.throwIfAborted();
+      if (done) break;
+      total += value.byteLength;
+      if (total > RESPONSE_LIMIT) {
+        await reader.cancel();
+        return null;
+      }
+      chunks.push(value);
     }
-    chunks.push(value);
+    const bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return new TextDecoder().decode(bytes);
+  } finally {
+    signal?.removeEventListener('abort', cancel);
+    reader.releaseLock();
   }
-  const bytes = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return new TextDecoder().decode(bytes);
 }
 
 function errorMessage(status: number): string {
@@ -209,7 +578,24 @@ export async function handleMobileFoodGateway(
   if (env.MOBILE_GATEWAY_ENABLED !== '1') return json({ message: 'Не найдено' }, 404);
   if (!Object.hasOwn(ACTIONS, rawAction)) return json({ message: 'Не найдено' }, 404);
   const action = rawAction as FoodAction;
-  if (request.method !== 'GET') return json({ message: 'Метод не поддерживается' }, 405, { allow: 'GET' });
+  const creating =
+    request.method === 'POST' && action === 'orders' && env.MOBILE_ORDER_CREATE_ENABLED === '1';
+  const serving =
+    request.method === 'POST' && action === 'serve' && env.MOBILE_ORDER_SERVE_ENABLED === '1';
+  const paying =
+    request.method === 'POST' && action === 'pay' && env.MOBILE_ORDER_PAYMENT_ENABLED === '1';
+  const closing =
+    request.method === 'POST' && action === 'close' && env.MOBILE_ORDER_CLOSE_ENABLED === '1';
+  const mutating = creating || serving || paying || closing;
+  if (
+    (!mutating && request.method !== 'GET') ||
+    (action === 'serve' && !serving) ||
+    (action === 'pay' && !paying) ||
+    (action === 'close' && !closing)
+  )
+    return json({ message: 'Метод не поддерживается' }, 405, {
+      allow: action === 'serve' || action === 'pay' || action === 'close' ? 'POST' : 'GET',
+    });
   if (hasServiceCredential(request)) return json({ message: 'Служебные ключи запрещены' }, 403);
 
   const bearer = bearerOf(request);
@@ -218,7 +604,88 @@ export async function handleMobileFoodGateway(
   if (scope.length > 200 || !LOCATION_SCOPE.test(scope))
     return json({ message: 'Некорректный рабочий контекст' }, 400);
 
-  const path = upstreamPath(request, action);
+  let body: string | undefined;
+  let mutationPath: string | undefined;
+  if (mutating) {
+    if (new URL(request.url).search) return json({ message: 'Некорректный запрос' }, 400);
+    if (
+      request.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !==
+      'application/json'
+    )
+      return json({ message: 'Нужен JSON' }, 415);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
+    let text: string | null;
+    try {
+      text = await boundedResponse(request, controller.signal);
+    } catch {
+      return json({ message: 'Не удалось прочитать запрос' }, 400);
+    } finally {
+      clearTimeout(timer);
+    }
+    if (text === null) return json({ message: 'Запрос слишком большой' }, 413);
+    try {
+      if (paying) {
+        const { orderId, ...fields } = record(JSON.parse(text));
+        if (typeof orderId !== 'string' || !UUID_RE.test(orderId))
+          throw new InvalidUpstreamResponse();
+        const payment = parseFoodPayment(fields);
+        mutationPath = `/food-service/orders/${orderId}/payments`;
+        body = JSON.stringify({ ...payment, amount: Number(payment.amount) });
+      } else if (serving || closing) {
+        const input = record(JSON.parse(text));
+        if (
+          Object.keys(input).some(
+            (key) =>
+              !(
+                closing
+                  ? ['orderId', 'expectedUpdatedAt']
+                  : ['orderId', 'itemId', 'expectedUpdatedAt']
+              ).includes(key),
+          ) ||
+          typeof input.orderId !== 'string' ||
+          !UUID_RE.test(input.orderId) ||
+          (!closing && (typeof input.itemId !== 'string' || !UUID_RE.test(input.itemId))) ||
+          typeof input.expectedUpdatedAt !== 'string' ||
+          !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(input.expectedUpdatedAt) ||
+          !Number.isFinite(Date.parse(input.expectedUpdatedAt))
+        )
+          throw new InvalidUpstreamResponse();
+        mutationPath = closing
+          ? `/food-service/orders/${input.orderId}/status`
+          : `/food-service/orders/${input.orderId}/items/${input.itemId}/status`;
+        body = JSON.stringify(
+          closing
+            ? {
+                status: 'CLOSED',
+                expectedStatus: 'SERVED',
+                expectedUpdatedAt: input.expectedUpdatedAt,
+              }
+            : { status: 'SERVED', expectedUpdatedAt: input.expectedUpdatedAt },
+        );
+      } else {
+        const input = parseOrderCreate(JSON.parse(text));
+        if (!input.creationRequestKey) return json({ message: 'Нужен ключ создания заказа' }, 400);
+        body = JSON.stringify(input);
+      }
+    } catch {
+      return json({ message: 'Проверьте данные заказа' }, 400);
+    }
+  }
+  const uncertain = (status: number) =>
+    json(
+      {
+        message:
+          serving || closing
+            ? 'Результат не подтверждён. Обновите заказ перед следующим действием.'
+            : paying
+              ? 'Результат оплаты не подтверждён. Повторяйте только исходный платёж с прежним ключом.'
+              : 'Результат отправки не подтверждён. Повторяйте только с прежним ключом заказа.',
+        outcome: 'unknown',
+      },
+      status,
+    );
+  const path = mutationPath ?? (creating ? ACTIONS.orders : upstreamPath(request, action));
   if (path instanceof Response) return path;
   const url = endpoint(env, path);
   if (!url) return json({ message: 'Сервис временно недоступен. Попробуйте ещё раз.' }, 503);
@@ -231,38 +698,57 @@ export async function handleMobileFoodGateway(
   const userAgent = request.headers.get('user-agent')?.trim();
   if (userAgent) headers.set('user-agent', userAgent.slice(0, 300));
 
+  if (mutating) headers.set('content-type', 'application/json');
   let upstream: Response;
   try {
     upstream = await fetcher(url, {
-      method: 'GET',
+      method: mutating ? 'POST' : 'GET',
+      ...(body !== undefined ? { body } : {}),
       headers,
       cache: 'no-store',
       redirect: 'error',
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
   } catch {
+    if (mutating) return uncertain(503);
     return json({ message: 'Нет связи с сервером. Попробуйте ещё раз.' }, 503);
   }
 
   const text = await boundedResponse(upstream).catch(() => null);
-  if (text === null) return json({ message: 'Некорректный ответ сервера' }, 502);
+  if (text === null)
+    return mutating ? uncertain(502) : json({ message: 'Некорректный ответ сервера' }, 502);
   let parsed: unknown;
   try {
     parsed = text ? JSON.parse(text) : null;
   } catch {
+    if (mutating) return uncertain(502);
     return json({ message: 'Некорректный ответ сервера' }, 502);
   }
 
   if (!upstream.ok) {
+    if (mutating && upstream.status >= 500) return uncertain(503);
     if (upstream.status >= 500)
       return json({ message: 'Сервис временно недоступен. Попробуйте ещё раз.' }, 503);
-    const status = [400, 401, 403, 404, 422, 429].includes(upstream.status) ? upstream.status : 400;
+    const status = [400, 401, 403, 404, 409, 422, 429].includes(upstream.status)
+      ? upstream.status
+      : 400;
     return json({ message: errorMessage(status) }, status);
   }
 
   try {
-    return json(action === 'tables' ? tablesDto(parsed) : ordersDto(parsed), 200);
+    if (mutating) return json(orderDto(parsed), creating ? 201 : 200);
+    if (action === 'payment-methods') return json(paymentMethodsDto(parsed), 200);
+    if (action === 'tables') return json(tablesDto(parsed), 200);
+    if (action === 'orders') return json(ordersDto(parsed), 200);
+    if (action === 'categories') return json(categoriesDto(parsed), 200);
+    if (action === 'cash') return json(cashDto(parsed), 200);
+    if (action === 'overview') return json(overviewDto(parsed), 200);
+    if (action === 'analytics') return json(analyticsDto(parsed), 200);
+    if (action === 'shifts') return json(shiftsDto(parsed), 200);
+    if (action === 'staff-revenue') return json(staffRevenueDto(parsed), 200);
+    return json(menuItemsDto(parsed), 200);
   } catch {
+    if (mutating) return uncertain(502);
     return json({ message: 'Некорректный ответ сервера' }, 502);
   }
 }

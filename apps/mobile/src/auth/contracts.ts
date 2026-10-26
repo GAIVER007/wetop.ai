@@ -1,3 +1,5 @@
+import type { PendingPayment } from '../restaurant/pending-payment';
+import type { PendingOrder } from '../restaurant/pending-order';
 export type User = {
   id: string;
   name: string | null;
@@ -29,12 +31,35 @@ export interface AccessApi {
   organizations(token: string): Promise<Organization[]>;
   switchOrganization(token: string, id: string): Promise<Login>;
   logout(token: string): Promise<void>;
+  report(
+    token: string,
+    scope: string,
+    action: 'overview' | 'analytics',
+    from: string,
+    to?: string,
+  ): Promise<unknown>;
   food(
     token: string,
     scope: string,
-    action: 'tables' | 'orders',
+    action: 'tables' | 'orders' | 'categories' | 'items' | 'cash' | 'shifts' | 'payment-methods',
     cursor?: string,
   ): Promise<unknown>;
+  staffRevenue(token: string, scope: string, period: 'day' | 'week' | 'month'): Promise<unknown>;
+  createOrder(token: string, scope: string, request: PendingOrder['request']): Promise<unknown>;
+  serveItem(
+    token: string,
+    scope: string,
+    orderId: string,
+    itemId: string,
+    expectedUpdatedAt: string,
+  ): Promise<unknown>;
+  closeOrder(
+    token: string,
+    scope: string,
+    orderId: string,
+    expectedUpdatedAt: string,
+  ): Promise<unknown>;
+  payOrder(token: string, scope: string, request: PendingPayment['request']): Promise<unknown>;
   reset(email: string): Promise<void>;
 }
 export interface TokenStore {

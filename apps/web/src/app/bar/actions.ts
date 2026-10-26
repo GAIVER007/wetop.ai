@@ -327,7 +327,7 @@ export async function createBarSupplierAction(
   const t = await serverT();
   try {
     await verifyContext(fd, t);
-    await barApi.createSupplier({ name: value(fd, 'name'), phone: value(fd, 'phone') || null, email: value(fd, 'email') || null, details: value(fd, 'details') || null });
+    await barApi.createSupplier({ name: value(fd, 'name'), phone: value(fd, 'phone') || null, details: value(fd, 'details') || null });
     revalidateBar();
     return { error: null, ok: Date.now(), message: t('Поставщик добавлен') };
   } catch (error) {

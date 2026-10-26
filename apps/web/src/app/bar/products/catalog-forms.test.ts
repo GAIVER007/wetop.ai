@@ -30,4 +30,19 @@ describe('«Новый товар»: свои русские сообщения'
     const html = renderToStaticMarkup(createElement(ProductForm, { categories: [], context: { propertyId: 'p', currency: 'KZT' } }));
     expect(html.toLowerCase()).toContain('novalidate=""');
   });
+  it('владелец 25.10.2026: главное сверху, редкое в «Ещё», имена полей для сервера прежние', () => {
+    const html = renderToStaticMarkup(createElement(ProductForm, { categories: [], context: { propertyId: 'p', currency: 'QAR' } }));
+    const more = html.indexOf('<details');
+    expect(more).toBeGreaterThan(0);
+    const main = html.slice(0, more);
+    const extra = html.slice(more);
+    expect(extra).toMatch(/<summary[^>]*>Ещё/);
+    for (const name of ['name', 'categoryId', 'salePrice', 'minimumStockUnits']) expect(main).toContain(`name="${name}"`);
+    for (const name of ['code', 'barcode', 'unitsPerPackage', 'markup']) {
+      expect(main).not.toContain(`name="${name}"`);
+      expect(extra).toContain(`name="${name}"`);
+    }
+    expect(main).toContain('Цена продажи, QAR');
+    expect(html.indexOf('name="name"')).toBeLessThan(html.indexOf('name="categoryId"'));
+  });
 });

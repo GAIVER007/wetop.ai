@@ -116,7 +116,7 @@ export function EmployeeCabinet({
 
       {canEditProfile ? <PortalForm context={context} command="profile" revision={data.profile.revision} profileRevision={data.employee.profileRevision} label={t('Сохранить профиль')}>
         <Field label={t('Имя в карточке')}><Input name="name" required maxLength={200} defaultValue={data.employee.name} /></Field>
-        <Field label={t('Телефон для связи')}><Input name="phone" type="tel" inputMode="tel" placeholder="+7 701 000 00 00" maxLength={32} onInput={phoneOnInput} defaultValue={phoneFieldValue(data.employee.phone)} /></Field>
+        <Field label={t('Телефон для связи')}><Input name="phone" type="tel" inputMode="tel" maxLength={32} onInput={phoneOnInput} defaultValue={phoneFieldValue(data.employee.phone)} /></Field>
         <Field label={t('Почта для связи')}><Input name="email" type="email" maxLength={320} defaultValue={data.employee.email ?? ''} /></Field>
 
         <Field label={t('Специализация')}><Input name="headline" maxLength={200} defaultValue={data.profile.headline} /></Field>

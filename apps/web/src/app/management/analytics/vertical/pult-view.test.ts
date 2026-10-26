@@ -63,14 +63,19 @@ describe('пульт салона на экране', () => {
       today: '2026-10-20',
     }),
   );
-  it('четыре плитки: выручка, средний чек, загрузка мастеров, повторные клиенты', () => {
-    for (const id of ['revenue', 'average', 'load', 'repeat'])
+  it('шесть цифр в ряд (вариант B, 26.10.2026): выручка, чек, загрузка, вернулись, записи, неявки', () => {
+    for (const id of ['revenue', 'average', 'load', 'repeat', 'appointments', 'noshow'])
       expect(html).toContain(`data-testid="pa-kpi-${id}"`);
     expect(html).toMatch(/data-testid="pa-kpi-revenue"[^>]*>12 000 ₸/);
   });
   it('прежние testid проверок UI на месте: выручка в валюте и статусы', () => {
     expect(html).toMatch(/data-testid="revenue-KZT"[^>]*>12\s000,00 KZT/);
     expect(html).toMatch(/data-testid="period-DONE"[^>]*>1</);
+  });
+  it('ровная сетка: график с оплатами и клиентами, ниже мастера, услуги и столбец дел со статусами', () => {
+    expect(html).toMatch(/pult-row--chart[\s\S]*Выручка по дням[\s\S]*Оплаты по способам[\s\S]*Клиенты/);
+    expect(html).toMatch(/pult-row--lists[\s\S]*Мастера[\s\S]*Услуги по выручке[\s\S]*pult-stack[\s\S]*Что сделать сейчас[\s\S]*Записи по статусам/);
+    expect(html).not.toContain('pult-row--main');
   });
   it('подсказки, мастера, услуги и оплаты', () => {
     expect(html).toContain('data-testid="pult-insights"');

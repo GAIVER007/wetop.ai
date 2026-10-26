@@ -2,7 +2,7 @@ import { Panel, Table } from '../../../../components/ui';
 import { LineChart } from '../../../../components/line-chart';
 import type { BeautyInsights } from '../../../../lib/api';
 import { METHOD_RU, wholeTenge } from '../../../../lib/dashboard-format';
-import { Tile, moneyDelta, pointsDelta } from '../tiles';
+import { Tile, countDelta, moneyDelta, pointsDelta } from '../tiles';
 import { msg, translator, type Translate } from '../../../../i18n';
 import { Facts, InsightsPanel, ShareList } from './pult-view';
 import { moneyText } from './metrics';
@@ -19,9 +19,9 @@ const TONES = {
 } as const;
 
 /**
- * Пульт салона (вариант A, решение владельца 25.10.2026): четыре главные цифры со сравнением, выручка по дням и
- * подсказки рядом, ниже записи, клиенты, оплаты, мастера и услуги. Прошлый период может не загрузиться: тогда
- * плитки без сравнения, экран не падает.
+ * Пульт салона, вариант B владельца 26.10.2026 («ровная сетка»): шесть главных цифр в ряд, затем карточки одной
+ * высоты: выручка по дням, оплаты и клиенты; мастера, услуги и столбец «что сделать сейчас» со статусами записей.
+ * Прошлый период может не загрузиться: тогда плитки без сравнения, экран не падает.
  */
 export function BeautyPultView({
   p,
@@ -60,7 +60,7 @@ export function BeautyPultView({
   const tenge = (minor: string) => Number(BigInt(minor) / 100n);
   return (
     <div className="pult" data-testid="pult-beauty">
-      <section className="kpi-grid" aria-label={t('Главные цифры периода')}>
+      <section className="kpi-grid pult-kpis" aria-label={t('Главные цифры периода')}>
         <Tile
           id="revenue"
           label={t('Выручка')}
@@ -93,6 +93,26 @@ export function BeautyPultView({
           delta={pointsDelta(repeatShare, prevRepeat, base.clients.total)}
           compare={compare}
         />
+        <Tile
+          id="appointments"
+          label={t('Записей')}
+          value={String(statusTotal)}
+          hint={t('завершено {n}', { n: p.counts['DONE'] ?? 0 })}
+          delta={countDelta(
+            statusTotal,
+            Object.values(base.counts).reduce((a, b) => a + b, 0),
+          )}
+          compare={compare}
+        />
+        <Tile
+          id="noshow"
+          label={t('Неявки')}
+          value={String(p.noShow.count)}
+          hint={t('{n}% записей', { n: share(p.noShow.count, statusTotal) })}
+          delta={countDelta(p.noShow.count, base.noShow.count)}
+          inverse
+          compare={compare}
+        />
       </section>
       {/* точная сумма с копейками для сверки проверками UI (MV9), глазу хватает плитки */}
       <p className="sr-only" data-testid={`revenue-${p.currency}`}>
@@ -106,7 +126,7 @@ export function BeautyPultView({
         </p>
       )}
 
-      <div className="pult-row pult-row--main">
+      <div className="pult-row pult-row--chart">
         <Panel title={t('Выручка по дням')}>
           {hasRevenue ? (
             // эскиз владельца: линия «этот период» и пунктир «прошлый» по дням с начала отрезка
@@ -136,41 +156,17 @@ export function BeautyPultView({
             <p className="pult-empty">{t('Завершённых визитов за период нет.')}</p>
           )}
         </Panel>
-        <InsightsPanel
-          items={beautyInsights(p, insights ? { lapsed: insights.customers.lapsed } : {})}
-          money={money}
-          t={t}
-          words={(x) =>
-            x.id === 'idle-slot'
-              ? { day: t(String(x.vars?.['day'])), part: t(String(x.vars?.['part'])) }
-              : {}
-          }
-        />
-      </div>
-
-      <div className="pult-row pult-row--three">
-        <Panel title={t('Записи по статусам, всего {n}', { n: statusTotal })}>
+        <Panel title={t('Оплаты по способам')}>
           <ShareList
             t={t}
-            empty={msg('Записей за период нет.')}
-            rows={Object.entries(labels).map(([status, label]) => ({
-              key: status,
-              label: t(label),
-              value: p.counts[status] ?? 0,
-              text: p.counts[status] ?? 0,
-              tone: TONES[status as keyof typeof TONES] ?? 'neutral',
-              testId: `period-${status}`,
+            empty={msg('Оплат за период нет.')}
+            rows={p.payments.map((x) => ({
+              key: x.method,
+              label: t(METHOD_RU[x.method] ?? x.method),
+              value: Number(BigInt(x.amountMinor) / 100n),
+              text: money(x.amountMinor),
             }))}
           />
-          {statusTotal === 0 && (
-            <ul className="sr-only">
-              {Object.keys(labels).map((status) => (
-                <li key={status} data-testid={`period-${status}`}>
-                  0
-                </li>
-              ))}
-            </ul>
-          )}
         </Panel>
         <Panel title={t('Клиенты')}>
           <Facts
@@ -204,21 +200,9 @@ export function BeautyPultView({
             ]}
           />
         </Panel>
-        <Panel title={t('Оплаты по способам')}>
-          <ShareList
-            t={t}
-            empty={msg('Оплат за период нет.')}
-            rows={p.payments.map((x) => ({
-              key: x.method,
-              label: t(METHOD_RU[x.method] ?? x.method),
-              value: Number(BigInt(x.amountMinor) / 100n),
-              text: money(x.amountMinor),
-            }))}
-          />
-        </Panel>
       </div>
 
-      <div className="pult-row pult-row--two">
+      <div className="pult-row pult-row--lists">
         <Panel title={t('Мастера')}>
           {p.masters.length ? (
             <Table>
@@ -269,6 +253,41 @@ export function BeautyPultView({
             }))}
           />
         </Panel>
+        <div className="pult-stack">
+          <InsightsPanel
+            items={beautyInsights(p, insights ? { lapsed: insights.customers.lapsed } : {})}
+            money={money}
+            t={t}
+            words={(x) =>
+              x.id === 'idle-slot'
+                ? { day: t(String(x.vars?.['day'])), part: t(String(x.vars?.['part'])) }
+                : {}
+            }
+          />
+          <Panel title={t('Записи по статусам, всего {n}', { n: statusTotal })}>
+            <ShareList
+              t={t}
+              empty={msg('Записей за период нет.')}
+              rows={Object.entries(labels).map(([status, label]) => ({
+                key: status,
+                label: t(label),
+                value: p.counts[status] ?? 0,
+                text: p.counts[status] ?? 0,
+                tone: TONES[status as keyof typeof TONES] ?? 'neutral',
+                testId: `period-${status}`,
+              }))}
+            />
+            {statusTotal === 0 && (
+              <ul className="sr-only">
+                {Object.keys(labels).map((status) => (
+                  <li key={status} data-testid={`period-${status}`}>
+                    0
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+        </div>
       </div>
       {insights && insights.reviews.count > 0 && (
         <p className="pult-note" data-testid="pult-rating">

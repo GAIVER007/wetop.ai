@@ -630,4 +630,10 @@ export const analyticsEntry: Record<string, string> = {
   'закрытые заказы, из них бар': 'closed orders, of which bar',
   'занятые часы от рабочих по графику': 'booked hours versus scheduled hours',
   'клиентов за период: {n}': 'clients in the period: {n}',
+  'Записей': 'Appointments',
+  'завершено {n}': 'completed {n}',
+  '{n}% записей': '{n}% of appointments',
+  'Обязательно': 'Required',
+  '{done} из {total}': '{done} of {total}',
+  'по желанию': 'optional',
 };

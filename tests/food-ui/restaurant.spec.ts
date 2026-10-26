@@ -572,7 +572,8 @@ test('зарплата: оклад + процент, премия и штраф,
   await row.getByRole('button', { name: 'Выплатить' }).click();
   await expect(dialog.getByTestId('payout-left')).toContainText('0 ₸');
   await expect(dialog).toContainText('За этот месяц всё выплачено.');
-  await dialog.getByRole('button', { name: 'Закрыть' }).click();
+  // кнопка внизу окна (у крестика в шапке то же имя «Закрыть»)
+  await dialog.getByTestId('payout').getByRole('button', { name: 'Закрыть' }).click();
   await expect(dialog).not.toBeVisible();
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);

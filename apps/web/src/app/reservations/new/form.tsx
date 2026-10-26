@@ -294,6 +294,49 @@ export function NewReservationForm(props: {
   );
   const form = (
     <>
+      {(picked || props.piiStorage === 'real') && (
+        <h2 className="booking-create__guest-title">{t('Гость')}</h2>
+      )}
+      {picked ? (
+        <PickedGuest
+          guest={picked}
+          onChange={() => {
+            // поля нового гостя появятся пустыми — подсказка по прежнему телефону не нужна
+            setPhone('');
+            setPicked(null);
+            // гость из карточки пришёл адресом: без `guest` обновление страницы не вернёт его.
+            // Переход здесь не нужен — перехват открыл бы вторую форму панелью поверх этой
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('guest')) {
+              url.searchParams.delete('guest');
+              window.history.replaceState(null, '', `${url.pathname}${url.search}`);
+            }
+          }}
+        />
+      ) : props.piiStorage === 'real' ? (
+        <>
+          {/* порядок владельца 23.10.2026: сначала имя, затем телефон; отчество и почта в «Дополнительно» */}
+          <div className="booking-guest-fields">
+            <Field label={t('Имя *')}>
+              <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
+            </Field>
+            <Field label={t('Фамилия *')}>
+              <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
+            </Field>
+            <Field label={t('Телефон')} className="booking-guest-fields__phone">
+              <Input
+                type="tel"
+                name="phone"
+                inputMode="tel"
+                defaultValue={phoneFieldValue(kept['phone'])}
+                onInput={phoneOnInput}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </Field>
+          </div>
+          <GuestMatches phone={phone} onPick={setPicked} />
+        </>
+      ) : null}
       <section className="booking-create__dates" aria-label={t('Даты проживания')}>
         <div className="booking-create__date-fields">
           <Field label={t('Заезд')}>
@@ -400,6 +443,7 @@ export function NewReservationForm(props: {
             ratePlans={props.ratePlans}
             initial={props.prefill[Number(id)]}
             request={id === '0' ? pickRequest : null}
+            single={placementIds.length === 1}
           />
           {id !== '0' && (
             <Button
@@ -413,49 +457,6 @@ export function NewReservationForm(props: {
           )}
         </fieldset>
       ))}
-      {(picked || props.piiStorage === 'real') && (
-        <h2 className="booking-create__guest-title">{t('Гость')}</h2>
-      )}
-      {picked ? (
-        <PickedGuest
-          guest={picked}
-          onChange={() => {
-            // поля нового гостя появятся пустыми — подсказка по прежнему телефону не нужна
-            setPhone('');
-            setPicked(null);
-            // гость из карточки пришёл адресом: без `guest` обновление страницы не вернёт его.
-            // Переход здесь не нужен — перехват открыл бы вторую форму панелью поверх этой
-            const url = new URL(window.location.href);
-            if (url.searchParams.has('guest')) {
-              url.searchParams.delete('guest');
-              window.history.replaceState(null, '', `${url.pathname}${url.search}`);
-            }
-          }}
-        />
-      ) : props.piiStorage === 'real' ? (
-        <>
-          {/* порядок владельца 23.10.2026: сначала имя, затем телефон; отчество и почта в «Дополнительно» */}
-          <div className="booking-guest-fields">
-            <Field label={t('Имя *')}>
-              <Input name="firstName" required defaultValue={kept['firstName'] ?? ''} />
-            </Field>
-            <Field label={t('Фамилия *')}>
-              <Input name="lastName" required defaultValue={kept['lastName'] ?? ''} />
-            </Field>
-            <Field label={t('Телефон')} className="booking-guest-fields__phone">
-              <Input
-                type="tel"
-                name="phone"
-                inputMode="tel"
-                defaultValue={phoneFieldValue(kept['phone'])}
-                onInput={phoneOnInput}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </Field>
-          </div>
-          <GuestMatches phone={phone} onPick={setPicked} />
-        </>
-      ) : null}
       <details className="booking-create__extras">
         <summary>{t('Дополнительно')}</summary>
         <div className="booking-create__extra-fields">
@@ -756,7 +757,10 @@ function PlacementFields({
   ratePlans,
   initial,
   request = null,
+  single = false,
 }: {
+  /** одно размещение (26.10.2026): категорию и номер ставят кнопки справа, поля остаются для отправки и читалки */
+  single?: boolean;
   id: string;
   kept: Record<string, string>;
   categories: Array<{
@@ -804,7 +808,7 @@ function PlacementFields({
   );
   return (
     <Grid>
-      <Field label={t('Категория *')}>
+      <Field label={t('Категория *')} className={single && !group ? 'sr-only' : undefined}>
         <Select
           name={field('accommodationTypeCode')}
           value={category}
@@ -828,7 +832,7 @@ function PlacementFields({
           {t('; всего {guests}', { guests: countLabel(locale, t, Number(quantity) * adults, GUESTS) })}
         </div>
       ) : (
-        <Field label={t('Номер / койка')}>
+        <Field label={t('Номер / койка')} className={single ? 'sr-only' : undefined}>
           <Select
             name={field('unitCode')}
             value={chosenUnit}

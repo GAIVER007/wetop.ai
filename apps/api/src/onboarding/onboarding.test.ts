@@ -23,13 +23,14 @@ function fixture() {
         business: {
           name: 'Бизнес',
           vertical: 'BEAUTY',
-          organization: { status: 'ACTIVE', trialEndsAt: null },
+          organization: { status: 'ACTIVE', trialEndsAt: null, locale: 'en' },
         },
       }),
     },
     onboardingProgress: { findUnique: vi.fn().mockResolvedValue(null), upsert: vi.fn() },
     beautyService: { findMany: vi.fn().mockResolvedValue([]) },
     employee: { findMany: vi.fn().mockResolvedValue([]) },
+    beautyPositionAssignment: { findMany: vi.fn().mockResolvedValue([]) },
     $queryRaw: vi.fn(),
     $transaction: vi.fn(),
   };
@@ -93,4 +94,13 @@ it('READ_ONLY organization denies owner mutation before any write', async () => 
     withSignedInUser(actor, () => service.save({ action: 'next', draft: {} })),
   ).rejects.toThrow();
   expect(db.$transaction).not.toHaveBeenCalled();
+});
+
+/** ORG-LOCALE-20261026: настройка салона показывает язык организации, менять его может только владелец */
+it('beauty status carries the organization language; only the owner may change it', async () => {
+  const { service } = fixture();
+  const owner = await withSignedInUser(actor, () => service.status());
+  expect(owner).toMatchObject({ organizationLocale: 'en', canEditLocale: true });
+  const manager = await withSignedInUser({ ...actor, role: 'MANAGER' }, () => service.status());
+  expect(manager).toMatchObject({ organizationLocale: 'en', canEditLocale: false });
 });

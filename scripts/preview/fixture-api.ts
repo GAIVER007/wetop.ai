@@ -6966,6 +6966,7 @@ createServer(async (req, res) => {
     // ── Приглашения (срез 13, этап 7): один живой ключ, остальные — мёртвая ссылка.
     const invitePreview = {
       organizationName: 'Хостел «Пример»',
+      locale: 'ru',
       email: 'novyj@example.com',
       expiresAt: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
     };
@@ -7173,7 +7174,12 @@ createServer(async (req, res) => {
     }
     const inviteMatch = /^\/auth\/invites\/([^/]+)(\/accept)?$/.exec(path);
     if (inviteMatch) {
-      if (inviteMatch[1] !== 'fixture-invite-token')
+      // ORG-LOCALE-20261026: вымышленный салон на английском, ссылка второго ключа
+      const english = inviteMatch[1] === 'fixture-invite-token-en';
+      const shown = english
+        ? { ...invitePreview, organizationName: 'Pearl Beauty Studio', locale: 'en', email: 'admin@example.com' }
+        : invitePreview;
+      if (inviteMatch[1] !== 'fixture-invite-token' && !english)
         return send(404, {
           message: 'Приглашение не найдено, уже принято или его срок истёк.',
         });
@@ -7182,9 +7188,9 @@ createServer(async (req, res) => {
       if (inviteMatch[2]) {
         const token = 'fixture-set-password-token';
         uiResetTokens.set(token, { used: false, expired: false });
-        return send(200, { ...invitePreview, setPasswordToken: token });
+        return send(200, { ...shown, setPasswordToken: token });
       }
-      return send(200, invitePreview);
+      return send(200, shown);
     }
     if (path === '/auth/registration-context') {
       const token = sessionOf(req as never);

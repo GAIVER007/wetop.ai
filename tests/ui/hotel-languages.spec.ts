@@ -1,4 +1,4 @@
-import { expect, openProfileMenu, test, FIXTURE_API, type Page } from './fixtures';
+import { expect, test, FIXTURE_API, type Page } from './fixtures';
 import { kk } from '../../apps/web/src/i18n/kk';
 import { en } from '../../apps/web/src/i18n/en';
 
@@ -37,6 +37,8 @@ const LANGUAGES = [
   { code: 'en', name: 'English', words: en },
 ] as const;
 
+test.use({ extraHTTPHeaders: { 'x-wetop-test-client': '1' } });
+
 test.beforeEach(async ({ page, request }) => {
   test.setTimeout(420_000);
   await request.post(`${FIXTURE_API}/__test/reset`);
@@ -44,14 +46,19 @@ test.beforeEach(async ({ page, request }) => {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL('**/today', { waitUntil: 'domcontentloaded' });
 });
 
-async function chooseLocale(page: Page, name: string, code: string) {
-  await openProfileMenu(page);
-  await page.locator('#profile-dropdown').getByRole('button', { name }).click();
+async function applySavedLocale(page: Page, code: string) {
+  const token = (await page.context().cookies()).find((cookie) => cookie.name === 'wetop_session')?.value;
+  expect(token).toBeTruthy();
+  const response = await page.request.post(`${FIXTURE_API}/auth/locale`, {
+    headers: { 'x-wetop-test-client': '1', 'x-wetop-session': token! },
+    data: { locale: code },
+  });
+  expect(response.ok()).toBe(true);
+  await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', code);
-  await page.keyboard.press('Escape');
 }
 
 const heading = (page: Page) => page.getByRole('heading', { level: 1 }).first();
@@ -63,7 +70,7 @@ for (const { code, name, words } of LANGUAGES)
       await page.goto(path);
       russian.set(path, ((await heading(page).textContent()) ?? '').trim());
     }
-    await chooseLocale(page, name, code);
+    await applySavedLocale(page, code);
     await page.setViewportSize({ width: 390, height: 844 });
     const problems: string[] = [];
     for (const path of SCREENS) {

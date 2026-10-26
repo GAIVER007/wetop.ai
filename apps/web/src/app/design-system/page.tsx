@@ -1,3 +1,4 @@
+import { CashHeaderPreview } from '../../components/shell/cash-header';
 import { PhoneInputExample } from '../../components/phone-input';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
@@ -1421,6 +1422,8 @@ export default function DesignSystemPage() {
           </div>
         ))}
       </ThemeSwitcher>
+      {/* касса шапки после образцов тем: блок над ними сдвигал эталонные снимки секций на долю пикселя */}
+      <section aria-label="Кассовые действия шапки"><h2>Кассовая смена</h2><CashHeaderPreview /></section>
       <section aria-label="Телефон с кодом страны">
         <h2>Телефон с кодом страны</h2>
         <PhoneInputExample />

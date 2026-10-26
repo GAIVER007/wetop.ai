@@ -96,6 +96,11 @@
     .header-clock__date {
       display: none;
     }
+    /* место под часы до загрузки скрипта шириной с сами часы (40 px), иначе с кнопкой кассы шапка на 320 px
+       до гидратации выходила за экран на 18 px (гейт PR 864: release-customer-reflow, tz12 reflow 320) */
+    .header-clock:empty {
+      min-width: var(--space-10);
+    }
     .header-clock {
       padding-left: 0;
     }

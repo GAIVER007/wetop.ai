@@ -81,6 +81,7 @@ export const activityOps: Record<string, string> = {
   'Организация переключена': 'Organization switched',
   'Пароль изменён': 'Password changed',
   'Язык стойки изменён': 'Desk language changed',
+  'Язык организации изменён': 'Business language changed',
   'Сотрудник приглашён': 'Employee invited',
   'Сотрудник добавлен': 'Employee added',
   'Сотрудник заблокирован': 'Employee blocked',

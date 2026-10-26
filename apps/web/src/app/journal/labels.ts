@@ -91,6 +91,7 @@ export const ACTION_RU: Record<string, string> = {
   'user.organization.switched': msg('Организация переключена'),
   'user.password.changed': msg('Пароль изменён'),
   'user.locale.changed': msg('Язык стойки изменён'),
+  'organization.locale.changed': msg('Язык организации изменён'),
   'user.invited': msg('Сотрудник приглашён'),
   'user.created': msg('Сотрудник добавлен'),
   'user.blocked': msg('Сотрудник заблокирован'),

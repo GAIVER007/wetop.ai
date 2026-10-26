@@ -15,7 +15,7 @@ test('месяц: с первого по последнее число, вклю
   // Оба диапазона применяются через один контрол периода.
   await chooseBoardPeriod(page, '14 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(14);
-  await chooseBoardPeriod(page, 'Текущий месяц');
+  await chooseBoardPeriod(page, 'Этот месяц');
   await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue(first);
   await expect(page.getByLabel('Период: по', { exact: true })).toHaveValue(last);
   await expect(page.getByTestId('date-col')).toHaveCount(Number(last.slice(8)));
@@ -73,7 +73,7 @@ test('7 дней, 14 дней, произвольный период и возв
   await page.getByLabel('Период: по', { exact: true }).fill('2028-02-20');
   await page.getByRole('button', { name: 'Применить', exact: true }).click();
   await expect(page.getByTestId('date-col')).toHaveCount(11);
-  await chooseBoardPeriod(page, 'Текущий месяц');
+  await chooseBoardPeriod(page, 'Этот месяц');
   const currentMonth = new Date(Date.now() + 5 * 3600_000);
   const monthStart = `${currentMonth.toISOString().slice(0, 7)}-01`;
   currentMonth.setUTCMonth(currentMonth.getUTCMonth() + 1, 0);
@@ -117,7 +117,7 @@ test('в месяце открываются брони, свободные да
   await page.goto('/chessboard');
   await chooseBoardPeriod(page, '14 дней');
   await expect(page.getByTestId('date-col')).toHaveCount(14);
-  await chooseBoardPeriod(page, 'Текущий месяц');
+  await chooseBoardPeriod(page, 'Этот месяц');
   const stay = page.getByTestId('stay-cell').first();
   const number = await stay.getAttribute('data-number');
   // одинарный клик — предпросмотр, полная карточка — двойным (ТЗ «Шахматка v2» §24)
@@ -166,7 +166,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.goto('/chessboard');
     await chooseBoardPeriod(page, '14 дней');
     await expect(page.getByTestId('date-col')).toHaveCount(14);
-    await chooseBoardPeriod(page, 'Текущий месяц');
+    await chooseBoardPeriod(page, 'Этот месяц');
     const report = [];
     // Next обновляет метаданные потоком: axe запускается после завершения перехода в месяц.
     await expect(page.getByRole('main').getByTestId('chessboard')).toHaveClass(/board--month/);

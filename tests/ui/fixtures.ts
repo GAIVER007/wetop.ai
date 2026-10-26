@@ -232,7 +232,7 @@ export async function openBoardFilters(page: Page) {
 /** Выбирает утверждённый пресет в едином контроле и применяет его к шахматке. */
 export async function chooseBoardPeriod(
   page: Page,
-  preset: 'Сегодня' | '7 дней' | '14 дней' | '30 дней' | 'Текущий месяц',
+  preset: 'Сегодня' | '7 дней' | '14 дней' | '30 дней' | 'Вчера' | 'Эта неделя' | 'Этот месяц',
 ) {
   await page.getByTestId('board-period-button').click();
   const menu = page.locator('.board-nav .date-range');

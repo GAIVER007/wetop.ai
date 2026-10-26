@@ -66,6 +66,8 @@ export interface InviteView {
   lastName: string | null;
   position: string | null;
   scopes: ScopeAssignment[];
+  /** Приглашение из формы «Новый сотрудник»: вход привяжется к этой карточке (20.10.2026) */
+  employeeId: string | null;
 }
 
 /** Строка списка «Сотрудники» (ADR-107): кто, роль, с какого дня и что с ним может сделать этот вошедший */
@@ -96,6 +98,8 @@ export interface MemberView {
   scopes: ScopeAssignment[];
   /** Этот вошедший может заменить ему назначения: тот же круг, что у отключения */
   scopesEditable: boolean;
+  /** Карточки этого человека по бизнесам (`employees.user_id`); экран сводит их со входом, `pairPeople` */
+  employees: Array<{ employeeId: string; businessId: string }>;
 }
 
 /** Отказ в действии над сотрудником: сессии нет — `null` у вызова; остальное — здесь */
@@ -647,6 +651,7 @@ function toInviteView(i: InviteRecord, actor: MembershipRole): InviteView {
     lastName: i.lastName,
     position: i.position,
     scopes: i.scopes,
+    employeeId: i.employeeId ?? null,
   };
 }
 

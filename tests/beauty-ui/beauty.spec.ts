@@ -340,10 +340,12 @@ test('existing customer can be selected for another appointment without duplicat
   await page.getByRole('button', { name: 'Новая запись', exact: true }).click();
   const panel = page.getByRole('dialog');
   await panel.getByLabel('Телефон или имя', { exact: true }).fill('Несуществующий клиент');
-  await expect(panel.getByLabel('Клиент', { exact: true }).locator('option')).toHaveCount(1);
+  await expect(panel.getByRole('listbox', { name: 'Найденные клиенты' }).getByRole('button')).toHaveCount(0);
   await panel.getByLabel('Телефон или имя', { exact: true }).fill('КЛИЕНТКА');
-  await expect(panel.getByLabel('Клиент', { exact: true }).locator('option')).toHaveCount(2);
-  await panel.getByLabel('Клиент', { exact: true }).selectOption({ label: 'Тестовая клиентка' });
+  const found = panel.getByRole('listbox', { name: 'Найденные клиенты' }).getByRole('button');
+  await expect(found).toHaveCount(1);
+  await found.filter({ hasText: 'Тестовая клиентка' }).click();
+  await expect(panel.getByTestId('appointment-customer-chip')).toContainText('Тестовая клиентка');
   await expect(panel.getByLabel('Имя клиента', { exact: true })).toHaveCount(0);
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
   await panel.getByLabel('Время', { exact: true }).fill('12:00');

@@ -20,3 +20,4 @@ export * from './extensions';
 export * from './requester-context';
 export * from './scopes';
 export * from './access-levels';
+export * from './people';

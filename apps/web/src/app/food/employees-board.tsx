@@ -8,6 +8,7 @@ import { StaffBoard, type StaffColumn } from '../../components/staff-board';
 import { PERSONNEL_KINDS, PERSONNEL_KIND_LABELS, personnelTabs, type PersonnelKind } from '@pms/domain';
 import { countLabel, msg } from '../../i18n';
 import { useLocale, useT } from '../../i18n/locale-provider';
+import { usePeopleBoard, type TeamBoardData } from '../team/people';
 import { periodTitle, revenueCells, unattributedLabel, type StaffRevenue } from '../../lib/staff-revenue';
 import type { FoodEmployee } from '../../lib/food-types';
 import { assignFoodPersonnelKind, mutateStaff } from './restaurant-actions';
@@ -255,7 +256,10 @@ export function EmployeesBoard({
   revenue = null,
   revenueNav = null,
   access,
+  team = null,
 }: {
+  /** входы организации для общего экрана «Сотрудники» (U2); null: вошедшему они не открыты, доска только карточек */
+  team?: TeamBoardData | null;
   scopeKey: string;
   write: boolean;
   employees: FoodEmployee[];
@@ -355,37 +359,59 @@ export function EmployeesBoard({
         ) : null,
     },
   ];
+  const cardTabs = groups.map((g) => ({
+    id: g.key,
+    label: g.key === 'unassigned' ? t('Не назначено') : t(g.label),
+    rows: g.items as FoodEmployee[],
+    ...(g.key === 'unassigned'
+      ? { note: t('Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет смены, оплату и права.') }
+      : {}),
+    empty: employees.length
+      ? g.key === 'specialists'
+        ? t('Специалистов пока нет.')
+        : t('Других сотрудников пока нет.')
+      : t('Сотрудников пока нет'),
+  }));
+  const searchOf = (e: FoodEmployee) => `${e.name} ${e.phone ?? ''}`;
+  const people = usePeopleBoard({
+    team,
+    employees,
+    columns,
+    tabs: cardTabs,
+    search: searchOf,
+    grant: {
+      levels: access?.levels ?? [],
+      vertical: 'FOOD_SERVICE',
+      branchName: access?.branchName ?? branchName,
+      canAllBranches: access?.canAllBranches ?? false,
+    },
+  });
+  const shared = {
+    caption: t('Сотрудники ресторана'),
+    searchPlaceholder: t('Поиск сотрудника'),
+    period: (
+      <span className="staff-board__period">
+        <span className="muted rest-staff-branch">{t('Филиал: {name}', { name: branchName })}</span>
+        {revenue && revenueNav}
+      </span>
+    ),
+    footer: unattributed ? <span data-testid="employees-unattributed">{unattributed}</span> : null,
+  };
   return (
     <div className="food-workspace rest-ws" data-testid="employees-board">
-      <StaffBoard<FoodEmployee>
-        caption={t('Сотрудники ресторана')}
-        tabs={[
-          { id: 'all', label: t('Все'), rows: employees, empty: t('Сотрудников пока нет') },
-          ...groups.map((g) => ({
-          id: g.key,
-          label: g.key === 'unassigned' ? t('Не назначено') : t(g.label),
-          rows: g.items as FoodEmployee[],
-          ...(g.key === 'unassigned'
-            ? { note: t('Укажите, кто это: специалист, другой сотрудник или оба. Назначение не меняет смены, оплату и права.') }
-            : {}),
-          empty: employees.length
-            ? g.key === 'specialists'
-              ? t('Специалистов пока нет.')
-              : t('Других сотрудников пока нет.')
-            : t('Сотрудников пока нет'),
-          })),
-        ]}
-        columns={columns}
-        search={(e) => `${e.name} ${e.phone ?? ''}`}
-        searchPlaceholder={t('Поиск сотрудника')}
-        period={
-          <span className="staff-board__period">
-            <span className="muted rest-staff-branch">{t('Филиал: {name}', { name: branchName })}</span>
-            {revenue && revenueNav}
-          </span>
-        }
-        footer={unattributed ? <span data-testid="employees-unattributed">{unattributed}</span> : null}
-      />
+      {people ? (
+        <>
+          <StaffBoard {...shared} columns={people.columns} tabs={people.tabs} search={people.search} notice={people.notice} />
+          {people.overlays}
+        </>
+      ) : (
+        <StaffBoard<FoodEmployee>
+          {...shared}
+          tabs={[{ id: 'all', label: t('Все'), rows: employees, empty: t('Сотрудников пока нет') }, ...cardTabs]}
+          columns={columns}
+          search={searchOf}
+        />
+      )}
       {draft && (
         <EmployeeDrawer
           scopeKey={scopeKey}

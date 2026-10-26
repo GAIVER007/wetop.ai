@@ -211,7 +211,8 @@ export interface AuditEntry {
 export interface ReservationsRepository {
   /** Сегодня по часам объекта: ночная смена не должна писать вчерашнюю дату (С-13) */
   today(): Promise<string>;
-  property(): Promise<{ id: string; currency: string }>;
+  /** `countryCode`: страна объекта ISO alpha-2 (правило гражданства на заселении), у фейков тестов может не быть */
+  property(): Promise<{ id: string; currency: string; countryCode?: string | null }>;
   categoryByCode(code: string): Promise<CategoryRef | null>;
   /** Активные категории объекта по имени — виджет сайта показывает их все (срез 9) */
   activeCategories(): Promise<CategoryRef[]>;
@@ -471,6 +472,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     currency: string;
     timezone: string;
     organizationId: string;
+    countryCode: string | null;
   } | null = null;
   /** propertyName — имя объекта; в тестах на вымышленных данных передаётся тестовый объект. */
   constructor(
@@ -483,6 +485,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     currency: string;
     timezone: string;
     organizationId: string;
+    countryCode: string | null;
   }> {
     if (!this.propertyCache) {
       // Порядок веток важен: точный объект сайта (BOOK-4) выше вошедшего сотрудника, иначе выбранный в стойке филиал
@@ -495,7 +498,7 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         const organizationId = currentOrganizationId();
         const found = await this.db.property.findUnique({
           where: { id: exact },
-          select: { id: true, currency: true, timezone: true, organizationId: true },
+          select: { id: true, currency: true, timezone: true, organizationId: true, countryCode: true },
         });
         if (!found || organizationId === null || found.organizationId !== organizationId)
           throw new ForbiddenException(FOREIGN_PROPERTY_MESSAGE);
@@ -508,14 +511,14 @@ export class PrismaReservationsRepository implements ReservationsRepository {
         const ref = await propertyRef(this.db, this.propertyName);
         this.propertyCache = await this.db.property.findUniqueOrThrow({
           where: { id: ref.id },
-          select: { id: true, currency: true, timezone: true, organizationId: true },
+          select: { id: true, currency: true, timezone: true, organizationId: true, countryCode: true },
         });
       } else {
         // самый ранний с этим именем — как `propertyRef` (аудит 26.09, С-2)
         const found = await this.db.property.findFirstOrThrow({
           where: { name: this.propertyName },
           orderBy: { createdAt: 'asc' },
-          select: { id: true, currency: true, timezone: true, organizationId: true },
+          select: { id: true, currency: true, timezone: true, organizationId: true, countryCode: true },
         });
         this.propertyCache = found;
       }

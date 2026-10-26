@@ -9,7 +9,7 @@ import { notFoundOn404 } from '../../../lib/page-error';
 import { api, chessboardApi, financeApi, messengerLinks, reservationsApi } from '../../../lib/api';
 import { formatMoney } from '../../../lib/money';
 import { displayDate } from '../../../lib/display-date';
-import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
+import { MAX_CHESSBOARD_DAYS, citizenshipLabel } from '@pms/domain';
 import { nightsBetween } from '../../../lib/plural';
 import { countLabel, intlLocale, msg } from '../../../i18n';
 import { currentLocale, serverT } from '../../../i18n/server';
@@ -153,7 +153,7 @@ export default async function ReservationPage({
                 }
               >
                 {r.primaryGuest.citizenship
-                  ? t('гражданство {country}', { country: r.primaryGuest.citizenship })
+                  ? t('гражданство: {country}', { country: citizenshipLabel(r.primaryGuest.citizenship) ?? r.primaryGuest.citizenship })
                   : t('гражданство не указано')}
               </span>
             )}
@@ -436,6 +436,7 @@ export default async function ReservationPage({
                 )}
                 {canMutate && <ReservationActions
                   number={r.confirmationNumber}
+                  guestName={r.primaryGuest?.label ?? null}
                   status={r.status}
                   source={r.source}
                   notes={r.notes}

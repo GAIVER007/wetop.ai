@@ -25,7 +25,11 @@ const stay = (over: Partial<DeskStay>): DeskStay => ({
   ...over,
 });
 
+let country: string | null = null;
 const repo: DeskRepository = {
+  async countryCode() {
+    return country;
+  },
   /** задачи стойки: открытых со сроком не позже даты (DATA_MODEL §22), в подделке всегда три */
   async openTasksDue() {
     return 3;
@@ -133,6 +137,17 @@ describe('desk day API', () => {
     expect(r.body.inHouse.map((x: { confirmationNumber: string }) => x.confirmationNumber)).toEqual(
       ['B-5'],
     );
+  });
+  it('гостиница не в Казахстане: «нет гражданства» не мешает заселению (решение 24.10.2026)', async () => {
+    country = 'QA';
+    try {
+      const r = await request(app.getHttpServer()).get('/desk/today?date=2026-10-05').expect(200);
+      expect(r.body.arrivals[1]).toMatchObject({ confirmationNumber: 'B-2', blockedReason: null });
+      expect(r.body.arrivals[2]).toMatchObject({ confirmationNumber: 'B-7', blockedReason: null });
+      expect(r.body.arrivals[0]).toMatchObject({ blockedReason: 'нет ячейки' });
+    } finally {
+      country = null;
+    }
   });
 
   /*

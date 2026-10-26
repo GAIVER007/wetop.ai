@@ -298,7 +298,7 @@ test('карточка B3: полоса фактов над вкладками, 
   await expect(drawer).toBeVisible();
   const head = drawer.getByTestId('booking-head');
   await expect(head.getByTestId('guest-link')).toHaveText('Гость Тестовый');
-  await expect(head).toContainText('гражданство KAZ');
+  await expect(head).toContainText('гражданство: Казахстан');
   await expect(head).toContainText(`${dd(today)} → ${dd(plus(3))}`);
   await expect(head).toContainText('3 ночи');
   await expect(head.getByTestId('booking-place')).toHaveText('R01');

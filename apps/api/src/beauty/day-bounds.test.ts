@@ -53,3 +53,13 @@ describe('B4 (паритет с zapis.kz): границы сетки журна�
     expect(day.bounds.toMinutes).toBe(1320);
   });
 });
+
+describe('колонки журнала: только те, кто принимает клиентов', () => {
+  it('«другой сотрудник» (администратор без записей) колонкой журнала не идёт', async () => {
+    const f = fixture({ intervals: [{ weekday: 0, timeFrom: '10:00', timeTo: '22:00' }] });
+    await f.run(() => f.service.day('2026-10-18'));
+    const db = (f.service as unknown as { prisma: { db: { employee: { findMany: ReturnType<typeof vi.fn> } } } }).prisma.db;
+    const where = db.employee.findMany.mock.calls[0]![0].where;
+    expect(where.OR).toEqual([{ personnelKind: null }, { personnelKind: { not: 'OTHER_EMPLOYEE' } }]);
+  });
+});

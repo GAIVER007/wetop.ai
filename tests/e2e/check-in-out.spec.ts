@@ -58,6 +58,10 @@ test('заселить → карточка и шахматка показыва
       await warn.getByRole('button', { name: 'Заселить всё равно' }).click();
     else await confirmDialog(page, 'Заселить');
   }
+  // без гражданства заселение спрашивает страну тут же (решение 24.10.2026); «Не сейчас» оставляет отказ словами
+  const ask = page.getByRole('dialog', { name: 'Укажите гражданство гостя' });
+  await expect(ask).toBeVisible();
+  await ask.getByRole('button', { name: 'Не сейчас', exact: true }).click();
   await expect(page.getByRole('alert').first()).toContainText('гражданство');
   await cardTab(page, 'Обзор');
   await page.getByRole('main').getByTestId('guest-link').click();
@@ -67,8 +71,8 @@ test('заселить → карточка и шахматка показыва
   await page
     .getByRole('main')
     .getByTestId('guest-form')
-    .locator('input[name="citizenship"]')
-    .fill('KAZ');
+    .locator('select[name="citizenship"]')
+    .selectOption('KAZ');
   await page
     .getByRole('main')
     .getByTestId('guest-form')
@@ -76,7 +80,7 @@ test('заселить → карточка и шахматка показыва
     .click();
   // сохранение обновляет страницу: пока оно идёт, введённый номер документа стирался (CI #804 23.10.2026,
   // та же гонка, что в full-day.spec.ts), поэтому ждём гражданство в шапке карточки и только потом документ
-  await expect(page.getByRole('main').getByRole('definition').filter({ hasText: /^KAZ$/ })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('definition').filter({ hasText: /^Казахстан$/ })).toBeVisible();
   await page.waitForLoadState('networkidle');
   // G5: документы — своя вкладка карточки гостя
   await page.getByRole('main').getByRole('tab', { name: 'Документы', exact: true }).click();

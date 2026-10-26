@@ -102,7 +102,11 @@ async function book(page: Page, time: string, name: string, existing = false) {
   const panel = page.getByRole('dialog');
   // exact: правая часть окна брони (23.10.2026) называется «Услуга и время»
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ label: 'Маникюр, 60 мин' });
-  if (existing) await panel.getByLabel('Клиент', { exact: true }).selectOption({ label: name });
+  if (existing) {
+    await panel.getByLabel('Телефон или имя', { exact: true }).fill(name);
+    await panel.getByRole('listbox', { name: 'Найденные клиенты' }).getByRole('button', { name }).first().click();
+    await expect(panel.getByTestId('appointment-customer-chip')).toContainText(name);
+  }
   else await panel.getByLabel('Имя клиента').fill(name);
   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);

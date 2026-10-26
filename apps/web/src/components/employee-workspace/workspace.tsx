@@ -35,7 +35,8 @@ export function EmployeeProfile({
   onSaved: (row: BeautyEmployeeRow) => void;
   onCancelCreate?: () => void;
   /** «Доступ в WETOP» в форме нового сотрудника (решение владельца 20.10.2026) */
-  access?: { levels: AccessLevel[]; canAllBranches: boolean; branchName: string | null } | undefined;
+  access?:
+    { levels: AccessLevel[]; canAllBranches: boolean; branchName: string | null } | undefined;
 }) {
   const t = useT();
   const [original, setOriginal] = useState(() => fields(row));
@@ -47,7 +48,9 @@ export function EmployeeProfile({
   // по умолчанию «Специалист»: руководитель видит выбор и может сменить его до создания
   const [personnelKind, setPersonnelKind] = useState<PersonnelKind>('SPECIALIST');
   // доступ по умолчанию от назначения: специалист в личный кабинет, другой сотрудник без входа
-  const [accessDraft, setAccessDraft] = useState<StaffAccessDraft>(() => staffAccessDraft('SPECIALIST', ''));
+  const [accessDraft, setAccessDraft] = useState<StaffAccessDraft>(() =>
+    staffAccessDraft('SPECIALIST'),
+  );
   const [accessTouched, setAccessTouched] = useState(false);
   const showAccess = !row && !!access && access.levels.length > 0;
   const [created, setCreated] = useState<BeautyEmployeeRow | null>(null);
@@ -141,7 +144,9 @@ export function EmployeeProfile({
       const result = await saveBeautyEmployee(null, data);
       if (!alive.current || version !== requestVersion.current) return;
       if (result.error || !result.employee) {
-        setError(result.error || msg('Не удалось получить сохранённый профиль. Повторите сохранение.'));
+        setError(
+          result.error || msg('Не удалось получить сохранённый профиль. Повторите сохранение.'),
+        );
         setCurrent(result.currentEmployee ?? null);
         finish(false);
         return;
@@ -163,7 +168,11 @@ export function EmployeeProfile({
         // специалист уже создан: ошибку приглашения показываем, пригласить заново можно в «Сотрудники и доступ»
         if (invited.error) {
           setCreated(saved);
-          setError(t('Специалист добавлен, но приглашение не отправлено: {error}', { error: invited.error }));
+          setError(
+            t('Специалист добавлен, но приглашение не отправлено: {error}', {
+              error: invited.error,
+            }),
+          );
           return;
         }
       }
@@ -217,9 +226,6 @@ export function EmployeeProfile({
         draft={draft}
         onChange={(next) => {
           setDraft(next);
-          // почта появилась или исчезла: уровень по умолчанию следует за ней, пока владелец не выбрал сам
-          if (!row && !accessTouched && next.email.trim() !== draft.email.trim())
-            setAccessDraft(staffAccessDraft(personnelKind, next.email));
         }}
         onSave={(event) => {
           event.preventDefault();
@@ -229,6 +235,7 @@ export function EmployeeProfile({
           if (!row && onCancelCreate) onCancelCreate();
           else void cancel();
         }}
+        emailRequired={showAccess && accessDraft.level !== 'NONE'}
         creating={!row}
         pending={pending}
         disabled={!canEdit}
@@ -241,12 +248,14 @@ export function EmployeeProfile({
               personnelKind,
               onPersonnelKindChange: (next: PersonnelKind) => {
                 setPersonnelKind(next);
-                if (!accessTouched) setAccessDraft(staffAccessDraft(next, draft.email));
+                if (!accessTouched) setAccessDraft(staffAccessDraft(next));
               },
             })}
         access={
           showAccess && access ? (
             <StaffAccessPicker
+              compact
+              showWhere={false}
               vertical="BEAUTY"
               levels={access.levels}
               value={accessDraft}
@@ -349,11 +358,13 @@ export function EmployeeTransitionGuard({
     const element = root.current;
     if (!element) return;
     const initialize = () =>
-      element.querySelectorAll<HTMLFormElement>('form[data-employee-transition-form]').forEach((form) => {
-        if (!baselines.current.has(form)) {
-          baselines.current.set(form, employeeFormSignature(form));
-        }
-      });
+      element
+        .querySelectorAll<HTMLFormElement>('form[data-employee-transition-form]')
+        .forEach((form) => {
+          if (!baselines.current.has(form)) {
+            baselines.current.set(form, employeeFormSignature(form));
+          }
+        });
     initialize();
     const observer = new MutationObserver(initialize);
     observer.observe(element, { childList: true, subtree: true });
@@ -446,7 +457,9 @@ export function EmployeeTransitionGuard({
     for (const form of dirty()) {
       if (!(await submit(form))) {
         setSaving(false);
-        setError(t('Сохранение не завершено. Исправьте ошибку в форме или оставайтесь в карточке.'));
+        setError(
+          t('Сохранение не завершено. Исправьте ошибку в форме или оставайтесь в карточке.'),
+        );
         return;
       }
     }
@@ -526,9 +539,7 @@ export function EmployeeTransitionGuard({
               onClick={() => {
                 const action = destination;
                 setDestination(null);
-                dirty().forEach((form) =>
-                  baselines.current.set(form, employeeFormSignature(form)),
-                );
+                dirty().forEach((form) => baselines.current.set(form, employeeFormSignature(form)));
                 discard();
                 action?.();
               }}

@@ -3,7 +3,7 @@ import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
 import { restaurantApi } from '../../lib/food-api';
-import { PayrollBoard, PayrollMonthNav } from '../food/payroll-board';
+import { PayrollBoard, PayrollMonthNav, PayrollTotals } from '../food/payroll-board';
 import { restaurantShell } from '../food/restaurant-load';
 import { requireFeature } from '../../lib/vertical-guard';
 import { HotelPayrollPage } from './hotel-page';
@@ -25,11 +25,19 @@ export default async function PayrollPage({
   try {
     const shell = await restaurantShell(undefined, ['FOOD_SERVICE', 'BEAUTY']);
     const salon = shell.vertical === 'BEAUTY';
-    const chosen =
-      month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month) ? month : shell.date.slice(0, 7);
+    const chosen = month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month) ? month : shell.date.slice(0, 7);
     const payroll = await restaurantApi.payroll(chosen);
     return (
-      <Page className="payroll-page" title={t('Зарплата')} actions={<PayrollMonthNav month={payroll.month} />}>
+      <Page
+        className="payroll-page"
+        title={t('Зарплата')}
+        actions={
+          <>
+            <PayrollTotals payroll={payroll} />
+            <PayrollMonthNav month={payroll.month} />
+          </>
+        }
+      >
         <div key={shell.scopeKey}>
           <PayrollBoard
             scopeKey={shell.scopeKey}

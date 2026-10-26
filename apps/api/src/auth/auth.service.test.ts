@@ -587,6 +587,16 @@ describe('AuthService.register', () => {
     expect(organizations.find((o) => o.name === 'Хостел на Абая')!.countryCode).toBe('UZ');
   });
 
+  // ORG-LOCALE-20261026: язык из окна регистрации становится и языком организации (приглашения сотрудникам)
+  it('язык из регистрации становится языком организации; без выбора русский', async () => {
+    const { auth, organizations } = service();
+    await auth.register({ ...NEW, phoneCountry: 'QA', phone: '5186 5708', locale: 'en' }, NOW);
+    expect(organizations.find((o) => o.name === 'Хостел на Абая')!.locale).toBe('en');
+    const second = service();
+    await second.auth.register(NEW, NOW);
+    expect(second.organizations.find((o) => o.name === 'Хостел на Абая')!.locale ?? 'ru').toBe('ru');
+  });
+
   it('без языка в форме человек получает русский; чужой код языка — отказ без записи', async () => {
     const { auth, users, organizations } = service();
     const before = { users: users.length, orgs: organizations.length };

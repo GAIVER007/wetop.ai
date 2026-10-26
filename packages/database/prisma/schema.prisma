@@ -2674,6 +2674,9 @@ model Organization {
   /// Страна организации, ISO 3166-1 alpha-2 (v2.17, Q-REG-1): при регистрации — страна, выбранная в окне
   /// (она же страна телефона). NULL у заведённых до 10.10.2026 и платформой.
   countryCode       String?            @map("country_code") @db.VarChar(2)
+  /// Язык организации (ORG-LOCALE-20261026): письма-приглашения, экраны приглашения и пароля, язык новых сотрудников.
+  /// `ru`, `kk`, `en`, CHECK `organizations_locale_known`
+  locale            String             @default("ru") @db.VarChar(5)
   trialEndsAt       DateTime?          @map("trial_ends_at") @db.Timestamptz(6)
   createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
 

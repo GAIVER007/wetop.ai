@@ -3,6 +3,8 @@ import {
   DEFAULT_REMINDER_HOURS,
   DEFAULT_REMINDER_TEMPLATE,
   REMINDER_MAX_ATTEMPTS,
+  confirmationTemplate,
+  defaultReminderTemplate,
   parseReminderSettings,
   reminderBackoffMs,
   reminderDueTimes,
@@ -150,5 +152,44 @@ describe('просьба отзыва после визита', () => {
   it('адрес отзыва: база стойки без лишней косой черты плюс путь приглашения', () => {
     expect(reviewUrl('https://app.wetop.ai/', '/reviews/abc')).toBe('https://app.wetop.ai/reviews/abc');
     expect(reviewUrl('https://app.wetop.ai', '/reviews/abc')).toBe('https://app.wetop.ai/reviews/abc');
+  });
+});
+
+/** Язык организации (ORG-LOCALE-20261026): салон на английском пишет клиентам по-английски */
+describe('сообщения клиентам на языке салона', () => {
+  const at = new Date('2026-10-27T07:30:00Z');
+  const base = {
+    customerName: 'Sara',
+    serviceName: 'Classic lashes',
+    startsAt: at,
+    timezone: 'Asia/Qatar',
+    masterName: 'Dina',
+    salonName: 'Lashes by Kyial salon',
+    address: 'Doha, Pearl',
+    phone: '+974 5000 0000',
+  };
+  it('напоминание по умолчанию на английском: дата по-английски, кириллицы нет', () => {
+    const vars = reminderVariables({ ...base, locale: 'en' });
+    expect(vars.дата).toBe('27 October');
+    const text = renderReminder(defaultReminderTemplate('en'), vars);
+    expect(text).toBe(
+      'Hello, Sara! This is a reminder of your appointment at Lashes by Kyial salon: Classic lashes, 27 October at 10:30, with Dina. Address: Doha, Pearl. If your plans change, please call us: +974 5000 0000.',
+    );
+    expect(text).not.toMatch(/[А-Яа-яЁё]/);
+  });
+  it('подтверждение и просьба отзыва на английском', () => {
+    const vars = reminderVariables({ ...base, locale: 'en' });
+    expect(renderReminder(confirmationTemplate('en'), vars)).toMatch(/^Hello, Sara! You are booked at Lashes by Kyial salon/);
+    expect(reviewRequestText('Sara', 'https://x/reviews/k', 'en')).toBe('Thank you for visiting us, Sara! Rate your visit: https://x/reviews/k');
+  });
+  it('английские поля в своём шаблоне тоже подставляются', () => {
+    const vars = reminderVariables({ ...base, locale: 'en' });
+    expect(renderReminder('Hi {name}, see you {date} at {time}', vars)).toBe('Hi Sara, see you 27 October at 10:30');
+  });
+  it('без языка всё как раньше: русский', () => {
+    const vars = reminderVariables(base);
+    expect(vars.дата).toBe('27 октября');
+    expect(defaultReminderTemplate('ru')).toBe(DEFAULT_REMINDER_TEMPLATE);
+    expect(reviewRequestText('Сара', 'https://x/r')).toBe('Спасибо, что были у нас, Сара! Оцените визит: https://x/r');
   });
 });

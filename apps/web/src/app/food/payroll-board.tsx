@@ -43,6 +43,7 @@ const BASIS = {
     plus: msg('Оклад плюс доля от заказов'),
     hint: msg('От суммы закрытых заказов сотрудника за месяц, от 1 до 100'),
     example: msg('{percent} % от заказов на {sales}'),
+    income: msg('Сумма закрытых заказов сотрудника за месяц: с неё считается процент'),
   },
   visits: {
     percent: msg('Процент от записей'),
@@ -52,6 +53,7 @@ const BASIS = {
     plus: msg('Оклад плюс доля от записей'),
     hint: msg('От суммы выполненных записей специалиста за месяц, от 1 до 100'),
     example: msg('{percent} % от записей на {sales}'),
+    income: msg('На какую сумму специалист оказал услуг за месяц: с неё считается процент'),
   },
 } as const;
 
@@ -608,6 +610,7 @@ export function PayrollBoard({
   const [adjust, setAdjust] = useState<PayrollRow | null>(null);
   const [payout, setPayout] = useState<PayrollRow | null>(null);
   const names = new Map(payroll.rows.map((r) => [r.employeeId, r.name]));
+  const income = payroll.rows.reduce((sum, r) => sum + BigInt(r.salesMinor), 0n).toString();
   const remaining = payroll.rows.reduce((sum, r) => sum + BigInt(r.remainingMinor), 0n).toString();
   const money = (minor: string) => formatMoney(minor, payroll.currency);
   const cell = (minor: string) => (BigInt(minor) === 0n ? <span className="muted">—</span> : money(minor));
@@ -618,6 +621,8 @@ export function PayrollBoard({
       <thead>
         <tr>
           <th>{t('Сотрудник')}</th>
+          {/* «Доход» первым (владелец 26.10.2026): видно, с какой суммы считается оплата */}
+          <th className="num" title={t(BASIS[basis].income)}>{t('Доход')}</th>
           <th>{t('Как платим')}</th>
           <th className="num">{t('Оклад')}</th>
           <th className="num">{t(BASIS[basis].column)}</th>
@@ -638,6 +643,9 @@ export function PayrollBoard({
           return (
             <tr key={r.employeeId}>
               <th scope="row">{r.name}</th>
+              <td className="num" data-testid="payroll-income">
+                <strong>{cell(r.salesMinor)}</strong>
+              </td>
               <td className="rest-pay-model">
                 {blank ? <Badge tone="warn">{t('Не настроено')}</Badge> : payTerms(t, r, basis, payroll.currency)}
               </td>
@@ -681,6 +689,9 @@ export function PayrollBoard({
       <tfoot>
         <tr>
           <th scope="row">{t('Итого')}</th>
+          <td className="num" data-testid="payroll-income-total">
+            <strong>{money(income)}</strong>
+          </td>
           <td colSpan={3} data-testid="payroll-fund">
             {t('Фонд оплаты {sum}', { sum: money(payroll.totals.fundMinor) })}
           </td>

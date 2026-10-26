@@ -453,6 +453,8 @@ function memberRefusal(reason: MemberRefusal): HttpException {
 
 interface InvitePreviewJson {
   organizationName: string;
+  /** Язык организации: страница по ссылке и экран пароля на нём (ORG-LOCALE-20261026) */
+  locale: string;
   email: string;
   expiresAt: string;
   /** Только у принятия: ключ, по которому человек задаёт себе пароль. null — пароль у него уже есть. */
@@ -479,6 +481,7 @@ function inviteJson(i: InviteView): InviteJson {
 function previewJson(p: InvitePreview): InvitePreviewJson {
   return {
     organizationName: p.organizationName,
+    locale: p.locale,
     email: p.email,
     expiresAt: p.expiresAt.toISOString(),
     ...(p.setPasswordToken === undefined ? {} : { setPasswordToken: p.setPasswordToken }),

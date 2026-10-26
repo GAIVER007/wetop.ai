@@ -102,7 +102,7 @@ async function seed(page: Page, request: APIRequestContext, fixture?: Fixture) {
 async function book(page: Page, name = 'Тестовая клиентка', time = '10:00') {
   await page.getByRole('button', { name: 'Новая запись', exact: true }).click();
   const panel = page.getByRole('dialog');
-  await panel.getByLabel('Имя клиента', { exact: true }).fill(name);
+  await panel.getByLabel('Телефон или имя', { exact: true }).fill(name);
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
   await panel.getByLabel('Время', { exact: true }).fill(time);
   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
@@ -302,7 +302,7 @@ test('overlap stays inline, two Businesses and Locations, STAFF and READ_ONLY', 
   await expect(await book(page)).toBeHidden();
   const panel = await book(page, 'Вторая тестовая клиентка');
   await expect(panel.getByRole('alert')).toContainText('Мастер в это время уже занят');
-  await expect(panel.getByLabel('Имя клиента', { exact: true })).toHaveValue(
+  await expect(panel.getByLabel('Телефон или имя', { exact: true })).toHaveValue(
     'Вторая тестовая клиентка',
   );
   await scope(page, f.otherBusiness, f.locations[2]!);
@@ -346,7 +346,7 @@ test('existing customer can be selected for another appointment without duplicat
   await expect(found).toHaveCount(1);
   await found.filter({ hasText: 'Тестовая клиентка' }).click();
   await expect(panel.getByTestId('appointment-customer-chip')).toContainText('Тестовая клиентка');
-  await expect(panel.getByLabel('Имя клиента', { exact: true })).toHaveCount(0);
+  await expect(panel.getByLabel('Телефон или имя', { exact: true })).toHaveCount(0);
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
   await panel.getByLabel('Время', { exact: true }).fill('12:00');
   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
@@ -637,9 +637,11 @@ test('новая запись: свободное время мастера кн
   await expect(first).toHaveAttribute('aria-pressed', 'true');
   await expect(panel.getByLabel('Время', { exact: true })).toHaveValue(label);
   await expect(panel.getByTestId('appointment-digest')).toContainText(label);
-  // имя идёт раньше телефона
-  const nameBox = await panel.getByLabel('Имя клиента', { exact: true }).boundingBox();
-  const phoneBox = await panel.locator('[name="phone"]').boundingBox();
-  expect(nameBox!.y).toBeLessThan(phoneBox!.y);
+  // одно поле клиента (владелец 26.10.2026): имя и номер одной строкой, ниже подсказка нового клиента
+  const search = panel.getByLabel('Телефон или имя', { exact: true });
+  await search.fill('Новая Клиентка +7 701 000 00 01');
+  await expect(panel.getByTestId('appointment-customer-new')).toHaveText('Новый клиент: Новая, Клиентка, +7 701 000 00 01');
+  await expect(panel.locator('input[name="phone"]')).toHaveValue('+7 701 000 00 01');
+  await expect(panel.getByLabel('Имя клиента', { exact: true })).toHaveCount(0);
 });
 

@@ -71,7 +71,8 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
       createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn() }),
     );
     expect(html).toContain('>Гость<');
-    expect(html).toContain('Последний клиент');
+    // «Последний клиент» только когда он есть (владелец 26.10.2026: без серых пустых кнопок)
+    expect(html).not.toContain('Последний клиент');
   });
   it('клиент одним блоком (владелец 25.10.2026): поиск «Телефон или имя», быстрые кнопки и одна строка нового клиента, без второго выбора «Клиент»', () => {
     const html = renderToStaticMarkup(
@@ -80,12 +81,15 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     const block = html.slice(html.indexOf('appointment-customer-fields'), html.indexOf('appointment-pick'));
     expect(block.match(/>Клиент</g)).toHaveLength(1);
     expect(block).not.toContain('<select');
-    expect(block).not.toContain('>Новый клиент<');
     expect(block).toContain('type="hidden" name="customerId" value=""');
-    expect(block).toContain('name="firstName"');
-    expect(block).toContain('name="lastName"');
-    expect(block).toContain('name="phone"');
-    expect(block).toContain('>+ Новый клиент<');
+    // одно поле поиска; имя, фамилия и телефон нового клиента берутся из него скрытыми полями (владелец 26.10.2026)
+    expect(block.match(/<input[^>]*type="search"/g)).toHaveLength(1);
+    expect(block).toContain('type="hidden" name="firstName"');
+    expect(block).toContain('type="hidden" name="lastName"');
+    expect(block).toContain('type="hidden" name="phone"');
+    expect(block).not.toContain('>Имя клиента<');
+    expect(block).not.toContain('>Фамилия<');
+    expect(block).not.toContain('Новый клиент<');
   });
   it('повтор записи: выбранный клиент чипом «имя, телефон ×», строки нового клиента нет, id уходит прежним полем', () => {
     const repeatFrom = {

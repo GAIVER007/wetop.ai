@@ -70,6 +70,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /onboarding': 'settings',
   'GET /branches': 'self',
   'POST /branches': 'owner',
+  'POST /branches/organization/locale': 'owner',
   'GET /branches/locations/archived': 'owner',
   'POST /branches/locations/:id/archive': 'owner',
   'POST /branches/locations/:id/restore': 'owner',

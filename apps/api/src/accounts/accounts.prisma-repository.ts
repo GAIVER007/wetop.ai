@@ -8,6 +8,7 @@ import type {
   InviteRecord,
   MemberRecord,
   MemberWrite,
+  OrganizationLocale,
   OrganizationStructure,
   SessionListRecord,
   SessionRecord,
@@ -297,11 +298,20 @@ export class PrismaAccountsRepository implements AccountsRepository {
         data: { acceptedAt: input.now },
       });
       if (!claimed.count) return null;
-      const invite = await tx.invite.findUniqueOrThrow({ where: { id: input.id } });
+      const invite = await tx.invite.findUniqueOrThrow({
+        where: { id: input.id },
+        include: { organization: { select: { locale: true } } },
+      });
       const invitedName = [invite.firstName, invite.lastName].filter(Boolean).join(' ') || null;
+      // новый человек сразу на языке организации (ORG-LOCALE-20261026); у знакомого язык его собственный
       const user = await tx.user.upsert({
         where: { email: invite.email },
-        create: { email: invite.email, status: 'ACTIVE', name: invitedName },
+        create: {
+          email: invite.email,
+          status: 'ACTIVE',
+          name: invitedName,
+          locale: organizationLocale(invite.organization.locale),
+        },
         update: {},
         select: { id: true, status: true, passwordHash: true },
       });
@@ -807,7 +817,7 @@ const INVITE_SELECT = {
   position: true,
   scopes: true,
   employeeId: true,
-  organization: { select: { name: true } },
+  organization: { select: { name: true, locale: true } },
 } as const;
 
 /** Назначение простым объектом: в jsonb и журнал */
@@ -849,12 +859,13 @@ function toInviteRecord(row: {
   position: string | null;
   scopes: unknown;
   employeeId?: string | null;
-  organization: { name: string };
+  organization: { name: string; locale?: string };
 }): InviteRecord {
   return {
     id: row.id,
     organizationId: row.organizationId,
     organizationName: row.organization.name,
+    organizationLocale: organizationLocale(row.organization.locale),
     email: row.email,
     expiresAt: row.expiresAt,
     acceptedAt: row.acceptedAt,
@@ -885,4 +896,9 @@ async function lockedRole(
 /** Код P2002 у Prisma — нарушение уникального индекса. Другие ошибки базы не глотаем. */
 function isUniqueViolation(e: unknown): boolean {
   return typeof e === 'object' && e !== null && (e as { code?: unknown }).code === 'P2002';
+}
+
+/** Язык организации из базы; незнакомое значение (CHECK его не пустит) читается как `ru` */
+function organizationLocale(raw: string | null | undefined): OrganizationLocale {
+  return raw === 'en' || raw === 'kk' ? raw : 'ru';
 }

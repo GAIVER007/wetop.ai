@@ -78,6 +78,8 @@ export interface FakeOrganization {
   status: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED';
   trialEndsAt: Date | null;
   countryCode?: string | null;
+  /** Язык организации (ORG-LOCALE-20261026) */
+  locale?: string;
 }
 
 export interface FakeProperty {

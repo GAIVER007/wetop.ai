@@ -3,6 +3,8 @@ import {
   FOOD_CONFIRMATION_TEMPLATE,
   FOOD_DEFAULT_REMINDER_TEMPLATE,
   FOOD_REMINDER_PLACEHOLDERS,
+  foodConfirmationTemplate,
+  foodDefaultReminderTemplate,
   foodReminderVariables,
   foodReminderWanted,
   renderFoodReminder,
@@ -67,5 +69,31 @@ describe('напоминания гостям ресторана', () => {
   it('пустой адрес и телефон не оставляют двойных пробелов и пустых «Адрес:»', () => {
     const vars = foodReminderVariables({ customerName: 'Иван', startsAt: at('2026-10-25T14:00:00Z'), timezone: 'Asia/Almaty', partySize: 2, restaurantName: 'Р', address: null, phone: null });
     expect(renderFoodReminder(null, vars)).toBe('Здравствуйте, Иван! Напоминаем о брони в Р: 25 октября в 19:00, 2 гостя.');
+  });
+});
+
+/** Язык организации (ORG-LOCALE-20261026): ресторан на английском пишет гостям по-английски */
+describe('сообщения гостям ресторана на языке организации', () => {
+  const input = {
+    customerName: 'Sara', startsAt: at('2026-10-27T15:00:00Z'), timezone: 'Asia/Qatar', partySize: 2,
+    restaurantName: 'Pearl Grill', address: 'Doha', phone: '+974 5000 0000',
+  };
+  it('напоминание и подтверждение по-английски, гости и дата по-английски', () => {
+    const vars = foodReminderVariables({ ...input, locale: 'en' });
+    expect(vars.гостей).toBe('2 guests');
+    expect(vars.дата).toBe('27 October');
+    expect(renderFoodReminder(foodDefaultReminderTemplate('en'), vars)).toBe(
+      'Hello, Sara! This is a reminder of your table booking at Pearl Grill: 27 October at 18:00, 2 guests. Address: Doha. Phone: +974 5000 0000.',
+    );
+    expect(renderFoodReminder(foodConfirmationTemplate('en'), vars)).toMatch(/^Hello, Sara! Your table at Pearl Grill is booked/);
+  });
+  it('один гость в единственном числе; пустой адрес убирается и по-английски', () => {
+    const vars = foodReminderVariables({ ...input, partySize: 1, address: null, locale: 'en' });
+    expect(vars.гостей).toBe('1 guest');
+    expect(renderFoodReminder(foodDefaultReminderTemplate('en'), vars)).not.toContain('Address:');
+  });
+  it('без языка как раньше', () => {
+    expect(foodDefaultReminderTemplate()).toBe(FOOD_DEFAULT_REMINDER_TEMPLATE);
+    expect(foodReminderVariables(input).гостей).toBe('2 гостя');
   });
 });

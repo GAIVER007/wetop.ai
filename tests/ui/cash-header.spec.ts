@@ -91,8 +91,20 @@ test('общая шапка: одна кнопка смены, расход, и�
     }
     await header.getByRole('button', { name: 'Открыть смену', exact: true }).click();
     let panel = page.getByRole('dialog');
-    await panel.getByLabel('Фактически пересчитано').fill('10000');
-    await panel.getByRole('button', { name: 'Открыть смену', exact: true }).click();
+    // открытие «Б» (владелец 26.10.2026): крупно сумма и «Да / Нет, другая сумма»
+    await expect(panel.getByTestId('cash-open-expected')).toBeVisible();
+    await expect(panel.getByRole('button', { name: /^Да, .+ Открыть смену$/ })).toBeEnabled();
+    await panel.getByRole('button', { name: 'Нет, другая сумма', exact: true }).click();
+    // другая сумма: появляется расхождение и поле причины
+    await panel.getByLabel('Сколько наличных в кассе сейчас').fill('9900');
+    await expect(panel.getByRole('status').filter({ hasText: 'Не хватает 100' })).toBeVisible();
+    await expect(panel.getByLabel('Почему сумма другая')).toBeVisible();
+    // сумма совпала: причина не нужна
+    await panel.getByLabel('Сколько наличных в кассе сейчас').fill('10000');
+    await expect(panel.getByLabel('Почему сумма другая')).toHaveCount(0);
+    await panel.getByRole('button', { name: 'Назад', exact: true }).click();
+    if (vertical === 'BEAUTY') await panel.screenshot({ path: 'reports/cash-shifts-2026-10-25/open-b.png' });
+    await panel.getByRole('button', { name: /^Да, .+ Открыть смену$/ }).click();
     await expect(panel).toHaveCount(0);
     await expect(header.getByRole('button', { name: 'Закрыть смену', exact: true })).toBeEnabled();
     await page.reload();
@@ -110,8 +122,17 @@ test('общая шапка: одна кнопка смены, расход, и�
     await expect(panel).toHaveCount(0);
     await header.getByRole('button', { name: 'Закрыть смену', exact: true }).click();
     panel = page.getByRole('dialog');
-    await panel.getByLabel('Фактически пересчитано').fill('9500');
-    await panel.getByLabel('Оставить в кассе').fill('9500');
+    // закрытие «А»: было + оплаты − расходы = должно быть; расход можно добавить прямо отсюда
+    await expect(panel.getByTestId('cash-close-expected')).toContainText('9 500');
+    await panel.getByRole('button', { name: '+ Добавить расход', exact: true }).click();
+    await panel.getByLabel('Сумма', { exact: true }).fill('100');
+    await panel.getByLabel('Статья', { exact: true }).fill('Вода');
+    await panel.getByRole('button', { name: 'Добавить расход', exact: true }).click();
+    await expect(panel.getByTestId('cash-close-expected')).toContainText('9 400');
+    await panel.getByLabel('Пересчитали наличные').fill('9400');
+    await panel.getByLabel('Оставить на размен').fill('9400');
+    await expect(panel.getByRole('status').filter({ hasText: 'Сходится' })).toBeVisible();
+    if (vertical === 'BEAUTY') await panel.screenshot({ path: 'reports/cash-shifts-2026-10-25/close-a.png' });
     await panel.getByRole('button', { name: 'Закрыть смену', exact: true }).click();
     await expect(panel.getByRole('heading', { name: 'Итоги смены' })).toBeVisible();
     await page.keyboard.press('Escape');

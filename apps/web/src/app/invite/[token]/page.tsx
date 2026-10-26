@@ -9,8 +9,9 @@ import { loadErrorProps } from '../../../lib/load-error';
 import { AcceptForm } from './accept-form';
 import { AuthShell } from '../../../components/auth-shell';
 import { unstable_rethrow } from 'next/navigation';
-import { intlLocale, translator } from '../../../i18n';
+import { deskLocale, intlLocale, translator } from '../../../i18n';
 import { cookieLocale } from '../../../i18n/server';
+import { LocaleProvider } from '../../../i18n/locale-provider';
 
 /**
  * Страница по ссылке из письма-приглашения (срез 13, этап 7). Ключ живёт только в адресе и в
@@ -19,8 +20,6 @@ import { cookieLocale } from '../../../i18n/server';
  */
 export default async function InvitePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const locale = await cookieLocale();
-  const t = translator(locale);
   // Битое %-кодирование в адресе — обычная мёртвая ссылка, а не 500
   const rawToken = decodeInviteToken(token);
   const loaded = rawToken
@@ -33,10 +32,15 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
       )
     : { ok: true as const, r: null };
   const preview = loaded.ok ? loaded.r : null;
+  // язык организации, которая зовёт (ORG-LOCALE-20261026): у нового человека ещё нет ни куки, ни профиля
+  const locale = preview?.locale ? deskLocale(preview.locale) : await cookieLocale();
+  const t = translator(locale);
   const until = preview ? displayDate(preview.expiresAt.slice(0, 10), 'short', intlLocale(locale)) : '';
   return (
+    // кнопка «Принять» и прочие клиентские части тоже на языке организации, не только текст страницы
+    <LocaleProvider locale={locale}>
     <AuthShell>
-      <div data-testid="invite-page">
+      <div data-testid="invite-page" lang={locale}>
         {!loaded.ok ? (
           <>
             <h1>{t('Приглашение не прочиталось')}</h1>
@@ -71,5 +75,6 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
         )}
       </div>
     </AuthShell>
+    </LocaleProvider>
   );
 }

@@ -25,6 +25,8 @@ type Props = {
   period?: ReactNode;
   financial?: import('../../lib/api').OrganizationSummary | null;
   archive?: ReactNode;
+  /** Язык организации для владельца (ORG-LOCALE-20261026) */
+  language?: ReactNode;
 };
 const directions = [
   ['HOSPITALITY', msg('Отели')],
@@ -50,6 +52,7 @@ export function ReferenceBoard({
   period,
   financial,
   archive,
+  language,
 }: Props) {
   const [editing, setEditing] = useState<BusinessCardView | null>(null);
   const t = useT();
@@ -106,6 +109,7 @@ export function ReferenceBoard({
         </div>
       }
     >
+    {language}
     <section
       className={`org-reference ${singleProject ? 'org-reference--single' : ''} ${!hasHospitality ? 'org-reference--service' : ''} ${!groups.length ? 'org-reference--empty' : ''}`}
       aria-label={t('Бизнесы и филиалы организации')}

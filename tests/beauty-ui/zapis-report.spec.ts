@@ -154,7 +154,7 @@ test('report: centered multi-service appointment, per-master occupancy and exact
     fullPage: true,
   });
   await page.goto('/services');
-  const catalog = page.locator('[data-service-list="catalog"]');
+  const catalog = page.locator('[data-service-list="price"]');
   await catalog
     .getByRole('button', { name: 'Настроить и добавить в филиал: Стрижка мужская', exact: true })
     .click();
@@ -168,8 +168,11 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await expect(page.getByTestId('toast-stack')).toContainText('Услуга добавлена в филиал');
   await expect(serviceForm).toBeHidden();
   await expect(
-    page.locator('[data-service-list="salon"]').getByText('Стрижка мужская', { exact: true }),
-  ).toBeVisible();
+    page
+      .locator('[data-service-list="price"] .beauty-service-item')
+      .filter({ has: page.getByText('Стрижка мужская', { exact: true }) })
+      .getByRole('switch', { name: 'В филиале: Стрижка мужская' }),
+  ).toBeChecked();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(

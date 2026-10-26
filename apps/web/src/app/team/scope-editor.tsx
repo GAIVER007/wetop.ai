@@ -19,6 +19,7 @@ export function ScopeEditor({
   model,
   onModel,
   fixedRole,
+  compact = false,
 }: {
   structure: AuthAccessStructure;
   roles: readonly InviteRole[];
@@ -27,6 +28,7 @@ export function ScopeEditor({
   model: ScopeModel;
   onModel: (next: ScopeModel) => void;
   fixedRole?: InviteRole | undefined;
+  compact?: boolean;
 }) {
   const t = useT();
   const set = (key: string, role: InviteRole | '') => onModel({ ...model, [key]: role });
@@ -59,9 +61,8 @@ export function ScopeEditor({
         </Select>
       </div>
     );
-  return (
-    <fieldset className="team-scope" data-testid="scope-editor">
-      <legend>{t('Доступ')}</legend>
+  const options = (
+    <>
       <label className="team-scope__row">
         <input
           type="radio"
@@ -69,7 +70,7 @@ export function ScopeEditor({
           checked={!restricted}
           onChange={() => onRestricted(false)}
         />
-        {t('Вся организация')}
+        {compact ? t('Все филиалы') : t('Вся организация')}
       </label>
       <label className="team-scope__row">
         <input
@@ -78,20 +79,34 @@ export function ScopeEditor({
           checked={restricted}
           onChange={() => onRestricted(true)}
         />
-        {t('Выбранные филиалы')}
+        {compact ? t('Выбрать филиалы') : t('Выбранные филиалы')}
       </label>
+    </>
+  );
+  return (
+    <fieldset className="team-scope" data-testid="scope-editor">
+      <legend>{compact ? t('Филиалы') : t('Доступ')}</legend>
+      {compact ? <div className="staff-choice-row">{options}</div> : options}
       {restricted && (
         <div className="team-scope__tree">
           {structure.businesses.map((b) => (
             <fieldset key={b.id} className="team-scope__business">
               <legend>{b.name}</legend>
-              {place(`b:${b.id}`, t('Весь бизнес: {name}', { name: b.name }), t('Весь бизнес {name}: роль', { name: b.name }))}
+              {place(
+                `b:${b.id}`,
+                t('Весь бизнес: {name}', { name: b.name }),
+                t('Весь бизнес {name}: роль', { name: b.name }),
+              )}
               {!model[`b:${b.id}`] &&
-                b.locations.map((l) => place(`l:${l.id}`, l.name, t('{name}: роль', { name: l.name })))}
+                b.locations.map((l) =>
+                  place(`l:${l.id}`, l.name, t('{name}: роль', { name: l.name })),
+                )}
             </fieldset>
           ))}
           <p className="muted">
-            {t('Управлять командой, ролями и общим журналом можно только без ограничения по филиалам.')}
+            {t(
+              'Управлять командой, ролями и общим журналом можно только без ограничения по филиалам.',
+            )}
           </p>
         </div>
       )}

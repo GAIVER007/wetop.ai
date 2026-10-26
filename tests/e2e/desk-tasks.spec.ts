@@ -51,8 +51,7 @@ test('стойка: занятую койку не продать дважды, 
     await f.locator('select[name="source"]').selectOption('WALK_IN');
     await f.locator('select[name="accommodationTypeCode"]').selectOption(DORM);
     await f.locator('select[name="unitCode"]').selectOption(unitCode);
-    await f.locator('input[name="firstName"]').fill('Гость');
-    await f.locator('input[name="lastName"]').fill(lastName);
+    await f.locator('input[name="guestQuery"]').fill(`Гость ${lastName}`);
     await f.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
     // форма сама перепроверяет занятость и не даёт отправить занятую ячейку; успела — отказывает сервер
     const submit = f.getByRole('button', { name: 'Создать бронь' });
@@ -94,7 +93,7 @@ test('стойка: занятую койку не продать дважды, 
   await expect(refusal).not.toContainText(/[0-9a-f]{8}-[0-9a-f]{4}-/);
   await expect(second).toHaveURL(/\/reservations\/new/);
   // введённое не стёрлось: администратор меняет одну ячейку, а не набирает всё заново
-  await expect(secondForm.locator('input[name="lastName"]')).toHaveValue('Тест-второй');
+  await expect(secondForm.locator('input[name="guestQuery"]')).toHaveValue(/Тест-второй$/);
   await expect(secondForm.locator('select[name="accommodationTypeCode"]')).toHaveValue(DORM);
   await second.screenshot({ path: 'reports/screenshots/overbooking-refused.png', fullPage: true });
   await second.close();

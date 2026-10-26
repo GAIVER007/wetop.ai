@@ -288,6 +288,16 @@
   .booking-create .booking-guest-fields__phone {
     grid-column: 1 / -1;
   }
+  /* гость одним полем (владелец 26.10.2026): поле во всю ширину, под ним строка нового гостя */
+  .booking-create .booking-guest-fields--one {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .booking-guest-new {
+    margin: 0;
+  }
+  .booking-guest-new.is-missing {
+    color: var(--warning);
+  }
   .booking-create .booking-shell__form .placement-fields .grid-auto {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

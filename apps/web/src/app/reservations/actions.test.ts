@@ -3,6 +3,7 @@ import {
   assignUnitAction,
   createReservationAction,
   findGuestsByPhoneAction,
+  findGuestsAction,
   updateStayGuestsAction,
 } from './actions';
 import { ApiError, guestsApi, reservationsApi, type GuestDirectoryResult } from '../../lib/api';
@@ -136,6 +137,20 @@ describe('поля существующего API из форм стойки', (
     expect(directory.mock.calls[0]?.[0]).toEqual({ q: '77000000001', page: '1', pageSize: '3' });
     directory.mockRejectedValue(new ApiError(500, 'сбой'));
     expect(await findGuestsByPhoneAction('+7 700 000 00 01')).toEqual([]);
+  });
+  it('гость одним полем (владелец 26.10.2026): ищет по имени или по номеру в справочнике гостей', async () => {
+    const row = { id: 'guest-2', firstName: 'Айгуль', lastName: 'Тестова', middleName: null, phone: '+7 701 000 00 02', email: null, staysCount: 1 };
+    const directory = vi
+      .spyOn(guestsApi, 'directory')
+      .mockResolvedValue({ rows: [row] } as unknown as GuestDirectoryResult);
+    expect(await findGuestsAction('А')).toEqual([]);
+    expect(directory).not.toHaveBeenCalled();
+    expect(await findGuestsAction('Айгуль Тес')).toEqual([
+      { id: 'guest-2', name: 'Тестова Айгуль', phone: '+7 701 000 00 02', email: null, visits: 1 },
+    ]);
+    expect(directory.mock.calls[0]?.[0]).toEqual({ q: 'Айгуль', page: '1', pageSize: '5' });
+    await findGuestsAction('+7 701 000');
+    expect(directory.mock.calls[1]?.[0]).toEqual({ q: '7701000', page: '1', pageSize: '5' });
   });
   it('передаёт выбранный тариф при переселении в другую категорию', async () => {
     const assign = vi

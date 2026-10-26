@@ -54,7 +54,7 @@ for (const theme of ['light', 'dark'] as const) {
       await page.screenshot({ path: `${out}/food-day-${width}-${theme}.png` });
       await page.getByRole('button', { name: 'Новая бронь', exact: true }).click();
       const dialog = page.getByRole('dialog');
-      await dialog.getByRole('radio', { name: 'Новый', exact: true }).check();
+      await dialog.getByLabel('Телефон или имя', { exact: true }).fill('Тест Гость');
       await page.waitForTimeout(400);
       await page.mouse.move(0, 0);
       await page.screenshot({ path: `${out}/food-form-${width}-${theme}.png` });

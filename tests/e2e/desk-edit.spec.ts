@@ -49,8 +49,7 @@ test('групповая бронь на 2 койки → две клетки ш
   await form.locator('input[name="quantity"]').fill('2');
   await expect(form.locator('select[name="unitCode"]')).toHaveCount(0);
   await expect(form.getByTestId('group-hint')).toContainText('2 проживания');
-  await form.locator('input[name="firstName"]').fill('Гость');
-  await form.locator('input[name="lastName"]').fill('Тест-группа');
+  await form.locator('input[name="guestQuery"]').fill('Гость Тест-группа');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
 

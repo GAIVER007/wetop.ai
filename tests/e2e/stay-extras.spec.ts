@@ -39,8 +39,7 @@ test('поздний выезд и ранний заезд начисляютс�
     .selectOption(await roomiestCategory(request, plus(12), plus(14)));
   const unit = await unitOption(form.locator('select[name="unitCode"]'));
   await form.locator('select[name="unitCode"]').selectOption(unit);
-  await form.locator('input[name="firstName"]').fill('Гость');
-  await form.locator('input[name="lastName"]').fill('Тест-поздний-выезд');
+  await form.locator('input[name="guestQuery"]').fill('Гость Тест-поздний-выезд');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);

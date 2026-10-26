@@ -306,7 +306,7 @@ test('мобильная форма: ввод гостя на низком эк�
   await request.post(`${FIXTURE_API}/__test/control`, { data: { piiStorage: 'real' } });
   await page.setViewportSize({ width: 360, height: 480 });
   await page.goto('/reservations/new?arrival=2026-11-10&departure=2026-11-13&unit=R07');
-  const name = page.locator('[name="firstName"]');
+  const name = page.locator('[name="guestQuery"]');
   await name.fill('Проверочный');
   await name.scrollIntoViewIfNeeded();
   await expect(name).toBeFocused();
@@ -314,8 +314,9 @@ test('мобильная форма: ввод гостя на низком эк�
   expect(
     await page.locator('.booking-footer').evaluate((el) => getComputedStyle(el).position),
   ).toBe('static');
-  await page.locator('[name="lastName"]').fill('Мобильный');
-  await expect(page.locator('[name="phone"]')).toHaveAttribute('type', 'tel');
+  // одно поле гостя (26.10.2026): фамилия и номер в той же строке
+  await name.fill('Проверочный Мобильный +7 701 000 00 03');
+  await expect(page.locator('input[name="phone"]')).toHaveValue('+7 701 000 00 03');
   const submit = page.getByRole('button', { name: 'Создать бронь', exact: true });
   await submit.scrollIntoViewIfNeeded();
   await expect(submit).toBeInViewport({ ratio: 1 });

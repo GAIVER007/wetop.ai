@@ -14,7 +14,7 @@ test('новая бронь: гость слева первым, номер кн
     await page.getByRole('link', { name: 'Новая бронь', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: 'Новая бронь' });
     await expect(dialog.getByTestId('room-picker')).toBeVisible();
-    const name = dialog.getByLabel('Имя *', { exact: true });
+    const name = dialog.getByLabel('Телефон или имя *', { exact: true });
     const arrival = dialog.getByLabel('Заезд', { exact: true }).first();
     expect((await name.boundingBox())!.y).toBeLessThan((await arrival.boundingBox())!.y);
     // категория и номер не занимают место слева: их ставит кнопка справа
@@ -30,8 +30,7 @@ test('новая бронь: гость слева первым, номер кн
   await room.click();
   await expect(room).toHaveAttribute('aria-pressed', 'true');
   await expect(dialog.getByTestId('booking-digest')).toContainText(unit);
-  await dialog.getByLabel('Имя *', { exact: true }).fill('Кнопка');
-  await dialog.getByLabel('Фамилия *', { exact: true }).fill('Справа');
+  await dialog.getByLabel('Телефон или имя *', { exact: true }).fill('Кнопка Справа');
   const submit = dialog.getByRole('button', { name: 'Создать бронь', exact: true });
   await expect(submit).toBeEnabled();
   await submit.click();

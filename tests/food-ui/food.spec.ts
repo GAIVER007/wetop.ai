@@ -96,14 +96,13 @@ async function create(page: Page, walkIn = false) {
     .getByRole('button', { name: walkIn ? 'Посадить без брони' : 'Новая бронь', exact: true })
     .click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByRole('radio', { name: 'Новый', exact: true }).check();
-  await dialog.getByLabel('Имя', { exact: true }).fill('Анна');
-  await dialog.getByLabel('Фамилия', { exact: true }).fill('Тестовая');
-  await dialog.getByLabel('Телефон', { exact: true }).fill(
-    `+700000${Math.floor(Math.random() * 1000000)
+  // гость одним полем (владелец 26.10.2026): имя, фамилия и номер одной строкой
+  await dialog.getByLabel('Телефон или имя', { exact: true }).fill(
+    `Анна Тестовая +700000${Math.floor(Math.random() * 1000000)
       .toString()
       .padStart(6, '0')}`,
   );
+  await expect(dialog.getByTestId('food-guest-new')).toContainText('Новый клиент: Анна, Тестовая, +700000');
   await dialog.getByLabel('Время', { exact: true }).fill('19:00');
   if (walkIn)
     await dialog
@@ -167,7 +166,7 @@ test('посадить без брони без имени: гость «Гос�
   await page.goto(`/floor-plan?date=${date}&time=19:00`);
   await page.getByRole('button', { name: 'Посадить без брони', exact: true }).click();
   const dialog = page.getByRole('dialog');
-  await expect(dialog.getByRole('radio', { name: 'Новый', exact: true })).toBeChecked();
+  await expect(dialog.getByLabel('Телефон или имя', { exact: true })).toHaveAttribute('placeholder', 'Гость');
   await dialog.getByLabel('Время', { exact: true }).fill('19:00');
   await dialog.getByRole('button', { name: 'Посадить', exact: true }).click();
   await expect(dialog.getByRole('alert')).toContainText('Выберите стол');
@@ -267,8 +266,7 @@ test('overlap and archived catalog preserve creation draft and idempotency key',
   await page.goto(`/floor-plan?date=${date}&time=19:00`);
   await page.getByRole('button', { name: 'Новая бронь', exact: true }).click();
   const d = page.getByRole('dialog');
-  await d.getByRole('radio', { name: 'Новый', exact: true }).check();
-  await d.getByLabel('Имя', { exact: true }).fill('Сохранённый черновик');
+  await d.getByLabel('Телефон или имя', { exact: true }).fill('Сохранённый черновик');
   await d.getByLabel('Заметка').fill('Тестовая заметка');
   await d.getByRole('combobox', { name: 'Стол', exact: true }).selectOption(table.id);
   await d.getByRole('button', { name: 'Создать бронь', exact: true }).click();
@@ -277,7 +275,7 @@ test('overlap and archived catalog preserve creation draft and idempotency key',
     'aria-invalid',
     'true',
   );
-  await expect(d.getByLabel('Имя', { exact: true })).toHaveValue('Сохранённый черновик');
+  await expect(d.getByLabel('Телефон или имя', { exact: true })).toHaveValue('Сохранённый черновик');
   await expect(d.getByLabel('Заметка')).toHaveValue('Тестовая заметка');
   await request.patch(`${api}/food-service/tables/${table.id}`, {
     headers,
@@ -676,12 +674,12 @@ test('creation 503 keeps the draft and retry key; invalid period stays inline', 
   await page.goto(`/floor-plan?date=${date}&time=19:00`);
   await page.getByRole('button', { name: 'Новая бронь', exact: true }).click();
   const d = page.getByRole('dialog');
-  await d.getByLabel('Имя', { exact: true }).fill('Повтор синтетический');
+  await d.getByLabel('Телефон или имя', { exact: true }).fill('Повтор синтетический');
   await d.getByLabel('Заметка').fill('Сохранённый ввод');
   await d.getByLabel('Время', { exact: true }).fill('10:00');
   await d.getByRole('button', { name: 'Создать бронь', exact: true }).click();
   await expect(d.getByRole('alert')).toBeVisible();
-  await expect(d.getByLabel('Имя', { exact: true })).toHaveValue('Повтор синтетический');
+  await expect(d.getByLabel('Телефон или имя', { exact: true })).toHaveValue('Повтор синтетический');
   await d.getByLabel('Время', { exact: true }).fill('19:00');
   await request.post(`${api}/__test/control`, { data: { failCreate: true } });
   await d.getByRole('button', { name: 'Создать бронь', exact: true }).click();

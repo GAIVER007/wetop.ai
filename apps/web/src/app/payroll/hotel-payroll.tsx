@@ -2,8 +2,9 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
-import { Alert, Button, EmptyState, Field, Input, Select, Table } from '../../components/ui';
+import { Alert, Button, EmptyState, Field, Input, Table } from '../../components/ui';
 import { ActionMenu } from '../../components/action-menu';
+import { Icon } from '../../components/icon';
 import { Segmented } from '../../components/segmented';
 import { currencySign, formatMoney } from '../../lib/money';
 import type { PayModel } from '../../lib/food-types';
@@ -19,8 +20,13 @@ const MODELS: Array<[PayModel, string]> = [
   ['BONUS_ONLY', msg('Без оклада')],
 ];
 const modelLabel = (m: PayModel) => MODELS.find(([v]) => v === m)?.[1] ?? msg('Оклад');
+/** Строки способа в окне «Оплата» (вариант B, общий вид всех направлений 26.10.2026) */
+const CHOICES = [
+  { value: 'FIXED' as PayModel, title: msg('Оклад'), note: msg('Оклад в месяц плюс уборки'), icon: 'coins' as const },
+  { value: 'BONUS_ONLY' as PayModel, title: msg('Без оклада'), note: msg('Только за уборки и премии'), icon: 'clean' as const },
+];
 
-function PayDrawer({ scopeKey, row, currency, close }: { scopeKey: string; row: HotelPayrollRow; currency: string; close: () => void }) {
+export function HotelPayDrawer({ scopeKey, row, currency, close }: { scopeKey: string; row: HotelPayrollRow; currency: string; close: () => void }) {
   const t = useT();
   const router = useRouter();
   const [error, setError] = useState('');
@@ -48,35 +54,48 @@ function PayDrawer({ scopeKey, row, currency, close }: { scopeKey: string; row: 
     });
   }
   return (
-    <Overlay open onClose={close} title={t('Оплата: {name}', { name: row.name })} drawer className="food-drawer" trapFocus>
-      <div className="food-form" data-testid="hotel-pay-settings">
+    <Overlay open onClose={close} title={t('Оплата: {name}', { name: row.name })} drawer className="food-drawer pay-drawer" trapFocus>
+      <div className="food-form pay-form" data-testid="hotel-pay-settings">
         {error && <Alert>{error}</Alert>}
-        <Field label={t('Оклад')}>
-          <Select value={model} onChange={(e) => setModel(e.target.value as PayModel)}>
-            {MODELS.map(([value, label]) => (
-              <option key={value} value={value}>
-                {t(label)}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <div className="food-form-row">
+        <fieldset className="pay-choices">
+          <legend>{t('Как платим')}</legend>
+          {CHOICES.map((c) => (
+            <label key={c.value} className="pay-choice">
+              <input type="radio" name="hotel-pay-model" value={c.value} checked={model === c.value} onChange={() => setModel(c.value)} />
+              <span className="pay-choice__icon" aria-hidden="true">
+                <Icon name={c.icon} width={20} />
+              </span>
+              <span className="pay-choice__text">
+                <span className="pay-choice__title">{t(c.title)}</span>
+                <span className="pay-choice__note">{t(c.note)}</span>
+              </span>
+              <span className="pay-choice__mark" aria-hidden="true" />
+            </label>
+          ))}
+        </fieldset>
+        <div className="pay-fields">
           {model === 'FIXED' && (
-            <Field label={t('Оклад за месяц, {currency}', { currency: currencySign(currency) })}>
-              <Input type="number" inputMode="decimal" min={0} step="0.01" value={fixed} onChange={(e) => setFixed(e.target.value)} />
+            <Field label={t('Оклад в месяц')} controlId={`hotel-pay-fixed-${row.employeeId}`}>
+              <span className="pay-input">
+                <Input id={`hotel-pay-fixed-${row.employeeId}`} type="number" inputMode="decimal" min={0} step="0.01" value={fixed} onChange={(e) => setFixed(e.target.value)} />
+                <span className="pay-unit">{currencySign(currency)}</span>
+              </span>
             </Field>
           )}
-          <Field label={t('За одну уборку, {currency}', { currency: currencySign(currency) })}>
-            <Input name="perCleaning" type="number" inputMode="decimal" min={0} step="0.01" value={piece} onChange={(e) => setPiece(e.target.value)} />
+          <Field label={t('За одну уборку')} controlId={`hotel-pay-piece-${row.employeeId}`}>
+            <span className="pay-input">
+              <Input id={`hotel-pay-piece-${row.employeeId}`} name="perCleaning" type="number" inputMode="decimal" min={0} step="0.01" value={piece} onChange={(e) => setPiece(e.target.value)} />
+              <span className="pay-unit">{currencySign(currency)}</span>
+            </span>
           </Field>
         </div>
         <p className="hint">{t('Уборка засчитывается, когда номер, где сотрудник «Кто убирает», отмечен «Убрано».')}</p>
-        <div className="food-actions">
-          <Button disabled={pending} onClick={submit}>
-            {t('Сохранить')}
-          </Button>
+        <div className="food-actions pay-form__actions">
           <Button tone="secondary" disabled={pending} onClick={close}>
             {t('Отмена')}
+          </Button>
+          <Button disabled={pending} onClick={submit}>
+            {t('Сохранить')}
           </Button>
         </div>
       </div>
@@ -230,7 +249,7 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
           </tfoot>
         </Table>
       )}
-      {settings && <PayDrawer scopeKey={scopeKey} row={settings} currency={payroll.currency} close={() => setSettings(null)} />}
+      {settings && <HotelPayDrawer scopeKey={scopeKey} row={settings} currency={payroll.currency} close={() => setSettings(null)} />}
       {adjust && <AdjustmentDrawer scopeKey={scopeKey} month={payroll.month} currency={payroll.currency} row={adjust} close={() => setAdjust(null)} />}
     </div>
   );

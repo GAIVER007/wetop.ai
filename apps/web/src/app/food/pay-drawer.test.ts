@@ -22,7 +22,7 @@ const row = {
 } as never;
 const render = () =>
   renderToStaticMarkup(
-    h(PayDrawer, { scopeKey: 'b:l', row, basis: 'visits', currency: 'QAR', month: '2026-10', close() {} }),
+    h(PayDrawer, { scopeKey: 'b:l', row, basis: 'visits', currency: 'QAR', close() {} }),
   ).replace(/<!-- -->/g, '');
 
 /**

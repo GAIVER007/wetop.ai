@@ -118,14 +118,12 @@ export function PayDrawer({
   row,
   basis,
   currency,
-  month,
   close,
 }: {
   scopeKey: string;
   row: PayrollRow;
   basis: PayBasis;
   currency: string;
-  month: string;
   close: () => void;
 }) {
   const t = useT();
@@ -736,7 +734,6 @@ export function PayrollBoard({
           row={settings}
           basis={basis}
           currency={payroll.currency}
-          month={payroll.month}
           close={() => setSettings(null)}
         />
       )}

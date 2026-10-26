@@ -189,7 +189,7 @@ test('сетка: выходной по графику ведёт в окно н
 
   // у мастера запись в эту среду: выключение дня её не отменяет и предупреждает
   // Берём дату отображаемой ячейки: неделя филиала может отличаться от недели браузера.
-  const switchName = await cell(page, 'Дина', 2).getByRole('switch').getAttribute('name');
+  const switchName = await (await openDay(page, 'Дина', 2)).getByRole('switch').getAttribute('name');
   const wednesday = switchName?.match(/(\d{4}-\d{2}-\d{2})$/)?.[1];
   expect(wednesday).toBeTruthy();
   await request.post(`${FIXTURE_API}/__test/control`, {

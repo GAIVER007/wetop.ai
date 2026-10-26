@@ -95,20 +95,3 @@ test('напоминания гостям: настройки с предпро�
     await noHorizontalScroll(page);
   }
 });
-    await page.setViewportSize({ width, height: 900 });
-    await page.goto('/table-reservations');
-    // потоковая отрисовка оставляет в DOM скрытую копию раздела: берём видимую, в main
-    const box = page.getByRole('main').getByTestId('food-reminders-today');
-    await expect(box).toBeVisible({ timeout: 60_000 });
-    await expect(box.getByRole('heading')).toHaveText('Напомнить сегодня (1)');
-    await expect(box.getByTestId('food-reminder-row')).toContainText('Ерлан, бронь в');
-    await expect(box.getByRole('link', { name: 'Написать в WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\/77005556677\?text=/);
-    await noHorizontalScroll(page);
-    await box.screenshot({ path: `${shots}/today-${scheme}-${width}.png` });
-  }
-  await expect((await new AxeBuilder({ page }).include('[data-testid="food-reminders-today"]').withTags(['wcag2a', 'wcag2aa']).analyze()).violations).toEqual([]);
-  await page.getByTestId('food-reminders-today').getByRole('button', { name: 'Напомнил' }).click();
-  await expect(page.getByTestId('food-reminders-today')).toHaveCount(0);
-  await page.reload();
-  await expect(page.getByTestId('food-reminders-today')).toHaveCount(0);
-});

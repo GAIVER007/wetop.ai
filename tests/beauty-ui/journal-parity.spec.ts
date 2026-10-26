@@ -33,7 +33,8 @@ test('салон: шапка журнала как у гостиницы', async
       for (const h of look.heights) expect(h, where).toBe(`${h.split('=')[0]}=${look.controlH}`);
       for (const ft of look.fonts) expect(ft, where).toBe(`${ft.split('=')[0]}=${look.textSm}`);
       expect(look.selectsLeftOfSearch, where).toBe(true);
-      expect(look.filtersIcon, where).toBe(true); // кнопка «Фильтры» в строке, со значком
+      // ТЗ 25.10.2026, п. 11: на компьютере «Фильтров» нет, все отборы уже в строке
+      expect(look.filtersShown, where).toBe(false);
       expect(look.createIcon, where).toBe(true);
       expect(look.lupa, where).toBe(false);
       expect(look.subtitleShown, where).toBe(height >= 900);

@@ -86,7 +86,7 @@ test('REALGUEST owner edits in-card citizenship through server actions without c
   expect(before.reservations[0].items[0].folio).toBeTruthy();
   expect(before.reservations[0].items[0].folio.charges.length).toBeGreaterThan(0);
   await open(page);
-  await page.getByTestId('guest-form').locator('[name="citizenship"]').fill('KGZ');
+  await page.getByTestId('guest-form').locator('[name="citizenship"]').selectOption('KGZ');
   await page.getByTestId('guest-form').getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect.poll(async () => (await snapshot(page)).guests.find((g: { id: string }) => g.id === guest.id)?.citizenship).toBe('KGZ');
   const read = await page.request.get(`${api}/guests/${guest.id}`, { headers: await headers(page) });

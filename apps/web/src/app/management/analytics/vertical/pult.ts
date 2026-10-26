@@ -48,8 +48,20 @@ export interface BeautyPult {
   services: Array<{ name: string; count: number; revenueMinor: string }>;
   payments: Array<{ method: string; count: number; amountMinor: string }>;
   byDay: Array<{ date: string; revenueMinor: string; visits: number }>;
+  /** Самые пустые окна: день недели (0 вс) и часть дня, свободные часы мастеров по графику; от трёх рабочих часов */
+  idleSlots: Array<{ weekday: number; part: DayPart; freeHours: number; loadPercent: number }>;
   otherCurrencies: string[];
 }
+
+export type DayPart = 'morning' | 'day' | 'evening';
+/** Утро до 12:00, день до 17:00, вечер позже: так владелец говорит о расписании */
+const PARTS: Array<[DayPart, number, number]> = [
+  ['morning', 0, 720],
+  ['day', 720, 1020],
+  ['evening', 1020, 1440],
+];
+const overlap = (a0: number, a1: number, b0: number, b1: number) =>
+  Math.max(0, Math.min(a1, b1) - Math.max(a0, b0));
 
 /** Строки визита: многоуслужная запись делится по мастерам и услугам, у старой записи строка одна */
 const lines = (row: Row) =>
@@ -103,14 +115,24 @@ export function beautyPult(days: BeautyDay[], currency: string): BeautyPult {
     masters.set(id, m);
     return m;
   };
+  const slots = new Map<string, { weekday: number; part: DayPart; work: number; busy: number }>();
+  const slot = (weekday: number, part: DayPart) => {
+    const key = `${weekday}:${part}`;
+    const x = slots.get(key) ?? { weekday, part, work: 0, busy: 0 };
+    slots.set(key, x);
+    return x;
+  };
   for (const d of days) {
+    const weekday = new Date(`${d.date}T00:00:00Z`).getUTCDay();
     for (const c of d.columns) {
       const m = master(c.id, c.name);
-      if (!c.timeOff)
-        m.work += c.intervals.reduce(
-          (sum, i) => sum + Math.max(0, minutes(i.timeTo) - minutes(i.timeFrom)),
-          0,
-        );
+      if (c.timeOff) continue;
+      for (const i of c.intervals) {
+        const a = minutes(i.timeFrom);
+        const b = minutes(i.timeTo);
+        m.work += Math.max(0, b - a);
+        for (const [part, p0, p1] of PARTS) slot(weekday, part).work += overlap(a, b, p0, p1);
+      }
     }
     let dayRevenue = 0n;
     let dayVisits = 0;
@@ -124,11 +146,14 @@ export function beautyPult(days: BeautyDay[], currency: string): BeautyPult {
         booked += 1;
         if (row.source === 'WEBSITE') online += 1;
         // занятое окно мастера: и визит, и неявка, отмена окно освобождает
-        for (const l of lines(row))
+        for (const l of lines(row)) {
           master(l.employeeId, l.employeeName ?? msg('Мастер')).busy += Math.max(
             0,
             l.end - l.start,
           );
+          for (const [part, p0, p1] of PARTS)
+            slot(weekday, part).busy += overlap(l.start, l.end, p0, p1);
+        }
       }
       if (row.status === 'NO_SHOW') noShowMinor += big(row.priceMinor);
       if (row.status !== 'DONE') continue;
@@ -212,6 +237,16 @@ export function beautyPult(days: BeautyDay[], currency: string): BeautyPult {
       .map(([method, v]) => ({ method, count: v.count, amountMinor: s(v.amount) }))
       .sort((a, b) => (big(b.amountMinor) > big(a.amountMinor) ? 1 : -1)),
     byDay,
+    idleSlots: [...slots.values()]
+      .filter((x) => x.work - x.busy >= 180)
+      .map((x) => ({
+        weekday: x.weekday,
+        part: x.part,
+        freeHours: Math.round((x.work - Math.min(x.busy, x.work)) / 60),
+        loadPercent: pct(Math.min(x.busy, x.work), x.work),
+      }))
+      .sort((a, b) => a.loadPercent - b.loadPercent || b.freeHours - a.freeHours)
+      .slice(0, 2),
     otherCurrencies: [...other].sort(),
   };
 }
@@ -235,8 +270,28 @@ const CALM: Insight = {
   href: '/today',
 };
 
+const WEEKDAY: Record<number, string> = {
+  0: msg('воскресенье'),
+  1: msg('понедельник'),
+  2: msg('вторник'),
+  3: msg('среда'),
+  4: msg('четверг'),
+  5: msg('пятница'),
+  6: msg('суббота'),
+};
+const PART: Record<DayPart, string> = {
+  morning: msg('утром'),
+  day: msg('днём'),
+  evening: msg('вечером'),
+};
+/** «вторник утром»: слова переводятся по отдельности, `t` экрана подставит их в фразу */
+export const slotWords = (x: { weekday: number; part: DayPart }) => ({
+  day: WEEKDAY[x.weekday]!,
+  part: PART[x.part],
+});
+
 /** Подсказки салона: самое денежное первым, не больше трёх. Пороги простые и объяснены в тексте. */
-export function beautyInsights(p: BeautyPult): Insight[] {
+export function beautyInsights(p: BeautyPult, extra: { lapsed?: number } = {}): Insight[] {
   const out: Insight[] = [];
   if (p.noShow.count > 0)
     out.push({
@@ -260,7 +315,33 @@ export function beautyInsights(p: BeautyPult): Insight[] {
       action: msg('Открыть финансы'),
       href: '/finance',
     });
-  const idle = p.masters.filter((m) => m.loadPercent > 0 && m.loadPercent < 40);
+  if ((extra.lapsed ?? 0) > 0)
+    out.push({
+      id: 'lapsed',
+      tone: 'warning',
+      title: msg('Не были больше 45 дней: {n}'),
+      vars: { n: extra.lapsed! },
+      text: msg(
+        'Клиенты, которые раньше ходили, пропали. Напомните о себе сообщением или предложите скидку на возвращение.',
+      ),
+      action: msg('Открыть клиентов'),
+      href: '/customers',
+    });
+  const slotTip = p.idleSlots[0];
+  // без записей за период пустой весь график: это не подсказка, а шум
+  if (slotTip && p.visits + p.noShow.count > 0 && out.length < 3)
+    out.push({
+      id: 'idle-slot',
+      tone: 'warning',
+      title: msg('Пустые окна: {day} {part}'),
+      vars: { ...slotWords(slotTip), n: slotTip.freeHours, load: slotTip.loadPercent },
+      text: msg('Свободно {n} ч, загрузка {load}%. Акция на это время заполнит окна.'),
+      action: msg('Открыть продвижение'),
+      href: '/marketing',
+    });
+  const idle = out.some((x) => x.id === 'idle-slot')
+    ? []
+    : p.masters.filter((m) => m.loadPercent > 0 && m.loadPercent < 40);
   if (idle.length)
     out.push({
       id: 'idle',

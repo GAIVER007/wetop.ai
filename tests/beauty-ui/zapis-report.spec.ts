@@ -12,8 +12,8 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await page.goto(`/calendar?date=${date}`);
   const timeline = page.getByTestId('beauty-grid').locator('.beauty-col-body').first();
   const normalHeight = (await timeline.boundingBox())!.height;
-  // «Компактный вид» в «Фильтрах» единой шапки журнала (24.10.2026)
-  await page.getByText(/^Фильтры/).click();
+  // «Компактный вид» значком рядом с «На весь экран» (ТЗ 25.10.2026, п. 11); «Фильтров» на компьютере нет
+  await expect(page.getByText(/^Фильтры/)).toBeHidden();
   const compact = page.getByRole('button', { name: 'Компактный вид', exact: true });
   await compact.click();
   await expect(compact).toHaveAttribute('aria-pressed', 'true');
@@ -105,12 +105,15 @@ test('report: centered multi-service appointment, per-master occupancy and exact
     '12345',
   );
   await page.goto(`/calendar?date=${date}&appointment=${row.id}`);
+  // ТЗ 25.10.2026 п.8: история и повтор записи в меню «Ещё»
+  await card.getByText('Ещё', { exact: true }).click();
   await card.getByRole('button', { name: 'История изменений', exact: true }).click();
   await expect(card.getByText('Оплата добавлена', { exact: true })).toBeVisible();
   await expect(card.getByText('Запись создана', { exact: true })).toBeVisible();
   await card.getByRole('button', { name: 'Повторить запись', exact: true }).click();
   const repeated = page.getByRole('dialog', { name: 'Новая запись', exact: true });
-  await expect(repeated.getByLabel('Клиент', { exact: true })).toHaveValue(row.customer.id);
+  await expect(repeated.locator('input[type="hidden"][name="customerId"]')).toHaveValue(row.customer.id);
+  await expect(repeated.getByTestId('appointment-customer-chip')).toBeVisible();
   await expect(repeated.getByLabel('Услуга 3', { exact: true })).toHaveValue(f.services[0]!.id);
   await repeated.locator('input[type="date"]').fill('2026-10-23');
   await repeated.getByRole('button', { name: 'Записать', exact: true }).click();

@@ -892,7 +892,9 @@ function seedAnalyticsHistory() {
       const roll = rnd();
       const free = busy.has(u.code) && dep > add(today, -3);
       const stay = roll < fill && !free;
-      const lost = !stay && !free && roll > 0.93;
+      // отмены: в этом месяце доля выше прошлого при любой дате прогона (тест «рост отмен — красный»): прежний общий
+      // порог 0,93 давал направление по случаю, 25.10.2026 стрелка ушла вниз и валила analytics-v2 у всех PR
+      const lost = !stay && !free && roll > [0.95, 0.95, 0.85][shift]!;
       if (stay || lost) {
         n += 1;
         const r = cardSeed();
@@ -2294,7 +2296,7 @@ function resetTeam() {
 }
 resetTeam();
 /** Люди организации глазами вошедшего: он сам с ролью `uiRole` и что он может с каждым */
-function teamView(me: UiUser) {
+function teamView(me: UiUser, scopeBusinessId: string | null = null) {
   const people: FixtureMember[] = [
     {
       userId: me.id,
@@ -2327,6 +2329,12 @@ function teamView(me: UiUser) {
         roleEditable:
           !you && canSetRoleAtDesk(uiRole, m.role, m.role === 'STAFF' ? 'MANAGER' : 'STAFF'),
         detailsEditable: canEditMemberDetails(uiRole, m.role, you),
+        // карточки человека по `employees.user_id`, как `GET /auth/members` (общий экран «Сотрудники», U1)
+        // карточка, заведённая без филиала (сид спека), считается карточкой бизнеса, из которого спрашивают
+        employees: fixtureBeautyEmployees.flatMap((e) => {
+          const businessId = e.businessId ?? scopeBusinessId;
+          return e.userId === m.userId && businessId ? [{ employeeId: e.id, businessId }] : [];
+        }),
       };
     });
 }
@@ -5692,6 +5700,9 @@ interface FixtureBeautyEmployee {
   serviceIds: string[];
   /** Назначение в «Персонале»: SPECIALIST | OTHER_EMPLOYEE | BOTH, null = не назначено (миграция 138) */
   personnelKind: 'SPECIALIST' | 'OTHER_EMPLOYEE' | 'BOTH' | null;
+  /** вход, привязанный к карточке (`employees.user_id`), и бизнес карточки: для общего экрана «Сотрудники» */
+  userId?: string | null;
+  businessId?: string | null;
 }
 /** График мастера и отсутствия в подставном API (срез B4): неделя на филиал, отсутствия на сеть */
 interface FixtureWorkingInterval {
@@ -7131,7 +7142,12 @@ createServer(async (req, res) => {
       const who = token ? uiSessions.get(token) : undefined;
       if (!who) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
       if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
-      if (!memberMatch[1]) return send(200, teamView(who));
+      if (!memberMatch[1]) {
+        const pointer = String(req.headers['x-wetop-scope'] ?? '');
+        const scoped = fixtureBranches.find((b) => pointer.endsWith(`location=${String(b['locationId'])}`));
+        const business = (scoped?.['location'] as { businessId?: string } | undefined)?.businessId ?? null;
+        return send(200, teamView(who, business));
+      }
       const target = teamView(who).find((m) => m.userId === memberMatch[1]);
       if (req.method === 'PATCH') {
         if (!canSetRoleAtDesk(uiRole, 'STAFF', 'MANAGER'))
@@ -7424,6 +7440,14 @@ createServer(async (req, res) => {
           personnelKind: ['SPECIALIST', 'OTHER_EMPLOYEE', 'BOTH'].includes(String(body['personnelKind']))
             ? (body['personnelKind'] as FixtureBeautyEmployee['personnelKind'])
             : null,
+          // только стенд: спек сразу привязывает карточку ко входу, в API это делает принятое приглашение
+          userId: typeof body['userId'] === 'string' ? body['userId'] : null,
+          businessId:
+            ((
+              [DEFAULT_FIXTURE_BRANCH, ...fixtureBranches].find((b) => String(b['locationId']) === locationId)?.[
+                'location'
+              ] as { businessId?: string } | undefined
+            )?.businessId ?? null),
         };
         fixtureBeautyEmployees.push(row);
         return send(200, row);
@@ -10490,6 +10514,9 @@ createServer(async (req, res) => {
         return send(200, r);
       }
       if (item && action === 'check-in') {
+        // как API (reservations.service checkIn): без гражданства в гостинице Казахстана заселения нет (eQonaq)
+        if (!(r.primaryGuest?.citizenship ?? '').trim())
+          return send(422, { message: 'Укажите гражданство в карточке гостя — без него заселение невозможно (eQonaq)' });
         item.status = 'CHECKED_IN';
         r.status = 'CHECKED_IN';
         return send(200, r);

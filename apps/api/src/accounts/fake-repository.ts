@@ -316,6 +316,9 @@ export class FakeAccountsRepository implements AccountsRepository {
         position: this.details.get(a.userId)?.position ?? null,
         suspended: this.suspended.has(a.userId),
         scopes: this.scopes.get(a.userId) ?? [],
+        employees: this.employees
+          .filter((e) => e.userId === a.userId && e.organizationId === organizationId)
+          .map((e) => ({ employeeId: e.id, businessId: e.businessId })),
       }));
   }
 
@@ -533,5 +536,6 @@ function toInviteRecord(i: StoredInvite): InviteRecord {
     phone: i.phone,
     position: i.position,
     scopes: i.scopes,
+    employeeId: i.employeeId ?? null,
   };
 }

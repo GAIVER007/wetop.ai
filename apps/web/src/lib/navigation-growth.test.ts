@@ -5,7 +5,8 @@ describe('Продажи и маркетинг всех направлений',
   for (const vertical of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const) {
     // с верхним меню 17.10.2026 «Продажи» и «Маркетинг» один раздел «Продвижение»
     it(`${vertical}: продажи и маркетинг в «Продвижении»`, () => {
-      const sections = menuSectionsFor(owner, vertical);
+      // у салона «Продвижение» пока видит только главный администратор платформы (запуск 25.10.2026)
+      const sections = menuSectionsFor(vertical === 'BEAUTY' ? { ...owner, platform: true } : owner, vertical);
       expect(sections.find((s) => s.id === 'sales')).toBeUndefined();
       expect(sections.find((s) => s.id === 'marketing')?.items.map((i) => i.href)).toEqual(
         expect.arrayContaining(['/marketing', '/sales', '/ai-agents']),

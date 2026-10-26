@@ -4,6 +4,7 @@ import { useOptimistic, useState, useTransition, type ReactNode } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EmployeeFilter } from '../../components/employee-filter';
 import { QuickReport } from '../../components/quick-report';
+import { FoldVertical } from 'lucide-react';
 import { Icon } from '../../components/icon';
 import { JournalExpandButton } from '../../components/journal-expand';
 import { beautyQuickReport } from '../../components/quick-report-data';
@@ -17,6 +18,8 @@ import type {
   BeautyEmployeeRow,
 } from '../../lib/api';
 import { formatMoney } from '../../lib/money';
+import { monthHref } from './month-href';
+import { matchesCustomer } from '../../lib/customer-match';
 import { AppointmentCard } from './appointment-card';
 import { AppointmentEditor } from './appointment-editor';
 import {
@@ -29,19 +32,14 @@ import { DayNav } from '../../components/day-nav';
 import { JournalFilter, JournalHead, JournalSearch, FiltersTitle } from '../../components/journal-head';
 import { useNarrow, useWide } from '../../lib/use-narrow';
 import { DayPanel } from './day-panel';
-import { masterLoad, shortHour, shortName } from './journal-day';
+import { masterLoad, shortHour, shortName, tilePayment } from './journal-day';
 import { clock, clockMinutes, instantOf, localInput } from './time';
 import { beautyPeriodRows, moveAppointment } from './journal-actions';
 import { beautyStatus } from '../../lib/status/beauty';
-import { CalendarLegend } from './calendar-legend';
+import { StatusChips } from './calendar-legend';
 import { useT } from '../../i18n/locale-provider';
 
 const STEP = 30;
-const shiftDay = (date: string, n: number) => {
-  const at = new Date(`${date}T12:00:00Z`);
-  at.setUTCDate(at.getUTCDate() + n);
-  return at.toISOString().slice(0, 10);
-};
 type Panel =
   | { kind: 'new'; employeeId: string; time: string }
   | { kind: 'card'; row: BeautyAppointmentRow }
@@ -171,15 +169,7 @@ export function JournalBoard({
   const slots = Array.from({ length: (to - from) / STEP }, (_, i) => from + i * STEP);
   const height = (to - from) * PX_PER_MIN;
   // поиск в строке отборов: имя или телефон клиента (единая шапка 24.10.2026)
-  const found = (a: BeautyAppointmentRow) => {
-    const q = query.trim().toLocaleLowerCase('ru');
-    if (!q) return true;
-    const digits = q.replace(/\D/g, '');
-    return (
-      a.customer.name.toLocaleLowerCase('ru').includes(q) ||
-      (digits.length >= 3 && (a.customer.phone ?? '').replace(/\D/g, '').includes(digits))
-    );
-  };
+  const found = (a: BeautyAppointmentRow) => matchesCustomer(query, a.customer);
   const reportRows = day.appointments.filter(
     (a) => matchesAppointment(a, master, service) && (!status || a.status === status) && found(a),
   );
@@ -330,7 +320,14 @@ export function JournalBoard({
             }}
             className={`beauty-tile beauty-tile--${a.status.toLowerCase()}`}
             style={{ top: (a.startMinutes - from) * PX_PER_MIN, height: Math.max(24, a.endMinutes - a.startMinutes) * PX_PER_MIN }} /* slop-allow: inline-style положение и высота записи из минут визита */
-            title={`${clock(a.startMinutes)}–${clock(a.endMinutes)}, ${a.customer.name}, ${a.serviceName}, ${formatMoney(a.priceMinor, a.currency)}, ${beautyStatus[a.status].label}`}
+            title={[
+              `${clock(a.startMinutes)}–${clock(a.endMinutes)}`,
+              a.customer.name,
+              a.serviceName,
+              formatMoney(a.priceMinor, a.currency),
+              ...(tilePayment(a.appointment) ? [t(tilePayment(a.appointment)!.full)] : []),
+              t(beautyStatus[a.status].label),
+            ].join(', ')}
             onClick={() => {
               // щелчок открывает карточку, как раньше, и показывает запись в панели дня справа
               setPicked(a.appointment.id);
@@ -338,34 +335,32 @@ export function JournalBoard({
             }}
             aria-pressed={wide ? picked === a.appointment.id : undefined}
           >
-            {/* вариант B (24.10.2026): время и статус в строку, клиент крупно, услуга, сумма и оплата */}
+            {/* плашка читается целиком (владелец 25.10.2026): время и клиент сверху, услуга своей строкой (две, если
+                хватает высоты), цена и оплата значком «точка + слово», полное слово в подсказке; статус словом */}
             <span className="beauty-tile-top">
               <span className="beauty-tile-time">
                 {clock(a.startMinutes)}–{clock(a.endMinutes)}
               </span>
-              <span className="beauty-tile-status">{beautyStatus[a.status].label}</span>
+              <strong className="beauty-tile-name">{a.customer.name}</strong>
             </span>
-            <strong className="beauty-tile-name">{a.customer.name}</strong>
             <span className="beauty-tile-service">{a.serviceName}</span>
             <span className="beauty-tile-money">
               <b>{formatMoney(a.priceMinor, a.currency)}</b>
-              {a.status !== 'NO_SHOW' && (
-                <span
-                  className={
-                    BigInt(a.appointment.paidMinor || '0') >= BigInt(a.appointment.priceMinor || '0')
-                      ? 'beauty-paid'
-                      : 'beauty-unpaid'
-                  }
-                >
-                  {BigInt(a.appointment.paidMinor || '0') >= BigInt(a.appointment.priceMinor || '0')
-                    ? dense
-                      ? t('Опл.')
-                      : t('Оплачено')
-                    : dense
-                      ? t('Не опл.')
-                      : t('Не оплачено')}
-                </span>
-              )}
+              {(() => {
+                const pay = tilePayment(a.appointment);
+                return (
+                  pay && (
+                    <span
+                      className={`beauty-tile-pay beauty-tile-pay--${pay.kind}`}
+                      title={t(pay.full)}
+                    >
+                      <span className="beauty-tile-dot" aria-hidden="true"></span>
+                      {t(pay.word)}
+                    </span>
+                  )
+                );
+              })()}
+              <span className="beauty-tile-status">{t(beautyStatus[a.status].label)}</span>
             </span>
           </button>
         ))}
@@ -455,25 +450,28 @@ export function JournalBoard({
             today={localInput(new Date().toISOString(), day.location.timezone).slice(0, 10)}
             testId="beauty-day-nav"
             onGo={(next) => router.push(dayHref(next))}
-            presets={[
-              { label: t('Сегодня'), onSelect: () => router.push(dayHref()) },
-              {
-                label: t('Завтра'),
-                date: shiftDay(
-                  localInput(new Date().toISOString(), day.location.timezone).slice(0, 10),
-                  1,
-                ),
-              },
-              {
-                label: t('Эта неделя'),
-                onSelect: () => router.push(`${dayHref(day.date)}&view=week`),
-              },
-            ]}
+            onToday={() => router.push(dayHref())}
+            onWeek={() => router.push(`${dayHref(day.date)}&view=week`)}
+            // «Этот месяц»: реестр записей за месяц (`/appointments?from=&to=`), отдельной сетки месяца у журнала нет
+            onMonth={() => router.push(monthHref(localInput(new Date().toISOString(), day.location.timezone).slice(0, 10)))}
           />
         }
         actions={
           <>
             <span className="journal-head__desk-only">
+              {/* «Компактный вид» значком рядом с «На весь экран» (ТЗ 25.10.2026, п. 11); масштаб только у сетки
+                  компьютера, у ленты телефона его нет, поэтому на телефоне значка нет и шапка не растёт */}
+              <button
+                type="button"
+                className="icon-button journal-compact"
+                aria-label={t('Компактный вид')}
+                title={t('Компактный вид')}
+                aria-pressed={compact}
+                onClick={() => setCompact(!compact)}
+              >
+                {/* значок вне общего набора `Icon`: набор снят эталоном /design-system */}
+                <FoldVertical width={20} height={20} strokeWidth={1.7} aria-hidden="true" />
+              </button>
               <JournalExpandButton />
               {quickReport}
             </span>
@@ -552,19 +550,19 @@ export function JournalBoard({
             />
             {serviceFilter}
             {statusFilter}
-            <Help
-              title={<FiltersTitle active={[master, service, status].filter(Boolean).length} />}
-            >
-              {/* на телефоне услуга и статус переезжают сюда средствами CSS (без второй копии и без скачка разметки) */}
-              <div className="journal-head__phone-only">{quickReportPhone}</div>
-              <Button tone="secondary" aria-pressed={compact} onClick={() => setCompact(!compact)}>
-                {t('Компактный вид')}
-              </Button>
-              <CalendarLegend />
-              <p className="beauty-note">
-                {t('Свободно: пустая клетка. Вне графика: нет доступной кнопки. Скрытые занятые интервалы обозначены текстом.')}
-              </p>
-            </Help>
+            {/* «Фильтры» только на телефоне (ТЗ 25.10.2026, п. 11): на компьютере все отборы уже в строке */}
+            <span className="journal-head__phone-only">
+              <Help
+                title={<FiltersTitle active={[master, service, status].filter(Boolean).length} />}
+              >
+                {/* на телефоне услуга и статус переезжают сюда средствами CSS (без второй копии и без скачка разметки) */}
+                {quickReportPhone}
+                <StatusChips value={status} onChange={setStatus} />
+              </Help>
+            </span>
+            <div className="journal-head__desk-only">
+              <StatusChips value={status} onChange={setStatus} />
+            </div>
           </>
         }
         views={views}
@@ -622,7 +620,7 @@ export function JournalBoard({
       )}
       {/* без специалистов сетку не рисуем: пустая колонка часов ничего не говорит (п. 36) */}
       {columns.length > 0 && (
-        <div className={`beauty-layout${wide ? ' beauty-layout--panel' : ''}`}>
+        <div className={`beauty-layout journal-screen__board${wide ? ' beauty-layout--panel' : ''}`}>
           <div className="beauty-board">
             <div
               className={`beauty-grid-day${dense ? ' beauty-grid-day--dense' : ''}`}
@@ -709,6 +707,7 @@ export function JournalBoard({
               columns={columns}
               selected={day.appointments.find((r) => r.id === picked) ?? null}
               nowMinutes={nowMinutes}
+              currency={day.location.currency}
               canUpdate={canUpdate}
               onOpen={(row) => setPanel({ kind: 'card', row })}
               onDone={() => router.refresh()}

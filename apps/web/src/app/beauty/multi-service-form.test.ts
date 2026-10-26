@@ -73,6 +73,35 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     expect(html).toContain('>Гость<');
     expect(html).toContain('Последний клиент');
   });
+  it('клиент одним блоком (владелец 25.10.2026): поиск «Телефон или имя», быстрые кнопки и одна строка нового клиента, без второго выбора «Клиент»', () => {
+    const html = renderToStaticMarkup(
+      createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn() }),
+    );
+    const block = html.slice(html.indexOf('appointment-customer-fields'), html.indexOf('appointment-pick'));
+    expect(block.match(/>Клиент</g)).toHaveLength(1);
+    expect(block).not.toContain('<select');
+    expect(block).not.toContain('>Новый клиент<');
+    expect(block).toContain('type="hidden" name="customerId" value=""');
+    expect(block).toContain('name="firstName"');
+    expect(block).toContain('name="lastName"');
+    expect(block).toContain('name="phone"');
+    expect(block).toContain('>+ Новый клиент<');
+  });
+  it('повтор записи: выбранный клиент чипом «имя, телефон ×», строки нового клиента нет, id уходит прежним полем', () => {
+    const repeatFrom = {
+      id: 'visit', serviceId: 'cut', employeeId: 'master', serviceName: 'Test haircut',
+      customer: { id: 'c1', name: 'Тестовая Клиентка', phone: '+97451865708' },
+      startsAt: '2026-10-18T10:00:00.000Z', endsAt: '2026-10-18T10:30:00.000Z', startMinutes: 600, endMinutes: 630,
+      status: 'DONE', next: [], priceMinor: '2500', paidMinor: '2500', refundedMinor: '0', currency: 'USD', notes: null,
+    };
+    const html = renderToStaticMarkup(
+      createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn(), repeatFrom: repeatFrom as never }),
+    );
+    expect(html).toContain('type="hidden" name="customerId" value="c1"');
+    expect(html).toMatch(/data-testid="appointment-customer-chip"[^>]*>Тестовая Клиентка, \+974/);
+    expect(html).toContain('aria-label="Убрать клиента: Тестовая Клиентка"');
+    expect(html).not.toContain('name="firstName"');
+  });
   it('A3: итог показывает суммарную длительность визита по строкам', () => {
     const editing = {
       id: 'visit',
@@ -259,6 +288,11 @@ it('offers separate hours and five-minute steps while retaining a legacy non-ste
 });
 
 // телефон в списке группами «+7 700 000 00 01» (владелец 22.10.2026)
+const repeatBase = {
+  id: 'visit', serviceId: 'cut', employeeId: 'master', serviceName: 'Test haircut',
+  startsAt: '2026-10-18T10:00:00.000Z', endsAt: '2026-10-18T10:30:00.000Z', startMinutes: 600, endMinutes: 630,
+  status: 'DONE', next: [], priceMinor: '2500', paidMinor: '2500', refundedMinor: '0', currency: 'USD', notes: null,
+};
 it('distinguishes clients with equal names by phone in the selection list', () => {
   const customers = ['+77000000001', '+77000000002'].map((phone, index) => ({
     id: `customer-${index}`,
@@ -267,16 +301,19 @@ it('distinguishes clients with equal names by phone in the selection list', () =
     phone,
     status: 'ACTIVE',
   }));
-  const html = renderToStaticMarkup(
-    createElement(AppointmentForm, {
-      day,
-      customers: customers as never,
-      employeeId: 'master',
-      onDone: vi.fn(),
-    }),
-  );
-  expect(html).toContain('Тестовый Клиент, +7 700 000 00 01');
-  expect(html).toContain('Тестовый Клиент, +7 700 000 00 02');
+  // список выбора теперь чип выбранного клиента (ТЗ 25.10.2026, п. 6): тёзки различаются телефоном в чипе
+  const chipFor = (id: string) =>
+    renderToStaticMarkup(
+      createElement(AppointmentForm, {
+        day,
+        customers: customers as never,
+        employeeId: 'master',
+        onDone: vi.fn(),
+        repeatFrom: { ...repeatBase, customer: { id, name: 'Тестовый Клиент', phone: null } } as never,
+      }),
+    );
+  expect(chipFor('customer-0')).toMatch(/data-testid="appointment-customer-chip"[^>]*>Тестовый Клиент, \+7 700 000 00 01/);
+  expect(chipFor('customer-1')).toMatch(/data-testid="appointment-customer-chip"[^>]*>Тестовый Клиент, \+7 700 000 00 02/);
 });
 
 it('repeats a visit as a new draft with the same client and services, never the source id or payment', () => {
@@ -308,7 +345,7 @@ it('repeats a visit as a new draft with the same client and services, never the 
       ...{ repeatFrom },
     }),
   );
-  expect(html).toContain('value="repeat-customer" selected=""');
+  expect(html).toContain('type="hidden" name="customerId" value="repeat-customer"');
   expect(html).toContain('Synthetic Repeat Client');
   expect(html).toContain('value="cut" selected=""');
   expect(html).toContain('Synthetic note');

@@ -16,16 +16,21 @@ export function InsightsPanel({
   items,
   money,
   t,
+  words,
 }: {
   items: Insight[];
   /** сумма `sum` подсказки в минорных единицах словами валюты филиала */
   money: (minor: string) => string;
   t: Translate;
+  /** подстановки, которые сами переводятся (день недели, часть дня) */
+  words?: (x: Insight) => Record<string, string>;
 }) {
-  const vars = (x: Insight) =>
-    Object.fromEntries(
+  const vars = (x: Insight) => ({
+    ...Object.fromEntries(
       Object.entries(x.vars ?? {}).map(([k, v]) => [k, k === 'sum' ? money(String(v)) : v]),
-    );
+    ),
+    ...(words ? words(x) : {}),
+  });
   return (
     <Panel title={t('Что сделать сейчас')} className="pult-insights" data-testid="pult-insights">
       <ul>

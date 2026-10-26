@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { hasCitizenship, normalizeCitizenship } from '@pms/domain';
+import { citizenshipRequiredForCheckIn, hasCitizenship, normalizeCitizenship } from '@pms/domain';
 import { DESK_REPOSITORY, type DeskRepository, type DeskStay } from './desk.repository';
 
 export interface DeskRow {
@@ -50,7 +50,12 @@ export class DeskService {
   async today(date?: string): Promise<DeskDay> {
     const day = date ?? (await this.repo.today());
     if (!ISO.test(day)) throw new BadRequestException('date — дата YYYY-MM-DD');
-    const [stays, tasksOpen] = await Promise.all([this.repo.stays(day), this.repo.openTasksDue(day)]);
+    const [stays, tasksOpen, country] = await Promise.all([
+      this.repo.stays(day),
+      this.repo.openTasksDue(day),
+      this.repo.countryCode(),
+    ]);
+    const citizenshipNeeded = citizenshipRequiredForCheckIn(country);
     const row = (s: DeskStay): DeskRow => ({
       itemId: s.itemId,
       confirmationNumber: s.confirmationNumber,
@@ -70,7 +75,7 @@ export class DeskService {
         s.status === 'CONFIRMED' || s.status === 'TENTATIVE'
           ? !s.unitCode
             ? 'нет ячейки'
-            : !hasCitizenship(s.citizenship)
+            : citizenshipNeeded && !hasCitizenship(s.citizenship)
               ? 'нет гражданства'
               : s.guestsRecorded < s.adults
                 ? `карточек ${s.guestsRecorded} из ${s.adults}`

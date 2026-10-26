@@ -157,6 +157,26 @@ describe('пульт салона', () => {
   });
 });
 
+describe('пустые окна и «давно не были»', () => {
+  // 20.10.2026 вторник: мастер с 10 до 18, записи только днём 13:00-15:00
+  const tuesday = day(
+    '2026-10-20',
+    [appt({ id: 'w', employeeId: 'm1', startMinutes: 780, endMinutes: 900 })],
+    [col('m1', 'Айгерим')],
+  );
+  const p = beautyPult([tuesday], 'KZT');
+  it('окно с наименьшей загрузкой: день вторника, 5 ч по графику, занято 2', () => {
+    expect(p.idleSlots[0]).toEqual({ weekday: 2, part: 'day', freeHours: 3, loadPercent: 40 });
+  });
+  it('окна меньше трёх свободных часов не считаются: утро 10-12 и вечер 17-18 мимо', () => {
+    expect(p.idleSlots).toHaveLength(1);
+  });
+  it('подсказка «давно не были» приходит из сводки API и ведёт к клиентам', () => {
+    const tips = beautyInsights(beautyPult([day('2026-10-20', [])], 'KZT'), { lapsed: 4 });
+    expect(tips[0]).toMatchObject({ id: 'lapsed', vars: { n: 4 }, href: '/customers' });
+  });
+});
+
 describe('прошлый период той же длины вплотную', () => {
   it('7 дней', () =>
     expect(previousRange('2026-10-19', '2026-10-25')).toEqual({

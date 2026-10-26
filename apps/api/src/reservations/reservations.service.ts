@@ -32,6 +32,7 @@ import {
   penaltyAmount,
   penaltyDue,
   assertCanExtend,
+  citizenshipRequiredForCheckIn,
   hasCitizenship,
   mayAssignPlanWithoutRates,
   assertDerivedRuleAllows,
@@ -1622,8 +1623,10 @@ export class ReservationsService {
         assertCanCheckIn(item.status, item.allocations.length > 0);
         const before = await repo.card(number);
         // DATA_MODEL §3: гражданство обязательно на check-in (eQonaq) — заполняется в карточке гостя.
-        // Через hasCitizenship: CHAR(3) в базе отдаёт пустое значение как '   ', и голая проверка его пропускала
-        if (!hasCitizenship(before?.primaryGuest?.citizenship))
+        // Через hasCitizenship: CHAR(3) в базе отдаёт пустое значение как '   ', и голая проверка его пропускала.
+        // eQonaq только в Казахстане: гостинице другой страны (Катар) правило не нужно (решение 24.10.2026)
+        const { countryCode } = await repo.property();
+        if (citizenshipRequiredForCheckIn(countryCode) && !hasCitizenship(before?.primaryGuest?.citizenship))
           throw new UnprocessableEntityException(
             'Укажите гражданство в карточке гостя — без него заселение невозможно (eQonaq)',
           );

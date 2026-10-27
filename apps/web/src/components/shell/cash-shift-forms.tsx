@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Button, Field, Input, Textarea } from '../ui';
 import { inputToMinor, minorToInput } from '../../lib/money';
 import type { CashRegisterView } from '../../lib/cash-register';
+import { useT } from '../../i18n/locale-provider';
+import { msg } from '../../i18n';
 
 /**
  * Окна открытия и закрытия смены (владелец 26.10.2026: открытие «Б», закрытие «А»).
@@ -32,6 +34,7 @@ export function OpenShiftForm({
   send: Send;
   onCancel: () => void;
 }) {
+  const t = useT();
   const expected = cash.snapshot.balances.CASH ?? '0';
   const last = cash.history[0];
   const lastBy = last && cash.members.find((m) => m.id === last.responsible_user_id)?.name;
@@ -43,18 +46,18 @@ export function OpenShiftForm({
   const needNote = diff !== null && diff !== 0n;
   return (
     <div className="cash-shift-open" data-testid="cash-open">
-      <p className="cash-shift-open__label">В кассе должно быть</p>
+      <p className="cash-shift-open__label">{t('В кассе должно быть')}</p>
       <p className="cash-shift-open__sum" data-testid="cash-open-expected">
         {money(expected)}
       </p>
       {last?.closed_at && (
         <p className="cash-shift-open__hint">
-          {lastBy ? `Столько оставил(а) ${lastBy}, закрывая прошлую смену` : 'Остаток после прошлой смены'}
+          {lastBy ? t('Столько оставил(а) {name}, закрывая прошлую смену', { name: lastBy }) : t('Остаток после прошлой смены')}
         </p>
       )}
       {!other ? (
         <>
-          <p className="cash-shift-open__question">Пересчитайте наличные. Сумма такая же?</p>
+          <p className="cash-shift-open__question">{t('Пересчитайте наличные. Сумма такая же?')}</p>
           <div className="cash-shift-open__actions">
             <Button
               type="button"
@@ -63,7 +66,7 @@ export function OpenShiftForm({
               disabled={busy || disabled}
               onClick={() => send({ action: 'open', counted: minorToInput(expected), note: '' })}
             >
-              {busy ? 'Сохраняю…' : `Да, ${money(expected)}. Открыть смену`}
+              {busy ? t('Сохраняю…') : t('Да, {sum}. Открыть смену', { sum: money(expected) })}
             </Button>
             <Button
               type="button"
@@ -72,7 +75,7 @@ export function OpenShiftForm({
               disabled={busy}
               onClick={() => setOther(true)}
             >
-              Нет, другая сумма
+              {t('Нет, другая сумма')}
             </Button>
           </div>
         </>
@@ -84,7 +87,7 @@ export function OpenShiftForm({
             send({ action: 'open', counted, note });
           }}
         >
-          <Field label="Сколько наличных в кассе сейчас">
+          <Field label={t('Сколько наличных в кассе сейчас')}>
             <Input
               name="counted"
               className="cash-shift-amount"
@@ -98,11 +101,12 @@ export function OpenShiftForm({
           </Field>
           {needNote && (
             <p className="cash-shift-diff" data-tone={diff! < 0n ? 'short' : 'extra'} role="status">
-              {diff! < 0n ? `Не хватает ${money(String(-diff!))}` : `Лишние ${money(String(diff!))}`}. Напишите почему
+              {diff! < 0n ? t('Не хватает {sum}', { sum: money(String(-diff!)) }) : t('Лишние {sum}', { sum: money(String(diff!)) })}.{' '}
+              {t('Напишите почему')}
             </p>
           )}
           {needNote && (
-            <Field label="Почему сумма другая">
+            <Field label={t('Почему сумма другая')}>
               <Textarea
                 name="note"
                 rows={2}
@@ -116,10 +120,14 @@ export function OpenShiftForm({
           )}
           <div className="cash-header__footer">
             <Button type="button" tone="secondary" disabled={busy} onClick={() => setOther(false)}>
-              Назад
+              {t('Назад')}
             </Button>
             <Button type="submit" disabled={busy || disabled || countedMinor === null}>
-              {busy ? 'Сохраняю…' : countedMinor === null ? 'Открыть смену' : `Открыть смену с ${money(String(countedMinor))}`}
+              {busy
+                ? t('Сохраняю…')
+                : countedMinor === null
+                  ? t('Открыть смену')
+                  : t('Открыть смену с {sum}', { sum: money(String(countedMinor)) })}
             </Button>
           </div>
         </form>
@@ -127,7 +135,7 @@ export function OpenShiftForm({
       {!other && (
         <div className="cash-header__footer">
           <Button type="button" tone="ghost" disabled={busy} onClick={onCancel}>
-            Отмена
+            {t('Отмена')}
           </Button>
         </div>
       )}
@@ -152,6 +160,7 @@ export function CloseShiftForm({
   onCancel: () => void;
   onExpense: () => void;
 }) {
+  const t = useT();
   const expected = BigInt(cash.snapshot.balances.CASH ?? '0');
   const opened = BigInt(cash.active?.opening.counted ?? '0');
   const received = BigInt(cash.totals?.received.CASH ?? '0');
@@ -178,7 +187,7 @@ export function CloseShiftForm({
     (handover === 0n || recipient !== '');
   const row = (label: string, value: bigint, sign = '') => (
     <p>
-      <span>{label}</span>
+      <span>{t(label)}</span>
       <strong>
         {sign}
         {money(String(value))}
@@ -194,24 +203,24 @@ export function CloseShiftForm({
         if (ready) send({ action: 'close', counted, retained, recipientId: recipient, note });
       }}
     >
-      <section className="cash-shift-calc" aria-label="Расчёт наличных за смену">
-        {row('Было на открытии', opened)}
-        {row('Оплаты наличными', received, '+ ')}
-        {refunds > 0n && row('Возвраты наличными', refunds, '− ')}
+      <section className="cash-shift-calc" aria-label={t('Расчёт наличных за смену')}>
+        {row(msg('Было на открытии'), opened)}
+        {row(msg('Оплаты наличными'), received, '+ ')}
+        {refunds > 0n && row(msg('Возвраты наличными'), refunds, '− ')}
         <div className="cash-shift-calc__expenses">
-          {row('Расходы за смену', expenses, '− ')}
+          {row(msg('Расходы за смену'), expenses, '− ')}
           <Button type="button" tone="ghost" size="sm" disabled={busy || disabled} onClick={onExpense}>
-            + Добавить расход
+            + {t('Добавить расход')}
           </Button>
         </div>
-        {other !== 0n && row('Внесения и поправки', other < 0n ? -other : other, other < 0n ? '− ' : '+ ')}
+        {other !== 0n && row(msg('Внесения и поправки'), other < 0n ? -other : other, other < 0n ? '− ' : '+ ')}
         <p className="cash-shift-calc__total">
-          <span>Должно быть в кассе</span>
+          <span>{t('Должно быть в кассе')}</span>
           <strong data-testid="cash-close-expected">{money(String(expected))}</strong>
         </p>
       </section>
       <div className="cash-shift-pair">
-        <Field label="Пересчитали наличные">
+        <Field label={t('Пересчитали наличные')}>
           <Input
             name="counted"
             className="cash-shift-amount"
@@ -223,7 +232,7 @@ export function CloseShiftForm({
             disabled={busy}
           />
         </Field>
-        <Field label="Оставить на размен">
+        <Field label={t('Оставить на размен')}>
           <Input
             name="retained"
             className="cash-shift-amount"
@@ -238,17 +247,17 @@ export function CloseShiftForm({
       {diff !== null && (
         <p className="cash-shift-diff" data-tone={diff === 0n ? 'ok' : diff < 0n ? 'short' : 'extra'} role="status">
           {diff === 0n
-            ? 'Сходится ✓'
+            ? t('Сходится ✓')
             : diff < 0n
-              ? `Не хватает ${money(String(-diff))}`
-              : `Лишние ${money(String(diff))}`}
-          {handover !== null && handover > 0n && `, сдаёте ${money(String(handover))}`}
-          {handover === 0n && ', всё остаётся в кассе'}
-          {handover === null && retainedMinor !== null && '. Оставить можно не больше пересчитанного'}
+              ? t('Не хватает {sum}', { sum: money(String(-diff)) })
+              : t('Лишние {sum}', { sum: money(String(diff)) })}
+          {handover !== null && handover > 0n && t(', сдаёте {sum}', { sum: money(String(handover)) })}
+          {handover === 0n && t(', всё остаётся в кассе')}
+          {handover === null && retainedMinor !== null && t('. Оставить можно не больше пересчитанного')}
         </p>
       )}
       {diff !== null && diff !== 0n && (
-        <Field label="Почему сумма другая">
+        <Field label={t('Почему сумма другая')}>
           <Textarea
             name="note"
             rows={2}
@@ -262,8 +271,8 @@ export function CloseShiftForm({
       )}
       {handover !== null && handover > 0n && (
         <fieldset className="cash-shift-recipients">
-          <legend>Кому сдаёте {money(String(handover))}</legend>
-          {recipients.length === 0 && <p>Нет другого сотрудника, который может принять деньги. Оставьте всю сумму в кассе.</p>}
+          <legend>{t('Кому сдаёте {sum}', { sum: money(String(handover)) })}</legend>
+          {recipients.length === 0 && <p>{t('Нет другого сотрудника, который может принять деньги. Оставьте всю сумму в кассе.')}</p>}
           {recipients.map((m) => (
             <Button
               key={m.id}
@@ -280,10 +289,10 @@ export function CloseShiftForm({
       )}
       <div className="cash-header__footer">
         <Button type="button" tone="secondary" disabled={busy} onClick={onCancel}>
-          Отмена
+          {t('Отмена')}
         </Button>
         <Button type="submit" disabled={busy || disabled || !ready}>
-          {busy ? 'Сохраняю…' : 'Закрыть смену'}
+          {busy ? t('Сохраняю…') : t('Закрыть смену')}
         </Button>
       </div>
     </form>

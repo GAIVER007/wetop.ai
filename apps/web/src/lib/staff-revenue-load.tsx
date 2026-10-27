@@ -2,6 +2,7 @@ import { unstable_rethrow } from 'next/navigation';
 import { ChipGroup, Chip } from '../components/chip';
 import { getJsonPublic } from './api';
 import { ApiError } from './api-error';
+import { serverT } from '../i18n/server';
 import { STAFF_REVENUE_PERIODS, periodHref, type StaffRevenue, type StaffRevenuePeriod } from './staff-revenue';
 
 /**
@@ -24,12 +25,13 @@ export async function loadStaffRevenue(
 }
 
 /** Период ссылками-чипами (DESIGN.md §8: отбор живёт в адресе), «Назад» в браузере работает */
-export function StaffRevenuePeriodNav({ path, period }: { path: string; period: StaffRevenuePeriod }) {
+export async function StaffRevenuePeriodNav({ path, period }: { path: string; period: StaffRevenuePeriod }) {
+  const t = await serverT();
   return (
-    <ChipGroup as="nav" label="Период для «Принёс»" className="staff-revenue-period">
+    <ChipGroup as="nav" label={t('Период для «Принёс»')} className="staff-revenue-period">
       {STAFF_REVENUE_PERIODS.map((p) => (
         <Chip key={p.value} size="sm" selected={p.value === period} href={periodHref(path, p.value)}>
-          {p.label}
+          {t(p.label)}
         </Chip>
       ))}
     </ChipGroup>

@@ -6,10 +6,13 @@ import { Icon } from '../../../components/icon';
 import { displayDate } from '../../../lib/display-date';
 import { countLabel, intlLocale, msg, translator, type DeskLocale, type Translate } from '../../../i18n';
 import { currentLocale, serverT } from '../../../i18n/server';
+import { analyticsMonth } from './vertical/month';
+import { AnalyticsMonthNav } from './vertical/month-nav';
 import {
   ANALYTICS_PRESETS,
   FUND_LABELS,
   analyticsHref,
+  analyticsMonthHref,
   dayPeriod,
   type AnalyticsQuery,
 } from './params';
@@ -43,6 +46,7 @@ export async function AnalyticsToolbar({
   today,
   noCompare = false,
   noFund = false,
+  monthOnly = false,
 }: {
   query: AnalyticsQuery;
   today: string;
@@ -50,6 +54,8 @@ export async function AnalyticsToolbar({
   noCompare?: boolean;
   /** «Финансы» (RPT2.4a): деньги по объекту не делятся на номера и койки, выбора фонда нет */
   noFund?: boolean;
+  /** только месяц «‹ октябрь 2026 ›» (владелец 26.10.2026): без готовых отрезков и своего периода */
+  monthOnly?: boolean;
 }) {
   const { period, fund, compare } = query;
   const prev = previousPeriod(period.from, period.to);
@@ -57,6 +63,57 @@ export async function AnalyticsToolbar({
   const single = period.from === period.to;
   const [t, locale] = await Promise.all([serverT(), currentLocale()]);
   const lang = intlLocale(locale);
+  if (monthOnly) {
+    const m = analyticsMonth({ month: period.from.slice(0, 7) }, today);
+    return (
+      <section className="pa-toolbar" aria-label={t('Период и отбор')} data-testid="pa-toolbar">
+        <div className="pa-toolbar__row">
+          <AnalyticsMonthNav
+            month={m.month}
+            previous={m.previousMonth}
+            next={m.next}
+            href={(month) => analyticsMonthHref(query, month)}
+            locale={locale}
+            t={t}
+          />
+          {!noFund && (
+            <nav className="seg pa-fund" aria-label={t('Тип фонда')} data-testid="pa-fund">
+              {(['all', 'rooms', 'beds'] as const).map((f) => (
+                <Link
+                  key={f}
+                  href={analyticsMonthHref({ ...query, fund: f }, m.month)}
+                  className={cx(fund === f && 'is-on')}
+                  aria-current={fund === f ? 'page' : undefined}
+                >
+                  {t(FUND_LABELS[f])}
+                </Link>
+              ))}
+            </nav>
+          )}
+          <p className="pa-toolbar__caption" data-testid="pa-period">
+            <strong>{rangeCaption(period.from, period.to, locale, t)}</strong>
+            {period.to > today && <span>{t(', будущие дни — по броням')}</span>}
+          </p>
+          {!noCompare && (
+            <Link
+              href={analyticsMonthHref({ ...query, compare: !compare }, m.month)}
+              className={cx('pa-compare', compare && 'is-on')}
+              data-testid="pa-compare-toggle"
+            >
+              <span className="pa-compare__box" aria-hidden="true">
+                {compare && <Icon name="check" width={14} height={14} />}
+              </span>
+              {t('Сравнить с {range}', {
+                range:
+                  displayDate(prev.from, 'short', lang) +
+                  (prev.from !== prev.to ? ` — ${displayDate(prev.to, 'short', lang)}` : ''),
+              })}
+            </Link>
+          )}
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="pa-toolbar" aria-label={t('Период и отбор')} data-testid="pa-toolbar">
       <div className="pa-toolbar__head">

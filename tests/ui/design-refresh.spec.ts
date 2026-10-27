@@ -49,20 +49,28 @@ test('период «Финансов» и «Аналитики» на теле�
     expect(box!.height, `${control}`).toBeGreaterThanOrEqual(44);
     expect(box!.width, `${control}`).toBeGreaterThanOrEqual(44);
   }
-  // «Показатели за период» с AN2 — «Аналитика» (ADR-114): обе вкладки, свой период — в панели «Период»
+  // «Обзор» выбирает только месяц (владелец 26.10.2026); «Загрузка» по дням со своим периодом
   for (const route of ['/management/analytics', '/management/analytics/occupancy']) {
     await page.goto(route);
     const main = page.getByRole('main');
-    await main.locator('.pa-range > summary').click();
-    const controls = [
-      main.getByLabel('Период: с', { exact: true }),
-      main.getByLabel('Период: по', { exact: true }),
-      main.getByTestId('pa-range-form').getByRole('button', { name: 'Применить' }),
-      main.locator('.pa-range > summary'),
-      main.getByRole('navigation', { name: 'Период' }).getByRole('link', { name: 'Сегодня' }),
-      main.getByTestId('pa-fund').getByRole('link', { name: 'Койки' }),
-      main.getByTestId('pa-compare-toggle'),
-    ];
+    const month = route.endsWith('analytics');
+    if (!month) await main.locator('.pa-range > summary').click();
+    const controls = month
+      ? [
+          main.getByTestId('analytics-month-prev'),
+          main.getByTestId('analytics-month-label'),
+          main.getByTestId('pa-fund').getByRole('link', { name: 'Койки' }),
+          main.getByTestId('pa-compare-toggle'),
+        ]
+      : [
+          main.getByLabel('Период: с', { exact: true }),
+          main.getByLabel('Период: по', { exact: true }),
+          main.getByTestId('pa-range-form').getByRole('button', { name: 'Применить' }),
+          main.locator('.pa-range > summary'),
+          main.getByRole('navigation', { name: 'Период' }).getByRole('link', { name: 'Сегодня' }),
+          main.getByTestId('pa-fund').getByRole('link', { name: 'Койки' }),
+          main.getByTestId('pa-compare-toggle'),
+        ];
     if (route.endsWith('occupancy'))
       controls.push(main.getByTestId('pa-day-prev'), main.getByTestId('pa-day-next'));
     for (const control of controls) {

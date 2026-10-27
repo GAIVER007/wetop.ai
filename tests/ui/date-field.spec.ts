@@ -16,17 +16,14 @@ test.beforeEach(async ({ request }) => {
 });
 
 const field = (page: import('@playwright/test').Page, label: string) =>
-  page.getByRole('main').locator('.date-field', { has: page.getByLabel(label, { exact: true }) });
-/** Свой период «Аналитики» (ADR-114; до AN2 — «Показатели за период») — во всплывающей панели «Период» */
-const openRange = (page: import('@playwright/test').Page) =>
-  page.getByRole('main').locator('.pa-range > summary').click();
+  page.locator('#finance-filters .date-field', { has: page.getByLabel(label, { exact: true }) });
+/** Поля дат с календарём: «Аналитика» с 26.10.2026 выбирает только месяц, поля «С / По» остались в «Финансах» */
 
 test('показатели за период: календарь открывается кнопкой, ходит стрелками, Enter ставит дату, Escape закрывает', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/management/analytics?period=custom&from=2026-09-01&to=2026-09-21');
-  await openRange(page);
+  await page.goto('/finance?from=2026-09-01&to=2026-09-21');
   const from = field(page, 'Период: с');
   const open = from.getByRole('button', { name: 'Открыть календарь' });
   await open.click();
@@ -39,7 +36,7 @@ test('показатели за период: календарь открыва�
   await expect(dialog.getByRole('button', { name: '2 сентября 2026', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
-  await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-09');
+  await expect(page.locator('#finance-filters').getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-09');
   await expect(dialog).toBeHidden();
   await expect(open).toBeFocused();
   // Escape закрывает без выбора
@@ -47,10 +44,10 @@ test('показатели за период: календарь открыва�
   await expect(dialog).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
-  await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-09');
+  await expect(page.locator('#finance-filters').getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-09');
   // родное поле по-прежнему принимает ввод (на этом стоят прежние тесты)
-  await page.getByLabel('Период: с', { exact: true }).fill('2026-09-03');
-  await expect(page.getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-03');
+  await page.locator('#finance-filters').getByLabel('Период: с', { exact: true }).fill('2026-09-03');
+  await expect(page.locator('#finance-filters').getByLabel('Период: с', { exact: true })).toHaveValue('2026-09-03');
 });
 
 test('показатели за период: у поля «По» календарь показывает отрезок от «С», сегодня отмечено, без нарушений доступности', async ({
@@ -60,8 +57,7 @@ test('показатели за период: у поля «По» календ�
   // Реальные часы октября не должны требовать отметку «сегодня» в сентябрьской сетке.
   await page.clock.setFixedTime(new Date('2026-09-15T12:00:00Z'));
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/management/analytics?period=custom&from=2026-09-10&to=2026-09-21');
-  await openRange(page);
+  await page.goto('/finance?from=2026-09-10&to=2026-09-21');
   const to = field(page, 'Период: по');
   await to.getByRole('button', { name: 'Открыть календарь' }).click();
   const dialog = page.getByRole('dialog', { name: 'Календарь' });
@@ -86,11 +82,10 @@ test('показатели за период: у поля «По» календ�
 
 test('телефон: кнопки календаря нет, родное поле остаётся', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/management/analytics?period=custom&from=2026-09-01&to=2026-09-21');
-  await openRange(page);
+  await page.goto('/finance?from=2026-09-01&to=2026-09-21');
   const from = field(page, 'Период: с');
   await expect(from.getByRole('button', { name: 'Открыть календарь' })).toBeHidden();
-  await expect(page.getByLabel('Период: с', { exact: true })).toBeVisible();
+  await expect(page.locator('#finance-filters').getByLabel('Период: с', { exact: true })).toBeVisible();
 });
 
 test('панель брони: календарь открывается поверх панели, целиком на экране, и пишет дату в поле', async ({

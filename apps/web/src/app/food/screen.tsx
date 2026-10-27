@@ -16,6 +16,7 @@ export async function FoodScreen({
   time,
   startNew = false,
   listView = false,
+  monthView = false,
 }: {
   kind: 'floor' | 'list' | 'catalog';
   date?: string | undefined;
@@ -23,11 +24,13 @@ export async function FoodScreen({
   /** `?new=1`: форма новой брони открыта сразу (быстрое действие «Главной») */
   startNew?: boolean;
   listView?: boolean;
+  /** `?view=month`: месяц расписания броней */
+  monthView?: boolean;
 }) {
   const t = await serverT();
   const title = kind === 'floor' ? t('Журнал') : kind === 'list' ? t('Брони столов') : t('Залы и столы');
   try {
-    const data = await loadFood(date, time, kind !== 'floor', kind === 'floor');
+    const data = await loadFood(date, time, kind !== 'floor', kind === 'floor', kind === 'list' && monthView);
     return (
       <Page
         title={title}
@@ -45,7 +48,9 @@ export async function FoodScreen({
           {kind === 'catalog' ? (
             <CatalogBoard data={data} />
           ) : (
-            <WorkspaceBoard data={data} floor={kind === 'floor'} startNew={startNew} listView={listView} />
+            <WorkspaceBoard
+              key={kind === 'list' && monthView ? 'month' : listView ? 'list' : 'day'}
+              data={data} floor={kind === 'floor'} startNew={startNew} listView={listView} monthView={kind === 'list' && monthView} />
           )}
         </div>
       </Page>

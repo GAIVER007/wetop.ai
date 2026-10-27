@@ -388,6 +388,57 @@ test('бронирования: шкала по столам, бронь пол�
   await expect(page.getByRole('main').locator('tbody')).toContainText('Ольга Волкова');
 });
 
+test('расписание: вид «Месяц» показывает брони в клетке дня, бронь открывается, день открывает шкалу', async ({
+  page,
+  request,
+}) => {
+  const { headers, table } = await seed(page, request);
+  const localDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
+  const period = await post(request, headers, '/food-service/service-periods', {
+    name: 'Вечер',
+    weekday: new Date(`${localDay}T12:00:00Z`).getUTCDay(),
+    timeFrom: '12:00',
+    timeTo: '23:00',
+    endsNextDay: false,
+    defaultDurationMinutes: 120,
+    active: true,
+  });
+  const res = await request.post(`${api}/food-service/reservations`, {
+    headers: { ...headers, 'idempotency-key': 'rest-month-1' },
+    data: {
+      servicePeriodId: period.id,
+      startsAt: `${localDay}T19:00:00+05:00`,
+      partySize: 2,
+      customer: { firstName: 'Зарина', lastName: 'Ахметова', phone: '+7 700 333-44-55' },
+      tableId: table.id,
+    },
+  });
+  expect(res.ok()).toBe(true);
+  // диапазон дат одним запросом; больше 42 дней сервер не отдаёт
+  const range = await request.get(
+    `${api}/food-service/reservations?date=${localDay}&dateTo=${localDay}`,
+    { headers },
+  );
+  expect(range.ok()).toBe(true);
+  expect((await range.json()).items).toHaveLength(1);
+  await page.goto(`/table-reservations?date=${localDay}`);
+  await page.getByRole('button', { name: 'Месяц', exact: true }).click();
+  await expect(page).toHaveURL(/view=month/);
+  const month = page.getByTestId('food-month');
+  await expect(month).toBeVisible();
+  const todayCell = month.locator('.beauty-month-day.is-today');
+  await expect(todayCell).toContainText('19:00');
+  await expect(todayCell).toContainText('Зарина Ахметова');
+  await expect(todayCell.locator('.beauty-month-day__count')).toHaveText('1');
+  const axe = await new AxeBuilder({ page }).include('main').analyze();
+  expect(axe.violations).toEqual([]);
+  await todayCell.getByRole('button', { name: /Зарина Ахметова/ }).click();
+  await expect(page.getByRole('dialog')).toContainText('Зарина Ахметова');
+  await page.keyboard.press('Escape');
+  await todayCell.getByRole('link', { name: /^Открыть день/ }).click();
+  await expect(page.getByTestId('reservations-timeline')).toBeVisible();
+});
+
 test('план зала: заказ занимает стол, уборка включается и видна легенда', async ({
   page,
   request,

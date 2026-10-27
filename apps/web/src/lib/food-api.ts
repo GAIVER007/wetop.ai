@@ -143,6 +143,11 @@ export const foodApi = {
     sendJson<{ id: string }>('PATCH', idPath('customers', id), body),
   reservations: (date: string, cursor?: string) =>
     getJsonPublic<FoodPage<RestaurantReservation>>(`${base}/reservations${query(cursor, date)}`),
+  /** брони диапазона дат (вид «Месяц» расписания, до 42 дней) */
+  reservationsRange: (date: string, dateTo: string, cursor?: string) =>
+    getJsonPublic<FoodPage<RestaurantReservation>>(
+      `${base}/reservations${query(cursor, date)}&dateTo=${encodeURIComponent(dateTo)}`,
+    ),
   create: (body: ReservationInput, key: string) =>
     sendJson<RestaurantReservation>('POST', `${base}/reservations`, body, {
       'Idempotency-Key': key,

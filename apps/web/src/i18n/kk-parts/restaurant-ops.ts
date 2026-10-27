@@ -24,6 +24,7 @@ export const restaurantOps: KkPart = {
     'app/food/settings-board.tsx',
     'app/food/shifts-board.tsx',
     'app/food/table-panel.tsx',
+    'app/food/month-board.tsx',
     'app/food/timeline-board.tsx',
     'app/restaurant-settings',
     'app/restaurant-finance',

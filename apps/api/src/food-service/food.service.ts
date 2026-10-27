@@ -38,6 +38,7 @@ import type { DbTx, Prisma, DiningArea, DiningTable, ServicePeriod } from '@pms/
 import { currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { syncReservationReminders } from './reminders';
+import { reservationRange } from './reservation-range';
 import { foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope } from './scope';
 import { occupancyCommand, occupancyEnabled, reservationOccupancy } from './occupancy';
 import { customerSearch, customerSearchWhere } from '../customers/search';
@@ -487,20 +488,11 @@ export class FoodService {
   async reservations(query: unknown) {
     foodMay('orders');
     const s = await foodScope(this.prisma.db),
-      p = page(query, ['date']);
+      p = page(query, ['date', 'dateTo']);
     // официант видит только брони, которые принял сам (§33.6)
     const me = await waiterSelf(this.prisma.db, s);
-    const date = parsed(() => {
-      const d = foodText(p.q.date, 10);
-      if (
-        !/^\d{4}-\d{2}-\d{2}$/.test(d) ||
-        !Number.isFinite(Date.parse(d)) ||
-        new Date(d).toISOString().slice(0, 10) !== d
-      )
-        throw new Error('Нужна календарная дата');
-      return d;
-    });
-    const window = timeOffWindow({ dateFrom: date, dateTo: date, timezone: s.timezone });
+    const range = parsed(() => reservationRange(foodText(p.q.date, 10), p.q.dateTo === undefined ? undefined : foodText(p.q.dateTo, 10)));
+    const window = timeOffWindow({ ...range, timezone: s.timezone });
     const rows = await this.prisma.db.restaurantReservation.findMany({
       where: {
         locationId: s.locationId,

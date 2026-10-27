@@ -143,7 +143,8 @@ describe('способы оплаты филиала (integration, §21.7)', () 
   });
 
   it('API: без строк прежние шесть, «Другое» выключено; сохранение порядка и включения, журнал, повтор без изменений не пишет', async () => {
-    expect((await as('FOOD_SERVICE', () => methods.get())).methods).toEqual(six());
+    // без строк Kaspi и Halyk выключены (NO-KZ-METHODS-20261027), «Другое» тоже
+    expect((await as('FOOD_SERVICE', () => methods.get())).methods).toEqual(six(['KASPI', 'HALYK']));
     await expect(as('FOOD_SERVICE', () => methods.update({ methods: six(['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL']) }))).rejects.toThrow(
       'Хотя бы один способ оплаты должен быть включён',
     );
@@ -156,12 +157,14 @@ describe('способы оплаты филиала (integration, §21.7)', () 
     expect(audits).toHaveLength(1);
     expect(audits[0]!.after).toMatchObject({ enabled: ['KASPI', 'CASH', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'] });
     // у салона свои строки: настройка ресторана его не задела
-    expect((await as('BEAUTY', () => methods.get())).methods).toEqual(six());
+    expect((await as('BEAUTY', () => methods.get())).methods).toEqual(six(['KASPI', 'HALYK']));
   });
 
   it('выключенный Halyk не принимает новых денег: заказ, касса, перевод, выплата; старое не меняется', async () => {
     // приход Halyk до выключения: остаток способа, чтобы проверить отказ не из-за пустой кассы
     await db.branchPaymentMethodSetting.deleteMany({ where: { locationId: location } });
+    // филиал сам включил Kaspi и Halyk: без строк они выключены (NO-KZ-METHODS-20261027)
+    await as('FOOD_SERVICE', () => methods.update({ methods: six() }));
     await as('FOOD_SERVICE', () => food.cashOperation({ kind: 'INCOME', method: 'HALYK', amount: 50000, note: 'до выключения' }));
     await as('FOOD_SERVICE', () => methods.update({ methods: six(['HALYK']) }));
     const order = await db.restaurantOrder.create({

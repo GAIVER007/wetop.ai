@@ -4,7 +4,8 @@
  * выбор кассира молча (сервер всё равно ответит, что способ выключен).
  */
 /** Способы, выключенные без настройки (домен `BRANCH_PAYMENT_METHODS`, PAYMENT-OTHER-20261025): в «всех» их нет */
-const OFF_BY_DEFAULT = new Set(['OTHER']);
+// Kaspi и Halyk тоже (NO-KZ-METHODS-20261027): без настройки не предлагаются
+const OFF_BY_DEFAULT = new Set(['OTHER', 'KASPI', 'HALYK']);
 
 export function branchMethodsShown<T extends string>(all: readonly T[], enabled: readonly string[] | null, keep?: string): T[] {
   const defaults = all.filter((m) => !OFF_BY_DEFAULT.has(m) || m === keep);

@@ -26,6 +26,8 @@ test('Kaspi: запрос с остатком по умолчанию, текс�
   page,
 }) => {
   const panel = await open(page);
+  // Kaspi больше не первый (NO-KZ-METHODS-20261027): стенд его включил, выбираем явно
+  await panel.getByTestId('payment-request-method').selectOption('KASPI');
   await expect(panel.getByTestId('payment-request-amount')).not.toHaveValue('');
   await panel.getByTestId('payment-request-amount').fill('12000');
   await panel.getByTestId('payment-request-create').click();

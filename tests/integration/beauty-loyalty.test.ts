@@ -12,6 +12,7 @@ import { StockService } from '../../apps/api/src/food-service/stock.service';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { isLocalDatabase } from '../tools/seed-local';
+import { enableKzBranchMethods } from './kz-methods-on';
 
 /**
  * Напоминания клиентам, бонусы и подарочные сертификаты салона (docs/decisions/2026-10-21-salon-reminders-loyalty.md,
@@ -64,6 +65,7 @@ describe('салон: напоминания, бонусы, сертификат
     await db.organization.create({ data: { id: own.org, name: `Лояльность ${own.org.slice(0, 8)}`, status: 'ACTIVE' } });
     await db.business.create({ data: { id: own.business, organizationId: own.org, name: 'Салон Лён', vertical: 'BEAUTY' } });
     await db.location.create({ data: { id: own.location, businessId: own.business, name: 'Филиал', address: 'ул. Абая, 10', phone: '+7 727 000 00 00', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    await enableKzBranchMethods(db, [own.location]); // филиал сам включил Kaspi и Halyk
     await db.user.create({ data: { id: own.user, email: `loyal-${own.user}@example.invalid`, name: 'Владелец' } });
     await db.organization.create({ data: { id: other.org, name: `Чужая ${other.org.slice(0, 8)}`, status: 'ACTIVE' } });
     await db.business.create({ data: { id: other.business, organizationId: other.org, name: 'Чужой салон', vertical: 'BEAUTY' } });

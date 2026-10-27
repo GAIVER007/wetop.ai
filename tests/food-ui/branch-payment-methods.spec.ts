@@ -23,7 +23,7 @@ async function reset(page: Page, request: APIRequestContext) {
 }
 const rows = (page: Page) => page.getByRole('main').getByTestId('payment-method-row');
 
-test('ресторан: убрать Halyk, поднять Kaspi, сохранить; в кассе Halyk нет, API отказывает словами', async ({ page, request }) => {
+test('ресторан: без Kaspi и Halyk по умолчанию; убрать перевод от юрлица, поднять перевод от физлица; API отказывает словами', async ({ page, request }) => {
   const f = await reset(page, request);
   const headers = { 'x-wetop-scope': pointer(f.business, f.locations[0]!) };
   await page.goto('/today');
@@ -32,63 +32,55 @@ test('ресторан: убрать Halyk, поднять Kaspi, сохрани
   await page.waitForURL('**/branch-payment-methods');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Способы оплаты', level: 1 })).toBeVisible();
-  await expect(rows(page)).toHaveCount(6);
-  // все шесть включены, «Добавить» предлагает только выключенное по умолчанию «Другое»
-  await expect(main.getByTestId('payment-method-add')).toBeVisible();
-  await expect(main.getByLabel('Добавить способ оплаты').locator('option')).toHaveText(['Другое']);
+  // без привязки к Казахстану (владелец 27.10.2026, NO-KZ-METHODS-20261027): Kaspi и Halyk не включены сами
+  await expect(rows(page)).toHaveCount(4);
+  await expect(main.getByLabel('Добавить способ оплаты').locator('option')).toHaveText(['Kaspi', 'Halyk', 'Другое']);
   const save = main.getByRole('button', { name: 'Сохранить изменения' });
   await expect(save).toBeDisabled();
 
-  await main.getByRole('button', { name: 'Убрать: Halyk' }).click();
-  await main.getByRole('button', { name: 'Выше: Kaspi' }).click();
-  await expect(rows(page)).toHaveCount(5);
-  await expect(rows(page).nth(1)).toHaveAttribute('data-method', 'KASPI');
-  // в «Добавить» первым Halyk (только что убран), за ним выключенное по умолчанию «Другое»
-  await expect(main.getByLabel('Добавить способ оплаты')).toHaveValue('HALYK');
-  await expect(main.getByLabel('Добавить способ оплаты').locator('option')).toHaveText(['Halyk', 'Другое']);
+  await main.getByRole('button', { name: 'Убрать: Перевод от юрлица' }).click();
+  await main.getByRole('button', { name: 'Выше: Перевод от физлица' }).click();
+  await expect(rows(page)).toHaveCount(3);
+  await expect(rows(page).nth(1)).toHaveAttribute('data-method', 'BANK_TRANSFER_PERSON');
+  // в «Добавить» первым только что убранный способ, за ним выключенные по умолчанию
+  await expect(main.getByLabel('Добавить способ оплаты')).toHaveValue('BANK_TRANSFER_LEGAL');
   await save.click();
   await expect(main.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');
 
   const saved = await (await request.get(`${api}/food-service/payment-methods`, { headers })).json();
   expect(saved.methods.filter((m: { enabled: boolean }) => m.enabled).map((m: { method: string }) => m.method)).toEqual([
     'CASH',
-    'KASPI',
-    'CARD_TERMINAL',
     'BANK_TRANSFER_PERSON',
-    'BANK_TRANSFER_LEGAL',
+    'CARD_TERMINAL',
   ]);
   await page.reload();
-  await expect(rows(page)).toHaveCount(5);
+  await expect(rows(page)).toHaveCount(3);
 
-  // касса: в приходе Halyk нет; в расходе тоже, пока по нему нет денег
+  // касса: в приходе и расходе только включённые (по выключенным денег нет)
   await page.goto('/cashbox');
   const ops = page.getByRole('region', { name: 'Операция кассы' });
   await ops.getByRole('button', { name: 'Приход' }).click();
-  const income = ops.getByLabel('Способ');
-  await expect(income.locator('option')).toHaveText(['Наличные', 'Kaspi', 'Карта (терминал)', 'Перевод от физлица', 'Перевод от юрлица']);
+  await expect(ops.getByLabel('Способ').locator('option')).toHaveText(['Наличные', 'Перевод от физлица', 'Карта (терминал)']);
   await ops.getByRole('button', { name: 'Расход' }).click();
-  // расход включёнными способами и теми, где есть деньги (ТЗ салона 25.10.2026, п. 1): Halyk выключен и пуст,
-  // «Другое» не включено и остатка по нему нет, обоих в списке нет
-  await expect(ops.getByLabel('Способ').locator('option')).toHaveText([
-    'Наличные',
-    'Kaspi',
-    'Карта (терминал)',
-    'Перевод от физлица',
-    'Перевод от юрлица',
-  ]);
+  await expect(ops.getByLabel('Способ').locator('option')).toHaveText(['Наличные', 'Перевод от физлица', 'Карта (терминал)']);
 
-  const refused = await request.post(`${api}/food-service/cash/operations`, {
-    headers,
-    data: { kind: 'INCOME', method: 'HALYK', amount: 100 },
-  });
-  expect(refused.status()).toBe(400);
-  expect((await refused.json()).message).toBe('Способ оплаты «Halyk» выключен в настройках филиала');
+  for (const [method, label] of [
+    ['BANK_TRANSFER_LEGAL', 'Перевод от юрлица'],
+    ['KASPI', 'Kaspi'],
+  ] as const) {
+    const refused = await request.post(`${api}/food-service/cash/operations`, {
+      headers,
+      data: { kind: 'INCOME', method, amount: 100 },
+    });
+    expect(refused.status()).toBe(400);
+    expect((await refused.json()).message).toBe(`Способ оплаты «${label}» выключен в настройках филиала`);
+  }
 
   // салон той же организации не задет
   await scope(page, f.beauty, f.locations[3]!);
   await page.goto('/today');
   await page.goto('/branch-payment-methods');
-  await expect(rows(page)).toHaveCount(6);
+  await expect(rows(page)).toHaveCount(4);
 });
 
 test('«Другое» (PAYMENT-OTHER-20261025): выключено по умолчанию, включается и принимает деньги в кассу', async ({
@@ -111,7 +103,8 @@ test('«Другое» (PAYMENT-OTHER-20261025): выключено по умо�
   const main = page.getByRole('main');
   await main.getByLabel('Добавить способ оплаты').selectOption('OTHER');
   await main.getByRole('button', { name: 'Добавить способ: Другое', exact: true }).click();
-  await expect(rows(page)).toHaveCount(7);
+  // четыре по умолчанию (без Kaspi и Halyk, NO-KZ-METHODS-20261027) и «Другое»
+  await expect(rows(page)).toHaveCount(5);
   await main.getByRole('button', { name: 'Сохранить изменения' }).click();
   await expect(main.getByTestId('settings-save-state')).toHaveText('✓ Изменения сохранены');
 
@@ -136,7 +129,8 @@ test('способы оплаты: доступность и телефон, с�
       await page.emulateMedia({ colorScheme: scheme });
       await page.setViewportSize({ width, height: 900 });
       await page.goto('/branch-payment-methods');
-      await expect(rows(page)).toHaveCount(6);
+      // четыре по умолчанию: Kaspi и Halyk не включены сами (NO-KZ-METHODS-20261027)
+      await expect(rows(page)).toHaveCount(4);
       const result = await new AxeBuilder({ page }).include('main').analyze();
       expect(result.violations, `${scheme} ${width}`).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth), `${scheme} ${width}`).toBeLessThanOrEqual(width);

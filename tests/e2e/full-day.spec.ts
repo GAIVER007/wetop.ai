@@ -120,7 +120,8 @@ test('сутки гостя целиком: заезд, услуга на счё
 
   // 5. Оплата на весь баланс
   const pay = panel.getByTestId('payment-form');
-  await pay.locator('select[name="method"]').selectOption('KASPI');
+  // Kaspi без настройки выключен (NO-KZ-METHODS-20261027): платим картой, она включена по умолчанию
+  await pay.locator('select[name="method"]').selectOption('CARD_TERMINAL');
   await pay.getByRole('button', { name: 'Проверить оплату' }).click();
   await pay.getByRole('button', { name: 'Подтвердить оплату' }).click();
   await expect(panel.getByTestId('payment-row')).toHaveCount(1);

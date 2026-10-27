@@ -38,7 +38,8 @@ describe.skipIf(!url)('способы оплаты объекта (integration, 
 
   it('без строк репозиторий отдаёт пусто, а домен из пустого делает умолчания', async () => {
     expect(await repo.paymentMethodSettings()).toEqual([]);
-    expect(resolvePaymentMethodSettings([]).every((m) => m.enabled)).toBe(true);
+    // умолчания: все включены, кроме Kaspi и Halyk (NO-KZ-METHODS-20261027)
+    expect(resolvePaymentMethodSettings([]).filter((m) => !m.enabled).map((m) => m.method)).toEqual(['KASPI', 'HALYK']);
   });
 
   it('строки объекта читаются по порядку; EXTERNAL и повтор способа база не принимает', async () => {

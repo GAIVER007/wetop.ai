@@ -1356,6 +1356,32 @@ describe.skipIf(!url)('Beauty: строки услуг записи и совм�
     }
   });
 
+  // BEAUTY-HOURS-MIDNIGHT-20261027 (владелец 27.10.2026: «график сделай везде с 10.00 до 24.00»): режим до 24:00
+  // сохраняется (раньше база отвечала 500), запись 23:00–24:00 входит, запись через полночь по-прежнему нет
+  it('salon hours until 24:00 save and accept a visit ending exactly at midnight', async () => {
+    const hours = new BeautyLocationHoursService({ db } as unknown as PrismaService);
+    try {
+      const intervals = [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({ weekday, timeFrom: '10:00', timeTo: '24:00' }));
+      const saved = await asOwner(() => hours.save({ expectedRevision: 0, intervals }));
+      expect(saved.intervals).toEqual(intervals);
+      const zone = (await db.location.findUniqueOrThrow({ where: { id: own.location }, select: { timezone: true } })).timezone;
+      const [inside] = await db.$queryRaw<Array<{ ok: boolean }>>`
+        SELECT beauty_time_in_hours(
+          (date '2037-03-02' + time '23:00') AT TIME ZONE ${zone},
+          (date '2037-03-03' + time '00:00') AT TIME ZONE ${zone},
+          ${zone}, ${JSON.stringify(intervals)}::jsonb) AS ok`;
+      expect(inside!.ok).toBe(true);
+      const [across] = await db.$queryRaw<Array<{ ok: boolean }>>`
+        SELECT beauty_time_in_hours(
+          (date '2037-03-02' + time '23:30') AT TIME ZONE ${zone},
+          (date '2037-03-03' + time '00:30') AT TIME ZONE ${zone},
+          ${zone}, ${JSON.stringify(intervals)}::jsonb) AS ok`;
+      expect(across!.ok).toBe(false);
+    } finally {
+      await db.$executeRaw`DELETE FROM beauty_location_hours WHERE location_id=${own.location}::uuid`;
+    }
+  });
+
   it('salon hours RLS hides another organization and the rollback refuses saved configuration', async () => {
     await db.beautyLocationHours.createMany({ data: [
       { locationId: own.location, intervals: [] }, { locationId: foreign.location, intervals: [] },

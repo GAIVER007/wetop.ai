@@ -169,6 +169,8 @@ describe('parseAppointmentInput', () => {
         ],
         customer: { kind: 'existing', id: 'c1' },
         notes: 'первый визит',
+        atHome: false,
+        homeAddress: null,
       },
     });
   });
@@ -236,6 +238,8 @@ describe('parseAppointmentInput', () => {
         ],
         customer: { kind: 'existing', id: 'c1' },
         notes: null,
+        atHome: false,
+        homeAddress: null,
       },
     });
   });
@@ -305,5 +309,28 @@ describe('статус «В процессе» (§58)', () => {
     expect(nextStatuses('IN_PROGRESS')).toEqual(['DONE', 'CANCELLED']);
     expect(statusChange('IN_PROGRESS', 'NO_SHOW')).toEqual({ ok: false, reason: 'Из этого состояния запись так не меняют' });
     expect(statusChange('DONE', 'IN_PROGRESS').ok).toBe(false);
+  });
+});
+
+/** Выезд на дом (владелец 27.10.2026): галочка в окне записи, адрес визита только у выезда */
+describe('parseAppointmentInput: выезд на дом', () => {
+  const base = { employeeId: 'e1', serviceId: 's1', startsAt: '2026-10-12T05:00:00.000Z', customerId: 'c1' };
+  it('галочка и адрес: запись с выездом, адрес без лишних пробелов', () => {
+    const r = parseAppointmentInput({ ...base, atHome: true, homeAddress: '  West Bay, Tower 5, apt 12 ' });
+    expect(r.ok && { atHome: r.value.atHome, homeAddress: r.value.homeAddress }).toEqual({ atHome: true, homeAddress: 'West Bay, Tower 5, apt 12' });
+  });
+  it('из формы приходит строка «on» или «true»', () => {
+    for (const v of ['on', 'true'])
+      expect(parseAppointmentInput({ ...base, atHome: v, homeAddress: 'Pearl' }).ok && true).toBe(true);
+  });
+  it('выезд без адреса нельзя: мастер не знает, куда ехать', () => {
+    expect(parseAppointmentInput({ ...base, atHome: true, homeAddress: '  ' })).toEqual({ ok: false, reason: 'Укажите адрес выезда' });
+  });
+  it('без галочки адрес отбрасывается', () => {
+    const r = parseAppointmentInput({ ...base, atHome: false, homeAddress: 'Pearl' });
+    expect(r.ok && { atHome: r.value.atHome, homeAddress: r.value.homeAddress }).toEqual({ atHome: false, homeAddress: null });
+  });
+  it('адрес длиннее 300 знаков отклоняется', () => {
+    expect(parseAppointmentInput({ ...base, atHome: true, homeAddress: 'x'.repeat(301) })).toEqual({ ok: false, reason: 'Адрес выезда: не больше 300 символов' });
   });
 });

@@ -357,3 +357,41 @@ it('repeats a visit as a new draft with the same client and services, never the 
   expect(html).not.toContain('name="id"');
   expect(html).not.toContain('name="paidMinor"');
 });
+
+/** Выезд на дом (владелец 27.10.2026): галочка в окне записи, адрес появляется только с галочкой */
+describe('выезд на дом', () => {
+  it('в окне записи галочка «Выезд на дом», поля адреса без галочки нет', () => {
+    const html = renderToStaticMarkup(createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn() }));
+    expect(html).toContain('Выезд на дом');
+    expect(html).toMatch(/type="checkbox"[^>]*name="atHome"|name="atHome"[^>]*type="checkbox"/);
+    expect(html).not.toContain('name="homeAddress"');
+  });
+  it('изменение записи с выездом: галочка стоит, адрес заполнен', () => {
+    const source = { id: 'visit', employeeId: 'master', serviceId: 'cut', startsAt: '2026-10-18T10:00:00.000Z', startMinutes: 600, endMinutes: 630, priceMinor: '2500', notes: null, atHome: true, homeAddress: 'West Bay 5' };
+    const html = renderToStaticMarkup(createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn(), editing: source as never }));
+    expect(html).toMatch(/name="atHome"[^>]*checked|checked[^>]*name="atHome"/);
+    expect(html).toMatch(/name="homeAddress"[^>]*value="West Bay 5"|value="West Bay 5"[^>]*name="homeAddress"/);
+  });
+  it('создание передаёт выезд и адрес в API', async () => {
+    vi.spyOn(authApi, 'me').mockResolvedValue({ user: { organizationId: 'org' }, context: scope } as never);
+    const save = vi.spyOn(beautyApi, 'createAppointment').mockResolvedValue({ appointments: [{ id: 'saved' }] } as never);
+    const form = new FormData();
+    form.set('scopeKey', JSON.stringify(scope));
+    form.set('startsAt', '2026-10-18T10:00:00.000Z');
+    form.set('firstName', 'Synthetic');
+    form.set('items', JSON.stringify([{ employeeId: 'master', serviceId: 'cut' }]));
+    form.set('atHome', 'on');
+    form.set('homeAddress', 'West Bay 5');
+    expect(await createAppointment(null, form)).toMatchObject({ message: 'Запись создана' });
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ atHome: 'on', homeAddress: 'West Bay 5' }));
+  });
+  it('изменение передаёт выезд всегда: снятая галочка стирает адрес', async () => {
+    const save = vi.spyOn(beautyApi, 'moveAppointment').mockResolvedValue({} as never);
+    const form = new FormData();
+    form.set('id', 'visit');
+    form.set('startsAt', '2026-10-18T10:00:00.000Z');
+    form.set('items', JSON.stringify([{ employeeId: 'master', serviceId: 'cut' }]));
+    await moveAppointment(null, form);
+    expect(save).toHaveBeenCalledWith('visit', expect.objectContaining({ atHome: '', homeAddress: '' }));
+  });
+});

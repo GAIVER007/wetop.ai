@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  END_OF_DAY,
+  endClockOf,
+  endTimeToDate,
+  resolveWorkingTime,
   dayOffsetUtc,
   parseTimeOffInput,
   parseWorkingHoursWeek,
@@ -205,5 +209,57 @@ describe('dayOffsetUtc', () => {
   it('сдвигает календарную дату, не трогая часовой пояс', () => {
     expect(dayOffsetUtc('2026-10-31', 1)).toBe('2026-11-01');
     expect(dayOffsetUtc('2026-01-01', -1)).toBe('2025-12-31');
+  });
+});
+
+/**
+ * Смена до полуночи (владелец 27.10.2026: «график везде с 10:00 до 24:00», после 10 вечера мастера выезжают на дом).
+ * В базе конец дня хранится как time '00:00' (тип time не держит 24:00), на экране и в расчётах это «24:00».
+ */
+describe('смена до 24:00', () => {
+  it('неделя принимает конец «24:00» в любом написании', () => {
+    const r = parseWorkingHoursWeek({
+      intervals: [
+        { weekday: 1, timeFrom: '10:00', timeTo: '24:00' },
+        { weekday: 2, timeFrom: '18:00', timeTo: '24.00' },
+        { weekday: 3, timeFrom: '10:00', timeTo: '2400' },
+      ],
+    });
+    expect(r).toEqual({
+      ok: true,
+      value: [
+        { weekday: 1, timeFrom: '10:00', timeTo: '24:00' },
+        { weekday: 2, timeFrom: '18:00', timeTo: '24:00' },
+        { weekday: 3, timeFrom: '10:00', timeTo: '24:00' },
+      ],
+    });
+  });
+  it('начало в 24:00 и время после 24:00 нельзя', () => {
+    expect(parseWorkingHoursWeek({ intervals: [{ weekday: 1, timeFrom: '24:00', timeTo: '24:00' }] }).ok).toBe(false);
+    expect(parseWorkingHoursWeek({ intervals: [{ weekday: 1, timeFrom: '10:00', timeTo: '24:30' }] }).ok).toBe(false);
+  });
+  it('хранение: 24:00 пишется последней долей суток (конец позже начала) и читается обратно как 24:00', () => {
+    expect(END_OF_DAY).toBe('24:00');
+    expect(endTimeToDate('24:00').toISOString()).toBe('1970-01-01T23:59:59.999Z');
+    expect(endTimeToDate('22:00').toISOString()).toBe('1970-01-01T22:00:00.000Z');
+    expect(endClockOf(endTimeToDate('24:00'))).toBe('24:00');
+    expect(endClockOf(endTimeToDate('22:00'))).toBe('22:00');
+    expect(endTimeToDate('24:00') > endTimeToDate('23:00')).toBe(true);
+  });
+  it('запись 23:00–24:00 входит в смену 10:00–24:00 (конец в полночь не следующий день)', () => {
+    // Asia/Qatar UTC+3: 23:00 местного = 20:00 UTC, полночь = 21:00 UTC
+    const base = {
+      timezone: 'Asia/Qatar',
+      supported: true,
+      employeeActive: true,
+      worksHere: true,
+      timeOffs: [],
+      workingHours: [{ weekday: 2, timeFrom: '10:00', timeTo: '24:00' }],
+    };
+    expect(resolveWorkingTime({ ...base, startsAt: new Date('2026-10-27T20:00:00Z'), endsAt: new Date('2026-10-27T21:00:00Z') })).toEqual({ ok: true });
+    // через полночь всё ещё нельзя
+    expect(resolveWorkingTime({ ...base, startsAt: new Date('2026-10-27T20:30:00Z'), endsAt: new Date('2026-10-27T21:30:00Z') }).ok).toBe(false);
+    // присутствие сейчас в 23:59
+    expect(resolveWorkingTime({ ...base, startsAt: new Date('2026-10-27T20:59:00Z') })).toEqual({ ok: true });
   });
 });

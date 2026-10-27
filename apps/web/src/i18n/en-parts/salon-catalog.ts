@@ -38,6 +38,7 @@ export const salonCatalog: Record<string, string> = {
   "Пн-Пт 10:00-19:00": 'Mon-Fri 10:00-19:00',
   "Пн-Сб 10:00-20:00": 'Mon-Sat 10:00-20:00',
   "Каждый день 09:00-21:00": 'Every day 09:00-21:00',
+  "Каждый день 10:00-24:00": 'Every day 10:00-24:00',
   "С": 'From',
   "До": 'To',
   "{day}: начало": '{day}: start',

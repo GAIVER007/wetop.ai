@@ -1,5 +1,5 @@
 import type { DbTx } from '@pms/database';
-import { dayOffsetUtc, localDate, milliOf, zonedStartOfDay } from '@pms/domain';
+import { dayOffsetUtc, localDate, milliOf, zonedStartOfDay, endClockOf } from '@pms/domain';
 import {
   freeWindowMasters,
   ownerAttention,
@@ -101,7 +101,7 @@ export async function readOwnerAttention(db: Db, s: OwnerAttentionScope): Promis
           .filter((e) => e.personnelKind !== 'OTHER_EMPLOYEE')
           .map((e) => ({
             employeeId: e.id,
-            shifts: intersectLocationHours(e.workingHours.map((h) => ({ timeFrom: clock(h.timeFrom), timeTo: clock(h.timeTo) })), open, weekday)
+            shifts: intersectLocationHours(e.workingHours.map((h) => ({ timeFrom: clock(h.timeFrom), timeTo: endClockOf(h.timeTo) })), open, weekday)
               .map((h) => ({ from: minutes(h.timeFrom), to: minutes(h.timeTo) })),
           })),
         lines.map((l) => ({ employeeId: l.employeeId, from: at(l.startsAt), to: at(l.endsAt) })),

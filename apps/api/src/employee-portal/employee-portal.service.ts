@@ -3,7 +3,7 @@ import { readEmployeeCommon, writeEmployeeCommon, readEmployeeWeekSource, touchE
 import { createHash, randomUUID } from 'node:crypto';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import type { Db, DbTx, EmployeeMedia } from '@pms/database';
-import { beautyPermissionScope, canWrite, resolveBeautyPositionAccess, roleAt, parsePaySettings, parseWorkingHoursWeek, fitsSchedule, parseTimeOffInput, timeOffWindow, weekTemplate, localDate, monthBounds, type EmployeePortalDto, type EmployeePortalSectionAccess, type MembershipRole, type PublicEmployeeDto, type PortalPay, type ScopeAssignment } from '@pms/domain';
+import { beautyPermissionScope, canWrite, resolveBeautyPositionAccess, roleAt, parsePaySettings, parseWorkingHoursWeek, endClockOf, endTimeToDate, fitsSchedule, parseTimeOffInput, timeOffWindow, weekTemplate, localDate, monthBounds, type EmployeePortalDto, type EmployeePortalSectionAccess, type MembershipRole, type PublicEmployeeDto, type PortalPay, type ScopeAssignment } from '@pms/domain';
 import { actorMay, currentBeautyOperation, currentBusinessId, currentLocationId, currentOrganizationId, currentUserId, currentRole, currentAssignments, withOrganizationScope, withServiceDatabase } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { SITE_ASSET_STORAGE, type SiteAssetStorage } from '../marketing-site/asset-storage';
@@ -250,12 +250,12 @@ export class EmployeePortalService {
     const conflicts:EmployeePortalDto['scheduleConflicts']['items']=[];
     for(const a of upcoming.slice(0,500)) {
       const branch=assignedLocations.find(x=>x.id===a.appointment.locationId)!;
-      const fit=fitsSchedule({startsAt:a.startsAt,endsAt:a.endsAt,timezone:branch.timezone,workingHours:allHours.filter(h=>h.locationId===a.appointment.locationId).map(h=>({weekday:h.weekday,timeFrom:clock(h.timeFrom),timeTo:clock(h.timeTo)})),timeOffs:timeOffs.map(t=>({dateFrom:dateOnly(t.dateFrom),dateTo:dateOnly(t.dateTo)}))});
+      const fit=fitsSchedule({startsAt:a.startsAt,endsAt:a.endsAt,timezone:branch.timezone,workingHours:allHours.filter(h=>h.locationId===a.appointment.locationId).map(h=>({weekday:h.weekday,timeFrom:clock(h.timeFrom),timeTo:endClockOf(h.timeTo)})),timeOffs:timeOffs.map(t=>({dateFrom:dateOnly(t.dateFrom),dateTo:dateOnly(t.dateTo)}))});
       if(!fit.ok)conflicts.push({id:a.id,date:localDate(a.startsAt,branch.timezone),startsAt:a.startsAt.toISOString(),endsAt:a.endsAt.toISOString(),locationId:branch.id,locationName:branch.name,timezone:branch.timezone,serviceName:a.service.name,reason:fit.reason});
     }
     const avatar=media.find(m=>m.kind==='AVATAR');
     const weekSource=l&&scheduleAllowed?await readEmployeeWeekSource(db,e.id,l.id):null;
-    const intervals=(weekSource?.rows??hours).map(h=>({weekday:h.weekday,timeFrom:clock(h.timeFrom),timeTo:clock(h.timeTo)}));
+    const intervals=(weekSource?.rows??hours).map(h=>({weekday:h.weekday,timeFrom:clock(h.timeFrom),timeTo:endClockOf(h.timeTo)}));
     const monthStats=await employeeMonthStats(db,{employeeId:e.id,businessId:b.id,vertical:b.vertical as 'BEAUTY'|'FOOD_SERVICE',location:l,month,
       workingWeekdays:[...new Set(intervals.map(h=>h.weekday))],timeOffs:timeOffs.map(t=>({dateFrom:dateOnly(t.dateFrom),dateTo:dateOnly(t.dateTo)})),
       allowed:{schedule:scheduleAllowed,work:appointmentsAllowed,pay:payrollAllowed}});
@@ -303,7 +303,7 @@ export class EmployeePortalService {
         const result=parseWorkingHoursWeek(input);if(!result.ok) throw new BadRequestException(result.reason);
         assertWeekRevision(input,await hoursRevision(tx,e.id,s.location.id));
         await tx.workingHours.deleteMany({where:{employeeId:e.id,locationId:s.location.id}});
-        await tx.workingHours.createMany({data:result.value.map(h=>({employeeId:e.id,locationId:s.location!.id,weekday:h.weekday,timeFrom:new Date(`1970-01-01T${h.timeFrom}:00Z`),timeTo:new Date(`1970-01-01T${h.timeTo}:00Z`)}))});
+        await tx.workingHours.createMany({data:result.value.map(h=>({employeeId:e.id,locationId:s.location!.id,weekday:h.weekday,timeFrom:new Date(`1970-01-01T${h.timeFrom}:00Z`),timeTo:endTimeToDate(h.timeTo)}))});
         await touchEmployeeSourceRevision(tx,e.id);
         committedWeek={week:weekTemplate(result.value),weekRevision:await hoursRevision(tx,e.id,s.location.id)};
       } else if(action==='time-off') {

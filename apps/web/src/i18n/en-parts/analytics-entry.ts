@@ -418,6 +418,9 @@ export const analyticsEntry: Record<string, string> = {
   'Ссылка неполная: откройте её из письма целиком': 'The link is incomplete: open it from the email in full',
   'Пароли не совпадают': 'Passwords do not match',
   'Нет связи с сервером. Попробуйте ещё раз.': 'No connection to the server. Try again.',
+  // ответ входа (владелец 27.10.2026)
+  'Неверная почта или пароль. Проверьте раскладку и Caps Lock. После 5 неверных попыток подряд вход с этого устройства закрывается на 15 минут; если не помните пароль, нажмите «Забыли пароль?».':
+    'Wrong email or password. Check the keyboard layout and Caps Lock. After 5 wrong attempts in a row, sign-in from this device is closed for 15 minutes; if you do not remember the password, press «Forgot your password?».',
   'Рабочая организация изменилась. Обновите страницу и повторите действие.': 'The working organization has changed. Refresh the page and try again.',
   'Сеанс закончился. Войдите заново.': 'Your session has ended. Sign in again.',
   'Выберите уровень доступа.': 'Choose an access level.',

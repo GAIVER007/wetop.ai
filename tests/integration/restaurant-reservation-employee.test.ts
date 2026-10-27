@@ -5,6 +5,7 @@ import { FoodService } from '../../apps/api/src/food-service/food.service';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { isLocalDatabase } from '../tools/seed-local';
+import { openTestShift } from '../tools/test-shift';
 
 /**
  * Кто принял бронь стола (DATA_MODEL §33.6, миграция 142; закрывает Q-CALENDAR-2026-10-17): у стойки выбор в форме,
@@ -51,6 +52,8 @@ describe('бронь стола: «Принял» (integration, §33.6)', () => 
       data: [business, otherBusiness].map((id) => ({ id, organizationId: org, name: 'Synthetic food', vertical: 'FOOD_SERVICE' as const })),
     });
     await db.location.create({ data: { id: location, businessId: business, name: 'Synthetic branch', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    // администратор пишет брони в открытую смену (владелец 27.10.2026, finance/shift-guard)
+    await openTestShift(db, { organizationId: org, userId: user, locationId: location });
     ids.me = (await db.employee.create({ data: { businessId: business, name: 'Айгерим Официант' } })).id;
     ids.foreign = (await db.employee.create({ data: { businessId: otherBusiness, name: 'Чужой Официант' } })).id;
     const weekday = new Date(startsAt.getTime() + 5 * 3_600_000).getUTCDay();

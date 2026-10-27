@@ -10,6 +10,7 @@ import request from 'supertest';
 import { hashPassword } from '@pms/domain';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildScopeWorld, type ScopeWorld } from './scope-world';
+import { openTestShift } from '../../tools/test-shift';
 
 const ENABLED = !!process.env.DATABASE_URL;
 
@@ -39,6 +40,8 @@ describe.skipIf(!ENABLED)('«Личный кабинет» ресторана п
     ids.me = (await w.db.employee.create({ data: { businessId: w.ids.foo!, name: 'Официант Тест', userId, personnelKind: 'OTHER_EMPLOYEE' } })).id;
     ids.other = (await w.db.employee.create({ data: { businessId: w.ids.foo!, name: 'Другой Официант', personnelKind: 'OTHER_EMPLOYEE' } })).id;
     for (const employeeId of [ids.me, ids.other]) await w.db.employeeLocation.create({ data: { employeeId, locationId: w.ids.lf! } });
+    // официант принимает заказы в открытую смену филиала (владелец 27.10.2026, finance/shift-guard)
+    await openTestShift(w.db, { organizationId: w.ids.orgA!, userId, locationId: w.ids.lf! });
     const area = await w.db.diningArea.create({ data: { locationId: w.ids.lf!, name: 'Зал' } });
     ids.table = (await w.db.diningTable.create({ data: { areaId: area.id, name: '5', capacity: 4 } })).id;
     const bar = await w.db.menuCategory.create({ data: { businessId: w.ids.foo!, name: 'Чай', station: 'BAR' } });

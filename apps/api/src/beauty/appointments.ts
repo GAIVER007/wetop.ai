@@ -30,6 +30,7 @@ import { fitsSalonHours, intersectLocationHours, salonHours } from './location-h
 import { appointmentLineHistorySnapshot } from './appointment-history-snapshot';
 import { syncAppointmentReminders } from './reminders';
 import { checkLoyaltyRefund, prepareLoyaltyPayment, recordLoyaltyPayment, recordLoyaltyRefund } from './loyalty';
+import { assertShiftOpen } from '../finance/shift-guard';
 
 /**
  * Журнал записей салона (DATA_MODEL §19.1, срез B5): день филиала столбцами по мастерам.
@@ -496,6 +497,8 @@ export class BeautyAppointmentsService {
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const input = parsed.value;
     this.assertRatePermission(input.items);
+    // без открытой смены администратор записей не вносит (владелец 27.10.2026)
+    await assertShiftOpen(this.prisma.db, { propertyId: null, locationId: scope.locationId });
     const preflight = await this.planLines(this.prisma.db, scope, input.items, input.startsAt);
     for (const line of preflight)
       await this.assertFree(this.prisma.db, line.employeeId, line.startsAt, line.endsAt, null);

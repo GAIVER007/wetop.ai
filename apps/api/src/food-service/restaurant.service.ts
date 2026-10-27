@@ -23,6 +23,7 @@ import { branchStaffRevenue } from './staff-revenue';
 import { monthPayrollRows, type MonthPayrollDb } from './month-payroll';
 import { reverseLoyaltyForVoid } from '../beauty/loyalty';
 import { topByStation } from './station-top';
+import { assertShiftOpen } from '../finance/shift-guard';
 
 /** Срок ссылки на оценку с телефона гостя (§40) */
 const RATING_LINK_TTL_MS = 72 * 3_600_000;
@@ -782,6 +783,8 @@ export class RestaurantService {
 
   async createOrder(raw: unknown) {
     return this.write('orders', async (tx, s) => {
+      // без открытой смены заказ не принимается (владелец 27.10.2026)
+      await assertShiftOpen(tx, { propertyId: null, locationId: s.locationId });
       const b = parsed(() => parseOrderCreate(raw));
       // Проверяем действующие права до возврата ранее созданного заказа.
       const me = await waiterSelf(tx, s);

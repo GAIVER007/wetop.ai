@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  dayClosesAt,
   END_OF_DAY,
   endClockOf,
   endTimeToDate,
@@ -261,5 +262,22 @@ describe('смена до 24:00', () => {
     expect(resolveWorkingTime({ ...base, startsAt: new Date('2026-10-27T20:30:00Z'), endsAt: new Date('2026-10-27T21:30:00Z') }).ok).toBe(false);
     // присутствие сейчас в 23:59
     expect(resolveWorkingTime({ ...base, startsAt: new Date('2026-10-27T20:59:00Z') })).toEqual({ ok: true });
+  });
+});
+
+describe('конец рабочего дня филиала для напоминания о закрытии смены (владелец 27.10.2026)', () => {
+  const week = [
+    { weekday: 2, timeFrom: '10:00', timeTo: '22:00' },
+    { weekday: 2, timeFrom: '18:00', timeTo: '24:00' },
+    { weekday: 3, timeFrom: '10:00', timeTo: '20:00' },
+  ];
+  it('самый поздний конец графиков сегодня, в часовом поясе филиала', () => {
+    // вторник 27.10.2026 12:00 в Дохе (UTC+3): конец 24:00 местного = 21:00 UTC
+    expect(dayClosesAt(new Date('2026-10-27T09:00:00Z'), 'Asia/Qatar', week)).toBe('2026-10-27T21:00:00.000Z');
+    // среда: 20:00 местного = 17:00 UTC
+    expect(dayClosesAt(new Date('2026-10-28T09:00:00Z'), 'Asia/Qatar', week)).toBe('2026-10-28T17:00:00.000Z');
+  });
+  it('в день без графиков конца нет', () => {
+    expect(dayClosesAt(new Date('2026-10-29T09:00:00Z'), 'Asia/Qatar', week)).toBeNull();
   });
 });

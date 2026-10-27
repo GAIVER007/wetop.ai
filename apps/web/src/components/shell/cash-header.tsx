@@ -18,6 +18,7 @@ async function loadCashHeader(scopeKey: string): Promise<CashRegisterView> {
   return (await response.json()) as CashRegisterView;
 }
 import { METHOD_RU } from '../../app/finance/labels';
+import { closeReminder } from '../../lib/shift-close-reminder';
 
 type Panel = 'open' | 'close' | 'expense' | 'income' | 'summary' | null;
 const title = {
@@ -166,8 +167,24 @@ export function CashHeader({
     </section>
   );
   const shiftLabel = failed ? t('Касса недоступна') : !cash ? t('Смена…') : cash.active ? t('Закрыть смену') : t('Открыть смену');
+  // напоминание о закрытии смены (владелец 27.10.2026): за 30 минут до конца дня и после него, пока смена открыта
+  const reminder = closeReminder({ shiftOpen: !!cash?.active, closesAt: cash?.closesAt ?? null, now: new Date() });
   return (
     <>
+      {reminder && owns && (
+        <button
+          type="button"
+          className="cash-header__reminder"
+          data-tone={reminder.tone}
+          data-testid="cash-close-reminder"
+          role="status"
+          onClick={() => show('close')}
+        >
+          {reminder.tone === 'soon'
+            ? t('Через {n} мин закрытие: закройте смену и сдайте кассу', { n: String(reminder.minutes) })
+            : t('Рабочий день окончен: закройте смену и сдайте кассу')}
+        </button>
+      )}
       <div className="cash-header" aria-label={t('Кассовая смена')} data-testid="cash-header">
         <Button
           type="button"

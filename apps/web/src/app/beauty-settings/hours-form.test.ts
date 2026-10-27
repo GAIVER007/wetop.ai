@@ -15,7 +15,12 @@ it('opens an honest unset weekly salon schedule without inventing opening times'
   const html = renderToStaticMarkup(
     createElement(SalonHoursForm, { initial, scopeKey: 'synthetic', canEdit: true }),
   );
-  expect(html).toContain('Режим работы салона');
+  // заголовок раздела один, у страницы (владелец 26.10.2026: «двойной заголовок»); форма его не повторяет
+  expect(html).not.toContain('>Режим работы салона<');
+  expect(html).toContain('aria-label="Режим работы салона"');
+  // дни идут вторым уровнем сразу за заголовком страницы (axe heading-order)
+  expect(html).toContain('<h2>Понедельник</h2>');
+  expect(html).not.toContain('<h3');
   expect(html).toContain('Понедельник');
   expect(html).toContain('Режим пока не настроен');
   expect(html).toContain('Добавить интервал');
@@ -26,7 +31,7 @@ it('does not offer schedule changes to a reader', () => {
   const html = renderToStaticMarkup(
     createElement(SalonHoursForm, { initial, scopeKey: 'synthetic', canEdit: false }),
   );
-  expect(html).toContain('Режим работы салона');
+  expect(html).not.toContain('<h2>Режим работы салона</h2>');
   expect(html).not.toContain('Сохранить режим');
 });
 
@@ -50,4 +55,11 @@ it('аудит 21.10.2026 п. 2: из настроек салона есть п�
   const { CLOSED_ACCESS } = await import('../../lib/navigation');
   const hub = settingsGroupsFor({ ...CLOSED_ACCESS, role: 'OWNER' }, 'BEAUTY').flatMap((g) => g.links.map((l) => l.href));
   for (const href of ['/branches', '/employees', '/team', '/journal']) expect(hub).toContain(href);
+});
+
+it('разделы настроек салона без второго заголовка: напоминания и бонусы тоже (владелец 26.10.2026)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const loyalty = readFileSync('apps/web/src/app/beauty-settings/loyalty-forms.tsx', 'utf8');
+  expect(loyalty).not.toContain("<h2>{t('Напоминания клиентам')}</h2>");
+  expect(loyalty).not.toContain("<h2>{t('Бонусы')}</h2>");
 });

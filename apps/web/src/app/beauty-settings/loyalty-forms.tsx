@@ -34,7 +34,6 @@ export function ReminderSettingsForm({
   const preview = useMemo(() => renderReminder(template || DEFAULT_REMINDER_TEMPLATE, SAMPLE), [template]);
   return (
     <form action={action} className="salon-hours-form salon-loyalty-form" data-testid="reminder-settings">
-      <h2>{t('Напоминания клиентам')}</h2>
       <p>
         {t('Клиент получает напоминание о записи. Если у клиента есть почта, письмо уходит само. WhatsApp уходит сам, когда номер салона подключён и указан одобренный шаблон. Иначе напоминание появится в журнале в списке «Напомнить сегодня» с кнопкой «Написать в WhatsApp».')}
       </p>
@@ -109,7 +108,6 @@ export function BonusProgramForm({
   const data = state?.data ?? initial;
   return (
     <form action={action} className="salon-hours-form salon-loyalty-form" data-testid="bonus-settings">
-      <h2>{t('Бонусы')}</h2>
       <p>
         {t('Клиент получает бонусы с оплаченной суммы и может оплатить ими часть следующего визита. 1 бонус равен 1 единице валюты филиала.')}
       </p>

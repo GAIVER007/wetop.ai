@@ -41,8 +41,8 @@ export function SalonHoursForm({
     nextKey.current = state.data.intervals.length;
   }, [state]);
   return (
-    <form action={action} className="salon-hours-form">
-      <h2>{t('Режим работы салона')}</h2>
+    // заголовок раздела только у страницы (владелец 26.10.2026: двойной «Режим работы салона»); форма даёт себе имя для диктора
+    <form action={action} className="salon-hours-form" aria-label={t('Режим работы салона')}>
       <p>
         {t('Время: {zone}. Запись должна попадать в часы салона и график мастера.', {
           zone: zoneLabel(initial.location.timezone, t),
@@ -67,7 +67,7 @@ export function SalonHoursForm({
           const own = rows.filter((row) => row.weekday === weekday);
           return (
             <section key={weekday} className="salon-hours-day" aria-label={name}>
-              <h3>{name}</h3>
+              <h2>{name}</h2>
               <div className="salon-hours-day-content">
                 {!own.length && <p>{data.configured ? t('Выходной') : t('Интервалы не заданы')}</p>}
                 {own.map((row, index) => (
@@ -174,7 +174,7 @@ export function SalonHoursForm({
       {!canEdit && state?.error && <Alert>{state.error}</Alert>}
       {data.conflicts.length > 0 && (
         <section aria-label={t('Записи вне нового режима')}>
-          <h3>{t('Записи вне режима работы')}</h3>
+          <h2>{t('Записи вне режима работы')}</h2>
           <p>{t('Проверьте эти визиты. Их время сохранено.')}</p>
           <ul>
             {data.conflicts.map((visit) => (

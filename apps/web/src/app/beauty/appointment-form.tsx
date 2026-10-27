@@ -11,6 +11,7 @@ import { formatPhone } from '../../lib/phone';
 import { BookingShell, PickButton, PickGroup } from '../../components/booking-shell';
 import { freeSlots } from './free-slots';
 import { useT } from '../../i18n/locale-provider';
+import { Icon } from '../../components/icon';
 
 // A5 (паритет с zapis.kz): кого выбирали в прошлый раз на этой вкладке; удобство, не данные
 let lastPickedCustomerId: string | null = null;
@@ -72,6 +73,9 @@ export function AppointmentForm({
     notes: source?.notes ?? '',
     employeeId,
   });
+  // выезд на дом (владелец 27.10.2026): у повтора записи и изменения берётся из исходной записи
+  const [atHome, setAtHome] = useState(Boolean(source?.atHome));
+  const [homeAddress, setHomeAddress] = useState(source?.homeAddress ?? '');
   const field = (key: keyof typeof draft) => ({
     value: draft[key],
     onChange: (e: { target: { value: string } }) => setDraft({ ...draft, [key]: e.target.value }),
@@ -228,6 +232,8 @@ export function AppointmentForm({
   });
   const dirty = Boolean(
     draft.notes !== (source?.notes ?? '') ||
+    atHome !== Boolean(source?.atHome) ||
+    homeAddress !== (source?.homeAddress ?? '') ||
     draft.employeeId !== initial.current.employeeId ||
     date !== initial.current.date ||
     hour !== initial.current.time ||
@@ -647,6 +653,23 @@ export function AppointmentForm({
       </fieldset>
       <fieldset className="appointment-note">
         <legend>{t('Дополнительно')}</legend>
+        <label className="beauty-check">
+          <input type="checkbox" name="atHome" checked={atHome} onChange={(e) => setAtHome(e.target.checked)} />
+          <Icon name="pin" aria-hidden="true" />
+          <span>{t('Выезд на дом')}</span>
+        </label>
+        {atHome && (
+          <Field label={t('Адрес выезда')}>
+            <Input
+              name="homeAddress"
+              required
+              maxLength={300}
+              autoComplete="street-address"
+              value={homeAddress}
+              onChange={(e) => setHomeAddress(e.target.value)}
+            />
+          </Field>
+        )}
         <Field label={t('Заметка')}>
           <Input name="notes" {...field('notes')} maxLength={2000} />
         </Field>

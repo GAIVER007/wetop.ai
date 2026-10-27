@@ -90,6 +90,8 @@ export async function createAppointment(
       lastName: text(form, 'lastName'),
       phone: text(form, 'phone'),
       notes: text(form, 'notes'),
+      atHome: text(form, 'atHome'),
+      homeAddress: text(form, 'homeAddress'),
     });
     if (!saved?.appointments?.some((row) => typeof row.id === 'string' && row.id))
       return {
@@ -131,7 +133,8 @@ export async function moveAppointment(
         )
       )
         return { outcome: 'rejected', error: t('Проверьте услуги и мастеров.') };
-      changes = { items, notes: text(form, 'notes') };
+      // выезд на дом шлём всегда: снятая галочка приходит пустой и стирает адрес
+      changes = { items, notes: text(form, 'notes'), atHome: text(form, 'atHome'), homeAddress: text(form, 'homeAddress') };
     }
     await beautyApi.moveAppointment(text(form, 'id'), {
       ...changes,

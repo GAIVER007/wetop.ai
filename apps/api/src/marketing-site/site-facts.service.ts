@@ -1,21 +1,6 @@
 import { filterBeautyLocations } from '../beauty/access';
 import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import {
-  accessDeniedMessage,
-  buildSiteFacts,
-  canAt,
-  effectiveService,
-  hoursFromServicePeriods,
-  hoursFromShifts,
-  siteStatusOf,
-  visibleLocations,
-  type BriefVerticalFacts,
-  type SiteFacts,
-  type SiteFactsCatalogItem,
-  type SiteFactsSnapshot,
-  type SiteFactsVertical,
-  type SiteLocationListItem,
-} from '@pms/domain';
+import { accessDeniedMessage, buildSiteFacts, canAt, effectiveService, hoursFromServicePeriods, hoursFromShifts, siteStatusOf, visibleLocations, type BriefVerticalFacts, type SiteFacts, type SiteFactsCatalogItem, type SiteFactsSnapshot, type SiteFactsVertical, type SiteLocationListItem, endClockOf } from '@pms/domain';
 import type { DbTx } from '@pms/database';
 import {
   currentAssignments,
@@ -104,7 +89,7 @@ export async function readBeautyFacts(db: ReadDb, businessId: string, locationId
     where: { locationId, employee: { businessId, status: 'ACTIVE', locations: { some: { locationId } } } },
     select: { weekday: true, timeFrom: true, timeTo: true },
   });
-  const hours = hoursFromShifts(shifts.map((h) => ({ weekday: h.weekday, timeFrom: clock(h.timeFrom), timeTo: clock(h.timeTo) })));
+  const hours = hoursFromShifts(shifts.map((h) => ({ weekday: h.weekday, timeFrom: clock(h.timeFrom), timeTo: endClockOf(h.timeTo) })));
   return { services: sellable, staff, hours };
 }
 

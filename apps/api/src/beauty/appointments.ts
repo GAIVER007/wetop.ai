@@ -15,30 +15,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import {
-  beautyPermissionScope,
-  appointmentPayment,
-  appointmentRefund,
-  appointmentStatusAllowed,
-  allocateStock,
-  customerPhoneKey,
-  foodCashBalances,
-  nextStatuses,
-  milliOf,
-  milliText,
-  parseAppointmentInput,
-  parseAppointmentPayment,
-  parseFoodPayment,
-  isLoyaltyMethod,
-  planAppointment,
-  statusChange,
-  timeOffWindow,
-  dayOffsetUtc,
-  type AppointmentPlan,
-  type AppointmentItemInput,
-  type AppointmentStatus,
-  type AppointmentPaymentMethod,
-} from '@pms/domain';
+import { beautyPermissionScope, appointmentPayment, appointmentRefund, appointmentStatusAllowed, allocateStock, customerPhoneKey, foodCashBalances, nextStatuses, milliOf, milliText, parseAppointmentInput, parseAppointmentPayment, parseFoodPayment, isLoyaltyMethod, planAppointment, statusChange, timeOffWindow, dayOffsetUtc, type AppointmentPlan, type AppointmentItemInput, type AppointmentStatus, type AppointmentPaymentMethod, endClockOf } from '@pms/domain';
 import { currentUserId, currentBeautyOperation } from '../auth/request-context';
 import { currentBeautyPositionAccess } from './access';
 import { lockBeautyCustomerPhone } from './customer-identity';
@@ -293,7 +270,7 @@ export class BeautyAppointmentsService {
     const columns = employees.map((e) => ({
       id: e.id,
       name: e.name,
-      intervals: intersectLocationHours(e.workingHours.map((h) => ({ timeFrom: clockOf(h.timeFrom), timeTo: clockOf(h.timeTo) })), openHours, weekday),
+      intervals: intersectLocationHours(e.workingHours.map((h) => ({ timeFrom: clockOf(h.timeFrom), timeTo: endClockOf(h.timeTo) })), openHours, weekday),
       timeOff: e.timeOffs.length > 0,
       timeOffReason: e.timeOffs[0]?.reason ?? null,
       serviceIds: e.services.map((s) => s.serviceId),
@@ -1213,7 +1190,7 @@ export async function planBeautyAppointment(
   const opening = await db.beautyLocationHours.findUnique({ where: { locationId } });
   const openHours = opening ? salonHours(opening.intervals) : null;
   const workingHours = employee.workingHours.map((shift) => ({
-    weekday: shift.weekday, timeFrom: clockOf(shift.timeFrom), timeTo: clockOf(shift.timeTo),
+    weekday: shift.weekday, timeFrom: clockOf(shift.timeFrom), timeTo: endClockOf(shift.timeTo),
   }));
   const plan = planAppointment({
     startsAt,

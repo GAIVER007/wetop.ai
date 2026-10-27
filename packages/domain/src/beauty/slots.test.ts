@@ -64,3 +64,12 @@ describe('freeBeautySlots: окна записи для формы сайта (S
     expect(freeBeautySlots({ date: DAY, timezone: 'Asia/Almaty', durationMinutes: 0, masters: [master()], now: before })).toEqual([]);
   });
 });
+
+describe('окна до полуночи (смена до 24:00, владелец 27.10.2026)', () => {
+  it('последнее часовое окно 23:00 при смене 22:00–24:00', () => {
+    const m = master({ workingHours: [{ weekday: 1, timeFrom: '22:00', timeTo: '24:00' }] });
+    const slots = freeBeautySlots({ date: DAY, timezone: 'Asia/Almaty', durationMinutes: 60, masters: [m], now: before, stepMinutes: 30 });
+    expect(slots.map((s) => s.time)).toEqual(['22:00', '22:30', '23:00']);
+    expect(slots.at(-1)!.endsAt.toISOString()).toBe('2026-10-19T19:00:00.000Z');
+  });
+});

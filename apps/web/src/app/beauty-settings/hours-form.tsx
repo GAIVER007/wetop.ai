@@ -91,7 +91,8 @@ export function SalonHoursForm({
                     </Field>
                     <Field label={t('До')}>
                       <Input
-                        type="time"
+                        inputMode="numeric"
+                        placeholder="24:00"
                         required
                         aria-label={t('Конец: {day}, интервал {n}', { day: name, n: index + 1 })}
                         value={row.timeTo}

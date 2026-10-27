@@ -10,64 +10,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { parseCreatePersonnelKind, parsePersonnelKindCommand, writePersonnelKind } from '../beauty/personnel-kind';
-import {
-  foodId,
-  foodInt,
-  foodObject,
-  foodText,
-  ingredientCost,
-  orderDelayed,
-  orderNext,
-  itemNext,
-  orderStatusFromItems,
-  parseItemStatusCommand,
-  type ItemStatus,
-  type MenuStation,
-  orderPayment,
-  parseOrderRating,
-  parseWorkingHoursWeek,
-  resolveWorkingTime,
-  weekTemplate,
-  hashSessionToken,
-  newSessionToken,
-  ratingSummary,
-  foodCostSummary,
-  milliText,
-  appointmentPaymentVoidable,
-  orderRefund,
-  type AppointmentStatus,
-  foodCashBalances,
-  payoutCheck,
-  parseFoodPayment,
-  parseFoodCashOperation,
-  parseFoodReconciliation,
-  parseFoodPayout,
-  parseIngredientInput,
-  parseMenuCategoryInput,
-  parseMenuItemInput,
-  parseOrderCreate,
-  parseOrderItems,
-  parsePayAdjustment,
-  parsePaySettings,
-  techCardTotals,
-  menuCosting,
-  milliOf,
-  stockUnitPrice,
-  type CostingPrice,
-  timeOffWindow,
-  foodLocal,
-  type OrderStatus,
-  type FoodPaymentMethod,
-  type Permission,
-  canManageStaff,
-  canWrite,
-  parsePersonnelKind,
-  checkModifierChoice,
-  linePrice,
-  orderLineKey,
-  itemsPaymentAmount,
-  type ChosenModifier,
-} from '@pms/domain';
+import { foodId, foodInt, foodObject, foodText, ingredientCost, orderDelayed, orderNext, itemNext, orderStatusFromItems, parseItemStatusCommand, type ItemStatus, type MenuStation, orderPayment, parseOrderRating, parseWorkingHoursWeek, resolveWorkingTime, weekTemplate, hashSessionToken, newSessionToken, ratingSummary, foodCostSummary, milliText, appointmentPaymentVoidable, orderRefund, type AppointmentStatus, foodCashBalances, payoutCheck, parseFoodPayment, parseFoodCashOperation, parseFoodReconciliation, parseFoodPayout, parseIngredientInput, parseMenuCategoryInput, parseMenuItemInput, parseOrderCreate, parseOrderItems, parsePayAdjustment, parsePaySettings, techCardTotals, menuCosting, milliOf, stockUnitPrice, type CostingPrice, timeOffWindow, foodLocal, type OrderStatus, type FoodPaymentMethod, type Permission, canManageStaff, canWrite, parsePersonnelKind, checkModifierChoice, linePrice, orderLineKey, itemsPaymentAmount, type ChosenModifier, endClockOf, endTimeToDate } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
 import { actorMay, currentRole, currentUserId, currentVertical } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
@@ -1211,7 +1154,7 @@ export class RestaurantService {
       ? Math.round(queue.reduce((acc, o) => acc + (now.getTime() - o.openedAt.getTime()), 0) / queue.length / 60000)
       : null;
     const local = foodLocal(now, s.timezone);
-    const minutes = (t: Date) => Number(clockText(t).slice(0, 2)) * 60 + Number(clockText(t).slice(3, 5));
+    const minutes = (t: Date) => Number(endClockOf(t).slice(0, 2)) * 60 + Number(endClockOf(t).slice(3, 5));
     const nowMinutes = new Date(local.stamp).getUTCHours() * 60 + new Date(local.stamp).getUTCMinutes();
     const staffIds = new Set(hours.map((h) => h.employeeId));
     const onShift = new Set(
@@ -1282,11 +1225,11 @@ export class RestaurantService {
     const result = paged(
       rows.map((r) => {
         const todayHours = r.workingHours.filter(h => h.weekday === new Date(`${local.date}T12:00:00Z`).getUTCDay()).sort((a,b) => a.timeFrom.getTime()-b.timeFrom.getTime());
-        const fit = resolveWorkingTime({ startsAt: new Date(), timezone: s.timezone, supported: true, employeeActive: r.status === 'ACTIVE', worksHere: r.locations.some(l => l.locationId === s.locationId), workingHours: r.workingHours.map(h => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: clockText(h.timeTo) })), timeOffs: r.timeOffs.map(t => ({ dateFrom: t.dateFrom.toISOString().slice(0,10), dateTo: t.dateTo.toISOString().slice(0,10) })) });
+        const fit = resolveWorkingTime({ startsAt: new Date(), timezone: s.timezone, supported: true, employeeActive: r.status === 'ACTIVE', worksHere: r.locations.some(l => l.locationId === s.locationId), workingHours: r.workingHours.map(h => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: endClockOf(h.timeTo) })), timeOffs: r.timeOffs.map(t => ({ dateFrom: t.dateFrom.toISOString().slice(0,10), dateTo: t.dateTo.toISOString().slice(0,10) })) });
         return {
           ...profiles.get(r.id)!,
           personnelKind: r.personnelKind === null ? null : parsePersonnelKind(r.personnelKind),
-          shift: todayHours.map(h => `${clockText(h.timeFrom)}–${clockText(h.timeTo)}`).join(', ') || null,
+          shift: todayHours.map(h => `${clockText(h.timeFrom)}–${endClockOf(h.timeTo)}`).join(', ') || null,
           onShift: fit.ok,
           workingTimeStatus: fit.ok ? 'WORKING' : fit.reason,
           salesTodayMinor: r.restaurantOrders.reduce((acc, o) => acc + o.total, 0n).toString(),
@@ -1338,7 +1281,7 @@ export class RestaurantService {
         name: r.name,
         weekRevision: hoursRowsRevision(snapshots.get(r.id)!.rows, snapshots.get(r.id)!.sourceRevision),
         week: weekTemplate(
-          snapshots.get(r.id)!.rows.map((h) => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: clockText(h.timeTo) })),
+          snapshots.get(r.id)!.rows.map((h) => ({ weekday: h.weekday, timeFrom: clockText(h.timeFrom), timeTo: endClockOf(h.timeTo) })),
         ),
       })),
     };
@@ -1365,7 +1308,7 @@ export class RestaurantService {
             locationId: s.locationId,
             weekday: i.weekday,
             timeFrom: new Date(`1970-01-01T${i.timeFrom}:00Z`),
-            timeTo: new Date(`1970-01-01T${i.timeTo}:00Z`),
+            timeTo: endTimeToDate(i.timeTo),
           })),
         });
       await this.audit(tx, s, 'employee', id, 'food.employee.working_hours.set', {

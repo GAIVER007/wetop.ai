@@ -160,6 +160,9 @@ test('администратор на телефоне видит рабочие
   await request.post(`${API}/__test/control`, { data: { role: 'STAFF' } });
   await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page);
+  // администратор стартует в шахматке (стартовый экран по роли), обучение само открывается на Главной
+  await expect(page).toHaveURL(/\/chessboard(\?.*)?$/);
+  await page.goto('/today');
   const tour = page.getByTestId('product-tour');
   await expect(tour).toBeVisible();
   const topics = tour.getByLabel('Тема обучения');

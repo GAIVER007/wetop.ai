@@ -297,8 +297,14 @@ export function BeautyChecklist({
   // кнопки окна: у готового салона в шапке справа (вариант B владельца 26.10.2026), иначе под шагами
   const actions = welcome ? (
     <div className="onboarding__actions">
+      {/* быстрый запуск (владелец 27.10.2026): вся анкета в одном окне, одна кнопка «Создать салон» */}
+      {state.canEdit && !state.profileApplied && (
+        <Link className="btn" href="/register/setup/quick" data-testid="quick-start-link">
+          {t('Запустить за 5 минут')}
+        </Link>
+      )}
       {state.canEdit && (
-        <Button disabled={pending} onClick={() => save('next')}>
+        <Button tone={state.profileApplied ? 'primary' : 'secondary'} disabled={pending} onClick={() => save('next')}>
           {state.updatedAt ? t('Продолжить настройку') : t('Настроить салон')}
         </Button>
       )}

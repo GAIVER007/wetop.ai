@@ -40,18 +40,31 @@ type SharedDraft = {
   locationName: string;
   timezone: string;
   currency: string;
+  /** быстрый запуск салона (27.10.2026): адрес и телефон филиала, необязательны */
+  address?: string;
+  phone?: string;
 };
 const FIELDS = ['businessName', 'locationName', 'timezone', 'currency'] as const;
+const CONTACT_FIELDS = ['address', 'phone'] as const;
 function sharedDraft(raw: unknown): SharedDraft {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
     throw new BadRequestException('Укажите данные настройки');
   const source = raw as Record<string, unknown>;
-  if (Object.keys(source).some((key) => !FIELDS.includes(key as (typeof FIELDS)[number])))
+  const known: readonly string[] = [...FIELDS, ...CONTACT_FIELDS];
+  if (Object.keys(source).some((key) => !known.includes(key)))
     throw new BadRequestException('Неизвестное поле настройки');
   const result = {} as SharedDraft;
   for (const key of FIELDS) {
     const value = source[key];
     if (typeof value !== 'string' || value.length > (key.endsWith('Name') ? 200 : 50))
+      throw new BadRequestException('Проверьте данные настройки');
+    result[key] = value.trim();
+  }
+  // контакты филиала: адрес до 500 символов (locations.address VARCHAR(500)), телефон до 50
+  for (const key of CONTACT_FIELDS) {
+    const value = source[key];
+    if (value === undefined) continue;
+    if (typeof value !== 'string' || value.length > (key === 'address' ? 500 : 50))
       throw new BadRequestException('Проверьте данные настройки');
     result[key] = value.trim();
   }
@@ -476,10 +489,15 @@ export class SharedOnboardingService {
               where: { id: location.businessId },
               data: { name: values.businessName },
             });
+          const contacts = {
+            ...(values.address !== undefined ? { address: values.address || null } : {}),
+            ...(values.phone !== undefined ? { phone: values.phone || null } : {}),
+          };
           if (
             values.locationName !== location.name ||
             values.currency !== location.currency ||
-            values.timezone !== location.timezone
+            values.timezone !== location.timezone ||
+            Object.keys(contacts).length > 0
           )
             await tx.location.update({
               where: { id: location.id },
@@ -487,6 +505,7 @@ export class SharedOnboardingService {
                 name: values.locationName,
                 currency: values.currency,
                 timezone: values.timezone,
+                ...contacts,
               },
             });
           await tx.auditLog.create({

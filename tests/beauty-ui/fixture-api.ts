@@ -11,6 +11,12 @@ import { MarketingBudgetModule } from '../../apps/api/src/marketing-budget/marke
 import { BeautyModule } from '../../apps/api/src/beauty/beauty.module';
 import { EmployeePortalModule } from '../../apps/api/src/employee-portal/employee-portal.module';
 import { FoodStockController } from '../../apps/api/src/food-service/food.module';
+// быстрый запуск салона (27.10.2026): товары бара и способы оплаты филиала идут настоящими модулями
+import { BarModule } from '../../apps/api/src/bar/bar.module';
+import {
+  BranchPaymentMethodsController,
+  BranchPaymentMethodsService,
+} from '../../apps/api/src/food-service/branch-payment-methods';
 import { StockService } from '../../apps/api/src/food-service/stock.service';
 import { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { SITE_ASSET_STORAGE } from '../../apps/api/src/marketing-site/asset-storage';
@@ -37,6 +43,7 @@ const org = randomUUID(),
   staffUserId = randomUUID();
 let role: MembershipRole = 'OWNER';
 const calls: string[] = [];
+const invites: Array<{ email: string; role: string }> = [];
 
 class FixtureController {
   async me() {
@@ -79,6 +86,11 @@ class FixtureController {
   save(body: Record<string, unknown>) {
     return onboarding.save(body);
   }
+  /** приглашение: писем стенд не шлёт, запоминает адрес (быстрый запуск салона проверяет, кого позвали) */
+  invite(body: { email?: string; role?: string }) {
+    invites.push({ email: String(body.email ?? ''), role: String(body.role ?? '') });
+    return { id: randomUUID(), email: body.email, role: body.role, expiresAt: new Date(Date.now() + 864e5).toISOString() };
+  }
 }
 Controller()(FixtureController);
 for (const [name, path, method] of [
@@ -86,17 +98,19 @@ for (const [name, path, method] of [
   ['branches', 'branches', Get],
   ['status', 'onboarding', Get],
   ['save', 'onboarding', Post],
+  ['invite', 'auth/invites', Post],
 ] as const) {
   const descriptor = Object.getOwnPropertyDescriptor(FixtureController.prototype, name)!;
   method(path)(FixtureController.prototype, name, descriptor);
   Access('desk')(FixtureController.prototype, name, descriptor);
 }
 Body()(FixtureController.prototype, 'save', 0);
+Body()(FixtureController.prototype, 'invite', 0);
 const module = await Test.createTestingModule({
   // бюджет маркетинга общий для всех направлений (14.10.2026): настоящий модуль на той же базе
-  imports: [BeautyModule, EmployeePortalModule, MarketingBudgetModule],
-  controllers: [FixtureController, FoodStockController],
-  providers: [StockService, { provide: PrismaService, useValue: prisma }],
+  imports: [BeautyModule, EmployeePortalModule, MarketingBudgetModule, BarModule],
+  controllers: [FixtureController, FoodStockController, BranchPaymentMethodsController],
+  providers: [StockService, BranchPaymentMethodsService, { provide: PrismaService, useValue: prisma }],
 })
   .overrideProvider(PrismaService)
   .useValue(prisma)
@@ -131,6 +145,7 @@ app.use(
             const body = raw ? JSON.parse(raw) : {};
             if (req.path === '/__test/health') return res.json({ ok: true });
             if (req.path === '/__test/calls') return res.json(calls);
+            if (req.path === '/__test/invites') return res.json(invites);
             if (req.path === '/__test/reset') {
               role = 'OWNER';
               calls.length = 0;

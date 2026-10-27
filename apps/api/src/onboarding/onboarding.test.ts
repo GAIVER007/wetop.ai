@@ -104,3 +104,32 @@ it('beauty status carries the organization language; only the owner may change i
   const manager = await withSignedInUser({ ...actor, role: 'MANAGER' }, () => service.status());
   expect(manager).toMatchObject({ organizationLocale: 'en', canEditLocale: false });
 });
+
+it('быстрый запуск: профиль салона сохраняет адрес и телефон филиала, лишнее поле отклоняется', async () => {
+  const { service, db } = fixture();
+  const update = vi.fn();
+  Object.assign(db, {
+    location: { ...db.location, update, findUnique: vi.fn().mockResolvedValue({ property: null, _count: {} }) },
+    business: { update: vi.fn() },
+    auditLog: { create: vi.fn() },
+    $queryRaw: vi.fn(),
+  });
+  const draft = {
+    businessName: 'Бизнес',
+    locationName: 'Филиал',
+    timezone: 'Asia/Almaty',
+    currency: 'KZT',
+    address: 'Doha, Garafa, B05',
+    phone: '+974 5000 0000',
+  };
+  await withSignedInUser(actor, () => service.save({ action: 'apply-profile', draft, updatedAt: null }));
+  expect(update).toHaveBeenCalledWith({
+    where: { id: 'location' },
+    data: expect.objectContaining({ address: 'Doha, Garafa, B05', phone: '+974 5000 0000' }),
+  });
+  await expect(
+    withSignedInUser(actor, () =>
+      service.save({ action: 'apply-profile', draft: { ...draft, vertical: 'HOSPITALITY' }, updatedAt: null }),
+    ),
+  ).rejects.toThrow('Неизвестное поле настройки');
+});

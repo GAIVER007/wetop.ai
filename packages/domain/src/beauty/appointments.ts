@@ -141,6 +141,26 @@ export interface AppointmentInput {
   items: AppointmentItemInput[];
   customer: AppointmentCustomer;
   notes: string | null;
+  /** HOME-VISIT-20261027: мастер едет к клиенту; адрес только при выезде */
+  atHome: boolean;
+  homeAddress: string | null;
+}
+
+export const HOME_ADDRESS_LIMIT = 300;
+
+/** Галочка формы: true, 'true', 'on', '1' это выезд; всё прочее нет */
+export function homeVisitFlag(raw: unknown): boolean {
+  return raw === true || raw === 'true' || raw === 'on' || raw === '1';
+}
+
+/** Выезд и адрес вместе: без галочки адреса нет, с галочкой адрес обязателен */
+export function parseHomeVisit(rawFlag: unknown, rawAddress: unknown): ParseResult<{ atHome: boolean; homeAddress: string | null }> {
+  const atHome = homeVisitFlag(rawFlag);
+  if (!atHome) return { ok: true, value: { atHome: false, homeAddress: null } };
+  const homeAddress = text(rawAddress);
+  if (!homeAddress) return { ok: false, reason: 'Укажите адрес выезда' };
+  if (homeAddress.length > HOME_ADDRESS_LIMIT) return { ok: false, reason: `Адрес выезда: не больше ${HOME_ADDRESS_LIMIT} символов` };
+  return { ok: true, value: { atHome, homeAddress } };
 }
 
 export interface AppointmentItemInput {
@@ -211,6 +231,8 @@ export function parseAppointmentInput(raw: unknown): ParseResult<AppointmentInpu
 
   const notes = text(body['notes']);
   if (notes.length > NOTES_LIMIT) return { ok: false, reason: 'Заметка слишком длинная' };
+  const visit = parseHomeVisit(body['atHome'], body['homeAddress']);
+  if (!visit.ok) return visit;
 
   return {
     ok: true,
@@ -221,6 +243,8 @@ export function parseAppointmentInput(raw: unknown): ParseResult<AppointmentInpu
         ? { kind: 'existing', id: customerId }
         : { kind: 'new', firstName, lastName: lastName || null, phone: phone || null },
       notes: notes || null,
+      atHome: visit.value.atHome,
+      homeAddress: visit.value.homeAddress,
     },
   };
 }

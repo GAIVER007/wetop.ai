@@ -3848,6 +3848,9 @@ export interface BeautyAppointmentRow {
   refundedMinor: string;
   currency: string;
   notes: string | null;
+  /** HOME-VISIT-20261027: мастер едет к клиенту, адрес визита */
+  atHome?: boolean;
+  homeAddress?: string | null;
   /** C2 (паритет с zapis.kz): откуда пришла запись и кто её создал; у старых записей автора нет */
   source?: 'DESK' | 'WEBSITE';
   createdByName?: string | null;

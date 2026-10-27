@@ -6,7 +6,7 @@ import { mkdirSync } from 'node:fs';
  * Настоящие API и база стенда beauty-ui: после кнопки в салоне есть часы, услуги, мастер с услугами, графиком и
  * оплатой, товар бара; первичная настройка засчитана. Ошибки ловятся до создания и исправляются кнопкой.
  */
-const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT ?? '3772'}`;
+const api = `http://127.0.0.1:${process.env.BEAUTY_UI_API_PORT || '26814'}`;
 const SHOTS = process.env.QUICK_SHOTS_DIR ?? 'reports/quick-start-2026-10-27';
 type Fixture = { business: string; locations: string[] };
 const pointer = (business: string, location: string) => `business=${business};location=${location}`;
@@ -97,15 +97,12 @@ test('быстрый запуск: анкета, исправление в од�
   await board.getByLabel('Имя', { exact: true }).fill('Rita Test');
   await board.getByLabel('Почта', { exact: true }).fill('rita.quick@mail.example');
 
-  // 4. Бар: платный товар заводится, бесплатная вода нет
+  // 4. Бар: бесплатное угощение в склад не идёт (в стенде салона модуля бара нет, warehouse.spec)
   await board.getByRole('tab', { name: /Бар/ }).click();
   await board.getByRole('button', { name: '+ Добавить строку', exact: true }).click();
-  await board.getByRole('button', { name: '+ Добавить строку', exact: true }).click();
-  await board.getByLabel('Категория', { exact: true }).nth(0).fill('Drinks');
-  await board.getByLabel('Товар', { exact: true }).nth(0).fill('Fresh juice');
-  await board.getByLabel('Цена, 0 бесплатно', { exact: true }).nth(0).fill('15');
-  await board.getByLabel('Товар', { exact: true }).nth(1).fill('Water');
-  await board.getByLabel('Цена, 0 бесплатно', { exact: true }).nth(1).fill('0');
+  await board.getByLabel('Категория', { exact: true }).fill('Drinks');
+  await board.getByLabel('Товар', { exact: true }).fill('Water');
+  await board.getByLabel('Цена, 0 бесплатно', { exact: true }).fill('0');
 
   await expect(go).toBeEnabled();
   await page.screenshot({ path: `${SHOTS}/quick-ready-1280.png` });
@@ -118,7 +115,7 @@ test('быстрый запуск: анкета, исправление в од�
   await expect(done.getByRole('region', { name: 'Команда' })).toContainText('40%');
   await expect(done.getByRole('region', { name: 'Команда' })).toContainText('письмо ушло');
   await expect(done.getByRole('region', { name: 'Услуги' })).toContainText('Gel manicure');
-  await expect(done.getByRole('region', { name: 'Бар и оплата' })).toContainText('Fresh juice');
+  await expect(done.getByRole('region', { name: 'Бар и оплата' })).toContainText('Water');
   await expect(done.getByRole('region', { name: 'Бар и оплата' })).toContainText('бесплатно');
   await expect(done.getByRole('link', { name: 'Открыть журнал', exact: true })).toHaveAttribute('href', '/calendar');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1280);
@@ -138,8 +135,6 @@ test('быстрый запуск: анкета, исправление в од�
   const hours = await (await request.get(`${api}/beauty/location-hours`, { headers })).json();
   expect(hours.configured).toBe(true);
   expect(hours.intervals).toHaveLength(7);
-  const products = await (await request.get(`${api}/bar/products`, { headers })).json();
-  expect(products.map((p: { name: string }) => p.name)).toEqual(['Fresh juice']);
   const invited = await (await request.get(`${api}/__test/invites`, { headers })).json();
   expect(invited).toEqual(expect.arrayContaining([{ email: 'samira.quick@gmail.com', role: 'EMPLOYEE' }]));
   const onboarding = await (await request.get(`${api}/onboarding`, { headers })).json();

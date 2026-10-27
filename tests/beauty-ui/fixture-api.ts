@@ -11,8 +11,7 @@ import { MarketingBudgetModule } from '../../apps/api/src/marketing-budget/marke
 import { BeautyModule } from '../../apps/api/src/beauty/beauty.module';
 import { EmployeePortalModule } from '../../apps/api/src/employee-portal/employee-portal.module';
 import { FoodStockController } from '../../apps/api/src/food-service/food.module';
-// быстрый запуск салона (27.10.2026): товары бара и способы оплаты филиала идут настоящими модулями
-import { BarModule } from '../../apps/api/src/bar/bar.module';
+// быстрый запуск салона (27.10.2026): способы оплаты филиала настоящим модулем; бара в стенде нет (warehouse.spec)
 import {
   BranchPaymentMethodsController,
   BranchPaymentMethodsService,
@@ -108,7 +107,7 @@ Body()(FixtureController.prototype, 'save', 0);
 Body()(FixtureController.prototype, 'invite', 0);
 const module = await Test.createTestingModule({
   // бюджет маркетинга общий для всех направлений (14.10.2026): настоящий модуль на той же базе
-  imports: [BeautyModule, EmployeePortalModule, MarketingBudgetModule, BarModule],
+  imports: [BeautyModule, EmployeePortalModule, MarketingBudgetModule],
   controllers: [FixtureController, FoodStockController, BranchPaymentMethodsController],
   providers: [StockService, BranchPaymentMethodsService, { provide: PrismaService, useValue: prisma }],
 })

@@ -10,6 +10,8 @@ import { msg } from '../../../../i18n';
 export type QuickPay = 'FIXED' | 'PERCENT' | 'FIXED_PLUS_PERCENT';
 export type QuickRole = 'STAFF' | 'MANAGER';
 export type QuickSection = 'salon' | 'services' | 'masters' | 'staff' | 'products';
+/** разделы гостиницы и ресторана (vertical-model.ts) */
+export type VerticalSection = 'hotel' | 'rooms' | 'extras' | 'restaurant' | 'tables' | 'menu' | 'staff';
 
 export interface QuickStart {
   salon: {
@@ -41,9 +43,9 @@ export interface QuickStart {
   products: Array<{ category: string; name: string; price: string }>;
 }
 
-export interface QuickIssue {
+export interface QuickIssue<S extends string = QuickSection> {
   level: 'error' | 'warning';
-  section: QuickSection;
+  section: S;
   row: number;
   field: string;
   text: string;
@@ -113,8 +115,8 @@ export function emptyQuickStart(currency: string, timezone: string): QuickStart 
   };
 }
 
-const trim = (v: string) => v.replace(/\s+/g, ' ').trim();
-const key = (v: string) => trim(v).toLocaleLowerCase();
+export const trim = (v: string) => v.replace(/\s+/g, ' ').trim();
+export const key = (v: string) => trim(v).toLocaleLowerCase();
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 /** почтовые сервисы, у которых пользователи путают зону */
@@ -147,9 +149,9 @@ export function toTime(raw: string): string | null {
   const t = `${String(h).padStart(2, '0')}:${m[2] ?? '00'}`;
   return TIME.test(t) ? t : null;
 }
-const minutesOf = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
+export const minutesOf = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
 
-function emailIssue(section: QuickSection, row: number, email: string): QuickIssue | null {
+export function emailIssue<S extends string>(section: S, row: number, email: string): QuickIssue<S> | null {
   const value = trim(email);
   if (!value) return null;
   if (!EMAIL.test(value))
@@ -168,7 +170,7 @@ function emailIssue(section: QuickSection, row: number, email: string): QuickIss
   return null;
 }
 
-const filled = <T extends object>(rows: T[]) =>
+export const filled = <T extends object>(rows: T[]) =>
   rows.flatMap((r, i) => (Object.values(r).some((v) => (Array.isArray(v) ? v.length : trim(String(v)))) ? [[r, i] as const] : []));
 
 export function quickIssues(q: QuickStart): QuickIssue[] {

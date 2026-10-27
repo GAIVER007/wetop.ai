@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { landingForVertical } from '../../../lib/vertical-landing';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -157,6 +158,12 @@ function LegacyOnboardingShell({
         </section>
       ) : (
         <>
+          {/* быстрый запуск (владелец 27.10.2026): вся анкета гостиницы или ресторана в одном окне */}
+          {state.canEdit && (
+            <Link className="btn" href="/register/setup/quick" data-testid="quick-start-link">
+              {t('Запустить за 5 минут')}
+            </Link>
+          )}
           {!state.canEdit && (
             <p role="status">
               {t('Настройку выполняет владелец или управляющий. Сохранённые данные доступны для просмотра.')}

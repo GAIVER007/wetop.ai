@@ -133,3 +133,44 @@ it('быстрый запуск: профиль салона сохраняет 
     ),
   ).rejects.toThrow('Неизвестное поле настройки');
 });
+
+it('быстрый запуск ресторана: завершение настройки сохраняет адрес и телефон филиала', async () => {
+  const { service, db } = fixture();
+  const base = await db.location.findFirst();
+  db.location.findFirst.mockResolvedValue({
+    ...base,
+    business: { ...base.business, vertical: 'FOOD_SERVICE' },
+  });
+  const update = vi.fn();
+  db.onboardingProgress.findUnique.mockResolvedValue({
+    currentStep: 'review',
+    flowVersion: 1,
+    draft: {},
+    completedAt: null,
+    updatedAt: new Date('2026-10-27T00:00:00Z'),
+  });
+  Object.assign(db, {
+    location: { ...db.location, update, findUnique: vi.fn().mockResolvedValue({ property: null, _count: {} }) },
+    business: { update: vi.fn() },
+    auditLog: { create: vi.fn() },
+    $executeRaw: vi.fn(),
+  });
+  await withSignedInUser(actor, () =>
+    service.save({
+      action: 'complete',
+      draft: {
+        businessName: 'Ресторан',
+        locationName: 'Филиал',
+        timezone: 'Asia/Almaty',
+        currency: 'KZT',
+        address: 'Doha, Pearl, 12',
+        phone: '+974 5000 0001',
+      },
+      updatedAt: '2026-10-27T00:00:00.000Z',
+    }),
+  );
+  expect(update).toHaveBeenCalledWith({
+    where: { id: 'location' },
+    data: expect.objectContaining({ address: 'Doha, Pearl, 12', phone: '+974 5000 0001' }),
+  });
+});

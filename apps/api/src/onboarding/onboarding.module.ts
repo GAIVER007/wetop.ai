@@ -299,7 +299,14 @@ export class SharedOnboardingService {
         });
         await tx.location.update({
           where: { id: current.id },
-          data: { name: values.locationName, currency: values.currency, timezone: values.timezone },
+          data: {
+            name: values.locationName,
+            currency: values.currency,
+            timezone: values.timezone,
+            // быстрый запуск ресторана (27.10.2026): контакты филиала, если их прислали
+            ...(values.address !== undefined ? { address: values.address || null } : {}),
+            ...(values.phone !== undefined ? { phone: values.phone || null } : {}),
+          },
         });
         await tx.auditLog.create({
           data: {

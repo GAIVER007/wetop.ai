@@ -112,6 +112,8 @@ export class AuthController {
     return this.auth.login({
       email: text(body?.email, 'email'),
       password: text(body?.password, 'password', 200),
+      // адрес устройства для замка «почта + адрес» (владелец 27.10.2026); не сохраняется
+      ip: visitorIp(socketIp, cfConnectingIp) ?? null,
       // семейство браузера — тем же разбором, что в аналитике сайта; полный User-Agent не храним (ADR-018)
       userAgentFamily: sessionDevice(userAgent),
     });

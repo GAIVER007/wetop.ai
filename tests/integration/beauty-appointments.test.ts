@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
 import { ConflictException } from '@nestjs/common';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { openTestShift } from '../tools/test-shift';
 import { createPrismaClient, type Db } from '@pms/database';
 import { BeautyCatalogService } from '../../apps/api/src/beauty/beauty.module';
 import { BeautyScheduleService } from '../../apps/api/src/beauty/schedule';
@@ -87,6 +88,9 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
       `DELETE FROM "employees" WHERE "business_id" IN (${businesses})`,
       `DELETE FROM "beauty_services" WHERE "business_id" IN (${businesses})`,
       `DELETE FROM "audit_logs" WHERE "organization_id" IN (${orgs})`,
+      // кассы и смены филиалов (сторож смены, tests/tools/test-shift.ts)
+      `DELETE FROM "cash_shifts" WHERE "register_id" IN (SELECT "id" FROM "cash_registers" WHERE "organization_id" IN (${orgs}))`,
+      `DELETE FROM "cash_registers" WHERE "organization_id" IN (${orgs})`,
       `DELETE FROM "locations" WHERE "business_id" IN (${businesses})`,
       `DELETE FROM "businesses" WHERE "organization_id" IN (${orgs})`,
       `DELETE FROM "organizations" WHERE "id" IN (${orgs})`,
@@ -127,6 +131,8 @@ describe.skipIf(!url)('журнал записей салона (integration, DA
     await as('OWNER', async () =>
       schedule.setWorkingHours(employeeId, { expectedRevision: (await schedule.overview(employeeId)).weekRevision, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }),
     );
+    // администратор пишет в открытую смену (владелец 27.10.2026, finance/shift-guard)
+    await openTestShift(db, { organizationId: own.org, userId: own.user, locationId: own.location });
   });
 
   afterAll(async () => {

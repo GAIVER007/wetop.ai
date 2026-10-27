@@ -75,6 +75,30 @@ export function resolveWorkingTime(input: {
   return fits ? { ok: true } : { ok: false, reason: 'OUTSIDE_WORKING_HOURS' };
 }
 
+/**
+ * Конец рабочего дня филиала сегодня (напоминание о закрытии смены, владелец 27.10.2026): самый поздний конец
+ * графиков сотрудников на текущий день недели в часовом поясе филиала, как момент UTC. Нет графиков: `null`.
+ */
+export function dayClosesAt(now: Date, timezone: string, hours: readonly WorkingInterval[]): string | null {
+  const p = new Map(fmt(timezone).formatToParts(now).map((part) => [part.type, part.value]));
+  const date = `${p.get('year')}-${p.get('month')}-${p.get('day')}`;
+  const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+  const ends = hours.filter((h) => h.weekday === weekday).map((h) => minutes(h.timeTo));
+  if (!ends.length) return null;
+  const last = Math.max(...ends);
+  // местное «date + last минут» в UTC: смещение пояса берём на этот момент (два прохода на случай перевода часов)
+  const naive = Date.parse(`${date}T00:00:00Z`) + last * 60_000;
+  const offset = (at: number) => {
+    const q = new Map(fmt(timezone).formatToParts(new Date(at)).map((part) => [part.type, part.value]));
+    const asUtc = Date.UTC(Number(q.get('year')), Number(q.get('month')) - 1, Number(q.get('day')),
+      Number(q.get('hour')) % 24, Number(q.get('minute')), Number(q.get('second')));
+    return asUtc - Math.floor(at / 1000) * 1000;
+  };
+  let at = naive - offset(naive);
+  at = naive - offset(at);
+  return new Date(at).toISOString();
+}
+
 /** Интервал недельного шаблона: день недели и местное время филиала */
 export interface WorkingInterval {
   weekday: number;

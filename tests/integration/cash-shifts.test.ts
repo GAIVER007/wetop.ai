@@ -10,6 +10,7 @@ import {
   type CashCommand,
 } from '../../apps/api/src/finance/cash-shifts.service';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
+import { SHIFT_REQUIRED_MESSAGE, assertShiftOpen } from '../../apps/api/src/finance/shift-guard';
 
 describe.skipIf(!process.env.DATABASE_URL)('кассовые смены всех вертикалей, настоящая база', () => {
   let db: Db, service: CashShiftsService;
@@ -353,6 +354,31 @@ describe.skipIf(!process.env.DATABASE_URL)('кассовые смены всех
       await db.restaurantOrder.delete({ where: { id: order.id } });
     }
   });
+  // владелец 27.10.2026: «пока смена не открыта нельзя вносить брони и т.д.» — сторож видит смену своей кассы
+  it('сторож смены: администратор без открытой смены получает отказ, владелец нет; после открытия проходит', async () => {
+    for (const place of places) {
+      const where = place.vertical === 'HOSPITALITY'
+        ? { propertyId: (await db.property.findFirstOrThrow({ where: { locationId: place.locationId } })).id, locationId: null }
+        : { propertyId: null, locationId: place.locationId };
+      const open = await db.cashShift.findFirst({ where: { register: { OR: [{ locationId: place.locationId }, { property: { locationId: place.locationId } }] }, closedAt: null } });
+      if (open) continue; // другой тест оставил смену открытой: проверка без смены здесь невозможна
+      await expect(at(place, cashier, () => assertShiftOpen(db as never, where))).rejects.toThrow(SHIFT_REQUIRED_MESSAGE);
+      await expect(at(place, owner, () => assertShiftOpen(db as never, where))).resolves.toBeUndefined();
+      // открыть на фактическом остатке кассы: предыдущие тесты могли оставить наличные
+      const state = (await at(place, owner, () => service.state())) as { snapshot: { balances: Record<string, string> } };
+      const cash = BigInt(state.snapshot.balances.CASH ?? '0');
+      const text = `${cash / 100n}.${String(cash % 100n).padStart(2, '0')}`;
+      const opened = await command(place, { action: 'open', counted: text });
+      await expect(at(place, cashier, () => assertShiftOpen(db as never, where))).resolves.toBeUndefined();
+      // закрыть, как было: следующие тесты открывают смену сами
+      await command(place, {
+        action: 'close', shiftId: opened.active!.id, counted: text, retained: text,
+        fingerprint: opened.snapshot.fingerprint,
+      });
+      await expect(at(place, cashier, () => assertShiftOpen(db as never, where))).rejects.toThrow(SHIFT_REQUIRED_MESSAGE);
+    }
+  });
+
   it('параллельные открытия создают не более одной смены', async () => {
     const place = places[0]!;
     const results = await Promise.allSettled([

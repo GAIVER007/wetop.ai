@@ -40,6 +40,7 @@ import {
   type ReservationCard,
 } from './reservation-card';
 import { auditUserId } from '../accounts/actor';
+import { assertShiftOpen } from '../finance/shift-guard';
 
 /** Ячейка уже занята на эти ночи — сообщила база (exclusion constraint), не код. */
 export class AllocationOverlapError extends Error {
@@ -275,6 +276,8 @@ export interface ReservationsRepository {
    * иначе обе проходили проверку «ещё не отменена» и начисляли штраф дважды (аудит 26.09, С-15). Порядок один для всех
    * путей: сначала бронь, потом категории.
    */
+  /** Касса объекта: без открытой смены администратор брони не вносит (владелец 27.10.2026) */
+  assertShiftOpen(): Promise<void>;
   lockReservation(confirmationNumber: string): Promise<void>;
   /** Ограничения продаж (ADR-020) по датам [from, toExclusive) для категории × тарифа; нет строки — нет ограничений */
   restrictionsFor(
@@ -710,6 +713,11 @@ export class PrismaReservationsRepository implements ReservationsRepository {
     const num = (c: string) => (/^\d+$/.test(c) ? Number(c) : Number.POSITIVE_INFINITY);
     free.sort((a, b) => num(a.code) - num(b.code) || a.code.localeCompare(b.code));
     return free;
+  }
+  /** Касса объекта: без открытой смены администратор брони не вносит (владелец 27.10.2026, finance/shift-guard) */
+  async assertShiftOpen(): Promise<void> {
+    const property = await this.property();
+    await assertShiftOpen(this.db as DbTx, { propertyId: property.id, locationId: null });
   }
   async lockReservation(confirmationNumber: string): Promise<void> {
     await this.db

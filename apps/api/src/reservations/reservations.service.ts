@@ -521,6 +521,8 @@ export class ReservationsService {
 
     const created = await this.uow.run((repo) =>
       guarded(async () => {
+        // со стойки без открытой смены брони нет; сайт и каналы (никто не вошёл) не держим
+        if (!opts.preview) await repo.assertShiftOpen();
         if (key && !opts.preview) {
           const property = await repo.property();
           await repo.lockReservation(`create:${property.id}:${key.toLowerCase()}`);

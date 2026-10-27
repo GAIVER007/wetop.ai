@@ -25,6 +25,8 @@ export interface CashRegisterView {
   name: string;
   currency: string;
   timezone: string;
+  /** Конец рабочего дня филиала сегодня: напоминание о закрытии смены (может не прийти от старого API) */
+  closesAt?: string | null;
   snapshot: CashSnapshot;
   active: CashShiftView | null;
   history: CashShiftView[];

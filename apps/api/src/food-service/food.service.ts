@@ -42,6 +42,7 @@ import { reservationRange } from './reservation-range';
 import { foodMay, foodScope, foodTransaction, foodWritable, waiterSelf, type FoodScope } from './scope';
 import { occupancyCommand, occupancyEnabled, reservationOccupancy } from './occupancy';
 import { customerSearch, customerSearchWhere } from '../customers/search';
+import { assertShiftOpen } from '../finance/shift-guard';
 
 /** Сегодня по часовому поясу филиала, `ГГГГ-ММ-ДД` */
 const localToday = (timezone: string) =>
@@ -574,6 +575,8 @@ export class FoodService {
   }
   async create(keyRaw: unknown, raw: unknown) {
     return this.write('orders', async (tx, s) => {
+      // без открытой смены администратор брони столов не вносит (владелец 27.10.2026)
+      await assertShiftOpen(tx, { propertyId: null, locationId: s.locationId });
       const key = parsed(() => foodText(keyRaw, 200)),
         b = parsed(() => parseFoodCreate(raw));
       // §33.6: официант принимает бронь на себя; у стойки «Принял» выбирают в форме, необязательно

@@ -12,6 +12,8 @@ export const WEEK_PRESETS: readonly WeekPreset[] = [
   { label: msg('Пн-Пт 10:00-19:00'), weekdays: [1, 2, 3, 4, 5], timeFrom: '10:00', timeTo: '19:00' },
   { label: msg('Пн-Сб 10:00-20:00'), weekdays: [1, 2, 3, 4, 5, 6], timeFrom: '10:00', timeTo: '20:00' },
   { label: msg('Каждый день 09:00-21:00'), weekdays: [0, 1, 2, 3, 4, 5, 6], timeFrom: '09:00', timeTo: '21:00' },
+  // владелец 27.10.2026: после 22:00 мастера выезжают на дом, смена до полуночи
+  { label: msg('Каждый день 10:00-24:00'), weekdays: [0, 1, 2, 3, 4, 5, 6], timeFrom: '10:00', timeTo: '24:00' },
 ];
 
 export function applyWeekPreset<D extends { weekday: number; intervals: Array<{ timeFrom: string; timeTo: string }> }>(

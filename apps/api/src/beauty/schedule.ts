@@ -16,15 +16,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import {
-  parseTimeOffInput,
-  roleAt,
-  SCOPE_CHOOSE_MESSAGE,
-  parseWorkingHoursWeek,
-  timeOffWindow,
-  weekTemplate,
-  type WorkingInterval,
-} from '@pms/domain';
+import { parseTimeOffInput, roleAt, SCOPE_CHOOSE_MESSAGE, parseWorkingHoursWeek, timeOffWindow, weekTemplate, type WorkingInterval, endTimeToDate, endClockOf } from '@pms/domain';
 import { readEmployeeWeekSource, touchEmployeeSourceRevision } from '../employee-portal/employee-common';
 import { assertWeekRevision, hoursRevision, hoursRowsRevision } from './write-contract';
 import type { DbTx } from '@pms/database';
@@ -168,7 +160,7 @@ export class BeautyScheduleService {
             locationId,
             weekday: i.weekday,
             timeFrom: clockToDate(i.timeFrom),
-            timeTo: clockToDate(i.timeTo),
+            timeTo: endTimeToDate(i.timeTo),
           })),
         });
       await tx.auditLog.create({
@@ -373,7 +365,7 @@ export class BeautyScheduleService {
     return rows.map((r) => ({
       weekday: r.weekday,
       timeFrom: dateToClock(r.timeFrom),
-      timeTo: dateToClock(r.timeTo),
+      timeTo: endClockOf(r.timeTo),
     }));
   }
 
@@ -387,7 +379,7 @@ export class BeautyScheduleService {
       intervals: rows.map((r) => ({
         weekday: r.weekday,
         timeFrom: dateToClock(r.timeFrom),
-        timeTo: dateToClock(r.timeTo),
+        timeTo: endClockOf(r.timeTo),
       })),
       revision: hoursRowsRevision(rows, sourceRevision),
     };

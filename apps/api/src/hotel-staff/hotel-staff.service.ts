@@ -1,18 +1,7 @@
 import 'reflect-metadata';
 import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { Db, DbTx } from '@pms/database';
-import {
-  hotelTaskOrder,
-  hotelUnitOrder,
-  localDate,
-  monthBounds,
-  monthShiftDays,
-  timeOffWindow,
-  weekTemplate,
-  type HotelStaffCabinetDto,
-  type HotelStaffTask,
-  type HotelStaffUnit,
-} from '@pms/domain';
+import { hotelTaskOrder, hotelUnitOrder, localDate, monthBounds, monthShiftDays, timeOffWindow, weekTemplate, type HotelStaffCabinetDto, type HotelStaffTask, type HotelStaffUnit, endClockOf } from '@pms/domain';
 import { actorMay, currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { monthPayrollRows } from '../food-service/month-payroll';
@@ -122,7 +111,7 @@ export class HotelStaffService {
           overdue: t.doneAt === null && day(t.dueDate) < today,
         }))
         .sort(hotelTaskOrder),
-      week: weekTemplate(hours.map((h) => ({ weekday: h.weekday, timeFrom: clock(h.timeFrom), timeTo: clock(h.timeTo) }))),
+      week: weekTemplate(hours.map((h) => ({ weekday: h.weekday, timeFrom: clock(h.timeFrom), timeTo: endClockOf(h.timeTo) }))),
       month: { month, cleanings, tasksDone, shifts: shifts.shifts, daysOff: shifts.daysOff },
       pay: {
         month,

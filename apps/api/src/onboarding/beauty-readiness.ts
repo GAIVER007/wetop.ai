@@ -1,4 +1,4 @@
-import { beautyReadiness } from '@pms/domain';
+import { beautyReadiness, endClockOf } from '@pms/domain';
 import type { DbTx } from '@pms/database';
 
 export async function readBeautyReadiness(
@@ -57,7 +57,7 @@ export async function readBeautyReadiness(
       hours: e.workingHours.map((h) => ({
         weekday: h.weekday,
         timeFrom: h.timeFrom.toISOString().slice(11, 16),
-        timeTo: h.timeTo.toISOString().slice(11, 16),
+        timeTo: endClockOf(h.timeTo),
       })),
     })),
   });

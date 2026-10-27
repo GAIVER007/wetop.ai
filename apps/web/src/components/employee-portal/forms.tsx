@@ -166,7 +166,7 @@ export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[];
       {!day.intervals.length && <span>{t('Выходной')}</span>}
       {day.intervals.map((slot, index) => <div className="portal-time-row" key={index}>
         <label className="portal-time-field"><span>{t('С')}</span><Input aria-label={t('{day}: начало', { day: t(DAYS[day.weekday] ?? '') })} type="time" required value={slot.timeFrom} onChange={e => setDays(prev => prev.map(d => d.weekday === day.weekday ? { ...d, intervals: d.intervals.map((s, i) => i === index ? { ...s, timeFrom: e.target.value } : s) } : d))} /></label>
-        <label className="portal-time-field"><span>{t('До')}</span><Input aria-label={t('{day}: до, интервал {n}', { day: t(DAYS[day.weekday] ?? ''), n: index + 1 })} type="time" required value={slot.timeTo} onChange={e => setDays(prev => prev.map(d => d.weekday === day.weekday ? { ...d, intervals: d.intervals.map((s, i) => i === index ? { ...s, timeTo: e.target.value } : s) } : d))} /></label>
+        <label className="portal-time-field"><span>{t('До')}</span><Input aria-label={t('{day}: до, интервал {n}', { day: t(DAYS[day.weekday] ?? ''), n: index + 1 })} inputMode="numeric" placeholder="24:00" required value={slot.timeTo} onChange={e => setDays(prev => prev.map(d => d.weekday === day.weekday ? { ...d, intervals: d.intervals.map((s, i) => i === index ? { ...s, timeTo: e.target.value } : s) } : d))} /></label>
         <Button type="button" tone="secondary" aria-label={t('{day}: убрать интервал {n}', { day: t(DAYS[day.weekday] ?? ''), n: index + 1 })} onClick={() => setDays(prev => prev.map(d => d.weekday === day.weekday ? { ...d, intervals: d.intervals.filter((_, i) => i !== index) } : d))}>−</Button>
       </div>)}
       </div>

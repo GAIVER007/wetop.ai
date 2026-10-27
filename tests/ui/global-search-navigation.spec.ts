@@ -30,7 +30,7 @@ test('поиск не предлагает закрытый роли журна�
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL(/\/(today|chessboard)(\?.*)?$/); // стартовый экран по роли
   await page.goto('/finance');
   await page.getByRole('button', { name: 'Найти гостя или бронь', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Быстрый поиск' });
@@ -76,7 +76,7 @@ test('салон: поиск в шапке находит клиента и от
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL(/\/(today|chessboard)(\?.*)?$/); // стартовый экран по роли
   expect(
     (
       await request.post(`${FIXTURE_API}/branches`, {

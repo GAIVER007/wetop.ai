@@ -1,5 +1,4 @@
 'use client';
-import { landingForVertical } from '../../../lib/vertical-landing';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { onboardingFlow } from '@pms/domain';
@@ -60,7 +59,7 @@ function LegacyOnboardingShell({
       return;
     }
     if (reply.state.vertical !== 'HOSPITALITY' && reply.state.completedAt) {
-      router.replace(landingForVertical(reply.state.vertical)); return;
+      router.replace('/'); return;
     }
     setState(reply.state);
     if (!preserveDraft) setDraft(reply.state.draft);

@@ -49,8 +49,9 @@ it('чужой филиал не меняет cookie', async () => {
 });
 
 it.each([
-  ['FOOD_SERVICE', '/today'],
-  ['BEAUTY', '/today'],
+  // стартовый экран по роли выбирает корень `/` (владелец 27.10.2026)
+  ['FOOD_SERVICE', '/'],
+  ['BEAUTY', '/'],
 ])(
   'canonical landing for verified %s branch ignores old vertical route',
   async (vertical, expected) => {

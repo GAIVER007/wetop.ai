@@ -1,4 +1,3 @@
-import { landingForVertical } from '../../../lib/vertical-landing';
 import { can } from '@pms/domain';
 import { LoadError } from '../../../components/load-error';
 import { loadErrorProps } from '../../../lib/load-error';
@@ -42,16 +41,16 @@ export default async function SetupPage({
       </main>
     );
   const state = loaded.state;
-  if (state.vertical === 'BEAUTY' && !can(user.role ?? 'STAFF', 'settings')) redirect('/today');
+  if (state.vertical === 'BEAUTY' && !can(user.role ?? 'STAFF', 'settings')) redirect('/'); // стартовый экран по роли
   if (state.vertical === 'FOOD_SERVICE' && state.completedAt)
-    redirect(landingForVertical(state.vertical));
+    redirect('/'); // стартовый экран по роли (владелец 27.10.2026)
   if (
     state.vertical === 'BEAUTY' &&
     entry !== 'reopen' &&
     state.readiness?.ready &&
     (state.storedFlowVersion !== 2 || (state.completedFlowVersion === 2 && entry === '1'))
   )
-    redirect(landingForVertical(state.vertical));
+    redirect('/'); // стартовый экран по роли (владелец 27.10.2026)
   const hotel = state.vertical === 'HOSPITALITY' ? await onboardingApi.status() : null;
   // превью онлайн-записи (вариант B, 21.10.2026): необязательно, без прав или при ошибке шаги работают без него
   const preview =

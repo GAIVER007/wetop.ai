@@ -1,5 +1,4 @@
 'use server';
-import { landingForVertical } from '../../lib/vertical-landing';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { branchesApi, ApiError, authApi } from '../../lib/api';
@@ -17,7 +16,7 @@ export async function selectBranch(form: FormData) {
   if (branch.vertical !== 'HOSPITALITY') {
     const destination = branchDestination(String(form.get('returnTo') ?? ''));
     redirect(
-      SHARED_BRANCH_DESTINATIONS.has(destination) ? destination : landingForVertical(branch.vertical),
+      SHARED_BRANCH_DESTINATIONS.has(destination) ? destination : '/',
     );
   }
   const destination = branchDestination(String(form.get('returnTo') ?? ''));

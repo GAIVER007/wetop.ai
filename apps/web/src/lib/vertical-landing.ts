@@ -11,6 +11,25 @@ const LANDING: Record<WebVertical, string> = {
 export function landingForVertical(vertical: WebVertical): string {
   return LANDING[vertical];
 }
+/**
+ * Рабочее поле направления: гостиница шахматка, салон журнал, ресторан брони столов.
+ * Владелец 27.10.2026: «всегда при открытии сайта, программы, приложения открывалась шахматка, журнал, календарь.
+ * У владельца главная».
+ */
+const WORKSPACE: Record<WebVertical, string> = {
+  HOSPITALITY: '/chessboard',
+  BEAUTY: '/calendar',
+  FOOD_SERVICE: '/table-reservations',
+};
+/** Стартовый экран при открытии: владелец на Главной, «Личный кабинет» в «Моей работе», остальные в рабочем поле */
+export function startScreen(
+  vertical: WebVertical,
+  role: 'OWNER' | 'MANAGER' | 'STAFF' | 'EMPLOYEE' | null,
+): string {
+  if (role === 'EMPLOYEE') return '/my-work';
+  if (role === 'MANAGER' || role === 'STAFF') return WORKSPACE[vertical];
+  return landingForVertical(vertical);
+}
 const routes: Record<WebVertical, string[]> = {
   // `/today` общий для всех направлений (MV8) и ни одному не принадлежит
   HOSPITALITY: [

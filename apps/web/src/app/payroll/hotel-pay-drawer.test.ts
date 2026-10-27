@@ -8,7 +8,7 @@ vi.mock('../../components/overlay', () => ({
   Overlay: ({ title, children }: { title: string; children: ReactNode }) => h('section', { 'data-title': title }, children),
 }));
 
-import { HotelPayDrawer } from './hotel-payroll';
+import { HotelPayDrawer, HotelPayrollBoard } from './hotel-payroll';
 
 /**
  * Окно «Оплата» гостиницы в том же виде, что у салона и ресторана (владелец 26.10.2026: «всё, что делаешь, применить
@@ -35,5 +35,27 @@ describe('окно оплаты гостиницы: вариант B', () => {
       expect(html.match(new RegExp(`id="${id}"`, 'g'))).toHaveLength(1);
       expect(html).toMatch(new RegExp(`<input[^>]*id="${id}"`));
     }
+  });
+});
+
+/** База оплаты первой (как «Доход» у салона и ресторана): «Уборок» и «За уборки» сразу после имени, итог под ними */
+describe('зарплата гостиницы: уборки первыми', () => {
+  const payroll = {
+    currency: 'KZT',
+    rows: [{ employeeId: 'e1', name: 'Горничная Пример', model: 'PIECE', fixedMinor: '0', perCleaningMinor: '50000', cleanings: 7, pieceMinor: '350000', bonusMinor: '0', penaltyMinor: '0', totalMinor: '350000' }],
+    totals: { bonusMinor: '0', penaltyMinor: '0', payoutMinor: '350000' },
+  } as never;
+  const html = renderToStaticMarkup(h(HotelPayrollBoard, { scopeKey: 'b:l', write: false, payroll })).replace(/<!-- -->/g, '');
+  const cells = (row: string) => [...row.matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/g)].map((m) => m[1]!.replace(/<[^>]+>/g, '').trim());
+  it('шапка: Сотрудник, Уборок, За уборки, Модель', () => {
+    const head = cells(html.slice(html.indexOf('<thead'), html.indexOf('</thead>')));
+    expect(head.slice(0, 4)).toEqual(['Сотрудник', 'Уборок', 'За уборки', 'Модель']);
+  });
+  it('строка и итог в том же порядке', () => {
+    const body = cells(html.slice(html.indexOf('<tbody'), html.indexOf('</tbody>')));
+    expect(body[1]).toBe('7');
+    expect(body[2]).toMatch(/^3\s?500/);
+    const foot = cells(html.slice(html.indexOf('<tfoot'), html.indexOf('</tfoot>')));
+    expect(foot[1]).toBe('7');
   });
 });

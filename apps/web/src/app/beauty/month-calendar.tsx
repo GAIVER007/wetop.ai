@@ -22,10 +22,9 @@ import { calendarColumns, matchesAppointment } from './calendar-columns';
 import { useLocale, useT } from '../../i18n/locale-provider';
 import { intlLocale, msg } from '../../i18n';
 import { monthGrid, plusDays, shiftMonth } from './month-grid';
+import { useMonthFit } from './month-fit';
 
 type Row = BeautyAppointmentRow & { localDate: string };
-/** в клетке дня видно не больше трёх записей, остальные «ещё N» (эскиз А, владелец 26.10.2026) */
-const SHOWN = 3;
 
 /**
  * Месяц журнала салона (владелец 26.10.2026: «кнопку Неделя замени на Месяц и сделай чёткий месячный график», эскиз А
@@ -121,6 +120,9 @@ export function MonthCalendar({
   const weekdays = grid.days.slice(0, 7).map((d) =>
     new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(new Date(`${d}T12:00:00Z`)),
   );
+  // месяц ровно в один экран (владелец 27.10.2026): записей в клетке столько, сколько влезает, остальные «ещё N»
+  const fit = useMonthFit(grid.days.length / 7);
+  const SHOWN = fit.shown;
   return (
     <div data-testid="beauty-month">
       <JournalHead
@@ -244,7 +246,9 @@ export function MonthCalendar({
         ))}
       </div>
       <div
-        className="beauty-month-calendar"
+        ref={fit.ref}
+        className={fit.style ? 'beauty-month-calendar is-fit' : 'beauty-month-calendar'}
+        style={fit.style} /* slop-allow: inline-style высота месяца по окну, меряется в браузере (useMonthFit) */
         role="list"
         aria-label={t('Месяц журнала')}
         data-weeks={grid.days.length / 7}

@@ -17,7 +17,7 @@ test('манифест отдаётся без входа и ведёт на «�
   expect(res.status()).toBe(200);
   expect(res.headers()['content-type']).toContain('application/manifest+json');
   const m = await res.json();
-  expect(m).toMatchObject({ name: 'WETOP', start_url: '/today', display: 'standalone' });
+  expect(m).toMatchObject({ name: 'WETOP', start_url: '/', display: 'standalone' });
 });
 
 for (const [path, px] of [

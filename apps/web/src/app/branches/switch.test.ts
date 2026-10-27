@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from 'vitest';
-const state = vi.hoisted(() => ({ set: vi.fn(), refresh: vi.fn(), list: vi.fn() }));
+const state = vi.hoisted(() => ({ set: vi.fn(), refresh: vi.fn(), list: vi.fn(), me: vi.fn() }));
 vi.mock('next/headers', () => ({ cookies: async () => ({ set: state.set }) }));
 vi.mock('next/cache', () => ({ revalidatePath: state.refresh }));
 vi.mock('next/navigation', () => ({
@@ -9,11 +9,13 @@ vi.mock('next/navigation', () => ({
 }));
 vi.mock('../../lib/api', () => ({
   branchesApi: { list: state.list },
+  authApi: { me: state.me },
   ApiError: class extends Error {},
 }));
 import { selectBranch } from './actions';
 beforeEach(() => {
   vi.clearAllMocks();
+  state.me.mockResolvedValue({ user: { role: 'OWNER' } });
   state.list.mockResolvedValue({
     items: [
       {
@@ -49,9 +51,9 @@ it('чужой филиал не меняет cookie', async () => {
 });
 
 it.each([
-  // стартовый экран по роли выбирает корень `/` (владелец 27.10.2026)
-  ['FOOD_SERVICE', '/'],
-  ['BEAUTY', '/'],
+  // стартовый экран по роли (владелец 27.10.2026): у владельца Главная
+  ['FOOD_SERVICE', '/today'],
+  ['BEAUTY', '/today'],
 ])(
   'canonical landing for verified %s branch ignores old vertical route',
   async (vertical, expected) => {
@@ -115,3 +117,18 @@ it.each(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'])(
     expect(state.set).toHaveBeenCalledWith('wetop_scope', 'business=business;location=location', expect.anything());
   },
 );
+
+it.each([
+  ['STAFF', 'BEAUTY', '/calendar'],
+  ['MANAGER', 'FOOD_SERVICE', '/table-reservations'],
+  ['EMPLOYEE', 'BEAUTY', '/my-work'],
+])('смена филиала: %s в %s сразу попадает на свой стартовый экран', async (role, vertical, expected) => {
+  state.me.mockResolvedValue({ user: { role } });
+  state.list.mockResolvedValue({
+    items: [{ id: 'own', vertical, locationId: 'location', location: { businessId: 'business' }, _count: { inventoryUnits: 0 } }],
+  });
+  const form = new FormData();
+  form.set('id', 'own');
+  form.set('returnTo', '/chessboard');
+  await expect(selectBranch(form)).rejects.toThrow(`redirect:${expected}`);
+});

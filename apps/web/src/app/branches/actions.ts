@@ -3,6 +3,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { branchesApi, ApiError, authApi } from '../../lib/api';
 import { SHARED_BRANCH_DESTINATIONS, branchDestination } from '../../lib/branch-destination';
+import { parseMembershipRole } from '@pms/domain';
+import { startScreen, type WebVertical } from '../../lib/vertical-landing';
 import { setScopeCookie } from '../../lib/session';
 import { serverT } from '../../i18n/server';
 
@@ -15,8 +17,16 @@ export async function selectBranch(form: FormData) {
   // Салону гостиничный онбординг не нужен: у него нет ни объекта, ни номеров (DATA_MODEL §19)
   if (branch.vertical !== 'HOSPITALITY') {
     const destination = branchDestination(String(form.get('returnTo') ?? ''));
+    // стартовый экран по роли (владелец 27.10.2026) сразу, без второго перехода через «/»: лишний переход
+    // перерисовывал страницу под щелчком в выборе филиала
+    const role = await authApi
+      .me()
+      .then((me) => (me.user?.role && parseMembershipRole(me.user.role)) || null)
+      .catch(() => null);
     redirect(
-      SHARED_BRANCH_DESTINATIONS.has(destination) ? destination : '/',
+      SHARED_BRANCH_DESTINATIONS.has(destination)
+        ? destination
+        : startScreen(branch.vertical as WebVertical, role),
     );
   }
   const destination = branchDestination(String(form.get('returnTo') ?? ''));

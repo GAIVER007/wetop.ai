@@ -131,3 +131,24 @@ describe('вставка строк', () => {
     ]);
   });
 });
+
+describe('итоговый экран «Салон готов» (вариант А)', () => {
+  it('сводка из плана: цифры, команда с оплатой, услуги, бар и оплата', async () => {
+    const { doneSummary } = await import('./model');
+    const q = base();
+    q.masters.push({ ...q.masters[0]!, name: 'Hana T.', email: 'hana@mail.example', pay: 'FIXED_PLUS_PERCENT', fixed: '3000', percent: '20' });
+    q.products.push({ category: 'Bar', name: 'Water', price: '0' });
+    const s = doneSummary(quickPlan(q), q, ['sara@mail.example']);
+    expect(s.title).toBe('Lashes Studio');
+    expect(s.line).toEqual({ address: 'Doha, Garafa', hours: '10:00–22:00', days: 7, currency: 'QAR' });
+    expect(s.counts).toEqual({ services: 2, masters: 2, staff: 1, products: 1, invites: 2 });
+    expect(s.team.map((m) => [m.name, m.role, m.pay, m.invite])).toEqual([
+      ['Samira A.', 'master', { kind: 'PERCENT', percent: 40 }, 'sent'],
+      ['Hana T.', 'master', { kind: 'FIXED_PLUS_PERCENT', fixedMinor: '300000', percent: 20 }, 'sent'],
+      ['Sara A.', 'STAFF', null, 'failed'],
+    ]);
+    expect(s.services[0]).toEqual({ name: 'Classic', minutes: 90, priceMinor: '38000' });
+    expect(s.bar).toEqual({ paid: [{ name: 'Juice', priceMinor: '1500' }], free: ['Water'] });
+    expect(s.payments).toEqual(['CASH', 'CARD_TERMINAL']);
+  });
+});

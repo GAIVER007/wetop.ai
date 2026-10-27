@@ -48,10 +48,22 @@ test('быстрый запуск: анкета, исправление в од�
   await firstService.focus();
   await page.evaluate(() => {
     const data = new DataTransfer();
-    data.setData('text', 'Lashes\tClassic lashes\t90\t380\nNails\tGel manicure\t60\t250');
+    data.setData(
+      'text',
+      [
+        'Lashes\tClassic lashes\t90\t380',
+        'Nails\tGel manicure\t60\t250',
+        'Lashes\tVolume 2D\t120\t400',
+        'Lashes\tLash lift\t40\t250',
+        'Brows\tBrow shaping\t30\t120',
+        'Brows\tBrow tint\t30\t100',
+        'Nails\tGel pedicure\t90\t300',
+        'Nails\tNail removal\t30\t80',
+      ].join('\n'),
+    );
     document.activeElement!.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true }));
   });
-  await expect(board.getByLabel('Услуга', { exact: true })).toHaveCount(2);
+  await expect(board.getByLabel('Услуга', { exact: true })).toHaveCount(8);
   await expect(board.getByLabel('Услуга', { exact: true }).nth(1)).toHaveValue('Gel manicure');
 
   // 3. Мастер: опечатка в почте и часы дольше салона, обе правятся кнопкой
@@ -72,6 +84,18 @@ test('быстрый запуск: анкета, исправление в од�
   await expect(board.getByLabel('Почта', { exact: true })).toHaveValue('samira.quick@gmail.com');
   await issues.getByRole('button', { name: 'Мастер до 22:00', exact: true }).click();
   await expect(issues).toHaveCount(0);
+  await board.getByRole('button', { name: '+ Добавить строку', exact: true }).click();
+  await board.getByLabel('Имя', { exact: true }).nth(1).fill('Hana Test');
+  await board.getByLabel('Почта', { exact: true }).nth(1).fill('hana.quick@mail.example');
+  await board.getByRole('button', { name: 'Volume 2D', exact: true }).nth(1).click();
+  await board.getByRole('button', { name: 'Lash lift', exact: true }).nth(1).click();
+  await board.getByLabel('Зарплата', { exact: true }).nth(1).selectOption('FIXED_PLUS_PERCENT');
+  await board.getByLabel('Оклад', { exact: true }).nth(0).fill('3000');
+  await board.getByLabel('Процент', { exact: true }).nth(1).fill('20');
+  await board.getByRole('tab', { name: /Сотрудники/ }).click();
+  await board.getByRole('button', { name: '+ Добавить строку', exact: true }).click();
+  await board.getByLabel('Имя', { exact: true }).fill('Rita Test');
+  await board.getByLabel('Почта', { exact: true }).fill('rita.quick@mail.example');
 
   // 4. Бар: платный товар заводится, бесплатная вода нет
   await board.getByRole('tab', { name: /Бар/ }).click();
@@ -88,14 +112,23 @@ test('быстрый запуск: анкета, исправление в од�
   await go.click();
   const done = page.getByTestId('quick-done');
   await expect(done).toBeVisible({ timeout: 120_000 });
-  await expect(done).toContainText('Салон готов');
-  await page.screenshot({ path: `${SHOTS}/quick-done-1280.png` });
+  // итоговый экран, вариант А: шапка, цифры, команда с оплатой, услуги, бар и оплата, без пустого экрана
+  await expect(done.getByRole('heading', { name: 'Lashes Studio готов к работе', exact: true })).toBeVisible();
+  await expect(done.getByRole('region', { name: 'Команда' })).toContainText('Samira Test');
+  await expect(done.getByRole('region', { name: 'Команда' })).toContainText('40%');
+  await expect(done.getByRole('region', { name: 'Команда' })).toContainText('письмо ушло');
+  await expect(done.getByRole('region', { name: 'Услуги' })).toContainText('Gel manicure');
+  await expect(done.getByRole('region', { name: 'Бар и оплата' })).toContainText('Fresh juice');
+  await expect(done.getByRole('region', { name: 'Бар и оплата' })).toContainText('бесплатно');
+  await expect(done.getByRole('link', { name: 'Открыть журнал', exact: true })).toHaveAttribute('href', '/calendar');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1280);
+  await page.screenshot({ path: `${SHOTS}/quick-done-1280.png`, fullPage: true });
 
   // проверка по API: всё создано в выбранном филиале
   const headers = { 'x-wetop-scope': pointer(f.business, f.locations[0]!) };
   const services = await (await request.get(`${api}/beauty/services`, { headers })).json();
   const names = services.items.filter((s: { location: { enabled: boolean } | null }) => s.location?.enabled).map((s: { name: string }) => s.name);
-  expect(names).toEqual(expect.arrayContaining(['Classic lashes', 'Gel manicure']));
+  expect(names).toEqual(expect.arrayContaining(['Classic lashes', 'Gel manicure', 'Volume 2D', 'Nail removal']));
   const gel = services.items.find((s: { name: string }) => s.name === 'Gel manicure');
   expect(gel.priceMinor).toBe('25000');
   const employees = await (await request.get(`${api}/beauty/employees`, { headers })).json();

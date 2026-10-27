@@ -7,7 +7,7 @@ import { restaurantApi } from '../../../../lib/food-api';
 import { employeePortalApi } from '../../../../lib/employee-portal-api';
 import { clientInfo, sessionToken } from '../../../../lib/session';
 import { msg } from '../../../../i18n';
-import { quickIssues, quickPlan, type QuickStart } from './model';
+import { doneSummary, quickIssues, quickPlan, type DoneSummary, type QuickStart } from './model';
 
 /**
  * «Создать салон» (быстрый запуск, владелец 27.10.2026): одна кнопка проводит анкету через те же вызовы API, что
@@ -23,6 +23,8 @@ export interface QuickResult {
   created: { services: number; masters: number; staff: number; products: number; invites: number };
   /** не остановило создание: приглашение не ушло и т. п. */
   warnings: string[];
+  /** итоговый экран «Салон готов» (вариант А) */
+  summary?: DoneSummary;
 }
 
 /** UUID из попытки и строки: тот же ввод при повторе даёт тот же ключ создания (защита от дублей в API) */
@@ -37,6 +39,7 @@ const code = (name: string, n: number) =>
 export async function createQuickSalon(input: QuickStart, attempt: string): Promise<QuickResult> {
   const created = { services: 0, masters: 0, staff: 0, products: 0, invites: 0 };
   const warnings: string[] = [];
+  const failedInvites: string[] = [];
   const blocking = quickIssues(input).filter((i) => i.level === 'error');
   if (blocking.length) return { ok: false, step: 'check', error: msg('Исправьте отмеченные поля'), created, warnings };
   const plan = quickPlan(input);
@@ -159,6 +162,7 @@ export async function createQuickSalon(input: QuickStart, attempt: string): Prom
       if (!role) continue;
       // без сеанса приглашение не уйдёт: говорим об этом, а не молчим
       if (!token) {
+        failedInvites.push(i.email);
         warnings.push(`${i.email}: ${msg('приглашение не отправлено')}`);
         continue;
       }
@@ -166,6 +170,7 @@ export async function createQuickSalon(input: QuickStart, attempt: string): Prom
         await authApi.invite(token, i.email, role, info, { employeeId: i.employeeId });
         created.invites += 1;
       } catch (e) {
+        failedInvites.push(i.email);
         warnings.push(`${i.email}: ${e instanceof ApiError ? e.message : msg('приглашение не отправлено')}`);
       }
     }
@@ -186,5 +191,5 @@ export async function createQuickSalon(input: QuickStart, attempt: string): Prom
   }
   for (const path of ['/register/setup', '/calendar', '/employees', '/services', '/beauty/schedule', '/payroll', '/bar', '/today'])
     revalidatePath(path);
-  return { ok: true, created, warnings };
+  return { ok: true, created, warnings, summary: doneSummary(plan, input, failedInvites) };
 }

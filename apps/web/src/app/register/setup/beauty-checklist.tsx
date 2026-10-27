@@ -304,7 +304,7 @@ export function BeautyChecklist({
         </Link>
       )}
       {state.canEdit && (
-        <Button tone={state.profileApplied ? 'primary' : 'secondary'} disabled={pending} onClick={() => save('next')}>
+        <Button disabled={pending} onClick={() => save('next')}>
           {state.updatedAt ? t('Продолжить настройку') : t('Настроить салон')}
         </Button>
       )}

@@ -1,11 +1,11 @@
 'use client';
-import Link from 'next/link';
 import { useMemo, useRef, useState, useTransition, type ClipboardEvent } from 'react';
 import type { BranchPaymentMethod } from '@pms/domain';
 import { Alert, Button, Input, Select } from '../../../../components/ui';
 import { msg } from '../../../../i18n';
 import { useT } from '../../../../i18n/locale-provider';
 import { createQuickSalon, type QuickResult } from './actions';
+import { QuickDone } from './done';
 import {
   emptyQuickStart,
   parseRows,
@@ -129,34 +129,7 @@ export function QuickStartBoard({ currency, timezone, name }: { currency: string
       setResult(await createQuickSalon(q, attempt.current));
     });
 
-  if (result?.ok)
-    return (
-      <section className="quick quick--done" data-testid="quick-done">
-        <h2>{t('Салон готов')}</h2>
-        <div className="quick-tiles">
-          {(
-            [
-              ['services', msg('Услуги')],
-              ['masters', msg('Мастера')],
-              ['staff', msg('Сотрудники')],
-              ['products', msg('Бар')],
-              ['invites', msg('Приглашения')],
-            ] as const
-          ).map(([k, label]) => (
-            <div key={k} className="quick-tile is-done">
-              <b>{result.created[k]}</b>
-              <span>{t(label)}</span>
-            </div>
-          ))}
-        </div>
-        {result.warnings.length > 0 && <Alert tone="warning">{result.warnings.join('; ')}</Alert>}
-        <div className="quick-actions">
-          <Link className="btn" href="/calendar">
-            {t('Открыть журнал')}
-          </Link>
-        </div>
-      </section>
-    );
+  if (result?.ok && result.summary) return <QuickDone summary={result.summary} warnings={result.warnings} />;
 
   const issueList = issues.filter((i) => i.section === open);
   return (

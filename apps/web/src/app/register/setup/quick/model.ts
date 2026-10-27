@@ -331,3 +331,76 @@ export function parseRows(text: string, columns: number): string[][] {
     .filter((cells) => cells.some(Boolean))
     .map((cells) => Array.from({ length: columns }, (_, i) => cells[i] ?? ''));
 }
+
+/**
+ * Итоговый экран «Салон готов» (вариант А владельца 27.10.2026): весь экран занят тем, что реально создано.
+ * Цифры, команда с условиями оплаты и меткой приглашения, услуги, бар и оплата. Источник: план создания и список
+ * адресов, куда приглашение не ушло.
+ */
+export interface DoneSummary {
+  title: string;
+  line: { address: string; hours: string; days: number; currency: string };
+  counts: { services: number; masters: number; staff: number; products: number; invites: number };
+  team: Array<{
+    name: string;
+    role: 'master' | 'both' | QuickRole;
+    services: number;
+    pay: { kind: 'PERCENT'; percent: number } | { kind: 'FIXED'; fixedMinor: string } | { kind: 'FIXED_PLUS_PERCENT'; fixedMinor: string; percent: number } | null;
+    invite: 'sent' | 'failed' | 'none';
+  }>;
+  services: Array<{ name: string; minutes: number; priceMinor: string }>;
+  bar: { paid: Array<{ name: string; priceMinor: string }>; free: string[] };
+  payments: BranchPaymentMethod[];
+}
+
+export function doneSummary(plan: QuickPlan, q: QuickStart, failedEmails: string[]): DoneSummary {
+  const failed = new Set(failedEmails.map(key));
+  const invite = (email: string, level: unknown) =>
+    !email || !level ? ('none' as const) : failed.has(key(email)) ? ('failed' as const) : ('sent' as const);
+  const pay = (p: QuickPlanMaster['pay']): DoneSummary['team'][number]['pay'] =>
+    p.model === 'PERCENT'
+      ? { kind: 'PERCENT', percent: p.percent }
+      : p.model === 'FIXED'
+        ? { kind: 'FIXED', fixedMinor: p.fixedMinor }
+        : { kind: 'FIXED_PLUS_PERCENT', fixedMinor: p.fixedMinor, percent: p.percent };
+  const team: DoneSummary['team'] = [
+    ...plan.masters.map((m) => ({
+      name: m.name,
+      role: m.personnelKind === 'BOTH' ? ('both' as const) : ('master' as const),
+      services: m.services.length,
+      pay: pay(m.pay),
+      invite: invite(m.email, m.invite),
+    })),
+    ...plan.staff.map((p) => ({
+      name: p.name,
+      role: q.staff.find((s) => key(s.name) === key(p.name))?.role ?? ('STAFF' as const),
+      services: 0,
+      pay: null,
+      invite: invite(p.email, p.invite),
+    })),
+  ];
+  const hours = plan.hours[0];
+  return {
+    title: plan.profile.businessName,
+    line: {
+      address: plan.profile.address,
+      hours: hours ? `${hours.timeFrom}–${hours.timeTo}` : '',
+      days: plan.hours.length,
+      currency: plan.profile.currency,
+    },
+    counts: {
+      services: plan.services.length,
+      masters: plan.masters.length,
+      staff: plan.staff.length,
+      products: plan.products.length,
+      invites: team.filter((m) => m.invite === 'sent').length,
+    },
+    team,
+    services: plan.services.map((s) => ({ name: s.name, minutes: Number(s.durationMinutes), priceMinor: s.priceMinor })),
+    bar: {
+      paid: plan.products.map((p) => ({ name: p.name, priceMinor: p.salePriceMinor })),
+      free: filled(q.products).filter(([p]) => trim(p.name) && (toMinor(p.price) ?? '0') === '0').map(([p]) => trim(p.name)),
+    },
+    payments: plan.payments.filter((p) => p.enabled).map((p) => p.method),
+  };
+}

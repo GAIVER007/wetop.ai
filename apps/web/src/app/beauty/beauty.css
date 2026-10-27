@@ -83,6 +83,11 @@
     border-left: 1px solid var(--border);
     border-top: 1px solid var(--border);
   }
+  /* месяц в один экран (владелец 27.10.2026): высоту и строки задаёт useMonthFit, клетка не растягивает сетку */
+  .beauty-month-calendar.is-fit .beauty-month-day {
+    min-height: 0;
+    overflow: hidden;
+  }
   .beauty-month-day:nth-child(7n + 1) {
     border-left: 0;
   }

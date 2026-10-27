@@ -1,4 +1,5 @@
 'use client';
+import { useMonthFit } from '../beauty/month-fit';
 import Link from 'next/link';
 import { Icon } from '../../components/icon';
 import { useLocale, useT } from '../../i18n/locale-provider';
@@ -11,7 +12,6 @@ import { monthGrid, shiftMonth } from '../beauty/month-grid';
 import '../beauty/beauty.css';
 
 /** в клетке дня видно не больше трёх броней, остальные «ещё N», как месяц салона (эскиз А, 26.10.2026) */
-const SHOWN = 3;
 /** полоса статуса тоном реестра: те же классы, что у месяца салона */
 const CHIP: Record<RestaurantReservation['status'], string> = {
   BOOKED: 'booked',
@@ -64,6 +64,9 @@ export function MonthBoard({
   const weekdays = grid.days.slice(0, 7).map((d) =>
     new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(new Date(`${d}T12:00:00Z`)),
   );
+  // месяц ровно в один экран, как у салона (владелец 27.10.2026)
+  const fit = useMonthFit(grid.days.length / 7);
+  const SHOWN = fit.shown;
   return (
     <div data-testid="food-month">
       <div className="board-period day-nav" role="group" aria-label={t('Месяц журнала')}>
@@ -84,7 +87,14 @@ export function MonthBoard({
           </span>
         ))}
       </div>
-      <div className="beauty-month-calendar" role="list" aria-label={t('Месяц журнала')} data-weeks={grid.days.length / 7}>
+      <div
+        ref={fit.ref}
+        className={fit.style ? 'beauty-month-calendar is-fit' : 'beauty-month-calendar'}
+        style={fit.style} /* slop-allow: inline-style высота месяца по окну, меряется в браузере (useMonthFit) */
+        role="list"
+        aria-label={t('Месяц журнала')}
+        data-weeks={grid.days.length / 7}
+      >
         {grid.days.map((day, index) => {
           const rows = byDay.get(day) ?? [];
           const live = rows.filter((r) => r.status !== 'CANCELLED').length;

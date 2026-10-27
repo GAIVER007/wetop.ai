@@ -17,6 +17,7 @@ import { foodStatus } from '../../lib/status/food';
 import { setTableCleaning } from './restaurant-actions';
 import { GuestMarks } from './guest-marks';
 import { TimelineBoard } from './timeline-board';
+import { MonthBoard, scheduleHref } from './month-board';
 import { TablePanel, KIND_LABEL, type TableKind } from './table-panel';
 import { FloorLayoutEditor, SHAPE_CSS, spotStyle } from './floor-layout-editor';
 import { layoutSpots, tableShapeOf } from '@pms/domain';
@@ -58,12 +59,15 @@ export function WorkspaceBoard({
   floor,
   startNew = false,
   listView = false,
+  monthView = false,
 }: {
   data: FoodWorkspace;
   floor: boolean;
   startNew?: boolean;
   /** `?view=list`: таблица броней вместо шкалы по столам */
   listView?: boolean;
+  /** `?view=month`: месяц броней (данные всей сетки месяца) */
+  monthView?: boolean;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -75,7 +79,9 @@ export function WorkspaceBoard({
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [area, setArea] = useState('');
-  const [view, setView] = useState<'timeline' | 'list'>(listView ? 'list' : 'timeline');
+  const [view, setView] = useState<'timeline' | 'list' | 'month'>(
+    monthView ? 'month' : listView ? 'list' : 'timeline',
+  );
   const narrow = useNarrow();
   const [panelTable, setPanelTable] = useState<string | null>(null);
   const [cleaningPending, startCleaning] = useTransition();
@@ -355,10 +361,20 @@ export function WorkspaceBoard({
               <Segmented
                 label={t('Вид')}
                 value={view}
-                onChange={setView}
+                onChange={(next) => {
+                  // месяц грузит брони всей сетки: переход по адресу; из месяца в день тоже
+                  if (next === 'month' || view === 'month')
+                    router.push(
+                      next === 'month'
+                        ? scheduleHref(data.date, true)
+                        : `${scheduleHref(data.date, false)}${next === 'list' ? '&view=list' : ''}`,
+                    );
+                  setView(next);
+                }}
                 options={[
                   { value: 'timeline', label: t('Шкала') },
                   { value: 'list', label: t('Список') },
+                  { value: 'month', label: t('Месяц') },
                 ]}
               />
             )}
@@ -518,7 +534,15 @@ export function WorkspaceBoard({
         )
       ) : (
         <div className="journal-screen__board">
-          {view === 'timeline' ? (
+          {view === 'month' && monthView ? (
+            <MonthBoard
+              date={data.date}
+              today={localInput(new Date().toISOString(), data.timezone).slice(0, 10)}
+              timezone={data.timezone}
+              reservations={filtered}
+              onOpen={open}
+            />
+          ) : view === 'timeline' ? (
             <TimelineBoard
               data={data}
               reservations={filtered}

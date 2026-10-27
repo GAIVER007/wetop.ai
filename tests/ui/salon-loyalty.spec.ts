@@ -36,7 +36,9 @@ test('настройки: напоминания с предпросмотром
   await openSalon(page, request);
   await page.goto('/beauty-settings?section=reminders');
   const reminders = page.getByTestId('reminder-settings');
-  await expect(reminders.getByRole('heading', { name: 'Напоминания клиентам' })).toBeVisible({ timeout: 60_000 });
+  // заголовок раздела один, у страницы (владелец 26.10.2026)
+  await expect(page.getByRole('heading', { name: 'Напоминания клиентам' })).toHaveCount(1, { timeout: 60_000 });
+  await expect(reminders).toBeVisible();
   await reminders.getByLabel('За сколько часов до записи').fill('24, 3');
   await reminders.getByLabel('Текст напоминания').fill('Здравствуйте, {имя}! Ждём вас {дата} в {время}.');
   await expect(reminders.getByTestId('reminder-preview')).toHaveText('Здравствуйте, Айгуль! Ждём вас 23 октября в 10:30.');

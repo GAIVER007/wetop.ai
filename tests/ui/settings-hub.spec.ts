@@ -92,6 +92,8 @@ test('салон: те же карточки, свои экраны салона
   await expect(page.getByRole('main').getByRole('link', { name: '← Все настройки', exact: true })).toHaveAttribute('href', '/settings');
   // заголовок страницы раздела (h1); у формы часов свой заголовок с тем же текстом
   await expect(page.getByRole('heading', { level: 1, name: 'Режим работы салона' })).toBeVisible();
+  // второго заголовка с тем же текстом нет (владелец 26.10.2026)
+  await expect(page.getByRole('heading', { name: 'Режим работы салона' })).toHaveCount(1);
   // единый вход (PR 879): раздел «Режим работы» показывает только часы, бонусы открываются своей ссылкой
   await expect(page.getByTestId('bonus-settings')).toHaveCount(0);
   await checkShots(page, 'salon-settings');

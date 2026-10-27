@@ -20,8 +20,8 @@ test('показатели не пришли — экран открыт, пер
   await request.post(`${API}/__test/control`, { data: { failPath: '/desk/dashboard' } });
   await page.goto('/management/analytics?period=month');
   await expect(page.getByRole('heading', { name: 'Аналитика', level: 1 })).toBeVisible();
-  // период по-прежнему выбирается
-  await expect(page.getByRole('link', { name: 'Этот месяц', exact: true })).toBeVisible();
+  // месяц по-прежнему выбирается (только месяц, владелец 26.10.2026)
+  await expect(page.getByTestId('analytics-month-prev')).toBeVisible();
   // причина названа, а не пустой экран
   await expect(page.getByTestId('pa-error')).toBeVisible();
 });

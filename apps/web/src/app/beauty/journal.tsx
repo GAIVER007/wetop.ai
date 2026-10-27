@@ -432,7 +432,7 @@ export function JournalBoard({
       onChange={setStatus}
       options={Object.entries(beautyStatus)
         .filter(([key]) => key !== 'CANCELLED')
-        .map(([value, st]) => ({ value, label: st.label }))}
+        .map(([value, st]) => ({ value, label: t(st.label) }))}
     />
   );
   return (

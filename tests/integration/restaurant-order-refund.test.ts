@@ -6,6 +6,7 @@ import { StockService } from '../../apps/api/src/food-service/stock.service';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import { isLocalDatabase } from '../tools/seed-local';
+import { enableKzBranchMethods } from './kz-methods-on';
 
 /**
  * Возврат по закрытому заказу ресторана (DATA_MODEL §56): расход кассы филиала со ссылкой на заказ, только после
@@ -46,6 +47,7 @@ describe('возврат по закрытому заказу (integration, §56
     await db.location.createMany({
       data: [location, other].map((id) => ({ id, businessId: business, name: 'Synthetic branch', timezone: 'Asia/Almaty', currency: 'KZT' })),
     });
+    await enableKzBranchMethods(db, [location, other]); // филиалы сами включили Kaspi и Halyk
   });
   afterAll(async () => db?.$disconnect());
 

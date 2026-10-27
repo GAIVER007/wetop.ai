@@ -129,7 +129,8 @@ test('способы оплаты: доступность и телефон, с�
       await page.emulateMedia({ colorScheme: scheme });
       await page.setViewportSize({ width, height: 900 });
       await page.goto('/branch-payment-methods');
-      await expect(rows(page)).toHaveCount(6);
+      // четыре по умолчанию: Kaspi и Halyk не включены сами (NO-KZ-METHODS-20261027)
+      await expect(rows(page)).toHaveCount(4);
       const result = await new AxeBuilder({ page }).include('main').analyze();
       expect(result.violations, `${scheme} ${width}`).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth), `${scheme} ${width}`).toBeLessThanOrEqual(width);

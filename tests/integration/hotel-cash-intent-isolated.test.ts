@@ -3,6 +3,7 @@ import {randomUUID} from 'node:crypto';
 import {createPrismaClient} from '@pms/database';
 import {PrismaFinanceRepository} from '../../apps/api/src/finance/finance.repository';
 import {withSignedInUser} from '../../apps/api/src/auth/request-context';
+import {enableKzPropertyMethods} from './kz-methods-on';
 const db=createPrismaClient('postgresql://owner_home_test@127.0.0.1:55516/wetop_owner_home','pms_test');
 const repo=new PrismaFinanceRepository({db} as never);
 import {FinanceService} from '../../apps/api/src/finance/finance.service';
@@ -32,6 +33,7 @@ beforeAll(async()=>{
  businessId=(await db.business.create({data:{organizationId,name:'Synthetic hotel',vertical:'HOSPITALITY'}})).id;
  locationId=(await db.location.create({data:{businessId,name:'Synthetic hotel',timezone:'Asia/Almaty',currency:'KZT'}})).id;
  propertyId=(await db.property.create({data:{organizationId,locationId,name:'Synthetic hotel',timezone:'Asia/Almaty',currency:'KZT',checkInTime:'14:00',checkOutTime:'12:00'}})).id;
+ await enableKzPropertyMethods(db,propertyId); // объект сам включил Kaspi
  vi.stubEnv('EXPENSE_LINKS_ENABLED','1');
 });
 afterAll(async()=>{vi.unstubAllEnvs();await db.$disconnect();});

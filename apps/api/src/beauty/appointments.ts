@@ -38,6 +38,7 @@ import {
   type AppointmentItemInput,
   type AppointmentStatus,
   type AppointmentPaymentMethod,
+  parseHomeVisit,
 } from '@pms/domain';
 import { currentUserId, currentBeautyOperation } from '../auth/request-context';
 import { currentBeautyPositionAccess } from './access';
@@ -109,6 +110,8 @@ const APPOINTMENT_VIEW_SELECT = {
   price: true,
   currency: true,
   notes: true,
+  atHome: true,
+  homeAddress: true,
   service: { select: { name: true } },
   employee: { select: { name: true } },
   lines: {
@@ -169,6 +172,8 @@ function appointmentView(row: AppointmentViewRow, timezone: string, anchorDate: 
     refundedMinor: row.payments.reduce((sum, payment) => payment.kind === 'EXPENSE' ? sum + payment.amount : sum, 0n).toString(),
     currency: row.currency,
     notes: row.notes,
+    atHome: row.atHome,
+    homeAddress: row.homeAddress,
     source: row.source,
     createdByName: row.createdBy ? (row.createdBy.name ?? row.createdBy.email) : null,
     // A4 (паритет с zapis.kz): платежи записи списком в карточке, а не только суммой
@@ -575,6 +580,8 @@ export class BeautyAppointmentsService {
           price: total,
           currency: first.currency,
           notes: input.notes,
+          atHome: input.atHome,
+          homeAddress: input.homeAddress,
           createdById: currentUserId(),
         },
       });
@@ -605,6 +612,7 @@ export class BeautyAppointmentsService {
             priceMinor: total.toString(),
             currency: first.currency,
             items: lines.map((line, position) => appointmentLineHistorySnapshot(line, position)),
+            ...(input.atHome ? { atHome: true, homeAddress: input.homeAddress } : {}),
           },
         },
       });
@@ -625,6 +633,7 @@ export class BeautyAppointmentsService {
       throw new ConflictException('Валюта записи не совпадает с валютой филиала');
 
     const body = (raw ?? {}) as Record<string, unknown>;
+    const visit = homeVisitPatch(body);
     const startsAt = body['startsAt'] === undefined ? row.startsAt : new Date(String(body['startsAt']));
     if (Number.isNaN(startsAt.getTime())) throw new BadRequestException('Время записи не разобрать');
     let itemInputs: AppointmentItemInput[];
@@ -702,6 +711,7 @@ export class BeautyAppointmentsService {
           price: total,
           currency: first.currency,
           ...(body['notes'] !== undefined ? { notes: String(body['notes'] ?? '').trim() || null } : {}),
+          ...(visit ?? {}),
         },
       });
       if (changed.count !== 1) throw new ConflictException('Запись уже изменена, обновите данные');
@@ -720,6 +730,7 @@ export class BeautyAppointmentsService {
             priceMinor: row.price.toString(),
             currency: row.currency,
             items: row.lines.map((line) => appointmentLineHistorySnapshot(line, line.position)),
+            ...(visit ? { atHome: row.atHome, homeAddress: row.homeAddress } : {}),
           },
           after: {
             employeeId: first.employeeId,
@@ -729,6 +740,7 @@ export class BeautyAppointmentsService {
             priceMinor: total.toString(),
             currency: first.currency,
             items: lines.map((line, position) => appointmentLineHistorySnapshot(line, position)),
+            ...(visit ?? {}),
           },
         },
       });
@@ -1032,6 +1044,8 @@ export class BeautyAppointmentsService {
         startsAt: true,
         endsAt: true,
         status: true,
+        atHome: true,
+        homeAddress: true,
         updatedAt: true,
         price: true,
         currency: true,
@@ -1268,6 +1282,17 @@ export async function employeeBusy(
 }
 
 /** `time` Prisma отдаёт как момент 1970-01-01 */
+/**
+ * Выезд на дом при изменении записи (HOME-VISIT-20261027): поле не прислали, значит не трогаем; прислали, значит
+ * галочка и адрес вместе по правилам домена, снятая галочка стирает адрес.
+ */
+export function homeVisitPatch(body: Record<string, unknown>): { atHome: boolean; homeAddress: string | null } | null {
+  if (body['atHome'] === undefined) return null;
+  const parsed = parseHomeVisit(body['atHome'], body['homeAddress']);
+  if (!parsed.ok) throw new BadRequestException(parsed.reason);
+  return parsed.value;
+}
+
 export function clockOf(at: Date): string {
   return at.toISOString().slice(11, 16);
 }

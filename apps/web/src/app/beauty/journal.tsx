@@ -324,6 +324,7 @@ export function JournalBoard({
               `${clock(a.startMinutes)}–${clock(a.endMinutes)}`,
               a.customer.name,
               a.serviceName,
+              ...(a.appointment.atHome ? [t('Выезд на дом')] : []),
               formatMoney(a.priceMinor, a.currency),
               ...(tilePayment(a.appointment) ? [t(tilePayment(a.appointment)!.full)] : []),
               t(beautyStatus[a.status].label),
@@ -343,7 +344,10 @@ export function JournalBoard({
               </span>
               <strong className="beauty-tile-name">{a.customer.name}</strong>
             </span>
-            <span className="beauty-tile-service">{a.serviceName}</span>
+            <span className="beauty-tile-service">
+              {a.appointment.atHome && <Icon name="pin" aria-label={t('Выезд на дом')} />}
+              {a.serviceName}
+            </span>
             <span className="beauty-tile-money">
               <b>{formatMoney(a.priceMinor, a.currency)}</b>
               {(() => {

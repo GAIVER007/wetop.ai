@@ -344,6 +344,12 @@ function AppointmentCardBody({
                 </dd>
               </div>
             )}
+            {row.atHome && (
+              <div data-testid="beauty-card-home">
+                <dt>{t('Выезд на дом')}</dt>
+                <dd>{row.homeAddress}</dd>
+              </div>
+            )}
             {row.notes && (
               <div>
                 <dt>{t('Заметка')}</dt>

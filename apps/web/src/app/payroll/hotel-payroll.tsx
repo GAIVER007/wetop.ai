@@ -190,7 +190,7 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
         <Table>
           <thead>
             <tr>
-              {['Сотрудник', 'Модель', 'Уборок', 'За уборки', 'Премии', 'Удержания', 'Начислено'].map((h) => ( // kk-allow: payroll-wording.test.ts сверяет эту строку исходника, перевод t(h) при показе
+              {['Сотрудник', 'Уборок', 'За уборки', 'Модель', 'Премии', 'Удержания', 'Начислено'].map((h) => ( // kk-allow: payroll-wording.test.ts сверяет эту строку исходника, перевод t(h) при показе
                 <th key={h} scope="col">
                   {t(h)}
                 </th>
@@ -204,14 +204,17 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
             {payroll.rows.map((r) => (
               <tr key={r.employeeId} data-testid="hotel-payroll-row">
                 <th scope="row">{r.name}</th>
+                {/* база оплаты первой, как «Доход» у салона и ресторана (владелец 26.10.2026) */}
                 <td>
-                  {t(modelLabel(r.model))}
-                  {r.model === 'FIXED' && <small> {money(r.fixedMinor)}</small>}
+                  <strong>{r.cleanings}</strong>
                 </td>
-                <td>{r.cleanings}</td>
                 <td>
                   {money(r.pieceMinor)}
                   {BigInt(r.perCleaningMinor) > 0n && <small> {t('по {amount}', { amount: money(r.perCleaningMinor) })}</small>}
+                </td>
+                <td>
+                  {t(modelLabel(r.model))}
+                  {r.model === 'FIXED' && <small> {money(r.fixedMinor)}</small>}
                 </td>
                 <td>{money(r.bonusMinor)}</td>
                 <td>{money(r.penaltyMinor)}</td>
@@ -236,8 +239,10 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
           <tfoot>
             <tr>
               <th scope="row">{t('Итого')}</th>
+              <td>
+                <strong>{cleanings}</strong>
+              </td>
               <td />
-              <td>{cleanings}</td>
               <td />
               <td data-testid="payroll-bonus">{money(payroll.totals.bonusMinor)}</td>
               <td data-testid="payroll-penalty">{money(payroll.totals.penaltyMinor)}</td>

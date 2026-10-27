@@ -255,26 +255,24 @@ export function MastersBoard({
       label: t('Назначение'),
       cell: (row) => <PersonnelKindPicker row={row} canAssign={canAssignPersonnelKind} />,
     },
-    {
-      key: 'shift',
-      label: t('Смена сегодня'),
-      cell: (row) => {
-        const day = beautyMasterDayStatus(scheduleAvailable ? today : null, row.id);
-        if (!row.active || day.state === 'UNAVAILABLE') return null;
-        return day.state === 'ON_SHIFT' ? day.hours : t('Выходной');
-      },
-    },
+    // смена и статус одной колонкой (владелец 27.10.2026: «Сотрудники» в один экран без прокрутки вбок)
     {
       key: 'status',
-      label: t('Статус'),
+      label: t('Смена сегодня'),
       cell: (row) => {
         const day = beautyMasterDayStatus(scheduleAvailable ? today : null, row.id);
         if (!row.active) return <Badge>{t('В архиве')}</Badge>;
         if (day.state === 'UNAVAILABLE') return <Badge>{t('График недоступен')}</Badge>;
         return day.state === 'ON_SHIFT' ? (
-          <Badge tone="ok">{t('На смене')}</Badge>
+          <span className="staff-shift">
+            <Badge tone="ok">{t('На смене')}</Badge>
+            <span>{day.hours}</span>
+          </span>
         ) : (
-          <Badge>{t('Не на смене')}</Badge>
+          <span className="staff-shift">
+            <Badge>{t('Не на смене')}</Badge>
+            <span>{t('Выходной')}</span>
+          </span>
         );
       },
     },
@@ -297,6 +295,8 @@ export function MastersBoard({
     {
       key: 'locations',
       label: t('Филиалы'),
+      // один филиал: колонка повторяла бы его название в каждой строке
+      hidden: locations.length < 2,
       cell: (row) =>
         locations
           .filter((l) => row.locationIds.includes(l.id))

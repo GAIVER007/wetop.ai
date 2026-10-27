@@ -4,8 +4,10 @@ import { branchMethodsAll, branchMethodsShown, cashMethodsList, cashMethodsShown
 const ALL = ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL'] as const;
 
 describe('способы в форме приёма денег филиала (§21.7)', () => {
-  it('без настройки или без ответа все шесть, как раньше', () => {
-    expect(branchMethodsShown(ALL, null)).toEqual([...ALL]);
+  it('без настройки или без ответа все, кроме Kaspi и Halyk (NO-KZ-METHODS-20261027)', () => {
+    expect(branchMethodsShown(ALL, null)).toEqual(['CASH', 'CARD_TERMINAL', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL']);
+    // выбранный раньше Kaspi не теряется
+    expect(branchMethodsShown(ALL, null, 'KASPI')).toContain('KASPI');
   });
   it('включённые в порядке настройки, чужие коды отброшены', () => {
     expect(branchMethodsShown(ALL, ['KASPI', 'CASH', 'DEPOSIT'])).toEqual(['KASPI', 'CASH']);
@@ -16,14 +18,18 @@ describe('способы в форме приёма денег филиала (�
   });
   it('«Другое» (PAYMENT-OTHER-20261025): без настройки не показывается, включённое показывается', () => {
     const withOther = [...ALL, 'OTHER'] as const;
-    expect(branchMethodsShown(withOther, null)).toEqual([...ALL]);
+    expect(branchMethodsShown(withOther, null)).toEqual(ALL.filter((m) => m !== 'KASPI' && m !== 'HALYK'));
     expect(branchMethodsShown(withOther, ['OTHER', 'CASH'])).toEqual(['OTHER', 'CASH']);
   });
   it('выдача и возврат: «Другое» только включённое или с остатком', () => {
     const withOther = [...ALL, 'OTHER'] as const;
-    expect(branchMethodsAll(withOther, null)).toEqual([...ALL]);
-    expect(branchMethodsAll(withOther, ['CASH', 'OTHER'])).toEqual([...withOther]);
-    expect(branchMethodsAll(withOther, ['CASH'], ['OTHER'])).toEqual([...withOther]);
+    const base = ALL.filter((m) => m !== 'KASPI' && m !== 'HALYK');
+    expect(branchMethodsAll(withOther, null)).toEqual(base);
+    expect(branchMethodsAll(withOther, ['CASH', 'OTHER'])).toEqual([...base, 'OTHER']);
+    expect(branchMethodsAll(withOther, ['CASH'], ['OTHER'])).toEqual([...base, 'OTHER']);
+    // Kaspi включён или по нему остались деньги: выдать и вернуть можно
+    expect(branchMethodsAll(withOther, ['KASPI'])).toContain('KASPI');
+    expect(branchMethodsAll(withOther, ['CASH'], ['HALYK'])).toContain('HALYK');
   });
 });
 

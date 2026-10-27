@@ -28,11 +28,12 @@ import {
 
 const INIT: FinanceActionResult = { error: null, ok: 0 };
 /** Способы запроса: живые деньги, у которых бывает счёт или ссылка (DATA_MODEL §24) */
+// перевод и карта первыми; Kaspi и Halyk только у объектов, которые включили их сами (NO-KZ-METHODS-20261027)
 const METHODS: Array<[PaymentRequest['method'], string]> = [
-  ['KASPI', msg('Kaspi: счёт по номеру телефона')],
-  ['HALYK', msg('Halyk: ссылка на оплату')],
   ['BANK_TRANSFER_PERSON', msg('Перевод по реквизитам')],
   ['CARD_TERMINAL', msg('Картой на стойке')],
+  ['KASPI', msg('Kaspi: счёт по номеру телефона')],
+  ['HALYK', msg('Halyk: ссылка на оплату')],
 ];
 const METHOD_SHORT: Record<PaymentRequest['method'], string> = {
   KASPI: 'Kaspi',
@@ -86,8 +87,8 @@ export function PaymentRequestsPanel({
   // способы запроса, которые объект принимает (§21.6); выключенный не предлагается
   const methods = paymentMethods
     ? METHODS.filter(([code]) => paymentMethods.includes(code))
-    : METHODS;
-  const [method, setMethod] = useState<PaymentRequest['method']>(methods[0]?.[0] ?? 'KASPI');
+    : METHODS.filter(([code]) => code !== 'KASPI' && code !== 'HALYK');
+  const [method, setMethod] = useState<PaymentRequest['method']>(methods[0]?.[0] ?? 'BANK_TRANSFER_PERSON');
   const [lang, setLang] = useState<MessageLang>('ru');
   const folio = openFolios.find((f) => f.id === folioId);
   const due = folio && BigInt(folio.balanceMinor) > 0n ? minorToDecimal(folio.balanceMinor) : '';

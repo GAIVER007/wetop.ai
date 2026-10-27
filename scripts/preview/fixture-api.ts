@@ -1454,7 +1454,13 @@ const cashCategorySeed = [
 ];
 let cashCategories = structuredClone(cashCategorySeed);
 // способы оплаты объекта (DATA_MODEL §21.6): строки настройки; пусто — умолчания домена
-let paymentMethodRows: Array<{ method: string; enabled: boolean; sortOrder: number }> = [];
+// Стенд это объект, который сам включил Kaspi и Halyk: без настройки они выключены с 27.10.2026
+// (NO-KZ-METHODS-20261027), а сценарии кассы и платежей стенда ими пользуются.
+const STAND_METHOD_ROWS = () =>
+  ['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL', 'DEPOSIT', 'CARD_GUARANTEE'].map(
+    (method, sortOrder) => ({ method, enabled: true, sortOrder }),
+  );
+let paymentMethodRows: Array<{ method: string; enabled: boolean; sortOrder: number }> = STAND_METHOD_ROWS();
 const enabledMethods = (): string[] =>
   enabledPaymentMethods(resolvePaymentMethodSettings(paymentMethodRows));
 /** отказ выключенного способа словами, как у API (400); null — способ принимается */
@@ -6503,7 +6509,7 @@ createServer(async (req, res) => {
       receipts = new Map();
       paymentRequests = [];
       cashCategories = structuredClone(cashCategorySeed);
-      paymentMethodRows = [];
+      paymentMethodRows = STAND_METHOD_ROWS();
       cashOps = [];
       cashRecs = [];
       piiStorage = 'real';

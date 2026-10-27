@@ -54,12 +54,15 @@ function setup(rows: Array<{ method: string; enabled: boolean; sortOrder: number
 const as = <T>(role: MembershipRole, fn: () => Promise<T>) =>
   withSignedInUser({ userId: 'u1', organizationId: 'org-a', role }, fn);
 const all = (enabled = true) => ALL.map((method) => ({ method, enabled }));
+/** умолчание без строк: Kaspi и Halyk выключены (NO-KZ-METHODS-20261027) */
+const defaults = () => ALL.map((method) => ({ method, enabled: method !== 'KASPI' && method !== 'HALYK' }));
+const DEFAULT_ON = ALL.filter((m) => m !== 'KASPI' && m !== 'HALYK');
 
 describe('способы оплаты объекта', () => {
-  it('без строк все восемь включены в системном порядке; строки задают порядок и включение', async () => {
+  it('без строк Kaspi и Halyk выключены, остальные в системном порядке; строки задают порядок и включение', async () => {
     const empty = setup();
     const r = await as('OWNER', () => empty.service.paymentMethods());
-    expect(r.methods).toEqual(all());
+    expect(r.methods).toEqual(defaults());
     const stored = setup([
       { method: 'KASPI', enabled: true, sortOrder: 0 },
       { method: 'CASH', enabled: false, sortOrder: 1 },
@@ -77,7 +80,7 @@ describe('способы оплаты объекта', () => {
     const methods = [
       { method: 'KASPI', enabled: true },
       { method: 'CASH', enabled: false },
-      ...all().filter((m) => m.method !== 'KASPI' && m.method !== 'CASH'),
+      ...defaults().filter((m) => m.method !== 'KASPI' && m.method !== 'CASH'),
     ];
     const r = await as('OWNER', () => service.updatePaymentMethods({ methods }));
     expect(r.methods).toEqual(methods);
@@ -95,7 +98,7 @@ describe('способы оплаты объекта', () => {
         entityType: 'Property',
         entityId: 'prop-a',
         action: 'hotel.payment_methods.updated',
-        before: { enabled: ALL, order: ALL },
+        before: { enabled: DEFAULT_ON, order: ALL },
         after: {
           enabled: methods.filter((m) => m.enabled).map((m) => m.method),
           order: methods.map((m) => m.method),
@@ -106,7 +109,7 @@ describe('способы оплаты объекта', () => {
 
   it('ничего не изменилось: записи нет, журнала нет', async () => {
     const { service, upsert, audit } = setup();
-    await as('OWNER', () => service.updatePaymentMethods({ methods: all() }));
+    await as('OWNER', () => service.updatePaymentMethods({ methods: defaults() }));
     expect(upsert).not.toHaveBeenCalled();
     expect(audit).not.toHaveBeenCalled();
   });

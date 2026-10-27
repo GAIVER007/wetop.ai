@@ -82,7 +82,7 @@ export function CashBoard({
   const [kind, setKind] = useState<Kind>('INCOME');
   const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
   const accepted = useBranchPaymentMethods(scopeKey);
-  const [methodTo, setMethodTo] = useState<FoodPaymentMethod>('KASPI');
+  const [methodTo, setMethodTo] = useState<FoodPaymentMethod>('CARD_TERMINAL');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [checkMethod, setCheckMethod] = useState<FoodPaymentMethod>('CASH');

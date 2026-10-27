@@ -76,7 +76,7 @@ test('финансы: продажа сертификата в окне по ц�
   await main.getByRole('button', { name: 'Продать сертификат' }).click();
   const dialog = page.getByRole('dialog', { name: 'Продать сертификат' });
   await dialog.getByLabel(/Номинал/).fill('15000');
-  await dialog.getByLabel('Оплата').selectOption({ label: 'Kaspi' });
+  await dialog.getByLabel('Оплата').selectOption({ label: 'Карта (терминал)' });
   await dialog.getByRole('button', { name: 'Продать', exact: true }).click();
   const sold = dialog.getByTestId('certificate-sold');
   await expect(sold).toContainText('Сертификат продан');

@@ -212,11 +212,11 @@ test('заказы: создание с экрана, оплата частям�
   await expect(dialog.getByRole('button', { name: 'Закрыть заказ' })).toHaveCount(0);
   const payment = dialog.getByTestId('order-payment');
   await expect(payment.getByTestId('order-remaining')).toContainText('780 ₸');
-  // часть наличными, остаток Kaspi: вторая оплата закрывает заказ
+  // часть наличными, остаток картой: вторая оплата закрывает заказ
   await payment.getByLabel('Сумма, ₸').fill('500');
   await payment.getByRole('button', { name: 'Принять оплату' }).click();
   await expect(payment.getByTestId('order-remaining')).toContainText('280 ₸');
-  await payment.getByLabel('Способ').selectOption('KASPI');
+  await payment.getByLabel('Способ').selectOption('CARD_TERMINAL');
   await expect(payment.getByLabel('Сумма, ₸')).toHaveValue('280');
   await payment.getByRole('button', { name: 'Принять оплату' }).click();
   await expect(dialog.getByText('Оплачен', { exact: true })).toBeVisible();
@@ -638,7 +638,7 @@ test('отчёт за период: выручка, средний чек, оп�
   const { headers, table, pasta, steak, waiter } = await seed(page, request);
   const order = (items: Array<{ menuItemId: string; qty: number }>) =>
     post(request, headers, '/food-service/orders', { tableId: table.id, waiterId: waiter.id, guestCount: 2, items });
-  // 2 × паста = 780 ₸ наличными; паста + стейк = 1 880 ₸ частями: 880 Kaspi и 1 000 наличными
+  // 2 × паста = 780 ₸ наличными; паста + стейк = 1 880 ₸ частями: 880 картой и 1 000 наличными
   const a = await order([{ menuItemId: pasta.id, qty: 2 }]);
   expect((await serveAndPay(request, headers, a)).status).toBe('CLOSED');
   let b = await order([{ menuItemId: pasta.id, qty: 1 }, { menuItemId: steak.id, qty: 1 }]);
@@ -648,7 +648,7 @@ test('отчёт за период: выручка, средний чек, оп�
       expectedUpdatedAt: b.updatedAt,
       status,
     });
-  await post(request, headers, `/food-service/orders/${b.id}/payments`, { method: 'KASPI', amount: 88_000, idempotencyKey: 'r1' });
+  await post(request, headers, `/food-service/orders/${b.id}/payments`, { method: 'CARD_TERMINAL', amount: 88_000, idempotencyKey: 'r1' });
   await post(request, headers, `/food-service/orders/${b.id}/payments`, { method: 'CASH', amount: 100_000, idempotencyKey: 'r2' });
   const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
   const res = await request.get(`${api}/food-service/period-report?from=${day}&to=${day}`, { headers });
@@ -660,7 +660,7 @@ test('отчёт за период: выручка, средний чек, оп�
   expect(r.averageCheckMinor).toBe('133000');
   expect(r.payments).toEqual([
     { method: 'CASH', amountMinor: '178000', count: 2 },
-    { method: 'KASPI', amountMinor: '88000', count: 1 },
+    { method: 'CARD_TERMINAL', amountMinor: '88000', count: 1 },
   ]);
   expect(r.topDishes[0]).toEqual({ name: 'Паста Карбонара', qty: 3, revenueMinor: '117000' });
   expect(r.waiters).toEqual([{ waiterId: waiter.id, name: 'Иванова Анна', orders: 2, revenueMinor: '266000' }]);
@@ -976,7 +976,7 @@ test('касса: остатки по способам, расход не уво
     data: { method: 'CASH', amount: 78_001, idempotencyKey: 'over' },
   });
   expect(over.status()).toBe(409);
-  const part = { method: 'KASPI', amount: 30_000, idempotencyKey: 'part-1' };
+  const part = { method: 'CARD_TERMINAL', amount: 30_000, idempotencyKey: 'part-1' };
   await post(request, headers, `/food-service/orders/${order.id}/payments`, part);
   const again = await post(request, headers, `/food-service/orders/${order.id}/payments`, part);
   expect(again.paidMinor).toBe('30000');
@@ -987,7 +987,7 @@ test('касса: остатки по способам, расход не уво
   expect(cancel.status()).toBe(409);
   await page.goto('/cashbox');
   await expect(page.getByRole('heading', { name: 'Касса' })).toBeVisible();
-  await expect(page.getByTestId('cash-KASPI')).toContainText('300 ₸');
+  await expect(page.getByTestId('cash-CARD_TERMINAL')).toContainText('300 ₸');
   await expect(page.getByTestId('cash-CASH')).toContainText('0 ₸');
   const ops = page.getByRole('region', { name: 'Операция кассы' });
   // расход наличных при нуле в кассе отклоняется
@@ -995,14 +995,14 @@ test('касса: остатки по способам, расход не уво
   await ops.getByLabel('Сумма, ₸').fill('100');
   await ops.getByRole('button', { name: 'Провести' }).click();
   await expect(page.getByRole('main').getByRole('alert')).toContainText('меньше этой суммы');
-  // перевод Kaspi → наличные
+  // перевод карта → наличные
   await ops.getByRole('button', { name: 'Перевод' }).click();
   // поле оборачивает список подписью, и «Куда» входит в «Откуда»: берём списки по порядку
-  await ops.locator('select').nth(0).selectOption('KASPI');
+  await ops.locator('select').nth(0).selectOption('CARD_TERMINAL');
   await ops.locator('select').nth(1).selectOption('CASH');
   await ops.getByLabel('Сумма, ₸').fill('100');
   await ops.getByRole('button', { name: 'Провести' }).click();
-  await expect(page.getByTestId('cash-KASPI')).toContainText('200 ₸');
+  await expect(page.getByTestId('cash-CARD_TERMINAL')).toContainText('200 ₸');
   await expect(page.getByTestId('cash-CASH')).toContainText('100 ₸');
   // сверка: пересчитали 90 при 100 по системе, разница −10
   const check = page.getByRole('region', { name: 'Сверка кассы' });
@@ -1015,7 +1015,7 @@ test('касса: остатки по способам, расход не уво
   await page.getByRole('tabpanel').getByRole('button', { name: 'Аннулировать' }).click();
   // аннулирование только через подтверждение (ADR-182)
   await page.getByTestId('confirm-dialog').getByRole('button', { name: 'Аннулировать' }).click();
-  await expect(page.getByTestId('cash-KASPI')).toContainText('300 ₸');
+  await expect(page.getByTestId('cash-CARD_TERMINAL')).toContainText('300 ₸');
   await expect(page.getByTestId('cash-CASH')).toContainText('0 ₸');
   const axe = await new AxeBuilder({ page }).include('main').analyze();
   expect(axe.violations).toEqual([]);

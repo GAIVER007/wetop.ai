@@ -73,7 +73,12 @@ describe('запросы оплаты /finance/*payment-requests (DATA_MODEL §2
     },
     /** настройка способов объекта (§21.6): выключенные способы строками, остальное умолчания */
     async paymentMethodSettings() {
-      return disabledMethods.map((method, sortOrder) => ({ method, enabled: false, sortOrder }));
+      // Kaspi и Halyk объект включил сам (без настройки выключены с 27.10.2026), выключенные строками раньше
+      return [
+        ...disabledMethods.map((method, sortOrder) => ({ method, enabled: false, sortOrder })),
+        { method: 'KASPI', enabled: true, sortOrder: 100 },
+        { method: 'HALYK', enabled: true, sortOrder: 101 },
+      ];
     },
   };
   beforeAll(async () => {

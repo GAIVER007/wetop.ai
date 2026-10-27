@@ -65,7 +65,13 @@ function makeFakes() {
   const payments: PaymentRecord[] = [];
   const audits: string[] = [];
   /** строки payment_method_settings объекта (§21.6); пусто — умолчания */
-  const paymentMethods: Array<{ method: string; enabled: boolean; sortOrder: number }> = [];
+  const paymentMethods: Array<{ method: string; enabled: boolean; sortOrder: number }> = [
+    // объект, который сам включил Kaspi и Halyk (без настройки они выключены с 27.10.2026, NO-KZ-METHODS-20261027);
+    // sortOrder после строк тестов, поэтому строки, добавленные тестом, главнее
+    ...['CASH', 'CARD_TERMINAL', 'KASPI', 'HALYK', 'BANK_TRANSFER_PERSON', 'BANK_TRANSFER_LEGAL', 'DEPOSIT', 'CARD_GUARANTEE'].map(
+      (method, i) => ({ method, enabled: true, sortOrder: 100 + i }),
+    ),
+  ];
   /** Что возврат записал в журнал — проверяем, что туда не уехали контакты (аудит 26.09, С-39) */
   const auditAfter: unknown[] = [];
   let seq = 0;
@@ -1331,7 +1337,11 @@ describe('finance API: folios, charges, payments, refunds (DATA_MODEL §6, ADR-0
       'CARD_GUARANTEE',
     ];
 
-    it('без строк все восемь включены в системном порядке: бронь и касса отдают список', async () => {
+    it('без строк Kaspi и Halyk выключены (NO-KZ-METHODS-20261027); включённые объектом отдаются все восемь', async () => {
+      fakes.paymentMethods.length = 0;
+      const none = await get();
+      expect(none.body.paymentMethods).toEqual(ALL.filter((m) => m !== 'KASPI' && m !== 'HALYK'));
+      fakes.paymentMethods.push(...ALL.map((method, i) => ({ method, enabled: true, sortOrder: i })));
       const r = await get();
       expect(r.body.paymentMethods).toEqual(ALL);
       const c = await http().get('/finance/cash').expect(200);

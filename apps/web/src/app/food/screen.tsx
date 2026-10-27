@@ -48,7 +48,9 @@ export async function FoodScreen({
           {kind === 'catalog' ? (
             <CatalogBoard data={data} />
           ) : (
-            <WorkspaceBoard data={data} floor={kind === 'floor'} startNew={startNew} listView={listView} monthView={kind === 'list' && monthView} />
+            <WorkspaceBoard
+              key={kind === 'list' && monthView ? 'month' : listView ? 'list' : 'day'}
+              data={data} floor={kind === 'floor'} startNew={startNew} listView={listView} monthView={kind === 'list' && monthView} />
           )}
         </div>
       </Page>

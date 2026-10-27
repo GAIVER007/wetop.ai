@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   hashPassword,
   hashSessionToken,
-  MAX_FAILED_ATTEMPTS,
+  ACCOUNT_LOCK_ATTEMPTS as MAX_FAILED_ATTEMPTS, // учётка целиком запирается после ACCOUNT_LOCK_ATTEMPTS (27.10.2026); 5 промахов запирают адрес, см. login-guard.test
   PRIVACY_POLICY_VERSION,
   SESSION_HOURS,
 } from '@pms/domain';
@@ -128,7 +128,7 @@ describe('AuthService.login', () => {
     ).rejects.toThrow('Неверная почта или пароль');
     await expect(
       auth.login({ email: 'nikogo-net@example.invalid', password: PASSWORD }, NOW),
-    ).rejects.toThrow(/запирается на 15 минут/);
+    ).rejects.toThrow(/закрывается на 15 минут/);
   });
 
   it('когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6)', async () => {

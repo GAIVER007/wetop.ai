@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   MAX_FAILED_ATTEMPTS,
+  ACCOUNT_LOCK_ATTEMPTS,
   LOCK_MINUTES,
   SESSION_HOURS,
   checkPassword,
@@ -103,9 +104,12 @@ describe('evaluateLogin', () => {
     expect(result).toMatchObject({ outcome: 'wrong', failedAttempts: 1, lockedUntil: null, resetCounter: true });
   });
 
-  it(`после ${MAX_FAILED_ATTEMPTS} промахов вход запирается на ${LOCK_MINUTES} минут`, () => {
+  // с 27.10.2026 учётка целиком запирается после ACCOUNT_LOCK_ATTEMPTS промахов (подбор с многих адресов);
+  // 5 промахов запирают пару «почта + адрес» в API (login-guard.test)
+  it(`после ${ACCOUNT_LOCK_ATTEMPTS} промахов учётка запирается на ${LOCK_MINUTES} минут`, () => {
+    expect(evaluateLogin({ user: user({ failedAttempts: MAX_FAILED_ATTEMPTS - 1 }), password: 'не тот', now }).lockedUntil).toBeNull();
     const result = evaluateLogin({
-      user: user({ failedAttempts: MAX_FAILED_ATTEMPTS - 1 }),
+      user: user({ failedAttempts: ACCOUNT_LOCK_ATTEMPTS - 1 }),
       password: 'не тот',
       now,
     });

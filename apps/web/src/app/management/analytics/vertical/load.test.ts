@@ -57,6 +57,31 @@ describe('MV9 scoped report adapters', () => {
   });
 });
 
+it('салон до 24:00 (27.10.2026): запись через полночь считается один раз, по дню начала, как в «Отчётах»', async () => {
+  // Алматы: 23:00–00:30 по местному, начало 6-го, хвост виден в дне 7-го
+  const almaty = { ...branch, timezone: 'Asia/Almaty' };
+  const late = { ...row, id: 'late', startsAt: '2026-10-06T18:00:00Z', endsAt: '2026-10-06T19:30:00Z', priceMinor: '500' };
+  read.mockImplementation(async (_b: unknown, date: string) => ({
+    date,
+    location: { id: 'l', timezone: almaty.timezone },
+    columns: [],
+    appointments: [late],
+  }));
+  const r = await loadBranchPeriod(almaty, ['2026-10-06', '2026-10-07']);
+  expect(r.counts).toMatchObject({ DONE: 1 });
+  expect(r.revenue).toEqual({ KZT: '500' });
+  // дни для графика и мастеров: хвост в 7-м не повторяется
+  expect(r.days.map((d) => d.appointments.length)).toEqual([1, 0]);
+  // запись совсем другого дня (не хвост) по-прежнему ошибка данных
+  read.mockImplementation(async (_b: unknown, date: string) => ({
+    date,
+    location: { id: 'l', timezone: almaty.timezone },
+    columns: [],
+    appointments: [{ ...late, startsAt: '2026-10-04T18:00:00Z', endsAt: '2026-10-04T19:30:00Z' }],
+  }));
+  await expect(loadBranchPeriod(almaty, ['2026-10-07'])).rejects.toThrow();
+});
+
 it('Food period excludes previous-day overlap and rejects a foreign Location response', async () => {
   const food = { ...branch, vertical: 'FOOD_SERVICE' as const };
   const reservation = {

@@ -1,4 +1,5 @@
 'use client';
+import { ActionMenu } from '../../components/action-menu';
 import { useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AccessLevel, MembershipRole } from '@pms/domain';
@@ -103,24 +104,23 @@ export function usePeopleBoard<E extends EmployeeLike>({
       return [
         {
           ...col,
-          cell: (p) => (
-            <span className="staff-actions team-row-actions__group">
-              {p.employee && col.cell(p.employee)}
-              {p.member && member.actionsCell(p.member, true)}
-              {p.kind === 'card' && p.employee && grantLevels.length > 0 && (
-                <Button
-                  type="button"
-                  tone="secondary"
-                  size="sm"
-                  onClick={() => setGranting(p.employee!)}
-                  aria-label={t('Дать доступ: {name}', { name: p.employee.name })}
-                >
-                  {t('Дать доступ')}
-                </Button>
-              )}
-              {p.invite && invite.inviteCell(p.invite)}
-            </span>
-          ),
+          cell: (p) => {
+            // «Открыть» кнопкой, доступ и приглашение пунктами «⋯» (владелец 27.10.2026: без прокрутки вбок)
+            const more = [
+              ...(p.kind === 'card' && p.employee && grantLevels.length > 0
+                ? [{ label: t('Дать доступ'), onSelect: () => setGranting(p.employee!) }]
+                : []),
+              ...(p.invite ? invite.inviteItems(p.invite) : []),
+            ];
+            const name = p.employee?.name ?? p.member?.name ?? p.invite?.email ?? '';
+            return (
+              <span className="staff-actions team-row-actions__group">
+                {p.employee && col.cell(p.employee)}
+                {p.member && member.actionsCell(p.member, true)}
+                {more.length > 0 && <ActionMenu size="sm" label={t('Ещё: {name}', { name })} items={more} />}
+              </span>
+            );
+          },
         },
       ];
     const plain: StaffColumn<Person<E>> = { ...col, cell: (p) => (p.employee ? col.cell(p.employee) : null) };

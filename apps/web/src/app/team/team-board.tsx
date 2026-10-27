@@ -825,7 +825,19 @@ export function useInviteActions() {
         </Button>
       </span>
     ) : null;
-  return { error, inviteCell };
+  /** те же действия пунктами меню «⋯»: строка общей доски «Сотрудники» не шире экрана */
+  const inviteItems = (i: AuthInvite) =>
+    i.revocable
+      ? [
+          {
+            label: t('Отправить заново'),
+            disabled: pending,
+            onSelect: () => run(() => resendInviteAction(i.id, i.email, i.role ?? 'STAFF', resendExtra(i))),
+          },
+          { label: t('Отозвать'), disabled: pending, onSelect: () => run(() => revokeInviteAction(i.id)) },
+        ]
+      : [];
+  return { error, inviteCell, inviteItems };
 }
 
 export function PendingInvites({ invites }: { invites: AuthInvite[] }) {

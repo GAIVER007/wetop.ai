@@ -299,7 +299,9 @@ test('мастер добавляется, а карточка показыва�
   // единый экран персонала (вариант A, решение владельца 20.10.2026): строка таблицы, умения и филиалы на виду
   const row = main.getByRole('tabpanel').getByTestId('staff-row').filter({ hasText: 'Дина' });
   await expect(row).toContainText('Маникюр, Стрижка');
-  await expect(row).toContainText('Студия Айна');
+  // один филиал: колонки «Филиалы» нет, название не повторяется в строке (владелец 27.10.2026: один экран)
+  await expect(main.getByRole('tabpanel').getByRole('columnheader', { name: 'Филиалы', exact: true })).toHaveCount(0);
+  await expect(row).not.toContainText('Студия Айна');
   // у нового мастера нет графика на сегодня: строка честно говорит «Выходной», записей нет
   await expect(row).toContainText('Выходной');
   await expect(row).toContainText('Не на смене');

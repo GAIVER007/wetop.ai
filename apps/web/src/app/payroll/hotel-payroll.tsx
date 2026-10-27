@@ -190,7 +190,7 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
         <Table>
           <thead>
             <tr>
-              {['Сотрудник', 'Модель', 'Уборок', 'За уборки', 'Премии', 'Удержания', 'Начислено'].map((h) => ( // kk-allow: payroll-wording.test.ts сверяет эту строку исходника, перевод t(h) при показе
+              {['Сотрудник', 'Уборок', 'За уборки', 'Модель', 'Премии', 'Удержания', 'Начислено'].map((h) => ( // kk-allow: payroll-wording.test.ts сверяет эту строку исходника, перевод t(h) при показе
                 <th key={h} scope="col">
                   {t(h)}
                 </th>
@@ -204,14 +204,15 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
             {payroll.rows.map((r) => (
               <tr key={r.employeeId} data-testid="hotel-payroll-row">
                 <th scope="row">{r.name}</th>
+                {/* база оплаты первой (владелец 26.10.2026, как «Доход» салона и ресторана): уборки и сумма за них */}
+                <td>{r.cleanings}</td>
+                <td data-testid="payroll-piece">
+                  <strong>{money(r.pieceMinor)}</strong>
+                  {BigInt(r.perCleaningMinor) > 0n && <small> {t('по {amount}', { amount: money(r.perCleaningMinor) })}</small>}
+                </td>
                 <td>
                   {t(modelLabel(r.model))}
                   {r.model === 'FIXED' && <small> {money(r.fixedMinor)}</small>}
-                </td>
-                <td>{r.cleanings}</td>
-                <td>
-                  {money(r.pieceMinor)}
-                  {BigInt(r.perCleaningMinor) > 0n && <small> {t('по {amount}', { amount: money(r.perCleaningMinor) })}</small>}
                 </td>
                 <td>{money(r.bonusMinor)}</td>
                 <td>{money(r.penaltyMinor)}</td>
@@ -236,8 +237,10 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
           <tfoot>
             <tr>
               <th scope="row">{t('Итого')}</th>
-              <td />
               <td>{cleanings}</td>
+              <td data-testid="payroll-piece-total">
+                <strong>{money(payroll.rows.reduce((sum, r) => sum + BigInt(r.pieceMinor), 0n).toString())}</strong>
+              </td>
               <td />
               <td data-testid="payroll-bonus">{money(payroll.totals.bonusMinor)}</td>
               <td data-testid="payroll-penalty">{money(payroll.totals.penaltyMinor)}</td>

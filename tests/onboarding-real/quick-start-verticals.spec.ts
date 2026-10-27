@@ -46,7 +46,8 @@ test('быстрый запуск гостиницы: номера, услуги
   mkdirSync(SHOTS, { recursive: true });
   await page.setViewportSize({ width: 1280, height: 800 });
   await registered(page, 'HOSPITALITY');
-  await page.getByTestId('quick-start-link').click();
+  // кнопку, видимую владельцу: при потоковой отрисовке в DOM бывает скрытая копия
+  await page.getByRole('link', { name: 'Запустить за 5 минут', exact: true }).click();
   await expect(page).toHaveURL(/\/register\/setup\/quick$/);
   const board = page.getByTestId('quick-start');
   const go = board.getByRole('button', { name: 'Создать гостиницу', exact: true });
@@ -107,7 +108,8 @@ test('быстрый запуск ресторана: столы, меню, со
   mkdirSync(SHOTS, { recursive: true });
   await page.setViewportSize({ width: 1280, height: 800 });
   await registered(page, 'FOOD_SERVICE');
-  await page.getByTestId('quick-start-link').click();
+  // кнопку, видимую владельцу: при потоковой отрисовке в DOM бывает скрытая копия
+  await page.getByRole('link', { name: 'Запустить за 5 минут', exact: true }).click();
   await expect(page).toHaveURL(/\/register\/setup\/quick$/);
   const board = page.getByTestId('quick-start');
   const go = board.getByRole('button', { name: 'Создать ресторан', exact: true });

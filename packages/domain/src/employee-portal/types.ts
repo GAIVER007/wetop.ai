@@ -88,6 +88,8 @@ export interface EmployeePortalDto {
 export interface PublicEmployeeDto {
   name: string; headline: string; biography: string; practiceSinceYear: number | null; slug: string;
   businessName: string; avatar: PortalImage | null;
+  /** Рейтинг мастера в выбранном филиале и три последних отзыва: только звёзды, текст и дата, без клиента и визита */
+  reviews: { averageStars: number | null; count: number; items: Array<{ stars: number; comment: string | null; submittedAt: string }> };
   portfolio: Array<{ id: string; title: string; description: string; image: PortalImage }>;
   locations: Array<{ id: string; name: string; currency: string }>;
   locationId: string | null;

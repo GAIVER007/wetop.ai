@@ -50,7 +50,9 @@ test('HTTP actor boundaries and public whitelist',async({request})=>{
  const payAttack=await request.put(API+'/employee-portal/me/pay-settings',{headers:headers(f),data:{model:'FIXED',fixedMinor:'999999',percent:0}});expect([403,404]).toContain(payAttack.status());
  d=await call(request,f,`/employee-portal/employees/${f.employeeA}/publication`,{actor:'ownerA',method:'put',data:{published:true,publicationConsent:true,expectedRevision:d.profile.revision}});
  const pub=await request.get(API+`/employee-portal/public/${d.profile.slug}`);expect(pub.status()).toBe(200);const p=await pub.json();
- expect(Object.keys(p).sort()).toEqual(['name','headline','biography','practiceSinceYear','slug','businessName','avatar','portfolio','locations','locationId','services','bookingUrl'].sort());
+ expect(Object.keys(p).sort()).toEqual(['name','headline','biography','practiceSinceYear','slug','businessName','avatar','portfolio','locations','locationId','services','bookingUrl','reviews'].sort());
+ // рейтинг для клиента (28.10.2026): наружу только звёзды, текст и дата, без клиента и визита
+ expect(Object.keys(p.reviews).sort()).toEqual(['averageStars','count','items']);for(const r of p.reviews.items)expect(Object.keys(r).sort()).toEqual(['comment','stars','submittedAt']);
  expect(p.locationId).toBeNull();expect(p.services).toEqual([]);expect(p.locations).toHaveLength(2);
  expect(JSON.stringify(p)).not.toContain('private@example.invalid');
  const branch=await request.get(API+`/employee-portal/public/${d.profile.slug}?locationId=${f.locationA}`);expect(branch.ok()).toBeTruthy();expect((await branch.json()).services[0].priceMinor).toBe(mine.services.find(s=>s.id===f.serviceId).priceMinor);
@@ -71,6 +73,13 @@ test('real browser avatar/profile persistence, work approval and three views',as
  const f=await reset(request);await seedProfessional(request,f);
  const staff=await context(browser,f,'staffA');const page=await staff.newPage();
  await page.goto('/my-work');await expect(page.getByTestId('employee-self-master')).toBeVisible();
+ // кабинет мастера (владелец 28.10.2026): первая вкладка «Сегодня» с записями дня и цифрами месяца
+ await expect(page.getByRole('tab',{name:'Сегодня',exact:true})).toHaveAttribute('aria-selected','true');await expect(page.getByTestId('portal-home')).toBeVisible();await expect(page.getByTestId('portal-month-tiles')).toBeVisible();
+ // на телефоне нижнее меню, «График» открывает неделю
+ await page.setViewportSize({width:390,height:844});await expect(page.getByTestId('master-bottom-nav')).toBeVisible();
+ await expect(page.getByTestId('master-bottom-nav').getByRole('link')).toHaveText([/Сегодня/,/Записи/,/График/,/Деньги/,/Я/]);
+ await page.getByTestId('master-bottom-nav').getByRole('link',{name:/График/}).click();await expect(page.getByTestId('portal-week')).toBeVisible();await page.getByTestId('master-bottom-nav').getByRole('link',{name:/Сегодня/}).click();await expect(page.getByTestId('portal-home')).toBeVisible();
+ await page.setViewportSize({width:1440,height:1000});await expect(page.getByTestId('master-bottom-nav')).toBeHidden();
  await select(page,'Фото и работы');const photo=page.getByTestId('portal-avatar-form');
  await photo.getByLabel('Новое фото').setInputFiles(avatar);await photo.getByRole('button',{name:'Загрузить фото',exact:true}).click();await expect(photo.getByRole('status')).toContainText('Сохранено на сервере');
  const uploaded=await call(request,f,'/employee-portal/me');expect(uploaded.avatar).not.toBeNull();
@@ -85,8 +94,12 @@ test('real browser avatar/profile persistence, work approval and three views',as
  await add.getByLabel('Фото работы').setInputFiles(workImage);await add.getByLabel('Название работы',{exact:true}).fill('Пример портфолио: тестовая иллюстрация');await add.getByLabel('Описание работы',{exact:true}).fill('Демонстрационные данные. Это не фото клиента и не реальная выполненная работа.');
  await add.getByLabel('Есть согласие на публичный показ этой работы').check();await add.getByRole('button',{name:'Добавить работу',exact:true}).click();await expect(add.getByRole('status')).toContainText('Сохранено на сервере');
  const draft=await call(request,f,'/employee-portal/me');expect(draft.portfolio).toHaveLength(1);expect(draft.portfolio[0].published).toBe(false);expect(draft.avatar.id).toBe(uploaded.avatar.id);
- await capture(page,'master-portfolio');await select(page,'Услуги');await capture(page,'master-services');await select(page,'График');await capture(page,'master-week');await expect(page.getByTestId('portal-nonworking')).toHaveCount(0);await select(page,'Оплата труда');await capture(page,'master-pay');
- const manager=await context(browser,f,'ownerA');const head=await manager.newPage();await head.goto(`/employees/${f.employeeA}/profile`);await expect(head.getByTestId('employee-manager')).toBeVisible();await capture(head,'manager-profile');
+ await capture(page,'master-portfolio');await select(page,'Услуги');await capture(page,'master-services');await select(page,'График');await capture(page,'master-week');await expect(page.getByTestId('portal-nonworking')).toHaveCount(0);await select(page,'Деньги');await capture(page,'master-pay');
+ const manager=await context(browser,f,'ownerA');const head=await manager.newPage();await head.goto(`/employees/${f.employeeA}/profile`);await expect(head.getByTestId('employee-manager')).toBeVisible();
+ // карточка, вариант A (владелец 28.10.2026): цифры месяца плитками, фото или инициалы, кнопка «Редактировать»
+ await expect(head.getByTestId('portal-month-tiles')).toBeVisible();await expect(head.getByTestId('portal-month-tiles').locator('li[data-tile="revenue"]')).toContainText('Выручка');
+ await expect(head.getByTestId('portal-card-actions').getByRole('link',{name:'Редактировать',exact:true})).toBeVisible();
+ await capture(head,'manager-profile');
  const latest=await call(request,f,`/employee-portal/employees/${f.employeeA}`,{actor:'ownerA'});
  await call(request,f,`/employee-portal/employees/${f.employeeA}/portfolio/${latest.portfolio[0].id}`,{actor:'ownerA',method:'patch',data:{title:latest.portfolio[0].title,description:latest.portfolio[0].description,publicationConsent:true,published:true}});
  const version=await call(request,f,`/employee-portal/employees/${f.employeeA}`,{actor:'ownerA'});
@@ -146,7 +159,7 @@ test('compact schedule fits one screen without dated-exceptions block',async({br
  }
  for(const [width,height] of [[1440,900],[1366,768]]){
  await page.setViewportSize({width,height});
- for(const [tab,key] of [['Профиль','profile'],['Записи','appointments'],['Услуги','services'],['Оплата труда','pay'],['Фото и работы','media']]){
+ for(const [tab,key] of [['Профиль','profile'],['Записи','appointments'],['Услуги','services'],['Деньги','pay'],['Фото и работы','media']]){
   await select(page,tab);
   for(const theme of ['light','dark']){
    await page.evaluate(t=>{document.documentElement.dataset.theme=t;window.scrollTo(0,0);},theme);
@@ -217,12 +230,12 @@ test('manager saves an exact service material norm and sees server-calculated co
 test('personal finance shows real server amounts and never invents unavailable earnings',async({browser,request})=>{
  const dir=OUT+'/compact-v3';mkdirSync(dir,{recursive:true});
  for(const vertical of ['BEAUTY','FOOD_SERVICE']){
-  const f=await reset(request,vertical);const data=await call(request,f,'/employee-portal/me');const c=await context(browser,f,'staffA');const page=await c.newPage();await page.goto('/my-work');await select(page,'Оплата труда');
+  const f=await reset(request,vertical);const data=await call(request,f,'/employee-portal/me');const c=await context(browser,f,'staffA');const page=await c.newPage();await page.goto('/my-work');await select(page,vertical==='BEAUTY'?'Деньги':'Оплата труда');
   await expect(page.getByTestId('personal-finance')).toBeVisible({timeout:3000});await expect(page.getByLabel('Месяц расчёта',{exact:true})).toHaveValue(data.pay.month);
   const earned=page.getByTestId('finance-earned');if(data.pay.status==='AVAILABLE'){await expect(earned).toHaveAttribute('data-amount',data.pay.earnedMinor);}else{await expect(earned).toContainText('Нет расчёта');await expect(earned).not.toHaveAttribute('data-amount');}
   if(data.pay.paidMinor===null)await expect(page.getByTestId('finance-paid')).not.toHaveAttribute('data-amount');else await expect(page.getByTestId('finance-paid')).toHaveAttribute('data-amount',data.pay.paidMinor);await expect(page.getByTestId('portal-pay').locator('input[name="fixedMinor"],input[name="percent"]')).toHaveCount(0);
   for(const theme of ['light','dark']){await page.evaluate(t=>{document.documentElement.dataset.theme=t;window.scrollTo(0,0);},theme);await page.screenshot({path:`${dir}/finance-${vertical.toLowerCase()}-${theme}.png`,fullPage:false,animations:'disabled',timeout:20000});}
-  await page.getByLabel('Месяц расчёта',{exact:true}).fill('2026-09');await page.getByTestId('portal-pay').getByRole('button',{name:'Показать',exact:true}).click();await expect(page.getByTestId('personal-finance')).toHaveAttribute('data-month','2026-09');await expect(page.getByRole('tab',{name:'Оплата труда',exact:true})).toHaveAttribute('aria-selected','true');
+  await page.getByLabel('Месяц расчёта',{exact:true}).fill('2026-09');await page.getByTestId('portal-pay').getByRole('button',{name:'Показать',exact:true}).click();await expect(page.getByTestId('personal-finance')).toHaveAttribute('data-month','2026-09');await expect(page.getByRole('tab',{name:vertical==='BEAUTY'?'Деньги':'Оплата труда',exact:true})).toHaveAttribute('aria-selected','true');
   for(const width of [320,390]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth),'finance month form fits narrow mobile').toBeLessThanOrEqual(width);await expect(page.getByLabel('Месяц расчёта',{exact:true})).toBeVisible();await expect(page.getByTestId('portal-pay').getByRole('button',{name:'Показать',exact:true})).toBeVisible();}
   await c.close();
  }

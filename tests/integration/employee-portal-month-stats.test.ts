@@ -21,7 +21,7 @@ const at = (day: number, hour = 5) => new Date(Date.UTC(2026, 8, day, hour));
 
 describe('«Мой месяц» мастера салона', () => {
   let f: Awaited<ReturnType<typeof seedPortalFixture>>;
-  const as = <T>(actor: 'staffA' | 'staffB', locationId: string | null, run: () => Promise<T>) =>
+  const as = <T>(actor: 'staffA' | 'staffB' | 'ownerA', locationId: string | null, run: () => Promise<T>) =>
     withSignedInUser({ ...f.actors[actor], ...(locationId ? { scope: 'LOCATION' as const, locationId } : {}) }, run);
   beforeAll(async () => {
     f = await seedPortalFixture(db, 'BEAUTY');
@@ -104,6 +104,18 @@ describe('«Мой месяц» мастера салона', () => {
     expect(day.workRange).toBe('DAY');
     expect(day.appointments.map((a) => a.date)).toEqual(['2026-09-02']);
     await expect(as('staffA', f.locationA, () => portal.get(null, { range: 'year' }))).rejects.toThrow();
+  });
+
+  // кабинет мастера (владелец 28.10.2026): имена клиентов мастер не получает вовсе, руководитель видит
+  it('мастер не получает имён клиентов в своих записях; руководитель получает', async () => {
+    const own = await as('staffA', f.locationA, () => portal.get(null, { month, range: 'month' }));
+    expect(own.access).toBe('SELF');
+    expect(own.appointments.length).toBeGreaterThan(0);
+    expect(new Set(own.appointments.map((a) => a.customerName))).toEqual(new Set(['']));
+    expect(JSON.stringify(own.appointments)).not.toContain('Synthetic month client');
+    const managed = await as('ownerA', f.locationA, () => portal.get(f.employeeA, { month, range: 'month' }));
+    expect(managed.access).toBe('MANAGER');
+    expect(managed.appointments.every((a) => a.customerName.length > 0)).toBe(true);
   });
 });
 

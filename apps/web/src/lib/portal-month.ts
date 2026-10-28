@@ -55,6 +55,54 @@ export function portalMonthLine(
   return parts.length ? `${label}: ${parts.join(', ')}` : t('{month}: итоги недоступны', { month: label });
 }
 
+/** Инициалы для карточки без фото: «Айгерим Сапарова» → «АС», одно слово → две буквы */
+export function portalInitials(name: string): string {
+  const words = name.trim().split(/\s+/u).filter(Boolean);
+  const letters = words.length > 1 ? [words[0]![0], words[1]![0]] : [...(words[0] ?? '?')].slice(0, 2);
+  return letters.join('').toLocaleUpperCase();
+}
+
+/** Плитка цифр месяца в карточке сотрудника (вариант A, владелец 28.10.2026) */
+export interface PortalMonthTile { id: string; label: string; value: string; hint?: string }
+
+/**
+ * Цифры месяца крупными плитками: выручка, визиты (салон) или заказы и гости (ресторан), ЗП, оценка.
+ * Показываем только то, что сервер посчитал: null и «не настроено» плиткой не становятся, оценка без отзывов
+ * не выдумывается. Без выбранного филиала плиток нет (строка над ними просит выбрать филиал).
+ */
+export function portalMonthTiles(
+  s: PortalMonthStats,
+  extra: {
+    pay: { status: string; earnedMinor: string | null; currency: string } | null;
+    reviews: { averageStars: number | null; count: number } | null;
+  },
+  t: Translate = translator('ru'),
+  locale: DeskLocale = 'ru',
+): PortalMonthTile[] {
+  if (s.status === 'SELECT_LOCATION') return [];
+  const tiles: PortalMonthTile[] = [];
+  const num = (n: number) => new Intl.NumberFormat(intlLocale(locale)).format(n);
+  if (s.revenueMinor !== null) tiles.push({ id: 'revenue', label: t('Выручка'), value: formatMoney(s.revenueMinor, s.currency) });
+  if (s.appointmentsDone !== null) tiles.push({ id: 'visits', label: t('Визиты'), value: num(s.appointmentsDone) });
+  if (s.servicesDone !== null) tiles.push({ id: 'services', label: t('Услуги'), value: num(s.servicesDone) });
+  if (s.ordersClosed !== null) tiles.push({ id: 'orders', label: t('Заказы'), value: num(s.ordersClosed) });
+  if (s.guests !== null) tiles.push({ id: 'guests', label: t('Гости'), value: num(s.guests) });
+  const pay = extra.pay;
+  if (pay && pay.status === 'AVAILABLE' && pay.earnedMinor !== null)
+    tiles.push({ id: 'pay', label: t('ЗП'), value: formatMoney(pay.earnedMinor, pay.currency) });
+  const r = extra.reviews;
+  if (r && r.count > 0 && r.averageStars !== null)
+    tiles.push({
+      id: 'rating',
+      label: t('Оценка'),
+      value: `${new Intl.NumberFormat(intlLocale(locale), { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(Math.round(r.averageStars * 10) / 10)} ★`,
+      hint: countLabel(locale, t, r.count, [msg('отзыв'), 'отзыва', msg('отзывов')]), // kk-allow: форма склонения
+    });
+  // у ресторана без ЗП и отзывов четвёртая плитка смены: карточка не остаётся пустой
+  if (tiles.length < 4 && s.shifts !== null) tiles.push({ id: 'shifts', label: t('Смены'), value: num(s.shifts) });
+  return tiles;
+}
+
 /** Отсутствия сотрудника (срез S3): текущие и будущие сверху по дате, прошедшие отдельно, свежие первыми */
 export function portalAbsences(timeOffs: readonly PortalTimeOff[], today: string) {
   const upcoming = timeOffs.filter((t) => t.dateTo >= today).sort((a, b) => a.dateFrom.localeCompare(b.dateFrom));

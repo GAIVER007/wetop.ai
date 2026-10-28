@@ -282,13 +282,11 @@
   .cash-shift-calc strong {
     font-variant-numeric: tabular-nums;
   }
+  /* владелец 29.10.2026 (скрин с сайта): строка «Расходы за смену» стояла столбиком по букве, потому что
+     список и кнопки статей сжимали её в ряду; теперь строка, под ней список и кнопки, всё на всю ширину */
   .cash-shift-calc__expenses {
-    display: flex;
-    align-items: center;
+    display: grid;
     gap: var(--space-2);
-  }
-  .cash-shift-calc__expenses p {
-    flex: 1;
   }
   .cash-shift-calc__total {
     border-top: 1px solid var(--border);

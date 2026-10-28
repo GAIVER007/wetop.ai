@@ -426,7 +426,15 @@ export class EmployeePortalService {
       const bookingSite=selected&&services.some(s => s.priceMinor !== null && s.priceType !== 'RANGE' && s.priceType !== 'UNFIXED')&&e.business.vertical==='BEAUTY'&&canWrite(e.business.organization.status,e.business.organization.trialEndsAt,new Date())
         ?await db.marketingSite.findUnique({where:{locationId:selected.id},select:{id:true,locationId:true,state:true,publishedVersion:{select:{siteId:true,spec:true,specHash:true}},trackedSite:{select:{locationId:true,status:true,publicKey:true,hosts:true}},domains:{where:{status:'ACTIVE',isPrimary:true},take:2,select:{host:true}}}}):null;
       const bookingUrl=selected?employeeBookingTarget(bookingSite,selected.id,e.id):null;
-      return {name:e.name,headline:p.headline,biography:p.biography,practiceSinceYear:p.practiceSinceYear,slug:p.slug,businessName:e.business.name,avatar:e.portalMedia[0]?await this.image(e.portalMedia[0]):null,portfolio:await Promise.all(e.portfolio.map(async w=>({id:w.id,title:w.title,description:w.description,image:await this.image(w.media)}))),locations,locationId:selected?.id??null,services,bookingUrl};
+      // карточка мастера для клиента (владелец 28.10.2026): рейтинг и 3 последних отзыва выбранного филиала (без филиала по всем);
+      // наружу только звёзды, текст и дата: ни клиента, ни визита
+      const reviewWhere=e.business.vertical==='BEAUTY'?{employeeId:e.id,...(selected?{appointment:{locationId:selected.id}}:{})}:null;
+      const [reviewAgg,reviewRows]=reviewWhere?await Promise.all([
+        db.beautyAppointmentReview.aggregate({where:reviewWhere,_avg:{stars:true},_count:{_all:true}}),
+        db.beautyAppointmentReview.findMany({where:reviewWhere,select:{stars:true,comment:true,submittedAt:true},orderBy:[{submittedAt:'desc'},{appointmentId:'desc'}],take:3}),
+      ]):[null,[]];
+      const reviews={averageStars:reviewAgg?._avg.stars??null,count:reviewAgg?._count._all??0,items:reviewRows.map(r=>({stars:r.stars,comment:r.comment,submittedAt:r.submittedAt.toISOString()}))};
+      return {reviews,name:e.name,headline:p.headline,biography:p.biography,practiceSinceYear:p.practiceSinceYear,slug:p.slug,businessName:e.business.name,avatar:e.portalMedia[0]?await this.image(e.portalMedia[0]):null,portfolio:await Promise.all(e.portfolio.map(async w=>({id:w.id,title:w.title,description:w.description,image:await this.image(w.media)}))),locations,locationId:selected?.id??null,services,bookingUrl};
     });
   }
 }

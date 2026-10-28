@@ -292,3 +292,21 @@
   .portal-bottom-nav a:focus-visible, .portal-bottom-nav a:hover { color: var(--primary); }
   .employee-portal--master .portal-tabs > .tabs { display: none; }
 }
+
+/* страница мастера для клиента (владелец 28.10.2026): шапка по центру, метки, большая кнопка записи, отзывы */
+.specialist-hero { display: grid; justify-items: center; gap: var(--space-2); text-align: center; }
+.specialist-hero .portal-avatar { width: 120px; height: 120px; border-radius: 50%; }
+.specialist-hero h1 { margin: 0; }
+.specialist-hero p { margin: 0; color: var(--text-2); }
+.specialist-hero__chips { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.specialist-hero__chips li { padding: var(--space-1) var(--space-2); border-radius: var(--radius); background: var(--surface-muted); font-size: var(--text-sm); font-weight: 600; }
+.specialist-hero__book { width: 100%; max-width: 420px; }
+.specialist-reviews { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.specialist-reviews li { display: grid; grid-template-columns: auto 1fr; gap: var(--space-1) var(--space-2); padding-bottom: var(--space-2); border-bottom: 1px solid var(--border); }
+.specialist-reviews li:last-child { border-bottom: 0; }
+.specialist-reviews__stars { color: var(--warning); letter-spacing: 0.1em; }
+.specialist-reviews time { color: var(--text-2); font-size: var(--text-sm); }
+.specialist-reviews p { grid-column: 1 / -1; margin: 0; }
+@media (max-width: 600px) {
+  .specialist-hero__book { position: sticky; bottom: var(--space-2); z-index: var(--layer-sticky); }
+}

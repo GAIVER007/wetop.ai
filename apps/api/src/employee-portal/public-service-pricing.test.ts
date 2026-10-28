@@ -33,6 +33,11 @@ function fixture(prices: MasterPrice[] = [], currency = 'KZT', branchPrice: bigi
       }),
     },
     marketingSite: { findUnique: vi.fn().mockResolvedValue(null) },
+    // рейтинг карточки (28.10.2026): без отзывов
+    beautyAppointmentReview: {
+      aggregate: vi.fn().mockResolvedValue({ _avg: { stars: null }, _count: { _all: 0 } }),
+      findMany: vi.fn().mockResolvedValue([]),
+    },
   };
   return { db, portal: new EmployeePortalService({ db } as unknown as PrismaService, null) };
 }

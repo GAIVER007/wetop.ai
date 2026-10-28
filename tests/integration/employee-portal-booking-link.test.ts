@@ -76,4 +76,27 @@ describe('published specialist hooks only into its existing public Beauty site',
     const result = await portal.publicProfile(slug);
     expect(result.locationId).toBeNull(); expect(result.bookingUrl).toBeNull(); expect(result.services).toHaveLength(0);
   });
+  // карточка мастера для клиента (владелец 28.10.2026): рейтинг и последние отзывы, без имён клиентов
+  it('публичная карточка отдаёт рейтинг и три последних отзыва без имён и без чужого филиала', async () => {
+    // стенд уже кладёт мастеру A один отзыв 5★ («Synthetic own review»)
+    const before = await portal.publicProfile(slug, f.locationA);
+    expect(before.reviews).toMatchObject({ averageStars: 5, count: 1 });
+    const customer = await db.customer.create({ data: { organizationId: f.organizationA, firstName: 'Synthetic reviewer name' } });
+    const visit = async (stars: number, comment: string | null, day: number, location = f.locationA) => {
+      const at = new Date(Date.now() - (10 - day) * 86400000); // по дню на отзыв, позже идёт свежее
+      const a = await db.appointment.create({ data: { locationId: location, customerId: customer.id, employeeId: f.employeeA, serviceId: f.serviceId!, startsAt: at, endsAt: new Date(at.getTime() + 3600000), status: 'DONE', price: 5000n, currency: 'KZT', createdById: f.actors.ownerA.id } });
+      await db.beautyAppointmentReview.create({ data: { appointmentId: a.id, employeeId: f.employeeA, stars, comment, submittedAt: new Date(Date.now() + day * 60000) } });
+    };
+    await visit(5, 'Очень аккуратно', 1);
+    await visit(4, null, 2);
+    await visit(5, 'Приду ещё', 3);
+    await visit(3, 'Ждала долго', 4);
+    await visit(1, 'Другой филиал', 5, f.locationB);
+    const r = await portal.publicProfile(slug, f.locationA);
+    expect(r.reviews.count).toBe(5);
+    expect(r.reviews.averageStars).toBeCloseTo(4.4, 5);
+    expect(r.reviews.items.map((i) => [i.stars, i.comment])).toEqual([[3, 'Ждала долго'], [5, 'Приду ещё'], [4, null]]);
+    expect(JSON.stringify(r)).not.toContain('Synthetic reviewer name');
+    expect(r.reviews.items[0]).not.toHaveProperty('appointmentId');
+  });
 });

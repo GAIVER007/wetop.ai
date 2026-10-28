@@ -194,7 +194,8 @@
 .portal-week-presets > span { color: var(--text-2); font-size: var(--text-sm); }
 
 /* карточка сотрудника, вариант A (владелец 28.10.2026): визитка крупнее, кнопки связи, цифры месяца плитками */
-.employee-portal .portal-heading .portal-avatar { width: 88px; height: 88px; border-radius: 50%; }
+/* 72 px: крупнее прежних 56, но вкладка компактного кабинета помещается в экран 768 px (сторож compact schedule) */
+.employee-portal .portal-heading .portal-avatar { width: 72px; height: 72px; border-radius: 50%; }
 .portal-avatar--initials {
   display: inline-flex;
   align-items: center;
@@ -225,6 +226,9 @@
 .portal-tiles span { color: var(--text-2); font-size: var(--text-sm); font-weight: 600; }
 .portal-tiles strong { font-size: var(--text-2xl); font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .portal-tiles small { color: var(--text-2); font-size: var(--text-sm); }
+/* компактный кабинет: плитки ниже, чтобы вкладка помещалась в экран 768 px (сторож compact schedule) */
+.employee-portal .portal-tiles li { padding: var(--space-2) var(--space-4); gap: 0; }
+.employee-portal .portal-tiles strong { font-size: var(--text-xl); }
 @media (max-width: 600px) {
   .employee-portal .portal-heading { flex-wrap: wrap; }
   .portal-card-actions { order: 3; width: 100%; }
@@ -251,17 +255,9 @@
 .portal-today__list small { color: var(--text-2); font-size: var(--text-sm); }
 .portal-today__list em { font-style: normal; color: var(--primary); font-size: var(--text-sm); font-weight: 600; }
 
-/* «Деньги» мастера: крупно «Осталось получить» (владелец 28.10.2026) */
-.portal-pay-due {
-  display: grid;
-  gap: var(--space-1);
-  margin: 0 0 var(--space-4);
-  padding: var(--space-4);
-  border-radius: var(--radius);
-  background: var(--success-soft);
-}
-.portal-pay-due span, .portal-pay-due small { color: var(--text-2); font-size: var(--text-sm); }
-.portal-pay-due strong { color: var(--success); font-size: var(--text-3xl); font-weight: 700; font-variant-numeric: tabular-nums; }
+/* «Деньги» мастера (владелец 28.10.2026): «Осталось к выплате» выделено зелёным, без лишнего блока над расчётом */
+.portal-finance-kpis article[data-accent='true'] { background: var(--success-soft); border-color: var(--success); }
+.portal-finance-kpis article[data-accent='true'] strong { color: var(--success); }
 
 /* нижнее меню кабинета мастера: только на телефоне, на ПК вкладки сверху */
 .portal-bottom-nav { display: none; }
@@ -290,7 +286,8 @@
   }
   .portal-bottom-nav a span { font-size: var(--text-lg); line-height: 1; }
   .portal-bottom-nav a:focus-visible, .portal-bottom-nav a:hover { color: var(--primary); }
-  .employee-portal--master .portal-tabs > .tabs { display: none; }
+  /* ряд вкладок остаётся (в меню нет «Фото и работы», «Услуги», «Отзывы»): одной строкой с прокруткой вбок */
+  .employee-portal--master .portal-tabs > .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 }
 
 /* страница мастера для клиента (владелец 28.10.2026): шапка по центру, метки, большая кнопка записи, отзывы */
@@ -310,3 +307,6 @@
 @media (max-width: 600px) {
   .specialist-hero__book { position: sticky; bottom: var(--space-2); z-index: var(--layer-sticky); }
 }
+
+/* вкладка «Сегодня» мастера: записи дня и цифры месяца одной колонкой */
+.portal-home { display: grid; gap: var(--space-2); }

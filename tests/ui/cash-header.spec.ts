@@ -126,7 +126,22 @@ test('общая шапка: одна кнопка смены, расход, и�
     panel = page.getByRole('dialog');
     // закрытие «А»: было + оплаты − расходы = должно быть; расход можно добавить прямо отсюда
     await expect(panel.getByTestId('cash-close-expected')).toContainText('9 500');
-    await panel.getByRole('button', { name: '+ Добавить расход', exact: true }).click();
+    // вариант B (владелец 28.10.2026): расходы смены списком, забытый расход дописывается частой статьёй
+    await expect(panel.getByTestId('cash-close-expenses')).toContainText('Такси');
+    await expect(panel.getByTestId('cash-close-expenses')).toContainText('500');
+    // владелец 29.10.2026 (скрин с сайта): «Расходы за смену» стояли столбиком по букве, кнопки сбоку.
+    // Подпись и сумма в одну строку, список и кнопки ниже на всю ширину.
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      const label = panel.getByText('Расходы за смену', { exact: true });
+      const box = await label.boundingBox();
+      expect(box!.height, `подпись расходов в одну строку на ${width}px`).toBeLessThan(40);
+      expect(box!.width, `подпись расходов не сжата на ${width}px`).toBeGreaterThan(box!.height * 2);
+      const chips = await panel.getByTestId('cash-close-chips').boundingBox();
+      expect(chips!.y, `кнопки статей ниже подписи на ${width}px`).toBeGreaterThan(box!.y + box!.height - 1);
+    }
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await panel.getByTestId('cash-close-chips').getByRole('button', { name: '+ Другое', exact: true }).click();
     await panel.getByLabel('Сумма', { exact: true }).fill('100');
     await panel.getByLabel('Статья', { exact: true }).fill('Вода');
     await panel.getByRole('button', { name: 'Добавить расход', exact: true }).click();

@@ -17,6 +17,7 @@ import { foodOrderStatus } from '../../lib/status/food';
 import type { BeautyEmployeeServicePriceRow, BeautySchedule } from '../../lib/api';
 import type { BeautyMasterDayStatus } from '../../lib/beauty-master-day-status';
 import { EmployeeTransitionGuard } from '../employee-workspace/workspace';
+import { masterNavItems } from '../../lib/master-nav';
 import { portalAbsenceDays, portalAbsences, portalInitials, portalMonthLabel, portalMonthLine, portalMonthTiles, portalShiftMonth } from '../../lib/portal-month';
 import { shortPeriod, zoneLabel } from '../../lib/human-period';
 import { localDate } from '@pms/domain';
@@ -87,7 +88,7 @@ export function EmployeeCabinet({
   return <EmployeeTransitionGuard
     register={registerGuard}
     discard={() => setDraftEpoch((value) => value + 1)}
-  ><div key={`${scope}:${data.employee.id}:${draftEpoch}`} className="employee-portal" data-testid={manager ? 'employee-manager' : beauty ? 'employee-self-master' : 'employee-self-waiter'}>
+  ><div key={`${scope}:${data.employee.id}:${draftEpoch}`} id="portal-top" className={!manager && beauty ? 'employee-portal employee-portal--master' : 'employee-portal'} data-testid={manager ? 'employee-manager' : beauty ? 'employee-self-master' : 'employee-self-waiter'}>
     <header className="panel portal-section portal-heading">
       {/* аудит 21.10.2026, п. 25: без бейджа «Управление сотрудником», бизнес и филиал одной строкой, если названия совпадают; «Специалист», как в разделе */}
       <div><div className="portal-identity-line">{!manager && <Badge>{t('Мой кабинет')}</Badge>}<h2>{data.employee.name}</h2></div>
@@ -218,7 +219,9 @@ export function EmployeeCabinet({
       {data.scheduleConflicts.truncated && <p role="alert">{t('Проверены только первые 500 предстоящих записей. Проверка неполная: остальные записи нужно проверить с руководителем.')}</p>}
     </section>}
     </div> }] : []),
-      ...(showPay ? [{ id: 'pay', label: t('Оплата труда'), content: <section className="panel portal-section" data-testid="portal-pay"><div data-testid="personal-finance" data-month={data.pay.month}>
+      ...(showPay ? [{ id: 'pay', label: manager || !beauty ? t('Оплата труда') : t('Деньги'), content: <section className="panel portal-section" data-testid="portal-pay"><div data-testid="personal-finance" data-month={data.pay.month}>
+      {/* «Деньги» мастера (владелец 28.10.2026): сверху крупно, сколько осталось получить; суммы те же, что у руководителя */}
+      {!manager && beauty && data.pay.status === 'AVAILABLE' && data.pay.remainingMinor !== null && <p className="portal-pay-due" data-testid="portal-pay-due"><span>{t('Осталось получить')}</span><strong>{formatMoney(data.pay.remainingMinor, data.pay.currency)}</strong>{data.pay.earnedMinor !== null && <small>{t('Начислено {sum}', { sum: formatMoney(data.pay.earnedMinor, data.pay.currency) })}</small>}</p>}
       <div className="portal-finance-top"><div><h2>{manager ? t('Оплата труда') : t('Мои финансы')}</h2><p>{t('Оплата труда за выбранный месяц')}</p></div><form className="portal-finance-period" method="get" action="#pay"><Field label={t('Месяц расчёта')}><MonthInput name="month" defaultValue={data.pay.month} required /></Field><button className="btn btn--secondary" type="submit">{t('Показать')}</button></form></div>
       <div className="portal-finance-kpis">{([
         ['finance-earned',msg('Начислено'),data.pay.status==='AVAILABLE'?data.pay.earnedMinor:null,msg('Заработок по расчёту за месяц')],
@@ -252,5 +255,9 @@ export function EmployeeCabinet({
         ),
       }] : []),
     ]} />
+    {/* нижнее меню мастера на телефоне (владелец 28.10.2026); на ПК скрыто, там вкладки сверху */}
+    {!manager && beauty && <nav className="portal-bottom-nav" aria-label={t('Кабинет мастера')} data-testid="master-bottom-nav">
+      {masterNavItems({ showWork, showSchedule, showPay }).map((item) => <a key={item.id} href={item.href} data-nav={item.id}><span aria-hidden="true">{item.icon}</span>{t(item.label)}</a>)}
+    </nav>}
   </div></EmployeeTransitionGuard>;
 }

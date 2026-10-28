@@ -71,6 +71,11 @@ test('real browser avatar/profile persistence, work approval and three views',as
  const f=await reset(request);await seedProfessional(request,f);
  const staff=await context(browser,f,'staffA');const page=await staff.newPage();
  await page.goto('/my-work');await expect(page.getByTestId('employee-self-master')).toBeVisible();
+ // кабинет мастера на телефоне (владелец 28.10.2026): «Сегодня», нижнее меню, «Деньги» по нажатию
+ await page.setViewportSize({width:390,height:844});await expect(page.getByTestId('master-bottom-nav')).toBeVisible();
+ await expect(page.getByTestId('master-bottom-nav').getByRole('link')).toHaveText([/Сегодня/,/Записи/,/График/,/Деньги/,/Я/]);
+ await page.getByTestId('master-bottom-nav').getByRole('link',{name:/График/}).click();await expect(page.getByTestId('portal-week')).toBeVisible();
+ await page.setViewportSize({width:1440,height:1000});await expect(page.getByTestId('master-bottom-nav')).toBeHidden();
  await select(page,'Фото и работы');const photo=page.getByTestId('portal-avatar-form');
  await photo.getByLabel('Новое фото').setInputFiles(avatar);await photo.getByRole('button',{name:'Загрузить фото',exact:true}).click();await expect(photo.getByRole('status')).toContainText('Сохранено на сервере');
  const uploaded=await call(request,f,'/employee-portal/me');expect(uploaded.avatar).not.toBeNull();

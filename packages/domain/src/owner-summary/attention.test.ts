@@ -45,8 +45,9 @@ describe('ownerAttention', () => {
     const items = ownerAttention({ vertical: 'BEAUTY', unpaidDone: 2, freeMasters: 3, lowStock: 1 });
     expect(items).toEqual([
       { id: 'unpaid-visits', tone: 'warn', count: 2, text: 'Не оплачено сегодня: 2 записи', href: '/calendar', action: 'Журнал' },
-      { id: 'free-windows', tone: 'warn', count: 3, text: 'Свободные окна: 3 мастера', href: '/calendar', action: 'Журнал' },
       { id: 'low-stock', tone: 'warn', count: 1, text: 'Заканчивается: 1 позиция', href: '/warehouse', action: 'Склад' },
+      // свободные окна это подсказка (29.10.2026): после дел
+      { id: 'free-windows', tone: 'ok', count: 3, text: 'Свободные окна: 3 мастера', href: '/calendar', action: 'Журнал' },
     ]);
   });
   it('нулевые и неизвестные сигналы не показываются; когда дел нет, одна спокойная строка', () => {
@@ -94,5 +95,23 @@ describe('ownerAttention', () => {
     const items = ownerAttention({ vertical: 'HOSPITALITY', today: '2026-10-21', arrivals: 1, dirtyRooms: 1, noPrepay: 1, lowStock: 1, extra: [{ id: 'x', tone: 'warn', text: 'x', href: '/x', action: 'x' }, { id: 'y', tone: 'warn', text: 'y', href: '/y', action: 'y' }] });
     expect(items).toHaveLength(4);
     expect(JSON.stringify(items)).not.toContain('\u2014');
+  });
+  // владелец 29.10.2026: «что там должно точно четко важно полезно появляться в требует решения»
+  it('салон: незакрытая смена первой, потом не отмеченные визиты, неоплата, неподтверждённые на завтра, склад; окна последними', () => {
+    const items = ownerAttention({ vertical: 'BEAUTY', today: '2026-10-28', openShiftSince: '2026-10-27', lateUnmarked: 2, unpaidDone: 1, unconfirmedTomorrow: 3, lowStock: 1, freeMasters: 4 });
+    expect(items.map((i) => [i.id, i.text, i.href])).toEqual([
+      ['open-shift', 'Смена с 27.10 не закрыта', '/finance'],
+      ['late-unmarked', 'Не отмечены «Пришла»: 2 записи', '/calendar'],
+      ['unpaid-visits', 'Не оплачено сегодня: 1 запись', '/calendar'],
+      ['unconfirmed-tomorrow', 'Подтвердить на завтра: 3 записи', '/calendar?date=2026-10-29'],
+    ]);
+  });
+  it('свободные окна не вытесняют дела: это подсказка, она идёт после предупреждений', () => {
+    const items = ownerAttention({ vertical: 'BEAUTY', today: '2026-10-28', freeMasters: 4, unconfirmedTomorrow: 1 });
+    expect(items.map((i) => [i.id, i.tone])).toEqual([['unconfirmed-tomorrow', 'warn'], ['free-windows', 'ok']]);
+  });
+  it('ресторан и гостиница тоже видят незакрытую смену первой, со ссылкой на свои финансы', () => {
+    expect(ownerAttention({ vertical: 'FOOD_SERVICE', openShiftSince: '2026-10-27', staleOrders: 1 }).map((i) => [i.id, i.href])).toEqual([['open-shift', '/restaurant-finance'], ['stale-orders', '/floor-plan']]);
+    expect(ownerAttention({ vertical: 'HOSPITALITY', today: '2026-10-28', openShiftSince: '2026-10-26', arrivals: 0 })[0]).toMatchObject({ id: 'open-shift', text: 'Смена с 26.10 не закрыта', href: '/finance' });
   });
 });

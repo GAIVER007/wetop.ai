@@ -321,4 +321,11 @@ export const salonJournal: Record<string, string> = {
   "Деньги за день": "Money for the day",
   "Ждём оплату": "Awaiting payment",
   "Пришла": "Arrived",
+  // окно записи вариант A (26.10.2026)
+  "Мастер и время": "Master and time",
+  "Утро": "Morning",
+  "Вечер": "Evening",
+  "{time} занято": "{time} booked",
+  "Выбор мастера": "Choose master",
+  "Выбор услуги": "Choose service",
 };

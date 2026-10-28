@@ -158,7 +158,8 @@ export function CloseShiftForm({
   money: (v: string) => string;
   send: Send;
   onCancel: () => void;
-  onExpense: () => void;
+  /** Добавить расход; со статьёй кнопки частых статей она уже выбрана в окне расхода */
+  onExpense: (category?: string) => void;
 }) {
   const t = useT();
   const expected = BigInt(cash.snapshot.balances.CASH ?? '0');
@@ -209,9 +210,33 @@ export function CloseShiftForm({
         {refunds > 0n && row(msg('Возвраты наличными'), refunds, '− ')}
         <div className="cash-shift-calc__expenses">
           {row(msg('Расходы за смену'), expenses, '− ')}
-          <Button type="button" tone="ghost" size="sm" disabled={busy || disabled} onClick={onExpense}>
-            + {t('Добавить расход')}
-          </Button>
+          {/* вариант B (владелец 28.10.2026): каждый расход смены видно со статьёй */}
+          {!!cash.shiftExpenses?.length && (
+            <ul className="cash-shift-expenses" data-testid="cash-close-expenses">
+              {cash.shiftExpenses.map((e, i) => (
+                <li key={i}>
+                  <span>{t(e.category)}</span>
+                  <strong>{money(e.amount)}</strong>
+                </li>
+              ))}
+            </ul>
+          )}
+          {/* забытый расход дописывается отсюда одним касанием частой статьи */}
+          <div className="cash-shift-chips" role="group" aria-label={t('Добавить расход')} data-testid="cash-close-chips">
+            {(cash.expenseCategories?.length
+              ? cash.expenseCategories
+              : [msg('Такси'), msg('Закупка материалов'), msg('Хозяйственные расходы'), msg('Прочее')]
+            )
+              .slice(0, 4)
+              .map((c) => (
+                <button type="button" key={c} className="cash-header__chip" disabled={busy || disabled} onClick={() => onExpense(t(c))}>
+                  + {t(c)}
+                </button>
+              ))}
+            <button type="button" className="cash-header__chip" disabled={busy || disabled} onClick={() => onExpense()}>
+              + {t('Другое')}
+            </button>
+          </div>
         </div>
         {other !== 0n && row(msg('Внесения и поправки'), other < 0n ? -other : other, other < 0n ? '− ' : '+ ')}
         <p className="cash-shift-calc__total">

@@ -724,4 +724,8 @@ export const marketingAds: Record<string, string> = {
   "Сайт с ИИ и онлайн-запись": "AI website and online booking",
   "Цена скоро": "Price coming soon",
   "в месяц": "per month",
+  // подпись сайта в пульте по направлению (28.10.2026)
+  "Сайт гостиницы с онлайн-бронированием": "Hotel website with online booking",
+  "Сайт салона с онлайн-записью": "Salon website with online booking",
+  "Сайт ресторана с бронью столов": "Restaurant website with table booking",
 };

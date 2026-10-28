@@ -134,7 +134,7 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   const site = hub.getByTestId('marketing-site');
   // аудит 21.10.2026 P0-4: «Доступно» только при включённом конструкторе (на стенде он включён; выключенный в unit-тесте hub)
   await expect(site.getByTestId('marketing-site-status')).toHaveText('Доступно');
-  await expect(site).toContainText('Сайт с ИИ и онлайн-запись');
+  await expect(site).toContainText('Сайт гостиницы с онлайн-бронированием');
   const builder = site.getByRole('link', { name: 'Подключить: Сайт и SEO', exact: true });
   await expect(builder).toHaveAttribute('href', '/marketing/site/editor');
   await expect(builder).toHaveClass(/^btn$/);
@@ -171,7 +171,9 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
     const card = hub.getByTestId(testId);
     const line = card;
     await expect(line.getByTestId(`${testId}-status`)).toHaveText(status);
-    await expect(line.locator('a, button')).toHaveCount(1);
+    // название ведёт на страницу буста, «Подключить» туда же; других кнопок в строке нет
+    await expect(line.locator('a, button')).toHaveCount(2);
+    await expect(line.getByTestId(`${testId}-page`)).toHaveAttribute('href', href);
     await expect(line.getByRole('link', { name: `Подключить: ${title}`, exact: true })).toHaveAttribute('href', href);
     await expect(line).toContainText('Цена скоро');
   }

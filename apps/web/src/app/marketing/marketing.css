@@ -154,6 +154,10 @@
     position: relative;
     z-index: var(--layer-base);
   }
+  /* открытое меню «⋯» поверх кнопок строк ниже: строка с открытым меню поднимается слоем выше соседей */
+  .marketing-pult__go:has([aria-expanded='true']) {
+    z-index: var(--layer-sticky);
+  }
   .marketing-pult__name span,
   .marketing-pult__price span {
     color: var(--text-2);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { BeautyAppointmentRow, BeautyDayColumn } from '../../lib/api';
+import type { BeautyAppointmentRow } from '../../lib/api';
 import { dayMoney, quickAction, shortHour, shortName, tilePayment, upcoming } from './journal-day';
 
 /** Журнал салона, вариант B (владелец 24.10.2026): загрузка мастера, ближайшие, деньги дня, быстрое действие */
@@ -22,16 +22,6 @@ const row = (p: Partial<BeautyAppointmentRow>): BeautyAppointmentRow => ({
   notes: null,
   ...p,
 });
-const col = (p: Partial<BeautyDayColumn>): BeautyDayColumn => ({
-  id: 'm1',
-  name: 'Айгерим',
-  intervals: [{ timeFrom: '09:00', timeTo: '18:00' }],
-  timeOff: false,
-  timeOffReason: null,
-  serviceIds: [],
-  ...p,
-});
-
 describe('ближайшие', () => {
   it('записанные и подтверждённые от «сейчас» минус 30 минут, по времени, не больше пяти', () => {
     const rows = [

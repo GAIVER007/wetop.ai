@@ -1,8 +1,24 @@
 import { msg, translator, type Translate } from '../i18n';
 
-export type OwnerPeriod = 'today' | 'week' | 'month';
+/**
+ * Период Главной (владелец 29.10.2026: «оставь только месяц переключать и выбор свой период от–до»):
+ * текущий месяц по умолчанию, `month:YYYY-MM` листается стрелками, `range:от..до` из календаря. Даты проверяет сервер.
+ */
+export type OwnerPeriod = 'today' | 'week' | 'month' | `month:${string}` | `range:${string}`;
 export function ownerPeriod(value: unknown): OwnerPeriod {
-  return value === 'week' || value === 'month' ? value : 'today';
+  if (value === 'month') return 'month';
+  if (typeof value === 'string' && /^month:\d{4}-(0[1-9]|1[0-2])$/.test(value)) return value as OwnerPeriod;
+  if (typeof value === 'string' && /^range:\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}$/.test(value)) return value as OwnerPeriod;
+  return 'month';
+}
+/** Месяц для стрелок: из `month:YYYY-MM`, у «month» и своего периода месяц его начала */
+export function ownerMonth(fromDate: string, key: string): string {
+  return /^month:\d{4}-\d{2}$/.test(key) ? key.slice(6) : fromDate.slice(0, 7);
+}
+export function shiftMonth(month: string, delta: number): string {
+  const d = new Date(`${month}-01T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() + delta);
+  return d.toISOString().slice(0, 7);
 }
 export type DailyMoney = { state: 'READY' | 'PARTIAL' | 'UNAVAILABLE'; reason: string | null; unresolvedSources?: number; currencies: {currency:string;amountMinor:string}[] | null; days: {date:string;unresolvedSources:number;currencies:{currency:string;amountMinor:string}[]}[] | null };
 type Money = {
@@ -60,7 +76,7 @@ export interface OwnerSummaryDto {
   state: 'PARTIAL';
   scope: { locationId: string; organizationId: string; vertical: string };
   period: {
-    key: OwnerPeriod;
+    key: string;
     timezone: string;
     fromDate: string;
     toDate: string;

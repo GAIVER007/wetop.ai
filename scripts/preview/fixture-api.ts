@@ -2481,6 +2481,123 @@ const platformOrganizations = () => [
     locations: 1,
   })),
 ];
+/** Деньги компании WETOP на стенде: тариф, подписка клиента, оплаты, расходы и команда (DATA_MODEL §63) */
+const platformMoney = {
+  plans: [] as Array<{ id: string; name: string; priceCents: string; periodMonths: number; active: boolean }>,
+  subs: new Map<string, { planId: string | null; monthlyCents: string; paidUntil: string | null; note: string | null }>(),
+  payments: [] as Array<{ id: string; organizationId: string; amountCents: string; paidOn: string; note: string | null; voided: boolean }>,
+  expenses: [] as Array<{ id: string; category: string; amountCents: string; spentOn: string; note: string | null; voided: boolean }>,
+  team: [] as Array<{ id: string; name: string; role: string; email: string | null; monthlySalaryCents: string | null; active: boolean }>,
+};
+const resetPlatformMoney = () => {
+  platformMoney.plans = [];
+  platformMoney.subs.clear();
+  platformMoney.payments = [];
+  platformMoney.expenses = [];
+  platformMoney.team = [];
+};
+const usdCents = (v: unknown): string | null => {
+  if (typeof v !== 'string') return null;
+  const m = /^(\d{1,9})(?:[.,](\d{1,2}))?$/.exec(v.trim().replace(/\s/g, ''));
+  return m ? String(BigInt(m[1]!) * 100n + BigInt((m[2] ?? '').padEnd(2, '0') || '0')) : null;
+};
+const isoDay = (v: unknown) => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
+function platformMoneyFixture(path: string, method: string, body: Record<string, unknown>) {
+  const clients = platformOrganizations().filter((o) => o.id !== 'ui-org' && o.status !== 'SUSPENDED');
+  const names = new Map(platformOrganizations().map((o) => [o.id, o.name]));
+  const ok = (data: unknown, status = 200) => ({ status, data });
+  if (path.startsWith('/platform/money') && method === 'GET') {
+    const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
+    const live = <T extends { voided: boolean }>(rows: T[]) => rows.filter((r) => !r.voided);
+    const sum = (rows: Array<{ amountCents: string }>) => rows.reduce((n, r) => n + BigInt(r.amountCents), 0n);
+    const monthOf = (m: string) => {
+      const income = sum(live(platformMoney.payments).filter((p) => p.paidOn.startsWith(m)));
+      const spent = sum(live(platformMoney.expenses).filter((e) => e.spentOn.startsWith(m)));
+      return { month: m, incomeCents: String(income), expensesCents: String(spent), profitCents: String(income - spent) };
+    };
+    const today = new Date().toISOString().slice(0, 10);
+    const subs = clients.flatMap((c) => (platformMoney.subs.has(c.id) ? [{ id: c.id, ...platformMoney.subs.get(c.id)! }] : []));
+    return ok({
+      ready: true,
+      month,
+      summary: {
+        month: monthOf(month),
+        history: [monthOf(month)],
+        expectedMonthlyCents: String(subs.reduce((n, s) => n + BigInt(s.monthlyCents), 0n)),
+        expensesByCategory: [],
+        overdue: subs
+          .filter((s) => BigInt(s.monthlyCents) > 0n && (!s.paidUntil || s.paidUntil < today))
+          .map((s) => ({ organizationId: s.id, name: names.get(s.id) ?? '', paidUntil: s.paidUntil, monthlyCents: s.monthlyCents })),
+      },
+      plans: platformMoney.plans,
+      clients: clients.map((c) => {
+        const s = platformMoney.subs.get(c.id);
+        return { id: c.id, name: c.name, planId: s?.planId ?? null, monthlyCents: s?.monthlyCents ?? null, paidUntil: s?.paidUntil ?? null, note: s?.note ?? null };
+      }),
+      payments: platformMoney.payments.filter((p) => p.paidOn.startsWith(month)).map((p) => ({ ...p, name: names.get(p.organizationId) ?? '' })),
+      expenses: platformMoney.expenses.filter((e) => e.spentOn.startsWith(month)),
+      team: platformMoney.team,
+      categories: ['SERVER', 'DOMAINS', 'ADS', 'AI', 'SALARIES', 'SERVICES', 'OTHER'],
+    });
+  }
+  if (path === '/platform/payments' && method === 'POST') {
+    const org = String(body['organizationId'] ?? '');
+    if (!clients.some((c) => c.id === org)) return ok({ message: 'Такого клиента нет' }, 400);
+    const amount = usdCents(body['amount']);
+    if (!amount || amount === '0') return ok({ message: 'Сумма в долларах: например 49 или 49.50' }, 400);
+    const paidOn = isoDay(body['paidOn']);
+    if (!paidOn) return ok({ message: 'Дата: выберите день' }, 400);
+    const row = { id: `pay-${platformMoney.payments.length + 1}`, organizationId: org, amountCents: amount, paidOn, note: (body['note'] as string) || null, voided: false };
+    platformMoney.payments.unshift(row);
+    return ok(row, 201);
+  }
+  if (path === '/platform/expenses' && method === 'POST') {
+    const amount = usdCents(body['amount']);
+    if (!amount || amount === '0') return ok({ message: 'Сумма в долларах: например 49 или 49.50' }, 400);
+    const spentOn = isoDay(body['spentOn']);
+    if (!spentOn) return ok({ message: 'Дата: выберите день' }, 400);
+    const row = { id: `exp-${platformMoney.expenses.length + 1}`, category: String(body['category']), amountCents: amount, spentOn, note: (body['note'] as string) || null, voided: false };
+    platformMoney.expenses.unshift(row);
+    return ok(row, 201);
+  }
+  const voided = /^\/platform\/(payments|expenses)\/([^/]+)\/void$/.exec(path);
+  if (voided && method === 'POST') {
+    const rows: Array<{ id: string; voided: boolean }> = voided[1] === 'payments' ? platformMoney.payments : platformMoney.expenses;
+    const row = rows.find((r) => r.id === decodeURIComponent(voided[2]!) && !r.voided);
+    if (!row) return ok({ message: 'Запись не найдена или уже отменена' }, 404);
+    row.voided = true;
+    return ok({ ok: true });
+  }
+  if ((path === '/platform/plans' && method === 'POST') || (/^\/platform\/plans\/[^/]+$/.test(path) && method === 'PUT')) {
+    const price = usdCents(body['price']);
+    if (!price) return ok({ message: 'Сумма в долларах: например 49 или 49.50' }, 400);
+    const id = path === '/platform/plans' ? `plan-${platformMoney.plans.length + 1}` : decodeURIComponent(path.split('/')[3]!);
+    const row = { id, name: String(body['name'] ?? ''), priceCents: price, periodMonths: body['periodMonths'] === 12 ? 12 : 1, active: body['active'] !== false };
+    platformMoney.plans = [...platformMoney.plans.filter((p) => p.id !== id), row];
+    return ok(row, path === '/platform/plans' ? 201 : 200);
+  }
+  const sub = /^\/platform\/subscriptions\/([^/]+)$/.exec(path);
+  if (sub && method === 'PUT') {
+    const monthly = usdCents(body['monthly']);
+    if (monthly === null) return ok({ message: 'Сумма в долларах: например 49 или 49.50' }, 400);
+    platformMoney.subs.set(decodeURIComponent(sub[1]!), {
+      planId: (body['planId'] as string) || null,
+      monthlyCents: monthly,
+      paidUntil: isoDay(body['paidUntil']),
+      note: (body['note'] as string) || null,
+    });
+    return ok({ ok: true });
+  }
+  if ((path === '/platform/team' && method === 'POST') || (/^\/platform\/team\/[^/]+$/.test(path) && method === 'PUT')) {
+    const id = path === '/platform/team' ? `team-${platformMoney.team.length + 1}` : decodeURIComponent(path.split('/')[3]!);
+    const salary = body['salary'] ? usdCents(body['salary']) : null;
+    const row = { id, name: String(body['name'] ?? ''), role: String(body['role'] ?? ''), email: (body['email'] as string) || null, monthlySalaryCents: salary, active: body['active'] !== false };
+    platformMoney.team = [...platformMoney.team.filter((m) => m.id !== id), row];
+    return ok(row, path === '/platform/team' ? 201 : 200);
+  }
+  return null;
+}
+
 /** Кабинет компании WETOP (срез 1): клиенты без своей организации, путь клиента и сроки, той же арифметикой, что API */
 const platformCabinet = () => {
   const now = Date.now();
@@ -6453,6 +6570,7 @@ createServer(async (req, res) => {
       return send(200, { down: fixtureContentAiDown });
     }
     if (path === '/__test/reset') {
+      resetPlatformMoney();
       fixtureContentDrafts = [];
       fixtureContentAiDown = false;
       resetSalonLoyaltyFixture();
@@ -8157,6 +8275,9 @@ createServer(async (req, res) => {
         return send(200, platformOverview());
       // Кабинет компании WETOP (28.10.2026): своя организация ui-org не клиент, остальные как в таблице
       if (path === '/platform/cabinet' && req.method === 'GET') return send(200, platformCabinet());
+      // Деньги компании WETOP (DATA_MODEL §63): центы USD строкой, записи живут до reset
+      const money = platformMoneyFixture(path, req.method ?? 'GET', body);
+      if (money) return send(money.status, money.data);
       // MKT9.2: лицензии конструктора сайта по филиалам
       const siteBuilder = platformSiteBuilderFixture(path, req.method ?? 'GET', body);
       if (siteBuilder) return send(siteBuilder.status, siteBuilder.data);

@@ -33,7 +33,7 @@ import { currentLocale } from '../../i18n/server';
 export default async function TodayPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ period?: string }>;
+  searchParams?: Promise<{ period?: string; from?: string; to?: string }>;
 }) {
   const me = await requireFeature('/today');
   // «Личный кабинет» (роль EMPLOYEE, решение владельца 20.10.2026): рабочего дня ему не видно, сразу «Моя работа»
@@ -51,7 +51,9 @@ export default async function TodayPage({
     if (c?.vertical && !TODAY_VERTICALS.includes(c.vertical))
       return <p>{t('Направление не поддерживается')}</p>;
     if (!c?.businessId || !c.locationId) redirect('/branches');
-    const period = ownerPeriod((await searchParams)?.period);
+    const q = (await searchParams) ?? {};
+    // «Свой период» (владелец 29.10.2026): календарь отправляет ?from=&to=, сервер проверяет даты сам
+    const period = ownerPeriod(q.from && q.to ? `range:${q.from}..${q.to}` : q.period);
     const owner = await readOwnerSummary(period).then(
       (summary) => ({ summary, closed: false as const }),
       (error: unknown) => {
@@ -77,7 +79,7 @@ export default async function TodayPage({
             )}
           </Alert>
           <p>
-            <a className="btn" href={`/today?period=${period}`}>
+            <a className="btn" href={`/today?period=${encodeURIComponent(period)}`}>
               {t('Повторить')}
             </a>{' '}
             <a className="btn btn--secondary" href="/today/operations">

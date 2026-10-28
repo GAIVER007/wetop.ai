@@ -1288,12 +1288,24 @@
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
+  /* владелец 29.10.2026 (скрин «Администр/атор»): слова не рвутся посреди. Короткие поля в одну строку,
+     длинные (клиент, услуга, специалист, автор) переносятся целыми словами; узко: таблица листается вбок */
   .beauty-appointments-table td {
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: manual;
     vertical-align: middle;
   }
+  .beauty-appointments-table td[data-col='date'],
+  .beauty-appointments-table td[data-col='time'],
+  .beauty-appointments-table td[data-col='status'],
+  .beauty-appointments-table td[data-col='source'],
+  .beauty-appointments-table td[data-col='price'],
+  .beauty-appointments-table td[data-col='actions'],
+  .beauty-appointments-table td[data-col='actions'] .btn {
+    white-space: nowrap;
+  }
   .beauty-appointments-table td .btn {
-    white-space: normal;
     text-align: left;
   }
   .beauty-contact a {

@@ -3,7 +3,7 @@ BEGIN;
 LOCK TABLE "employee_schedule_requests" IN ACCESS EXCLUSIVE MODE;
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM "employee_schedule_requests") THEN
-    RAISE EXCEPTION 'Schedule requests are in use: export them before rollback of 165';
+    RAISE EXCEPTION 'Schedule requests are in use: export them before rollback of 167';
   END IF;
 END $$;
 DROP TABLE "employee_schedule_requests";

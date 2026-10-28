@@ -894,6 +894,54 @@
     }
   },
   {
+    "route": "/platform/cabinet/money",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/platform/cabinet",
+    "rule": {
+      "href": "/platform/cabinet",
+      "label": "Кабинет WETOP",
+      "requires": "platform"
+    }
+  },
+  {
+    "route": "/platform/cabinet/subscriptions",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/platform/cabinet",
+    "rule": {
+      "href": "/platform/cabinet",
+      "label": "Кабинет WETOP",
+      "requires": "platform"
+    }
+  },
+  {
+    "route": "/platform/cabinet/team",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/platform/cabinet",
+    "rule": {
+      "href": "/platform/cabinet",
+      "label": "Кабинет WETOP",
+      "requires": "platform"
+    }
+  },
+  {
     "route": "/platform/support",
     "vertical": null,
     "features": [

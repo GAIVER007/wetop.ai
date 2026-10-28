@@ -24,7 +24,9 @@ export interface OwnerAttentionScope {
   now: Date;
   unclassifiedExpenses?: boolean;
 }
-type Db = Pick<DbTx, 'appointment' | 'appointmentLine' | 'employee' | 'beautyLocationHours' | 'restaurantOrder' | 'reservation' | 'inventoryUnit' | 'barProduct' | 'kitchenProduct'>;
+type Db = Pick<DbTx, 'appointment' | 'appointmentLine' | 'employee' | 'beautyLocationHours' | 'restaurantOrder' | 'reservation' | 'inventoryUnit' | 'barProduct' | 'kitchenProduct' | 'cashShift'>;
+/** запись опоздала: прошло больше 15 минут от начала, а «Пришла» не нажата (владелец 29.10.2026) */
+export const LATE_UNMARKED_MS = 15 * 60 * 1000;
 
 const safe = async <T>(read: () => Promise<T>): Promise<T | null> => {
   try {
@@ -65,6 +67,16 @@ export async function readOwnerAttention(db: Db, s: OwnerAttentionScope): Promis
     ? [{ id: 'unclassified-expenses', tone: 'warn', text: 'Есть расходы без статьи', href: s.vertical === 'FOOD_SERVICE' ? '/restaurant-finance' : '/finance', action: 'Разобрать' }]
     : [];
   const stock = safe(() => lowStock(db, s));
+  // смена кассы открыта не сегодня: деньги дня не сданы (владелец 29.10.2026). Касса по объекту или филиалу
+  const openShift = safe(async () => {
+    const shift = await db.cashShift.findFirst({
+      where: { closedAt: null, register: s.propertyId ? { propertyId: s.propertyId } : { locationId: s.locationId } },
+      select: { openedAt: true }, orderBy: { openedAt: 'asc' },
+    });
+    if (!shift) return null;
+    const opened = localDate(shift.openedAt, s.timezone);
+    return opened < today ? opened : null;
+  });
 
   if (s.vertical === 'BEAUTY') {
     const unpaidDone = safe(async () => {
@@ -108,7 +120,17 @@ export async function readOwnerAttention(db: Db, s: OwnerAttentionScope): Promis
         at(s.now),
       );
     });
-    return ownerAttention({ vertical: s.vertical, today, unpaidDone: await unpaidDone, freeMasters: await freeMasters, lowStock: await stock, extra });
+    const tomorrowStart = dayEnd, tomorrowEnd = zonedStartOfDay(dayOffsetUtc(today, 2), s.timezone);
+    const lateUnmarked = safe(() => db.appointment.count({
+      where: { locationId: s.locationId, status: { in: ['BOOKED', 'CONFIRMED'] }, startsAt: { gte: dayStart, lt: new Date(s.now.getTime() - LATE_UNMARKED_MS) } },
+    }));
+    const unconfirmedTomorrow = safe(() => db.appointment.count({
+      where: { locationId: s.locationId, status: 'BOOKED', startsAt: { gte: tomorrowStart, lt: tomorrowEnd } },
+    }));
+    return ownerAttention({
+      vertical: s.vertical, today, unpaidDone: await unpaidDone, freeMasters: await freeMasters, lowStock: await stock, extra,
+      openShiftSince: await openShift, lateUnmarked: await lateUnmarked, unconfirmedTomorrow: await unconfirmedTomorrow,
+    });
   }
 
   if (s.vertical === 'FOOD_SERVICE') {
@@ -117,7 +139,7 @@ export async function readOwnerAttention(db: Db, s: OwnerAttentionScope): Promis
         where: { locationId: s.locationId, status: { in: ['NEW', 'COOKING', 'READY', 'SERVED'] }, openedAt: { lt: new Date(s.now.getTime() - STALE_ORDER_MS) } },
       }),
     );
-    return ownerAttention({ vertical: s.vertical, today, staleOrders: await staleOrders, lowStock: await stock, extra });
+    return ownerAttention({ vertical: s.vertical, today, staleOrders: await staleOrders, lowStock: await stock, extra, openShiftSince: await openShift });
   }
 
   if (s.vertical === 'HOSPITALITY') {
@@ -168,6 +190,7 @@ export async function readOwnerAttention(db: Db, s: OwnerAttentionScope): Promis
       noPrepay: await noPrepay,
       lowStock: await stock,
       extra,
+      openShiftSince: await openShift,
     });
   }
   return [];

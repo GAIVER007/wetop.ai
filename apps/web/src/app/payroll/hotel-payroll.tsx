@@ -204,7 +204,7 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
             {payroll.rows.map((r) => (
               <tr key={r.employeeId} data-testid="hotel-payroll-row">
                 <th scope="row">{r.name}</th>
-                {/* база оплаты первой, как «Доход» у салона и ресторана (владелец 26.10.2026) */}
+                {/* база оплаты первой, как «Выручка» у салона и ресторана (владелец 26.10.2026) */}
                 <td>
                   <strong>{r.cleanings}</strong>
                 </td>

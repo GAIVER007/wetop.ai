@@ -2693,6 +2693,9 @@ model Organization {
   agents               SellerAgent[]
   wizardDrafts         WizardDraft[]
   extensions           OrganizationExtension[]
+  /// Кабинет компании WETOP (DATA_MODEL §63): подписка и оплаты клиента компании
+  platformSubscription PlatformSubscription?
+  platformPayments     PlatformPayment[]
   guests               Guest[]
   auditLogs            AuditLog[]
   customers            Customer[]
@@ -5194,4 +5197,86 @@ model CashCommand {
 
   @@id([registerId, commandKey])
   @@map("cash_commands")
+}
+
+/// Кабинет компании WETOP (DATA_MODEL §63, владелец 28.10.2026): тариф компании, цена целыми центами USD
+model PlatformPlan {
+  id           String   @id @db.Uuid
+  name         String   @unique(map: "platform_plans_name") @db.VarChar(100)
+  priceCents   BigInt   @map("price_cents")
+  /// 1 или 12 месяцев (CHECK в миграции)
+  periodMonths Int      @default(1) @map("period_months") @db.SmallInt
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  subscriptions PlatformSubscription[]
+
+  @@map("platform_plans")
+}
+
+/// Подписка клиента компании WETOP: одна на организацию, договорная цена в месяц и «оплачено до»
+model PlatformSubscription {
+  organizationId String    @id @map("organization_id") @db.Uuid
+  planId         String?   @map("plan_id") @db.Uuid
+  monthlyCents   BigInt    @map("monthly_cents")
+  paidUntil      DateTime? @map("paid_until") @db.Date
+  note           String?   @db.VarChar(300)
+  updatedAt      DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  updatedBy      String?   @map("updated_by") @db.Uuid
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  plan         PlatformPlan? @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("platform_subscriptions")
+}
+
+/// Оплата клиента компании WETOP; ошибочная отменяется отметкой `voidedAt`, не удаляется
+model PlatformPayment {
+  id             String    @id @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  amountCents    BigInt    @map("amount_cents")
+  paidOn         DateTime  @map("paid_on") @db.Date
+  note           String?   @db.VarChar(300)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy      String?   @map("created_by") @db.Uuid
+  voidedAt       DateTime? @map("voided_at") @db.Timestamptz(6)
+  voidedBy       String?   @map("voided_by") @db.Uuid
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([paidOn(sort: Desc)], map: "platform_payments_day")
+  @@index([organizationId, paidOn(sort: Desc)], map: "platform_payments_org")
+  @@map("platform_payments")
+}
+
+/// Расход компании WETOP по статье (CHECK в миграции); ошибочный отменяется отметкой
+model PlatformExpense {
+  id          String    @id @db.Uuid
+  /// SERVER, DOMAINS, ADS, AI, SALARIES, SERVICES, OTHER
+  category    String    @db.VarChar(20)
+  amountCents BigInt    @map("amount_cents")
+  spentOn     DateTime  @map("spent_on") @db.Date
+  note        String?   @db.VarChar(300)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy   String?   @map("created_by") @db.Uuid
+  voidedAt    DateTime? @map("voided_at") @db.Timestamptz(6)
+  voidedBy    String?   @map("voided_by") @db.Uuid
+
+  @@index([spentOn(sort: Desc)], map: "platform_expenses_day")
+  @@map("platform_expenses")
+}
+
+/// Команда компании WETOP; ушедший остаётся с `active = false`
+model PlatformTeamMember {
+  id                 String   @id @db.Uuid
+  name               String   @db.VarChar(200)
+  role               String   @db.VarChar(100)
+  email              String?  @db.VarChar(320)
+  monthlySalaryCents BigInt?  @map("monthly_salary_cents")
+  active             Boolean  @default(true)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("platform_team_members")
 }

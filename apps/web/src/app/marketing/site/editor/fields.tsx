@@ -1,4 +1,5 @@
 'use client';
+import type { WebVertical } from '../../../../lib/vertical-landing';
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { LOCALE_LABEL, WEEKDAY_OPTIONS, accommodationCardCodes, localizedText, type EditorField, type EditorOption } from '@pms/domain';
 import type { SiteAssetView } from '../../../../lib/api';
@@ -17,6 +18,8 @@ export type AssetKind = 'IMAGE' | 'LOGO' | 'FAVICON';
 
 export interface EditorContextValue {
   spec: Spec;
+  /** направление филиала: режимы брони и слова (гостиница, салон, ресторан) */
+  vertical?: WebVertical;
   set: (path: Path, value: unknown) => void;
   locales: string[];
   defaultLocale: string;
@@ -551,7 +554,7 @@ function CategoryField({ path, label }: { path: Path; label: string }) {
   const value = getAt(c.spec, path);
   const options = c.categories.map((cat) => ({ value: cat.code, label: cat.name }));
   if (typeof value === 'string' && value && !options.some((o) => o.value === value))
-    options.push({ value, label: t('Нет в данных гостиницы') });
+    options.push({ value, label: t('Нет в данных филиала') });
   return <EnumField path={path} label={label} options={options} optional={t('Выберите категорию')} />;
 }
 

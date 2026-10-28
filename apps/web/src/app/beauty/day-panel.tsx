@@ -48,15 +48,20 @@ export function DayPanel({
   const t = useT();
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
+  // «Пришла» нажата: запись сразу уходит из «Ближайших» (сервер подтвердил смену статуса), не ждём обновления
+  const [arrived, setArrived] = useState<ReadonlySet<string>>(() => new Set());
   const master = (id: string) => columns.find((c) => c.id === id)?.name ?? t('Специалист');
   const change = (row: BeautyAppointmentRow, to: string) =>
     start(async () => {
       setError('');
       const result = await setAppointmentStatus(row.id, to);
       if (result.error) setError(result.error);
-      else onDone();
+      else {
+        if (to === 'IN_PROGRESS') setArrived((prev) => new Set(prev).add(row.id));
+        onDone();
+      }
     });
-  const soon = upcoming(rows, nowMinutes);
+  const soon = upcoming(rows, nowMinutes, 5, arrived);
   const money = dayMoney(rows, currency);
   const first = selected?.next.find(
     (s) => s === 'IN_PROGRESS' || s === 'DONE' || s === 'CONFIRMED',

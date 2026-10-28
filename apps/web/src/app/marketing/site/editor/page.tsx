@@ -177,7 +177,7 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
           facts={facts.ok ? facts.data : null}
           assets={loaded.assets}
           readOnly={readOnly}
-          publish={publishTarget(vertical, t)}
+          publish={publishTarget(vertical)}
         />
       </Page>
     );
@@ -226,7 +226,8 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
         categories={loaded.brief?.input.accommodations.map((a) => ({ code: a.categoryCode, name: a.name })) ?? []}
         assets={loaded.assets}
         readOnly={readOnly}
-        publish={publishTarget(vertical, t)}
+        publish={publishTarget(vertical)}
+        vertical={vertical}
       />
     </Page>
   );

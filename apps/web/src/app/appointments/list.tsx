@@ -340,10 +340,10 @@ export function AppointmentsList({
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
-                <td data-label={t('Дата')}>
+                <td data-label={t('Дата')} data-col="date">
                   {shortDay(localInput(r.startsAt, day.location.timezone).slice(0, 10))}
                 </td>
-                <td data-label={t('Время')}>
+                <td data-label={t('Время')} data-col="time">
                   {clock(r.startMinutes)}–{clock(r.endMinutes)}
                 </td>
                 <td data-label={t('Клиент')}>
@@ -373,15 +373,15 @@ export function AppointmentsList({
                     ? [...new Set(r.items.map((item) => item.employeeName))].join(', ')
                     : (day.columns.find((e) => e.id === r.employeeId)?.name ?? t('Специалист в архиве'))}
                 </td>
-                <td data-label={t('Статус')}>
+                <td data-label={t('Статус')} data-col="status">
                   <StatusBadge kind="beauty" value={r.status} />
                 </td>
-                <td data-label={t('Источник')}>{t(appointmentSourceLabel(r.source))}</td>
+                <td data-label={t('Источник')} data-col="source">{t(appointmentSourceLabel(r.source))}</td>
                 <td data-label={t('Автор')}>{r.createdByName ?? '-'}</td>
-                <td data-label={t('Стоимость')} className="beauty-amount">
+                <td data-label={t('Стоимость')} data-col="price" className="beauty-amount">
                   {formatMoney(r.priceMinor, r.currency)}
                 </td>
-                <td data-label={t('Действия')}>
+                <td data-label={t('Действия')} data-col="actions">
                   <Button tone="secondary" onClick={() => address({ appointment: r.id })}>
                     {t('Открыть запись')}
                   </Button>

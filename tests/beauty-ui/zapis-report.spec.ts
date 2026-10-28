@@ -24,7 +24,7 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   const box = await form.boundingBox();
   expect(box).toBeTruthy();
   expect(Math.abs(box!.x + box!.width / 2 - 720)).toBeLessThan(3);
-  await form.getByLabel('Телефон или имя', { exact: true }).fill('Тестовый клиент отчёта');
+  await form.getByLabel('Имя клиента', { exact: true }).fill('Тестовый клиент отчёта');
   await form.getByLabel('Услуга', { exact: true }).selectOption(f.services[0]!.id);
   await form.getByRole('button', { name: 'Добавить услугу', exact: true }).click();
   await form.getByLabel('Услуга 2', { exact: true }).selectOption(f.services[1]!.id);

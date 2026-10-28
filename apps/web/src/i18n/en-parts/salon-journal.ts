@@ -328,4 +328,10 @@ export const salonJournal: Record<string, string> = {
   "{time} занято": "{time} booked",
   "Выбор мастера": "Choose master",
   "Выбор услуги": "Choose service",
+  // окно записи: имя и телефон отдельно, откуда клиент (28.10.2026)
+  "Откуда клиент": "Where the client came from",
+  "Звонок": "Phone call",
+  "Пришёл сам": "Walk-in",
+  "Администратор": "Administrator",
+  "Голосовой агент": "Voice agent",
 };

@@ -561,6 +561,7 @@ export class BeautyAppointmentsService {
           notes: input.notes,
           atHome: input.atHome,
           homeAddress: input.homeAddress,
+          source: input.source,
           createdById: currentUserId(),
         },
       });
@@ -592,6 +593,7 @@ export class BeautyAppointmentsService {
             currency: first.currency,
             items: lines.map((line, position) => appointmentLineHistorySnapshot(line, position)),
             ...(input.atHome ? { atHome: true, homeAddress: input.homeAddress } : {}),
+            ...(input.source !== 'DESK' ? { source: input.source } : {}),
           },
         },
       });

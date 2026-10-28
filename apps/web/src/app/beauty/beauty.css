@@ -1361,13 +1361,43 @@
     gap: var(--space-2);
     min-width: 0;
   }
+  /* сводка записи ровными строками (владелец 28.10.2026: «окно записи криво, текст улучши»): подпись слева одной
+     ширины, значение справа с той же высоты, без висячих строк; услуга заголовком над своими данными */
   .appointment-card-summary {
-    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-columns: minmax(var(--space-16), max-content) minmax(0, 1fr);
     column-gap: var(--space-4);
-    row-gap: var(--space-1);
+    row-gap: var(--space-2);
+    align-items: baseline;
   }
   .appointment-card-summary > div {
     display: contents;
+  }
+  .appointment-card-summary dt {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .appointment-card-summary dd {
+    margin: 0;
+    font-weight: var(--weight-medium);
+  }
+  .appointment-card-summary dd > p {
+    margin: 0;
+  }
+  .appointment-card-summary .appointment-card-line > dt {
+    grid-column: 1 / -1;
+    color: var(--text);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .appointment-card-summary .appointment-card-line > dd {
+    grid-column: 1 / -1;
+    color: var(--text-2);
+    font-weight: var(--weight-regular);
+  }
+  .appointment-card-summary .beauty-card-payments {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
   .appointment-card-actions {
     flex-wrap: wrap;
@@ -1767,12 +1797,13 @@
     background: var(--primary-soft);
     color: var(--primary);
   }
+  /* имя мастера в шапке колонки целиком (владелец 28.10.2026: «название обрезано»): переносится по словам,
+     длинное слово без пробелов переносится внутри, без троеточия */
   .beauty-col-person__name {
     flex: 1;
     min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
+    line-height: var(--leading-tight);
   }
   .beauty-col-person__count:not(:empty) {
     min-width: var(--space-6);
@@ -2532,4 +2563,46 @@
 }
 .appointment-customer-fields .appointment-customer-quick {
   flex-direction: row;
+}
+/* окно новой записи (владелец 28.10.2026): имя и телефон рядом отдельными полями, ниже «Откуда клиент» кнопками */
+.appointment-customer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-2);
+}
+.appointment-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}
+.appointment-source__title {
+  flex-basis: 100%;
+  color: var(--text-2);
+  font-size: var(--text-sm);
+}
+.appointment-source__chip {
+  min-height: var(--space-10);
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.appointment-source__chip[aria-pressed='true'] {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.appointment-source__chip:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+@media (max-width: 600px) {
+  .appointment-customer-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

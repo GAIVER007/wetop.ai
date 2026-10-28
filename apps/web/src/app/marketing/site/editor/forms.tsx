@@ -1,4 +1,5 @@
 'use client';
+import { bookingModes } from './vertical-status';
 import { useState, type ReactNode } from 'react';
 import {
   EDITOR_LOCALES,
@@ -211,6 +212,7 @@ function NavList({ which, max, labelMax }: { which: 'header' | 'footer'; max: nu
  * «Настройки» это имя, слоган, языки, контакты, бронь, аналитика, SEO, юридические данные и навигация
  */
 export function SiteForm({ part }: { part: 'design' | 'settings' }) {
+  const hotel = (useEditor().vertical ?? 'HOSPITALITY') === 'HOSPITALITY';
   const t = useT();
   const c = useEditor();
   const analytics = getAt(c.spec, ['integrations', 'analytics', 'mode']);
@@ -255,15 +257,23 @@ export function SiteForm({ part }: { part: 'design' | 'settings' }) {
       </Group>
       <SocialField />
       <Group title={t('Бронирование и аналитика')} testId="ed-integrations">
-        <EnumField
-          path={['integrations', 'booking', 'mode']}
-          label={t('Бронирование на сайте')}
-          options={[
-            { value: 'WETOP_WIDGET', label: t('Форма бронирования WETOP') },
-            { value: 'NONE', label: t('Без бронирования') },
-          ]}
-        />
-        <p className="muted">{t('Тариф бронирования выбирается при публикации.')}</p>
+        {hotel ? (
+          <>
+            <EnumField
+              path={['integrations', 'booking', 'mode']}
+              label={t('Бронирование на сайте')}
+              options={bookingModes('HOSPITALITY').map((value) => ({
+                value,
+                label: value === 'WETOP_WIDGET' ? t('Форма бронирования WETOP') : t('Без бронирования'),
+              }))}
+            />
+            <p className="muted">{t('Тариф бронирования выбирается при публикации.')}</p>
+          </>
+        ) : (
+          <p className="muted" data-testid="ed-booking-form-note">
+            {t('Запись с сайта идёт формой в блоке страницы и сразу попадает в журнал.')}
+          </p>
+        )}
         <EnumField
           path={['integrations', 'analytics', 'mode']}
           label={t('Аналитика посещений')}

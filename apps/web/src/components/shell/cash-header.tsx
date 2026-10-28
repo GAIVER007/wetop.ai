@@ -45,6 +45,8 @@ export function CashHeader({
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState('');
   const [failed, setFailed] = useState(false);
+  // статья расхода: кнопки частых статей и поле ввода пишут одно значение
+  const [category, setCategory] = useState('');
   const pending = useRef(false),
     mounted = useRef(true);
   // После неопределённого сетевого результата повторяется тот же ключ и то же тело.
@@ -74,6 +76,8 @@ export function CashHeader({
   async function show(next: Panel) {
     setError('');
     setSaved('');
+    // новое окно: приход начинается со статьи «Внесение», расход с пустой
+    setCategory(next === 'income' ? t('Внесение') : '');
     setPanel(next);
     try {
       const data = await loadCashHeader(scopeKey);
@@ -155,6 +159,10 @@ export function CashHeader({
       if (mounted.current) setBusy(false);
     }
   }
+  const categories =
+    cash?.expenseCategories && cash.expenseCategories.length
+      ? cash.expenseCategories
+      : [msg('Такси'), msg('Закупка материалов'), msg('Хозяйственные расходы'), msg('Прочее')];
   const totals = (label: string, values: Record<string, string>) => (
     <section className="cash-header__summary">
       <h3>{label}</h3>
@@ -444,15 +452,33 @@ export function CashHeader({
                           name="category"
                           list="cash-header-categories"
                           required
-                          defaultValue={panel === 'income' ? t('Внесение') : ''}
+                          value={category}
+                          onChange={(e) => setCategory(e.target.value)}
                           disabled={busy}
                         />
                         <datalist id="cash-header-categories">
-                          {[msg('Такси'), msg('Закупка материалов'), msg('Хозяйственные расходы'), msg('Прочее')].map((v) => (
+                          {categories.map((v) => (
                             <option key={v} value={t(v)} />
                           ))}
                         </datalist>
                       </Field>
+                      {panel === 'expense' && (
+                        // частые статьи одним касанием (владелец 27.10.2026): самые частые этой кассы, затем стандартные
+                        <div className="cash-header__chips" role="group" aria-label={t('Частые статьи')} data-testid="cash-expense-chips">
+                          {categories.map((v) => (
+                            <button
+                              type="button"
+                              key={v}
+                              className="cash-header__chip"
+                              aria-pressed={category === t(v)}
+                              disabled={busy}
+                              onClick={() => setCategory(t(v))}
+                            >
+                              {t(v)}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </>
                   )}
                   <Field label={t('Комментарий')}>

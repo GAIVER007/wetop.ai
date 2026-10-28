@@ -379,6 +379,39 @@ describe.skipIf(!process.env.DATABASE_URL)('кассовые смены всех
     }
   });
 
+  // владелец 27.10.2026: частые статьи расходов кнопками; статья, уже использованная в этой кассе, доступна кассиру
+  it('частые статьи расходов: сначала самые частые этой кассы, затем стандартные; использованную берёт кассир', async () => {
+    const place = places.find((p) => p.vertical === 'BEAUTY')!;
+    const money = (minor: bigint) => `${minor / 100n}.${String(minor % 100n).padStart(2, '0')}`;
+    type View = { active: { id: string } | null; snapshot: { balances: Record<string, string>; fingerprint: string }; expenseCategories: string[] };
+    let view = (await at(place, owner, () => service.state())) as View;
+    // владелец открывает свою смену и вносит статью «Вода» трижды, «Такси» один раз (это история кассы)
+    if (!view.active) view = (await command(place, { action: 'open', counted: money(BigInt(view.snapshot.balances.CASH ?? '0')) })) as never;
+    let shiftId = view.active!.id;
+    await command(place, { action: 'income', amount: '100', method: 'CASH', category: 'Внесение', shiftId });
+    for (const category of ['Вода', 'Вода', 'Вода', 'Такси'])
+      await command(place, { action: 'expense', amount: '1', method: 'CASH', category, shiftId });
+    view = (await at(place, owner, () => service.state())) as View;
+    const left = money(BigInt(view.snapshot.balances.CASH ?? '0'));
+    await command(place, { action: 'close', shiftId, counted: left, retained: left, fingerprint: view.snapshot.fingerprint });
+    // кассир видит частые статьи: «Вода» первой, стандартные тоже, без повторов
+    await at(place, owner, () => service.cashiers({ userIds: [cashier] }));
+    const seen = (await at(place, cashier, () => service.state())) as View;
+    expect(seen.expenseCategories[0]).toBe('Вода');
+    expect(seen.expenseCategories).toContain('Такси');
+    expect(seen.expenseCategories).toContain('Закупка материалов');
+    expect(new Set(seen.expenseCategories).size).toBe(seen.expenseCategories.length);
+    // кассир берёт уже использованную в кассе статью; новую по-прежнему создаёт владелец
+    view = (await command(place, { action: 'open', counted: left }, cashier)) as never;
+    shiftId = view.active!.id;
+    await expect(command(place, { action: 'expense', amount: '1', method: 'CASH', category: 'Вода', shiftId }, cashier)).resolves.toBeTruthy();
+    await expect(command(place, { action: 'expense', amount: '1', method: 'CASH', category: 'Совсем новая', shiftId }, cashier)).rejects.toThrow('Новые статьи');
+    view = (await at(place, cashier, () => service.state())) as View;
+    const end = money(BigInt(view.snapshot.balances.CASH ?? '0'));
+    await command(place, { action: 'close', shiftId, counted: end, retained: end, fingerprint: view.snapshot.fingerprint }, cashier);
+    await at(place, owner, () => service.cashiers({ userIds: [] }));
+  });
+
   it('параллельные открытия создают не более одной смены', async () => {
     const place = places[0]!;
     const results = await Promise.allSettled([

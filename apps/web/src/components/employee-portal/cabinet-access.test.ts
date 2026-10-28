@@ -111,6 +111,7 @@ describe('Beauty employee cabinet access projection', () => {
 
     expect(html).toContain('Профессиональный профиль');
     // график через руководителя (владелец 28.10.2026): мастер правит неделю только запросом, прямого сохранения нет
+    expect(html).toContain('data-testid="portal-week-view"');
     expect(html).toContain('data-testid="portal-week-request"');
     expect(html).toContain('data-testid="portal-schedule-requests"');
     expect(html).not.toContain('data-testid="portal-week-editor"');

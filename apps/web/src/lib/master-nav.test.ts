@@ -6,7 +6,7 @@ describe('нижнее меню кабинета мастера', () => {
   const all = { showWork: true, showSchedule: true, showPay: true };
   it('пять пунктов по порядку, каждый ведёт на свою вкладку', () => {
     expect(masterNavItems(all).map((i) => [i.id, i.label, i.href])).toEqual([
-      ['today', 'Сегодня', '#portal-top'],
+      ['today', 'Сегодня', '#today'],
       ['work', 'Записи', '#work'],
       ['week', 'График', '#week'],
       ['pay', 'Деньги', '#pay'],

@@ -76,6 +76,27 @@ export function EmployeeCabinet({
   const showPay = !beauty || !access || access.payrollView;
   // без хранилища фото вкладку не показываем вовсе (аудит 22.10.2026: никаких «скоро подключим»)
   const showMedia = data.canUpload && (!access || canEditProfile);
+  // кабинет мастера (владелец 28.10.2026): первая вкладка «Сегодня» с записями дня и цифрами месяца, как на телефоне
+  const masterHome = beauty && !manager;
+  const monthTiles = (() => {
+      const tiles = portalMonthTiles(
+        data.monthStats,
+        { pay: showPay ? data.pay : null, reviews: showReviews ? data.reviews : null },
+        t,
+        locale,
+      );
+      return tiles.length ? <ul className="portal-tiles" aria-label={t('Итоги месяца')} data-testid="portal-month-tiles">
+        {tiles.map((tile) => <li key={tile.id} data-tile={tile.id}><span>{tile.label}</span><strong>{tile.value}</strong>{tile.hint && <small>{tile.hint}</small>}</li>)}
+      </ul> : null;
+    })();
+  const todaySection = beauty && !manager && data.workRange === 'DAY' && (!access || access.appointmentsView) && <section className="panel portal-section portal-today" data-testid="portal-today">
+      <h2>{data.appointments.length ? t('Сегодня: {n}', { n: countLabel(locale, t, data.appointments.length, [msg('запись'), 'записи', msg('записей')]) }) /* kk-allow: форма склонения */ : t('Сегодня записей нет')}</h2>
+      {data.appointments.length > 0 && <ul className="portal-today__list">{data.appointments.map((a) => <li key={a.id}>
+        <b>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</b>
+        <span><strong>{a.serviceName}</strong><small>{a.customerName || t('Клиент')}</small><small>{formatMoney(a.priceMinor, a.currency)}</small></span>
+        <em>{t(beautyStatus[a.status as AppointmentStatus]?.label ?? msg('Неизвестный статус'))}</em>
+      </li>)}</ul>}
+    </section>;
   // месяц списка словом: у русского прежняя подпись, у казахского название месяца по-казахски
   const workMonth = locale === 'ru' ? portalMonthLabel(data.monthStats.month, new Date().getUTCFullYear().toString()).toLowerCase() : dateFormat(intlLocale(locale), { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${data.monthStats.month}-15T12:00:00Z`));
   const showManagement = manager && (!access || access.employeesUpdate);
@@ -110,27 +131,8 @@ export function EmployeeCabinet({
         ? <img className="portal-avatar" src={data.avatar.url} alt={t('Фото: {name}', { name: data.employee.name })} width={96} height={96} />
         : <span className="portal-avatar portal-avatar--initials" aria-hidden="true" data-testid="portal-initials">{portalInitials(data.employee.name)}</span>}
     </header>
-    {/* цифры месяца крупно (вариант A): только то, что сервер посчитал, листаются стрелками месяца выше */}
-    {/* кабинет мастера (владелец 28.10.2026): «Сегодня» сверху, свои записи дня; имя клиента сервер мастеру не отдаёт */}
-    {beauty && !manager && data.workRange === 'DAY' && (!access || access.appointmentsView) && <section className="panel portal-section portal-today" data-testid="portal-today">
-      <h2>{data.appointments.length ? t('Сегодня: {n}', { n: countLabel(locale, t, data.appointments.length, [msg('запись'), 'записи', msg('записей')]) }) /* kk-allow: форма склонения */ : t('Сегодня записей нет')}</h2>
-      {data.appointments.length > 0 && <ul className="portal-today__list">{data.appointments.map((a) => <li key={a.id}>
-        <b>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</b>
-        <span><strong>{a.serviceName}</strong><small>{a.customerName || t('Клиент')}</small><small>{formatMoney(a.priceMinor, a.currency)}</small></span>
-        <em>{t(beautyStatus[a.status as AppointmentStatus]?.label ?? msg('Неизвестный статус'))}</em>
-      </li>)}</ul>}
-    </section>}
-    {(() => {
-      const tiles = portalMonthTiles(
-        data.monthStats,
-        { pay: showPay ? data.pay : null, reviews: showReviews ? data.reviews : null },
-        t,
-        locale,
-      );
-      return tiles.length ? <ul className="portal-tiles" aria-label={t('Итоги месяца')} data-testid="portal-month-tiles">
-        {tiles.map((tile) => <li key={tile.id} data-tile={tile.id}><span>{tile.label}</span><strong>{tile.value}</strong>{tile.hint && <small>{tile.hint}</small>}</li>)}
-      </ul> : null;
-    })()}
+    {/* у руководителя «Сегодня» мастера нет, цифры месяца над вкладками; у мастера это первая вкладка (эскиз 1) */}
+    {!masterHome && monthTiles}
     {/* новый мастер (онбординг 21.10.2026): что осталось, чтобы к нему могли записаться; ссылка открывает вкладку */}
     {beauty && manager && data.employee.active && (() => {
       const steps = masterSetupSteps({ services: data.services, week: data.week });
@@ -142,6 +144,7 @@ export function EmployeeCabinet({
       </nav> : null;
     })()}
     <Tabs label={t('Разделы кабинета')} className="portal-tabs" panels={[
+      ...(masterHome ? [{ id: 'today', label: t('Сегодня'), content: <div className="portal-home" data-testid="portal-home">{todaySection}{monthTiles}</div> }] : []),
       { id: 'professional', label: t('Профиль'), content: <section className="panel portal-section"><h2>{t('Профессиональный профиль')}</h2>
 
       {canEditProfile ? <PortalForm context={context} command="profile" revision={data.profile.revision} profileRevision={data.employee.profileRevision} label={t('Сохранить профиль')}>
@@ -200,7 +203,13 @@ export function EmployeeCabinet({
         : <p>{t('Назначение филиалов сейчас недоступно.')}</p>}
     </section> }] : []),
       ...(showSchedule ? [{ id: 'week', label: t('График'), content: <div className="portal-schedule"><section className="panel portal-section" data-testid="portal-week"><h2>{t('Обычная неделя')}</h2>
-      {!data.location ? <p>{t('Выберите филиал для недельного графика.')}</p> : manager && (!access || access.employeesUpdate) ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} /> : beauty && !manager ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} request /> : <PortalWeekView week={data.week} />}
+      {!data.location ? <p>{t('Выберите филиал для недельного графика.')}</p> : manager && (!access || access.employeesUpdate) ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} /> : beauty && !manager ? <>
+        {/* мастер видит свою неделю как раньше; другой график просит запросом под кнопкой (эскиз 3) */}
+        <PortalWeekView week={data.week} />
+        <details className="portal-request-week" data-testid="portal-request-week"><summary>{t('Попросить другой график')}</summary>
+          <PortalWeek context={context} week={data.week} revision={data.weekRevision} request />
+        </details>
+      </> : <PortalWeekView week={data.week} />}
     </section>
     {/* график через руководителя (владелец 28.10.2026): мастер просит, руководитель подтверждает */}
     {beauty && (!manager || !access || access.employeesUpdate) && <PortalScheduleRequests requests={data.scheduleRequests ?? []} context={context} manager={manager} />}
@@ -223,13 +232,12 @@ export function EmployeeCabinet({
     </div> }] : []),
       ...(showPay ? [{ id: 'pay', label: manager || !beauty ? t('Оплата труда') : t('Деньги'), content: <section className="panel portal-section" data-testid="portal-pay"><div data-testid="personal-finance" data-month={data.pay.month}>
       {/* «Деньги» мастера (владелец 28.10.2026): сверху крупно, сколько осталось получить; суммы те же, что у руководителя */}
-      {!manager && beauty && data.pay.status === 'AVAILABLE' && data.pay.remainingMinor !== null && <p className="portal-pay-due" data-testid="portal-pay-due"><span>{t('Осталось получить')}</span><strong>{formatMoney(data.pay.remainingMinor, data.pay.currency)}</strong>{data.pay.earnedMinor !== null && <small>{t('Начислено {sum}', { sum: formatMoney(data.pay.earnedMinor, data.pay.currency) })}</small>}</p>}
       <div className="portal-finance-top"><div><h2>{manager ? t('Оплата труда') : t('Мои финансы')}</h2><p>{t('Оплата труда за выбранный месяц')}</p></div><form className="portal-finance-period" method="get" action="#pay"><Field label={t('Месяц расчёта')}><MonthInput name="month" defaultValue={data.pay.month} required /></Field><button className="btn btn--secondary" type="submit">{t('Показать')}</button></form></div>
       <div className="portal-finance-kpis">{([
         ['finance-earned',msg('Начислено'),data.pay.status==='AVAILABLE'?data.pay.earnedMinor:null,msg('Заработок по расчёту за месяц')],
         ['finance-paid',msg('Выплачено'),data.pay.paidMinor,msg('Выплаты, учтённые руководителем')],
         ['finance-remaining',msg('Осталось к выплате'),data.pay.status==='AVAILABLE'?data.pay.remainingMinor:null,msg('Остаток по данным расчёта')],
-      ] as const).map(([key,label,amount,hint])=><article key={key} data-testid={key} data-amount={amount??undefined}><span>{t(label)}</span><strong>{amount===null?(key==='finance-paid'?t('Нет данных'):t('Нет расчёта')):formatMoney(amount,data.pay.currency)}</strong><small>{t(hint)}</small></article>)}</div>
+      ] as const).map(([key,label,amount,hint])=><article key={key} data-testid={key} data-amount={amount??undefined} data-accent={!manager&&beauty&&key==='finance-remaining'?'true':undefined}><span>{t(label)}</span><strong>{amount===null?(key==='finance-paid'?t('Нет данных'):t('Нет расчёта')):formatMoney(amount,data.pay.currency)}</strong><small>{t(hint)}</small></article>)}</div>
       <p role="status" className="portal-finance-notice">{data.pay.status==='AVAILABLE'?t('Суммы те же, что видит руководитель в разделе «Зарплата».'):data.pay.status==='SELECT_LOCATION'?t('Выберите филиал в общем переключателе филиалов, чтобы увидеть начисления, выплаты и остаток за месяц.'):data.pay.status==='NOT_CONFIGURED'?t('Условия оплаты ещё не настроены. Подтверждённые выплаты отображаются отдельно.'):t('Расчёт за этот месяц недоступен. Выплаты и условия оплаты доступны ниже.')}</p>
       <div className="portal-finance-extras"><p><span>{t('Бонусы')}</span><strong>{data.pay.bonusMinor===null?t('Не указаны'):formatMoney(data.pay.bonusMinor,data.pay.currency)}</strong></p><p><span>{t('Удержания')}</span><strong>{data.pay.penaltyMinor===null?t('Не указаны'):formatMoney(data.pay.penaltyMinor,data.pay.currency)}</strong></p></div>
       <details className="portal-finance-conditions"><summary>{t('Условия оплаты')}</summary>

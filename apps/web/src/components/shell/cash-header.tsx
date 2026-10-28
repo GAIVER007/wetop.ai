@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Overlay } from '../overlay';
-import { Alert, Button, Field, Input, Select, Textarea } from '../ui';
+import { Alert, Button, Field, Input, Textarea } from '../ui';
 import { Icon } from '../icon';
-import { formatMoney } from '../../lib/money';
+import { formatMoney, inputToMinor } from '../../lib/money';
 import type { CashRegisterView } from '../../lib/cash-register';
 import { saveCashiers, sendCashHeader } from './cash-header-actions';
 import { CloseShiftForm, OpenShiftForm } from './cash-shift-forms';
@@ -47,6 +47,14 @@ export function CashHeader({
   const [failed, setFailed] = useState(false);
   // статья расхода: кнопки частых статей и поле ввода пишут одно значение
   const [category, setCategory] = useState('');
+  // окно расхода/внесения, вариант A (владелец 29.10.2026): способ кнопками, сумма видна на кнопке подтверждения
+  const [method, setMethod] = useState('CASH');
+  const [amount, setAmount] = useState('');
+  // сумма на кнопке в формате денег филиала («Добавить 50 QAR»); неверный ввод: кнопка без суммы
+  const amountMinor = (() => {
+    const v = inputToMinor(amount);
+    return v && BigInt(v) > 0n ? v : null;
+  })();
   const pending = useRef(false),
     mounted = useRef(true);
   // После неопределённого сетевого результата повторяется тот же ключ и то же тело.
@@ -78,6 +86,8 @@ export function CashHeader({
     setSaved('');
     // новое окно: приход начинается со статьи «Внесение», расход с пустой
     setCategory(next === 'income' ? t('Внесение') : (preset ?? ''));
+    setMethod('CASH');
+    setAmount('');
     setPanel(next);
     try {
       const data = await loadCashHeader(scopeKey);
@@ -163,17 +173,44 @@ export function CashHeader({
     cash?.expenseCategories && cash.expenseCategories.length
       ? cash.expenseCategories
       : [msg('Такси'), msg('Закупка материалов'), msg('Хозяйственные расходы'), msg('Прочее')];
+  const nonZero = (values: Record<string, string>) => Object.entries(values).filter(([, v]) => BigInt(v) !== 0n);
   const totals = (label: string, values: Record<string, string>) => (
     <section className="cash-header__summary">
       <h3>{label}</h3>
-      {Object.entries(values).map(([method, value]) => (
-        <p key={method}>
-          <span>{t(METHOD_RU[method] ?? method)}</span>
-          <strong>{money(value)}</strong>
-        </p>
-      ))}
+      {nonZero(values).length === 0 ? (
+        <p><span>{t('Наличные')}</span><strong>{money('0')}</strong></p>
+      ) : (
+        nonZero(values).map(([m, value]) => (
+          <p key={m}>
+            <span>{t(METHOD_RU[m] ?? m)}</span>
+            <strong>{money(value)}</strong>
+          </p>
+        ))
+      )}
     </section>
   );
+  // строка «За смену»: «Получено наличными: + 1 200»; способов с нулём нет, ни одного: строка «0»
+  const shiftRows = (values: Record<string, string>, label: string, sign: string, tone: 'in' | 'out') => {
+    const rows = nonZero(values);
+    if (!rows.length)
+      return (
+        <p>
+          <span>{t(label)}</span>
+          <strong>{money('0')}</strong>
+        </p>
+      );
+    return rows.map(([m, value]) => (
+      <p key={`${label}:${m}`}>
+        <span>
+          {t(label)}, {t(METHOD_RU[m] ?? m).toLowerCase()}
+        </span>
+        <strong data-tone={tone}>
+          {sign}
+          {money(value)}
+        </strong>
+      </p>
+    ));
+  };
   const shiftLabel = failed ? t('Касса недоступна') : !cash ? t('Смена…') : cash.active ? t('Закрыть смену') : t('Открыть смену');
   // напоминание о закрытии смены (владелец 27.10.2026): за 30 минут до конца дня и после него, пока смена открыта
   const reminder = closeReminder({ shiftOpen: !!cash?.active, closesAt: cash?.closesAt ?? null, now: new Date() });
@@ -286,7 +323,8 @@ export function CashHeader({
               )}
               {panel === 'summary' ? (
                 <>
-                  {totals(t('Остатки по системе'), cash.snapshot.balances)}
+                  {/* итоги, вариант A (владелец 29.10.2026): «Сейчас в кассе» и «За смену», пустые способы не печатаются */}
+                  {totals(t('Сейчас в кассе'), cash.snapshot.balances)}
                   {cash.active &&
                     BigInt(cash.active.opening.counted) !==
                       BigInt(cash.active.opening.snapshot.balances.CASH ?? '0') && (
@@ -303,13 +341,23 @@ export function CashHeader({
                       </Alert>
                     )}
                   {cash.totals && (
-                    <>
-                      {totals(t('Получено за смену'), cash.totals.received)}
-                      {totals(t('Возвраты за смену'), cash.totals.refunds)}
-                      {totals(t('Расходы за смену'), cash.totals.expenses)}
-                    </>
+                    <section className="cash-header__summary" data-testid="cash-summary-shift">
+                      <h3>{t('За смену')}</h3>
+                      {shiftRows(cash.totals.received, msg('Получено'), '+ ', 'in')}
+                      {shiftRows(cash.totals.expenses, msg('Расходы'), '− ', 'out')}
+                      {Object.values(cash.totals.refunds).some((v) => BigInt(v) !== 0n) ? (
+                        shiftRows(cash.totals.refunds, msg('Возвраты'), '− ', 'out')
+                      ) : (
+                        <p data-testid="cash-summary-refunds">
+                          <span>{t('Возвраты')}</span>
+                          <strong>{t('нет')}</strong>
+                        </p>
+                      )}
+                    </section>
                   )}
-                  <p>{t('До подтверждения получателем передача денег не уменьшает остаток кассы.')}</p>
+                  {cash.handovers.length > 0 && (
+                    <p className="cash-header__note">{t('Передача денег уменьшит кассу, когда получатель подтвердит.')}</p>
+                  )}
                   {cash.handovers.map((h) => (
                     <section key={h.id} className="cash-header__summary">
                       <p>
@@ -326,14 +374,17 @@ export function CashHeader({
                     </section>
                   ))}
                   {mayWrite && owns && (
-                    <div className="cash-header__footer">
+                    <div className="cash-header__footer cash-header__footer--wide">
                       {/* на телефоне расход открывается отсюда: в шапке только смена и итоги */}
-                      <Button tone="secondary" onClick={() => show('expense')}>
-                        {t('Добавить расход')}
-                      </Button>
                       <Button tone="secondary" onClick={() => show('income')}>
                         {t('Внести деньги')}
                       </Button>
+                      <Button tone="secondary" onClick={() => show('expense')}>
+                        {t('Добавить расход')}
+                      </Button>
+                      {cash.active && (
+                        <Button onClick={() => show('close')}>{t('Закрыть смену')}</Button>
+                      )}
                     </div>
                   )}
                   {!cash.mayOperate && <p>{t('Права кассира выдаёт владелец или управляющий.')}</p>}
@@ -420,33 +471,42 @@ export function CashHeader({
                   }}
                 />
               ) : (
-                <form onSubmit={submit}>
-                  <p>
-                    {t('Наличные по системе:')}{' '}
-                    <strong>{money(cash.snapshot.balances.CASH ?? '0')}</strong>
+                <form onSubmit={submit} className="cash-money-form">
+                  <p className="cash-header__note">
+                    {t('Наличных в кассе: {sum}', { sum: money(cash.snapshot.balances.CASH ?? '0') })}
                   </p>
                   {(panel === 'expense' || panel === 'income') && (
                     <>
                       <Field label={t('Сумма')}>
                         <Input
                           name="amount"
+                          className="cash-shift-amount"
                           inputMode="decimal"
                           required
                           autoFocus
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
                           disabled={busy}
                         />
                       </Field>
-                      <Field label={t('Способ оплаты')}>
-                        <Select name="method" defaultValue="CASH" disabled={busy}>
-                          {(panel === 'income' ? cash.incomeMethods : cash.expenseMethods).map(
-                            (method) => (
-                              <option value={method} key={method}>
-                                {t(METHOD_RU[method] ?? method)}
-                              </option>
-                            ),
-                          )}
-                        </Select>
-                      </Field>
+                      <input type="hidden" name="method" value={method} />
+                      <div className="cash-money-form__group">
+                        <span className="cash-money-form__label" id="cash-method-label">{t('Чем платили')}</span>
+                        <div className="cash-method-seg" role="group" aria-labelledby="cash-method-label">
+                          {(panel === 'income' ? cash.incomeMethods : cash.expenseMethods).map((m) => (
+                            <button
+                              type="button"
+                              key={m}
+                              className="cash-header__chip"
+                              aria-pressed={method === m}
+                              disabled={busy}
+                              onClick={() => setMethod(m)}
+                            >
+                              {t(METHOD_RU[m] ?? m)}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                       <Field label={t('Статья')}>
                         <Input
                           name="category"
@@ -481,8 +541,8 @@ export function CashHeader({
                       )}
                     </>
                   )}
-                  <Field label={t('Комментарий')}>
-                    <Textarea name="note" rows={3} maxLength={1000} disabled={busy} />
+                  <Field label={t('Комментарий, если нужно')}>
+                    <Textarea name="note" rows={2} maxLength={1000} disabled={busy} />
                   </Field>
                   <div className="cash-header__footer">
                     <Button
@@ -499,7 +559,13 @@ export function CashHeader({
                       {t('Отмена')}
                     </Button>
                     <Button type="submit" disabled={busy || !mayWrite}>
-                      {busy ? t('Сохраняю…') : t(title[panel])}
+                      {busy
+                        ? t('Сохраняю…')
+                        : panel === 'expense' && amountMinor
+                          ? t('Добавить {sum}', { sum: money(amountMinor) })
+                          : panel === 'income' && amountMinor
+                            ? t('Внести {sum}', { sum: money(amountMinor) })
+                            : t(title[panel])}
                     </Button>
                   </div>
                 </form>

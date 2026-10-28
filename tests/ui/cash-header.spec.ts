@@ -111,15 +111,24 @@ test('общая шапка: одна кнопка смены, расход, и�
     await expect(header.getByRole('button', { name: 'Закрыть смену', exact: true })).toBeEnabled();
     await header.getByRole('button', { name: 'Добавить расход', exact: true }).click();
     panel = page.getByRole('dialog');
+    // вариант A (владелец 29.10.2026): способ кнопками, сумма крупно, кнопка подтверждения с суммой
+    await expect(panel.getByRole('group', { name: 'Чем платили' }).getByRole('button', { name: 'Наличные', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(panel.getByRole('combobox', { name: 'Способ оплаты' })).toHaveCount(0);
     await panel.getByLabel('Сумма', { exact: true }).fill('500');
     // частая статья одним касанием (владелец 27.10.2026): кнопка заполняет «Статью»
     await panel.getByTestId('cash-expense-chips').getByRole('button', { name: 'Такси', exact: true }).click();
     await expect(panel.getByLabel('Статья', { exact: true })).toHaveValue('Такси');
-    await panel.getByRole('button', { name: 'Добавить расход', exact: true }).click();
+    await panel.getByRole('button', { name: /^Добавить 500/ }).click();
     await expect(panel).toHaveCount(0);
     await header.getByRole('button', { name: 'Итоги смены', exact: true }).click();
     panel = page.getByRole('dialog');
     await expect(panel).toContainText('9 500');
+    // итоги, вариант A: две группы, пустые способы не печатаются, возвратов нет словом «нет»
+    await expect(panel.getByRole('heading', { name: 'Сейчас в кассе' })).toBeVisible();
+    await expect(panel.getByRole('heading', { name: 'За смену' })).toBeVisible();
+    await expect(panel.getByTestId('cash-summary-refunds')).toContainText('нет');
+    await expect(panel.getByRole('heading', { name: 'Возвраты за смену' })).toHaveCount(0);
+    await expect(panel.getByRole('button', { name: 'Закрыть смену', exact: true })).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(panel).toHaveCount(0);
     await header.getByRole('button', { name: 'Закрыть смену', exact: true }).click();
@@ -144,11 +153,14 @@ test('общая шапка: одна кнопка смены, расход, и�
     await panel.getByTestId('cash-close-chips').getByRole('button', { name: '+ Другое', exact: true }).click();
     await panel.getByLabel('Сумма', { exact: true }).fill('100');
     await panel.getByLabel('Статья', { exact: true }).fill('Вода');
-    await panel.getByRole('button', { name: 'Добавить расход', exact: true }).click();
+    await panel.getByRole('button', { name: /^Добавить 100/ }).click();
     await expect(panel.getByTestId('cash-close-expected')).toContainText('9 400');
     await panel.getByLabel('Пересчитали наличные').fill('9400');
     await panel.getByLabel('Оставить на размен').fill('9400');
     await expect(panel.getByRole('status').filter({ hasText: 'Сходится' })).toBeVisible();
+    // вариант A: под чертой «Должно быть в кассе», расходы смены строками под своей строкой
+    await expect(panel.locator('.cash-shift-calc__total')).toContainText('Должно быть в кассе');
+    await expect(panel.getByTestId('cash-close-expenses').locator('li')).toHaveCount(2);
     if (vertical === 'BEAUTY') await panel.screenshot({ path: 'reports/cash-shifts-2026-10-25/close-a.png' });
     await panel.getByRole('button', { name: 'Закрыть смену', exact: true }).click();
     await expect(panel.getByRole('heading', { name: 'Итоги смены' })).toBeVisible();

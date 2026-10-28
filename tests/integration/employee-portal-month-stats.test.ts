@@ -21,7 +21,7 @@ const at = (day: number, hour = 5) => new Date(Date.UTC(2026, 8, day, hour));
 
 describe('«Мой месяц» мастера салона', () => {
   let f: Awaited<ReturnType<typeof seedPortalFixture>>;
-  const as = <T>(actor: 'staffA' | 'staffB', locationId: string | null, run: () => Promise<T>) =>
+  const as = <T>(actor: 'staffA' | 'staffB' | 'ownerA', locationId: string | null, run: () => Promise<T>) =>
     withSignedInUser({ ...f.actors[actor], ...(locationId ? { scope: 'LOCATION' as const, locationId } : {}) }, run);
   beforeAll(async () => {
     f = await seedPortalFixture(db, 'BEAUTY');

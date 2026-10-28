@@ -2,6 +2,7 @@ import { applyDesignDirection, type DesignDirection } from './builder';
 import type { SiteBriefInput } from './brief';
 import { plainTextProblem, type SiteSpecVertical } from './site-spec';
 import type { SiteFacts, SiteFactsCatalogItem, SiteFactsVertical } from './site-facts';
+import { AUTO_FAQ_ID, autoFaqItems, autoSeoDescription, autoSeoTitle, type AutoSeoInput } from './seo-auto';
 
 /**
  * Детерминированная заготовка сайта для заявок (SITE-2, план §1 шаг 4) из фактов филиала, без ИИ. Нужна дважды:
@@ -54,7 +55,7 @@ const WORDS = {
     phoneCall: 'Позвонить', rooms: 'Номера', services: 'Услуги', staff: 'Мастера', menu: 'Меню', hours: 'Часы работы', contacts: 'Контакты',
     book: 'Забронировать', appoint: 'Записаться', table: 'Забронировать стол', call: 'Перезвоните мне',
     formHotel: 'Бронирование', formBeauty: 'Запись онлайн', formTable: 'Бронь стола', formCall: 'Оставьте заявку',
-    why: 'Почему выбирают нас', prices: 'Цены', home: 'Главная', again: 'Ждём вас',
+    why: 'Почему выбирают нас', faq: 'Вопросы и ответы', prices: 'Цены', home: 'Главная', again: 'Ждём вас',
     capacity: (n: number) => `Вместимость: до ${n} ${n === 1 ? 'гостя' : 'гостей'}.`,
     rating: (avg: number) => `Оценка ${String(avg).replace('.', ',')} из 5`,
     ratingText: (n: number) => `По оценкам гостей: ${n}.`,
@@ -70,13 +71,12 @@ const WORDS = {
     hotelSub: 'Онлайн-бронирование без посредников.',
     beautySub: 'Запись онлайн в удобное время.',
     foodSub: 'Меню с ценами и бронь стола онлайн.',
-    desc: (name: string, city: string | null) => (city ? `${name}, ${city}.` : `${name}.`),
   },
   kk: {
     phoneCall: 'Қоңырау шалу', rooms: 'Нөмірлер', services: 'Қызметтер', staff: 'Шеберлер', menu: 'Мәзір', hours: 'Жұмыс уақыты', contacts: 'Байланыс',
     book: 'Брондау', appoint: 'Жазылу', table: 'Үстел брондау', call: 'Маған қоңырау шалыңыз',
     formHotel: 'Брондау', formBeauty: 'Онлайн жазылу', formTable: 'Үстел брондау', formCall: 'Өтінім қалдырыңыз',
-    why: 'Неге бізді таңдайды', prices: 'Бағалар', home: 'Басты бет', again: 'Сізді күтеміз',
+    why: 'Неге бізді таңдайды', faq: 'Сұрақтар мен жауаптар', prices: 'Бағалар', home: 'Басты бет', again: 'Сізді күтеміз',
     capacity: (n: number) => `Сыйымдылығы: ${n} қонаққа дейін.`,
     rating: (avg: number) => `Бағасы 5-тен ${String(avg).replace('.', ',')}`,
     ratingText: (n: number) => `Қонақтар бағасы бойынша: ${n}.`,
@@ -92,13 +92,12 @@ const WORDS = {
     hotelSub: 'Делдалсыз онлайн брондау.',
     beautySub: 'Ыңғайлы уақытқа онлайн жазылу.',
     foodSub: 'Бағасы бар мәзір және онлайн үстел брондау.',
-    desc: (name: string, city: string | null) => (city ? `${name}, ${city}.` : `${name}.`),
   },
   en: {
     phoneCall: 'Call us', rooms: 'Rooms', services: 'Services', staff: 'Our team', menu: 'Menu', hours: 'Opening hours', contacts: 'Contacts',
     book: 'Book now', appoint: 'Book a visit', table: 'Book a table', call: 'Call me back',
     formHotel: 'Booking', formBeauty: 'Book online', formTable: 'Table booking', formCall: 'Leave a request',
-    why: 'Why guests choose us', prices: 'Prices', home: 'Home', again: 'We look forward to seeing you',
+    why: 'Why guests choose us', faq: 'Questions and answers', prices: 'Prices', home: 'Home', again: 'We look forward to seeing you',
     capacity: (n: number) => `Sleeps up to ${n} ${n === 1 ? 'guest' : 'guests'}.`,
     rating: (avg: number) => `Rated ${avg} out of 5`,
     ratingText: (n: number) => `Based on ${n} guest ratings.`,
@@ -114,7 +113,6 @@ const WORDS = {
     hotelSub: 'Book online directly.',
     beautySub: 'Book online at a convenient time.',
     foodSub: 'Menu with prices and online table booking.',
-    desc: (name: string, city: string | null) => (city ? `${name}, ${city}.` : `${name}.`),
   },
 } as const;
 
@@ -282,6 +280,18 @@ export function starterSpecFromFacts(facts: SiteFacts, design?: DesignDirection 
   if (v !== 'HOSPITALITY' && hours.length)
     section({ id: 'sec-hours', type: 'hours', variant: 'TABLE', heading: t(w.hours), days: hours.map((d) => ({ weekday: d.weekday, open: d.open, close: d.close })) });
 
+  // SEO и GEO сразу при создании (S7, 28.10.2026): вопросы и ответы из фактов с разметкой FAQ, перед контактами
+  const seoInput: AutoSeoInput = { facts, locale: l, name, address, city, phone, items, itemName: (i) => starterText(i.name, 80)! };
+  const faq = autoFaqItems(seoInput);
+  section({
+    id: AUTO_FAQ_ID,
+    type: 'faq',
+    variant: 'ACCORDION',
+    heading: t(w.faq),
+    items: faq.map((i) => ({ question: t(i.question), answer: t(i.answer) })),
+    emitStructuredData: true,
+  });
+
   const hasContacts = !!(phone || whatsapp || address);
   if (hasContacts)
     section(
@@ -299,7 +309,7 @@ export function starterSpecFromFacts(facts: SiteFacts, design?: DesignDirection 
     );
   section({ id: 'sec-cta', type: 'cta', variant: 'BANNER', heading: t(w.again), action: book });
 
-  const description = starterText(w.desc(name, city), 160)!;
+  const description = autoSeoDescription(seoInput);
   const spec: Rec = {
     schemaVersion: 'site-spec/0',
     site: {
@@ -322,7 +332,7 @@ export function starterSpecFromFacts(facts: SiteFacts, design?: DesignDirection 
         slug: '',
         isHome: true,
         title: t(name),
-        seo: { title: t(starterText(name, 60)!), description: t(description), index: true, includeInSitemap: true, canonical: 'SELF' },
+        seo: { title: t(autoSeoTitle(seoInput)), description: t(description), index: true, includeInSitemap: true, canonical: 'SELF' },
         sections,
       },
     ],

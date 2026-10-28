@@ -710,4 +710,6 @@ export const marketingSite: Record<string, string> = {
   "Яркий поп": "Bright pop",
   "Молодёжно и смело: персик и фуксия, крупный шрифт, услуги карточками, запись сразу под первым экраном": "Young and bold: peach and fuchsia, a large font, services as cards, booking right under the first screen",
   "Тёмная роскошь: чёрный фон, шампань, антиква, услуги строками с ценой, мастера крупно": "Dark luxury: black background, champagne, serif type, services in rows with prices, large staff portraits",
+  // SEO и GEO при создании сайта (S7, 28.10.2026)
+  "Для Google и ИИ-поиска, из данных WETOP": "For Google and AI search, from WETOP data",
 };

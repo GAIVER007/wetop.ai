@@ -44,6 +44,7 @@ export interface UiStrings {
   email: string;
   address: string;
   map: string;
+  googleMaps: string;
   madeWith: string;
   privacy: string;
   menu: string;
@@ -92,6 +93,7 @@ const UI: Record<Locale, UiStrings> = {
     email: 'Почта',
     address: 'Адрес',
     map: 'Открыть на карте',
+    googleMaps: 'Google Карты',
     madeWith: 'Сайт сделан на WETOP',
     privacy: 'Политика конфиденциальности',
     menu: 'Основное меню',
@@ -137,6 +139,7 @@ const UI: Record<Locale, UiStrings> = {
     email: 'Пошта',
     address: 'Мекенжай',
     map: 'Картадан ашу',
+    googleMaps: 'Google Карталар',
     madeWith: 'Сайт WETOP-та жасалған',
     privacy: 'Құпиялылық саясаты',
     menu: 'Негізгі мәзір',
@@ -182,6 +185,7 @@ const UI: Record<Locale, UiStrings> = {
     email: 'Email',
     address: 'Address',
     map: 'Open on the map',
+    googleMaps: 'Google Maps',
     madeWith: 'Site made with WETOP',
     privacy: 'Privacy policy',
     menu: 'Main menu',

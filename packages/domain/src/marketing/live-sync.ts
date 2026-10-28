@@ -1,6 +1,7 @@
 import type { SiteFacts, SiteFactsCatalogItem } from './site-facts';
 import { starterPhone, starterText } from './starter';
 import { validateSiteSpec } from './site-spec';
+import { AUTO_FAQ_ID, autoFaqItems, autoFaqQuestionSet, type AutoSeoInput, type SeoLocale } from './seo-auto';
 
 /**
  * Живые данные на опубликованном сайте (SITE-1, поручение владельца 15.10.2026: «сайт сам обновляется от WETOP»).
@@ -110,6 +111,33 @@ function hours(section: Rec, facts: SiteFacts): Rec | null {
 }
 
 /**
+ * «Вопросы и ответы» из фактов (S7): цены, часы, заезд и адрес в ответах следуют за WETOP, пока владелец блок не
+ * переписывал (все вопросы из автоматического набора). Переписанный или свой блок остаётся как есть.
+ */
+function faq(section: Rec, facts: SiteFacts, locale: string, spec: Rec): Rec | null {
+  if (section['id'] !== AUTO_FAQ_ID || !['ru', 'kk', 'en'].includes(locale)) return null;
+  const site = isRec(spec['site']) ? spec['site'] : {};
+  const name = starterText(facts.location.name, 80);
+  if (!name) return null;
+  const input: AutoSeoInput = {
+    facts,
+    locale: locale as SeoLocale,
+    name,
+    address: starterText(facts.location.address, 200),
+    city: starterText(facts.location.city, 60),
+    phone: starterPhone(facts.location.phone),
+    items: facts.catalog.items.filter((i) => CODE_RE.test(i.code) && starterText(i.name, 80)),
+    itemName: (i) => starterText(i.name, 80)!,
+  };
+  const allowed = autoFaqQuestionSet(input);
+  const items = Array.isArray(section['items']) ? (section['items'] as unknown[]) : [];
+  const auto = items.every((i) => isRec(i) && isRec(i['question']) && allowed.has(String((i['question'] as Rec)[locale] ?? '')));
+  if (!auto || site['vertical'] !== facts.vertical) return null;
+  const fresh = autoFaqItems(input);
+  return fresh.length ? { ...section, items: fresh.map((i) => ({ question: { [locale]: i.question }, answer: { [locale]: i.answer } })) } : null;
+}
+
+/**
  * Документ сайта со свежими фактами WETOP. Возвращает тот же объект, если менять нечего или итог не прошёл валидатор;
  * иначе новый документ (входной не меняется)
  */
@@ -129,6 +157,7 @@ export function liveSiteSpec(spec: Rec, facts: SiteFacts): Rec {
           : type === 'staff' ? staff(s, facts, locale)
           : type === 'menu' ? menu(s, facts, locale)
           : type === 'hours' ? hours(s, facts)
+          : type === 'faq' ? faq(s, facts, locale, spec)
           : null;
         return fresh ?? s;
       }),

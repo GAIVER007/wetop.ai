@@ -666,4 +666,6 @@ export const marketingSite: Record<string, string> = {
   "Нет графика работы": "No work schedule",
   "Меню пустое: на сайте не будет блюд и цен": "The menu is empty: the website won't have dishes or prices",
   "Нет часов работы": "No opening hours",
+  // SEO и GEO при создании сайта (S7, 28.10.2026)
+  "Для Google и ИИ-поиска, из данных WETOP": "For Google and AI search, from WETOP data",
 };

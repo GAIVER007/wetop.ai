@@ -18,6 +18,7 @@ export const SIMPLE_BLOCKS: ReadonlyArray<{ type: string; label: string; hint: s
   { type: 'features', label: 'Преимущества', hint: 'Почему выбирают вас' },
   { type: 'staff', label: 'Мастера', hint: 'Из сотрудников WETOP' },
   { type: 'hours', label: 'Часы работы', hint: 'Из графика WETOP' },
+  { type: 'faq', label: 'Вопросы и ответы', hint: 'Для Google и ИИ-поиска, из данных WETOP' },
   { type: 'cta', label: 'Призыв записаться', hint: 'Блок в конце страницы' },
 ]);
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ctx, exampleSpec } from './test/fixtures';
-import { jsonForScript, pageTitle, renderHead, robotsTxt, seoSettings, sitemapXml, structuredData } from './seo';
+import { jsonForScript, llmsTxt, pageTitle, renderHead, robotsTxt, seoSettings, sitemapXml, structuredData } from './seo';
 
 const DEV = seoSettings('dev', null, 'http://stepnoy.localhost:8788');
 const STAGING_WITH_HOST = seoSettings('staging', 'hotel.example.kz', 'https://wetop-sites-staging.example.workers.dev');
@@ -109,7 +109,9 @@ describe('robots.txt и sitemap.xml', () => {
 
   it('production: разрешено, ссылка на карту; в карте только индексируемые страницы с includeInSitemap', () => {
     const spec = exampleSpec();
-    expect(robotsTxt(spec, PROD)).toBe('User-agent: *\nAllow: /\n\nSitemap: https://hotel.example.kz/sitemap.xml\n');
+    const robots = robotsTxt(spec, PROD);
+    expect(robots.startsWith('User-agent: *\nAllow: /\n')).toBe(true);
+    expect(robots).toContain('Sitemap: https://hotel.example.kz/sitemap.xml');
     const xml = sitemapXml(spec, PROD);
     expect(xml).toContain('<loc>https://hotel.example.kz/</loc>');
     for (const p of spec.pages.filter((p) => !p.seo.includeInSitemap)) expect(xml).not.toContain(`/${p.slug}<`);
@@ -120,5 +122,41 @@ describe('robots.txt и sitemap.xml', () => {
     spec.site.seo.robots = 'NOINDEX';
     expect(robotsTxt(spec, PROD)).toContain('Disallow: /');
     expect(sitemapXml(spec, PROD)).not.toContain('<url>');
+  });
+});
+
+/**
+ * GEO (поручение владельца 28.10.2026, S7): ИИ-поисковики (ChatGPT, Perplexity, Gemini, Claude) явно допущены в
+ * robots.txt, а `/llms.txt` даёт им короткую сводку сайта: кто, где, что почём, часы, вопросы и ответы, ссылки.
+ */
+describe('GEO: ИИ-поисковики и llms.txt', () => {
+  it('production: ИИ-боты поиска названы и допущены, карта сайта и llms.txt указаны', () => {
+    const robots = robotsTxt(exampleSpec(), PROD);
+    for (const bot of ['OAI-SearchBot', 'ChatGPT-User', 'GPTBot', 'PerplexityBot', 'Google-Extended', 'ClaudeBot'])
+      expect(robots).toContain(`User-agent: ${bot}\nAllow: /`);
+    expect(robots).toContain('https://hotel.example.kz/llms.txt');
+  });
+  it('NOINDEX и dev: ИИ-ботов не зовём, llms.txt пуст', () => {
+    const spec = exampleSpec();
+    spec.site.seo.robots = 'NOINDEX';
+    expect(robotsTxt(spec, PROD)).not.toContain('GPTBot');
+    expect(llmsTxt(spec, PROD)).toBe('');
+    expect(llmsTxt(exampleSpec(), DEV)).toBe('');
+  });
+  it('llms.txt: имя заголовком, описание цитатой, контакты, вопросы и ответы, ссылки на страницы', () => {
+    const spec = exampleSpec();
+    spec.pages[0]!.sections.push({
+      id: 'sec-faq-test',
+      type: 'faq',
+      variant: 'ACCORDION',
+      items: [{ question: { ru: 'Как забронировать номер?' }, answer: { ru: 'В форме на сайте.' } }],
+      emitStructuredData: true,
+    } as never);
+    const txt = llmsTxt(spec, PROD);
+    expect(txt.startsWith('# Гостиница «Степной ветер»\n')).toBe(true);
+    expect(txt).toMatch(/\n> Номера и койко-места рядом с вокзалом/);
+    expect(txt).toContain('### Как забронировать номер?\nВ форме на сайте.');
+    expect(txt).toContain('(https://hotel.example.kz/)');
+    expect(txt).not.toMatch(/undefined|null|\[object/);
   });
 });

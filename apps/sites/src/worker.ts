@@ -7,7 +7,7 @@ import { pageNeedsLead, pageNeedsPrices, renderNotFound, renderPage } from './re
 import { LEAD_JS } from './render/lead-script';
 import { PRICES_JS } from './render/prices-script';
 import { SITE_CSS } from './render/theme';
-import { robotsTxt, seoSettings, sitemapXml, type SeoSettings } from './seo';
+import { llmsTxt, robotsTxt, seoSettings, sitemapXml, type SeoSettings } from './seo';
 import type { Env, Page, RuntimeCurrent, SiteSpec } from './types';
 
 /**
@@ -102,6 +102,12 @@ export function createRuntime(
       return respond(request, robotsTxt(spec, seo), 200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': CACHE.page, ...extra });
     if (url.pathname === '/sitemap.xml')
       return respond(request, sitemapXml(spec, seo), 200, { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': CACHE.page, ...extra });
+    // GEO (28.10.2026): сводка для ИИ-поисковиков; у превью и неиндексируемого сайта её нет
+    if (url.pathname === '/llms.txt') {
+      const body = preview ? '' : llmsTxt(spec, seo);
+      if (!body) return respond(request, 'Not found', 404, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': CACHE.page, ...extra });
+      return respond(request, body, 200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': CACHE.page, ...extra });
+    }
     if (url.pathname.length > 1 && url.pathname.endsWith('/')) {
       const location = url.pathname.replace(/\/+$/, '') || '/';
       return new Response(null, {

@@ -47,7 +47,7 @@ export const SITE_TEMPLATES: readonly SiteTemplate[] = Object.freeze([
     'Классический отель',
     'Светлый и спокойный: номера карточками, цены «от» и бронь сразу под ними',
     { preset: 'CALM', accent: 'TEAL', typography: 'MODERN', radius: 'SOFT', density: 'COMFORTABLE', colorScheme: 'LIGHT' },
-    ['hero', 'features', 'accommodations', 'pricing', 'booking', 'hours', 'contacts', 'cta'],
+    ['hero', 'features', 'accommodations', 'pricing', 'booking', 'hours', 'faq', 'contacts', 'cta'],
     { features: 'GRID', accommodations: 'CARDS', hours: 'TABLE', cta: 'BANNER' },
   ),
   t(
@@ -56,7 +56,7 @@ export const SITE_TEMPLATES: readonly SiteTemplate[] = Object.freeze([
     'Бутик-отель',
     'Глубокий премиальный фон, антиква и золото, номера крупными строками',
     { preset: 'NIGHT', accent: 'GOLD', typography: 'CLASSIC', radius: 'SHARP', density: 'COMFORTABLE', colorScheme: 'LIGHT' },
-    ['hero', 'accommodations', 'features', 'pricing', 'booking', 'contacts', 'hours', 'cta'],
+    ['hero', 'accommodations', 'features', 'pricing', 'booking', 'faq', 'contacts', 'hours', 'cta'],
     { features: 'LIST', accommodations: 'ROWS', hours: 'COMPACT', cta: 'BANNER' },
   ),
   t(
@@ -65,7 +65,7 @@ export const SITE_TEMPLATES: readonly SiteTemplate[] = Object.freeze([
     'Хостел и апарт',
     'Тёплый и плотный: бронь первой, сразу за ней номера и цены',
     { preset: 'WARM', accent: 'TERRACOTTA', typography: 'ROUNDED', radius: 'ROUND', density: 'COMPACT', colorScheme: 'LIGHT' },
-    ['hero', 'booking', 'accommodations', 'pricing', 'features', 'contacts', 'hours', 'cta'],
+    ['hero', 'booking', 'accommodations', 'pricing', 'features', 'faq', 'contacts', 'hours', 'cta'],
     { features: 'GRID', accommodations: 'CARDS', hours: 'COMPACT', cta: 'BANNER' },
   ),
   // ---------- салон красоты ----------
@@ -75,7 +75,7 @@ export const SITE_TEMPLATES: readonly SiteTemplate[] = Object.freeze([
     'Светлая студия',
     'Чистый белый сайт: услуги списком с ценой и временем, мастера карточками, запись в блоке',
     { preset: 'CALM', accent: 'INDIGO', typography: 'MODERN', radius: 'SOFT', density: 'COMFORTABLE', colorScheme: 'LIGHT' },
-    ['hero', 'features', 'services', 'staff', 'leadForm', 'hours', 'contacts', 'cta'],
+    ['hero', 'features', 'services', 'staff', 'leadForm', 'hours', 'faq', 'contacts', 'cta'],
     { features: 'GRID', services: 'LIST', staff: 'CARDS', leadForm: 'INLINE', hours: 'TABLE', cta: 'BANNER' },
   ),
   t(
@@ -84,7 +84,7 @@ export const SITE_TEMPLATES: readonly SiteTemplate[] = Object.freeze([
     'Бьюти-бутик',
     'Премиальный: тёмный первый экран, антиква, мастера первыми, услуги карточками',
     { preset: 'NIGHT', accent: 'GOLD', typography: 'CLASSIC', radius: 'SHARP', density: 'COMFORTABLE', colorScheme: 'LIGHT' },
-    ['hero', 'staff', 'services', 'features', 'leadForm', 'hours', 'contacts', 'cta'],
+    ['hero', 'staff', 'services', 'features', 'leadForm', 'hours', 'faq', 'contacts', 'cta'],
     { features: 'LIST', services: 'CARDS', staff: 'CARDS', leadForm: 'CARD', hours: 'COMPACT', cta: 'BANNER' },
   ),
   t(
@@ -93,7 +93,7 @@ export const SITE_TEMPLATES: readonly SiteTemplate[] = Object.freeze([
     'Запись за минуту',
     'Тёплый и яркий: форма записи сразу под первым экраном, услуги и мастера компактно',
     { preset: 'WARM', accent: 'TERRACOTTA', typography: 'ROUNDED', radius: 'ROUND', density: 'COMPACT', colorScheme: 'LIGHT' },
-    ['hero', 'leadForm', 'services', 'staff', 'hours', 'features', 'contacts', 'cta'],
+    ['hero', 'leadForm', 'services', 'staff', 'hours', 'features', 'faq', 'contacts', 'cta'],
     { features: 'GRID', services: 'CARDS', staff: 'LIST', leadForm: 'CARD', hours: 'COMPACT', cta: 'BANNER' },
   ),
   // ---------- ресторан ----------
@@ -103,7 +103,7 @@ export const SITE_TEMPLATES: readonly SiteTemplate[] = Object.freeze([
     'Уютное кафе',
     'Тёплые тона, меню списком с ценами, бронь стола и часы работы',
     { preset: 'WARM', accent: 'FOREST', typography: 'ROUNDED', radius: 'ROUND', density: 'COMFORTABLE', colorScheme: 'LIGHT' },
-    ['hero', 'features', 'menu', 'leadForm', 'hours', 'contacts', 'cta'],
+    ['hero', 'features', 'menu', 'leadForm', 'hours', 'faq', 'contacts', 'cta'],
     { features: 'GRID', menu: 'LIST', leadForm: 'INLINE', hours: 'TABLE', cta: 'BANNER' },
   ),
   t(
@@ -112,7 +112,7 @@ export const SITE_TEMPLATES: readonly SiteTemplate[] = Object.freeze([
     'Ресторан',
     'Вечерний премиальный стиль: антиква, золото, меню карточками и бронь стола карточкой',
     { preset: 'NIGHT', accent: 'GOLD', typography: 'CLASSIC', radius: 'SHARP', density: 'COMFORTABLE', colorScheme: 'LIGHT' },
-    ['hero', 'menu', 'features', 'leadForm', 'hours', 'contacts', 'cta'],
+    ['hero', 'menu', 'features', 'leadForm', 'hours', 'faq', 'contacts', 'cta'],
     { features: 'LIST', menu: 'CARDS', leadForm: 'CARD', hours: 'COMPACT', cta: 'BANNER' },
   ),
   t(
@@ -121,7 +121,7 @@ export const SITE_TEMPLATES: readonly SiteTemplate[] = Object.freeze([
     'Быстрый заказ',
     'Свежий светлый сайт: бронь стола первой, меню компактно, часы рядом',
     { preset: 'COAST', accent: 'TEAL', typography: 'MODERN', radius: 'SOFT', density: 'COMPACT', colorScheme: 'LIGHT' },
-    ['hero', 'leadForm', 'menu', 'hours', 'features', 'contacts', 'cta'],
+    ['hero', 'leadForm', 'menu', 'hours', 'features', 'faq', 'contacts', 'cta'],
     { features: 'GRID', menu: 'LIST', leadForm: 'CARD', hours: 'COMPACT', cta: 'BANNER' },
   ),
 ]);

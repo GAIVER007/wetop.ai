@@ -247,7 +247,11 @@ function PultRow({
             <Icon name={module.icon} />
           </span>
           <div className="marketing-pult__name">
-            <h2 id={headingId}>{t(module.title)}</h2>
+            <h2 id={headingId}>
+              <Link href={module.href} className="marketing-pult__link" data-testid={`${module.testId}-page`}>
+                {t(module.title)}
+              </Link>
+            </h2>
             <span>{t(module.short)}</span>
           </div>
         </div>

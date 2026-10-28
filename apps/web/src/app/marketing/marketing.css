@@ -128,6 +128,32 @@
     font-size: var(--text-md);
     font-weight: var(--weight-semibold);
   }
+  .marketing-pult__link {
+    color: inherit;
+    text-decoration: none;
+  }
+  .marketing-pult__link:hover,
+  .marketing-pult__link:focus-visible {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* вся строка нажимается: ссылка названия растягивается на строку, кнопка «Подключить» поверх */
+  .marketing-pult__row {
+    position: relative;
+  }
+  .marketing-pult__row:hover {
+    background: var(--surface-muted);
+  }
+  .marketing-pult__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .marketing-pult__go {
+    position: relative;
+    z-index: 1;
+  }
   .marketing-pult__name span,
   .marketing-pult__price span {
     color: var(--text-2);

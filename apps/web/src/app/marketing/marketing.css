@@ -881,6 +881,26 @@
     margin: 0;
     overflow-wrap: anywhere;
   }
+  /* вид в выдаче Google (S5): адрес, синий заголовок, серое описание; как увидит клиент */
+  .setup__google {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    overflow-wrap: anywhere;
+  }
+  .setup__google-url,
+  .setup__google-text {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .setup__google-title {
+    color: var(--primary);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+  }
   .setup__more {
     display: flex;
     flex-wrap: wrap;

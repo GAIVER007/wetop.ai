@@ -1,0 +1,132 @@
+@layer sections {
+  /* Кабинет компании WETOP (вариант «Г», 28.10.2026): меню слева, справа показатели, путь клиента, клиенты и
+     сроки. Только токены. */
+  .cabinet {
+    display: grid;
+    grid-template-columns: calc(var(--space-16) * 4) minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .cabinet__side {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .cabinet__menu {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .cabinet__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--space-12);
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-control);
+    color: var(--text-2);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .cabinet__link:hover {
+    background: var(--surface-muted);
+    color: var(--text);
+  }
+  .cabinet__link[aria-current='page'] {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .cabinet__count {
+    margin-left: auto;
+    font-size: var(--text-sm);
+  }
+  .cabinet__main {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .cabinet__main .stats {
+    margin: 0;
+  }
+  .cabinet__funnel {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cabinet__step {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+    font-weight: 600;
+    font-size: var(--text-sm);
+  }
+  .cabinet__step[data-tone='ok'] {
+    background: var(--success-soft);
+  }
+  .cabinet__step[data-tone='danger'] {
+    background: var(--danger-soft);
+  }
+  .cabinet__step-value {
+    font-size: var(--text-4xl);
+    line-height: 1;
+  }
+  .cabinet__step[data-tone='ok'] .cabinet__step-value {
+    color: var(--success);
+  }
+  .cabinet__step[data-tone='danger'] .cabinet__step-value {
+    color: var(--danger);
+  }
+  .cabinet__sub {
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+  .cabinet__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cabinet__deadline {
+    display: grid;
+    gap: var(--space-1);
+    justify-items: start;
+    padding: var(--space-2);
+    border-radius: var(--radius-control);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .cabinet__deadline:hover {
+    background: var(--surface-muted);
+  }
+  .cabinet__list > li + li {
+    border-top: 1px solid var(--border);
+  }
+  .cabinet__deadline-name {
+    min-width: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 960px) {
+  @layer sections {
+    .cabinet {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .cabinet__menu {
+      grid-auto-flow: column;
+      overflow-x: auto;
+    }
+    .cabinet__funnel {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}

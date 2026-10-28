@@ -56,6 +56,34 @@
     color: var(--primary);
     font-weight: 600;
   }
+  /* окно закрытия, вариант B (владелец 28.10.2026): расходы смены списком и частые статьи для забытого расхода */
+  .cash-shift-expenses {
+    display: grid;
+    gap: var(--space-1);
+    margin: var(--space-2) 0;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    list-style: none;
+  }
+  .cash-shift-expenses li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .cash-shift-expenses li span {
+    color: var(--text-2);
+  }
+  .cash-shift-expenses li strong {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .cash-shift-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
   .cash-header-drawer form {
     display: grid;
     gap: var(--space-4);

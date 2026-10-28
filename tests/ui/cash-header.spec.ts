@@ -126,7 +126,10 @@ test('общая шапка: одна кнопка смены, расход, и�
     panel = page.getByRole('dialog');
     // закрытие «А»: было + оплаты − расходы = должно быть; расход можно добавить прямо отсюда
     await expect(panel.getByTestId('cash-close-expected')).toContainText('9 500');
-    await panel.getByRole('button', { name: '+ Добавить расход', exact: true }).click();
+    // вариант B (владелец 28.10.2026): расходы смены списком, забытый расход дописывается частой статьёй
+    await expect(panel.getByTestId('cash-close-expenses')).toContainText('Такси');
+    await expect(panel.getByTestId('cash-close-expenses')).toContainText('500');
+    await panel.getByTestId('cash-close-chips').getByRole('button', { name: '+ Другое', exact: true }).click();
     await panel.getByLabel('Сумма', { exact: true }).fill('100');
     await panel.getByLabel('Статья', { exact: true }).fill('Вода');
     await panel.getByRole('button', { name: 'Добавить расход', exact: true }).click();

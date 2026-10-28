@@ -39,6 +39,8 @@ export interface CashRegisterView {
   expenseMethods: string[];
   /** Частые статьи расходов кнопками: самые частые этой кассы, затем стандартные (может не прийти от старого API) */
   expenseCategories?: string[];
+  /** Расходы открытой смены списком для окна закрытия (может не прийти от старого API) */
+  shiftExpenses?: Array<{ category: string; method: string; amount: string }>;
   mayOperate: boolean;
   mayManage: boolean;
   currentUserId: string;

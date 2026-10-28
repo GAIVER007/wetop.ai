@@ -392,6 +392,13 @@ describe.skipIf(!process.env.DATABASE_URL)('кассовые смены всех
     for (const category of ['Вода', 'Вода', 'Вода', 'Такси'])
       await command(place, { action: 'expense', amount: '1', method: 'CASH', category, shiftId });
     view = (await at(place, owner, () => service.state())) as View;
+    // окно закрытия (вариант B): расходы смены списком, по порядку внесения
+    expect((view as unknown as { shiftExpenses: Array<{ category: string; amount: string }> }).shiftExpenses).toEqual([
+      { category: 'Вода', method: 'CASH', amount: '100' },
+      { category: 'Вода', method: 'CASH', amount: '100' },
+      { category: 'Вода', method: 'CASH', amount: '100' },
+      { category: 'Такси', method: 'CASH', amount: '100' },
+    ]);
     const left = money(BigInt(view.snapshot.balances.CASH ?? '0'));
     await command(place, { action: 'close', shiftId, counted: left, retained: left, fingerprint: view.snapshot.fingerprint });
     // кассир видит частые статьи: «Вода» первой, стандартные тоже, без повторов

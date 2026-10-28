@@ -4,7 +4,7 @@ import type { AppointmentStatus, EmployeePortalDto, OrderStatus } from '@pms/dom
 import { Badge, Field, Input } from '../ui';
 import { MonthInput } from '../date-field';
 import { formatMoney } from '../../lib/money';
-import { PortalForm, PortalWeek, PortalWeekView, type PortalContext } from './forms';
+import { PortalForm, PortalScheduleRequests, PortalWeek, PortalWeekView, type PortalContext } from './forms';
 import { PortalMedia } from './media';
 import { PortalManagement, type PortalAccountOption } from './management';
 import { EmployeeLocationsForm } from './locations';
@@ -200,8 +200,10 @@ export function EmployeeCabinet({
         : <p>{t('Назначение филиалов сейчас недоступно.')}</p>}
     </section> }] : []),
       ...(showSchedule ? [{ id: 'week', label: t('График'), content: <div className="portal-schedule"><section className="panel portal-section" data-testid="portal-week"><h2>{t('Обычная неделя')}</h2>
-      {!data.location ? <p>{t('Выберите филиал для недельного графика.')}</p> : manager && (!access || access.employeesUpdate) ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} /> : <PortalWeekView week={data.week} />}
+      {!data.location ? <p>{t('Выберите филиал для недельного графика.')}</p> : manager && (!access || access.employeesUpdate) ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} /> : beauty && !manager ? <PortalWeek context={context} week={data.week} revision={data.weekRevision} request /> : <PortalWeekView week={data.week} />}
     </section>
+    {/* график через руководителя (владелец 28.10.2026): мастер просит, руководитель подтверждает */}
+    {beauty && (!manager || !access || access.employeesUpdate) && <PortalScheduleRequests requests={data.scheduleRequests ?? []} context={context} manager={manager} />}
     {/* отсутствия и выходные по датам (срез S3, владелец 21.10.2026): только просмотр, ставит руководитель */}
     <section className="panel portal-section" data-testid="portal-time-offs"><h2>{manager ? t('Отсутствия') : t('Мои отсутствия')}</h2>
       {(() => {
@@ -210,7 +212,7 @@ export function EmployeeCabinet({
         return <>
           {upcoming.length ? <ul className="portal-list">{upcoming.map(row)}</ul> : <p>{t('Ближайших отсутствий нет.')}</p>}
           {!!past.length && <details className="portal-time-offs-past"><summary>{t('Прошедшие ({n})', { n: past.length })}</summary><ul className="portal-list">{past.map(row)}</ul></details>}
-          {!manager && <p>{t('Отсутствия и график ставит руководитель. Если нужно изменить, напишите ему.')}</p>}
+          {!manager && !beauty && <p>{t('Отсутствия и график ставит руководитель. Если нужно изменить, напишите ему.')}</p>}
         </>;
       })()}
     </section>

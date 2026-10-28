@@ -310,3 +310,13 @@
 @media (max-width: 600px) {
   .specialist-hero__book { position: sticky; bottom: var(--space-2); z-index: var(--layer-sticky); }
 }
+
+/* запросы графика (владелец 28.10.2026): строка запроса, статус, кнопки решения */
+.portal-requests li { display: grid; gap: var(--space-1); }
+.portal-requests__status { color: var(--text-2); font-size: var(--text-sm); }
+.portal-requests li[data-status='PENDING'] .portal-requests__status { color: var(--warning); font-weight: 600; }
+.portal-requests li[data-status='APPROVED'] .portal-requests__status { color: var(--success); }
+.portal-requests li[data-status='REJECTED'] .portal-requests__status { color: var(--danger); }
+.portal-requests__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: flex-end; }
+.portal-request-off { margin-top: var(--space-4); }
+.portal-request-off summary { cursor: pointer; font-weight: 600; }

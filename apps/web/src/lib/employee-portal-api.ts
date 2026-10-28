@@ -20,6 +20,10 @@ export const employeePortalApi = {
   week: (target: PortalTarget, intervals: Array<PortalWeekDay['intervals'][number] & { weekday: number }>, expectedRevision: string) => portalTransport<EmployeePortalDto>(`${base(target)}/week`, 'PUT', { intervals, expectedRevision }),
   timeOff: (target: PortalTarget, input: { dateFrom: string; dateTo: string; reason: string }) => portalTransport<EmployeePortalDto>(`${base(target)}/time-offs`, 'POST', input),
   removeTimeOff: (target: PortalTarget, id: string) => portalTransport<EmployeePortalDto>(`${base(target)}/time-offs/${encodeURIComponent(id)}`, 'DELETE'),
+  // запросы графика мастера (SCHEDULE-REQUESTS-20261028)
+  scheduleRequest: (input: { kind: 'WEEK'; intervals: Array<PortalWeekDay['intervals'][number] & { weekday: number }> } | { kind: 'TIME_OFF'; dateFrom: string; dateTo: string; reason: string }) => portalTransport<EmployeePortalDto>('/employee-portal/me/schedule-requests', 'POST', input),
+  cancelScheduleRequest: (id: string) => portalTransport<EmployeePortalDto>(`/employee-portal/me/schedule-requests/${encodeURIComponent(id)}/cancel`, 'POST', {}),
+  decideScheduleRequest: (employeeId: string, id: string, decision: 'approve' | 'reject', note = '') => portalTransport<EmployeePortalDto>(`/employee-portal/employees/${encodeURIComponent(employeeId)}/schedule-requests/${encodeURIComponent(id)}/${decision}`, 'POST', decision === 'reject' ? { note } : {}),
   account: (target: PortalTarget, userId: string) => portalTransport<EmployeePortalDto>(`${base(target)}/account`, 'PUT', { userId }),
   accountOptions: (employeeId: string) => portalTransport<EmployeeAccountOption[]>(`/employee-portal/employees/${encodeURIComponent(employeeId)}/account-options`),
   unlink: (target: PortalTarget) => portalTransport<EmployeePortalDto>(`${base(target)}/account`, 'DELETE'),

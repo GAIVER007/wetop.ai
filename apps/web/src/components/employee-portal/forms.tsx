@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
-import type { EmployeePortalDto, PortalWeekDay } from '@pms/domain';
+import type { EmployeePortalDto, PortalScheduleRequest, PortalWeekDay } from '@pms/domain';
 import { loadPortalWeek, savePortal } from '../../app/my-work/actions';
-import { Alert, Button, Input } from '../ui';
+import { Alert, Button, Field, Input } from '../ui';
 import { useConfirm } from '../use-confirm';
 import { employeeFormSignature } from '../employee-workspace/workspace';
 import { applyWeekPreset, weekProblem, WEEK_PRESETS } from './week-presets';
@@ -136,7 +136,8 @@ export function PortalWeekView({ week }: { week: PortalWeekDay[] }) {
     <ul className="portal-list">{[1, 2, 3, 4, 5, 6, 0].map(weekday => { const hours = week.find(d => d.weekday === weekday)?.intervals.map(i => `${i.timeFrom}–${i.timeTo}`).join(', '); return <li key={weekday} data-testid="portal-week-day" data-off={hours ? undefined : 'true'}><strong>{t(DAYS[weekday] ?? '')}</strong><span>{hours || t('Выходной')}</span></li>; })}</ul></div>;
 }
 const weekDays = (week: PortalWeekDay[]) => [1, 2, 3, 4, 5, 6, 0].map(weekday => ({ weekday, intervals: week.find(d => d.weekday === weekday)?.intervals.map(i => ({ ...i })) ?? [] }));
-export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[]; revision: string | null; context: PortalContext }) {
+/** `request`: мастер не сохраняет неделю, а отправляет её запросом руководителю (SCHEDULE-REQUESTS-20261028) */
+export function PortalWeek({ week, revision, context, request = false }: { week: PortalWeekDay[]; revision: string | null; context: PortalContext; request?: boolean }) {
   const t = useT();
   const [days, setDays] = useState(() => weekDays(week));
   const [originalRevision, setOriginalRevision] = useState(revision);
@@ -152,8 +153,8 @@ export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[];
   const [readError, setReadError] = useState('');
   const [reading, reread] = useTransition();
   const intervals = days.flatMap(day => day.intervals.map(slot => ({ weekday: day.weekday, ...slot })));
-  return <><PortalForm key={originalRevision} context={context} command="week" revision={base} label={t('Сохранить график')} validate={() => weekProblem(hours.current, t)}>
-    <p className="portal-week-help">{t('Рабочие часы по дням. Нет интервалов: выходной.')}</p>
+  return <><PortalForm key={originalRevision} context={context} command={request ? 'request-week' : 'week'} revision={base} label={request ? t('Отправить на подтверждение') : t('Сохранить график')} validate={() => weekProblem(hours.current, t)}>
+    <p className="portal-week-help">{request ? t('Поменяйте часы и отправьте: график изменится, когда администратор подтвердит.') : t('Рабочие часы по дням. Нет интервалов: выходной.')}</p>
     {/* быстрый шаблон недели (онбординг 21.10.2026): заполняет все дни, дальше можно поправить день */}
     <div className="portal-week-presets" role="group" aria-label={t('Быстро заполнить неделю')}>
       <span>{t('Заполнить:')}</span>
@@ -173,11 +174,11 @@ export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[];
       <Button type="button" tone="secondary" aria-label={t('{day}: добавить интервал', { day: t(DAYS[day.weekday] ?? '') })} onClick={() => setDays(prev => prev.map(d => d.weekday === day.weekday ? { ...d, intervals: [...d.intervals, { timeFrom: '', timeTo: '' }] } : d))}><span aria-hidden="true">+</span><span className="portal-add-label"> {t('Ещё время')}</span></Button>
     </div>)}
   </PortalForm>
-    <Button type="button" tone="secondary" disabled={reading} onClick={() => reread(async () => {
+    {!request && <Button type="button" tone="secondary" disabled={reading} onClick={() => reread(async () => {
       const result = await loadPortalWeek(context.target, context.scope);
       setReadError(result.error ?? '');
       if (result.data) setComparison(result.data);
-    })}>{t('Сравнить с актуальным графиком')}</Button>
+    })}>{t('Сравнить с актуальным графиком')}</Button>}
     {readError && <Alert>{t(readError)}</Alert>}
     {comparison && <section aria-label={t('Сохранено на сервере')}>
       <h3>{t('Сохранено на сервере')}</h3>
@@ -190,3 +191,48 @@ export function PortalWeek({ week, revision, context }: { week: PortalWeekDay[];
     </section>}
   </>;
 }
+
+const REQUEST_STATUS: Record<PortalScheduleRequest['status'], string> = {
+  PENDING: msg('Ждёт подтверждения'), APPROVED: msg('Подтверждено'), REJECTED: msg('Отклонено'), CANCELLED: msg('Отменено'),
+};
+/** Подпись запроса: для недели её часы по дням, для отсутствия даты и причина */
+function requestSummary(r: PortalScheduleRequest, t: ReturnType<typeof useT>): string {
+  if (r.kind === 'TIME_OFF') {
+    const p = r.payload as { dateFrom?: string; dateTo?: string; reason?: string };
+    const span = p.dateFrom === p.dateTo ? String(p.dateFrom) : t('{from} по {to}', { from: String(p.dateFrom), to: String(p.dateTo) });
+    return p.reason ? t('Отсутствие {span}: {reason}', { span, reason: p.reason }) : t('Отсутствие {span}', { span });
+  }
+  const intervals = ((r.payload as { intervals?: Array<{ weekday: number; timeFrom: string; timeTo: string }> }).intervals ?? []);
+  const days = [1, 2, 3, 4, 5, 6, 0].map((wd) => {
+    const h = intervals.filter((i) => i.weekday === wd).map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ');
+    return `${t(SHORT_DAYS[wd] ?? '')} ${h || t('вых.')}`;
+  });
+  return t('Неделя: {days}', { days: days.join('; ') });
+}
+/**
+ * Запросы графика (владелец 28.10.2026): мастер видит свои и отменяет ожидающий; руководитель одобряет или
+ * отклоняет. Отсутствие мастер просит здесь же: даты и причина.
+ */
+export function PortalScheduleRequests({ requests, context, manager }: { requests: PortalScheduleRequest[]; context: PortalContext; manager: boolean }) {
+  const t = useT();
+  const shown = manager ? requests.filter((r) => r.status === 'PENDING') : requests.slice(0, 10);
+  return <section className="panel portal-section" data-testid="portal-schedule-requests">
+    <h2>{manager ? t('Запросы на изменение графика') : t('Мои запросы')}</h2>
+    {shown.length ? <ul className="portal-list portal-requests">{shown.map((r) => <li key={r.id} data-status={r.status}>
+      <strong>{requestSummary(r, t)}</strong>
+      <span className="portal-requests__status">{t(REQUEST_STATUS[r.status])}{r.decisionNote ? `: ${r.decisionNote}` : ''}</span>
+      {r.status === 'PENDING' && (manager ? <span className="portal-requests__actions">
+        <PortalForm context={context} command="approve-request" label={t('Подтвердить')}><input type="hidden" name="requestId" value={r.id} /></PortalForm>
+        <PortalForm context={context} command="reject-request" label={t('Отклонить')}><input type="hidden" name="requestId" value={r.id} /><Field label={t('Причина, если нужно')}><Input name="note" maxLength={300} /></Field></PortalForm>
+      </span> : <PortalForm context={context} command="cancel-request" label={t('Отменить запрос')}><input type="hidden" name="requestId" value={r.id} /></PortalForm>)}
+    </li>)}</ul> : <p>{manager ? t('Ожидающих запросов нет.') : t('Запросов пока нет.')}</p>}
+    {!manager && <details className="portal-request-off"><summary>{t('Попросить выходной или отпуск')}</summary>
+      <PortalForm context={context} command="request-time-off" label={t('Отправить на подтверждение')}>
+        <Field label={t('С даты')}><Input name="dateFrom" type="date" required /></Field>
+        <Field label={t('По дату')}><Input name="dateTo" type="date" required /></Field>
+        <Field label={t('Причина')}><Input name="reason" maxLength={200} /></Field>
+      </PortalForm>
+    </details>}
+  </section>;
+}
+

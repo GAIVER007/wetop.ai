@@ -18,8 +18,9 @@ vi.mock('../ui', () => ({
 }));
 vi.mock('./forms', () => ({
   PortalForm: ({ children, command }: { children: ReactNode; command: string }) => createElement('form', { 'data-command': command }, children),
-  PortalWeek: () => createElement('div', { 'data-testid': 'portal-week-editor' }),
+  PortalWeek: ({ request }: { request?: boolean }) => createElement('div', { 'data-testid': request ? 'portal-week-request' : 'portal-week-editor' }),
   PortalWeekView: () => createElement('div', { 'data-testid': 'portal-week-view' }),
+  PortalScheduleRequests: () => createElement('div', { 'data-testid': 'portal-schedule-requests' }),
 }));
 vi.mock('./media', () => ({ PortalMedia: () => createElement('div', { 'data-testid': 'portal-media' }) }));
 vi.mock('./management', () => ({ PortalManagement: () => createElement('div', { 'data-testid': 'portal-management' }) }));
@@ -73,7 +74,7 @@ function dto(access: 'SELF' | 'MANAGER', sectionAccess: EmployeePortalSectionAcc
     servicesRevision: 'services-r1',
     week: [],
     weekRevision: 'week-r1',
-    scheduleConflicts: { items: [], checkedFrom: '2026-10-18T00:00:00.000Z', checkedCount: 0, truncated: false },
+    scheduleRequests: [], scheduleConflicts: { items: [], checkedFrom: '2026-10-18T00:00:00.000Z', checkedCount: 0, truncated: false },
     timeOffs: [],
     appointments: [],
     orders: [],
@@ -109,7 +110,9 @@ describe('Beauty employee cabinet access projection', () => {
     }));
 
     expect(html).toContain('Профессиональный профиль');
-    expect(html).toContain('data-testid="portal-week-view"');
+    // график через руководителя (владелец 28.10.2026): мастер правит неделю только запросом, прямого сохранения нет
+    expect(html).toContain('data-testid="portal-week-request"');
+    expect(html).toContain('data-testid="portal-schedule-requests"');
     expect(html).not.toContain('data-testid="portal-week-editor"');
     expect(html).not.toContain('data-command="profile"');
     expect(html).not.toContain('data-testid="portal-own-work"');

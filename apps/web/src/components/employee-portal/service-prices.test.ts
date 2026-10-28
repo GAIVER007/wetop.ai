@@ -20,6 +20,7 @@ vi.mock('./forms', () => ({
   PortalForm: ({ children }: { children: ReactNode }) => createElement('form', null, children),
   PortalWeek: () => null,
   PortalWeekView: () => null,
+  PortalScheduleRequests: () => null,
 }));
 vi.mock('./media', () => ({ PortalMedia: () => null }));
 vi.mock('./management', () => ({ PortalManagement: () => null }));
@@ -52,7 +53,7 @@ const initial = (access: 'MANAGER' | 'SELF'): EmployeePortalDto => ({
   servicesRevision: 'services-r1',
   week: [],
   weekRevision: 'week-r1',
-  scheduleConflicts: { items: [], checkedFrom: '2026-10-18', checkedCount: 0, truncated: false },
+  scheduleRequests: [], scheduleConflicts: { items: [], checkedFrom: '2026-10-18', checkedCount: 0, truncated: false },
   reviews: { averageStars: null, count: 0, hasMore: false, items: [] },
   timeOffs: [],
   appointments: [],

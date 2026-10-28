@@ -45,6 +45,7 @@ vi.mock('../../../components/employee-portal/forms', () => ({
   PortalForm: ({ children }: { children: ReactNode }) => createElement('form', null, children),
   PortalWeek: () => createElement('div', null, 'Редактор графика'),
   PortalWeekView: () => createElement('div', null, 'График'),
+  PortalScheduleRequests: () => null,
 }));
 vi.mock('../../../components/employee-portal/media', () => ({
   PortalMedia: () => createElement('section', null, 'Фото и работы'),
@@ -106,7 +107,7 @@ function portal(active: boolean): EmployeePortalDto {
     location: { id: 'location-1', name: 'Салон на Тестовой', timezone: 'Asia/Almaty', currency: 'KZT' },
     profile: { headline: '', biography: '', practiceSinceYear: null, slug: 'maria-testova', published: false, publicationConsent: false, revision: 'public-r1' },
     avatar: null, portfolio: [], services: [], servicesRevision: 'services-r1', week: [], weekRevision: 'week-r1',
-    scheduleConflicts: { items: [], checkedFrom: '2026-10-18', checkedCount: 0, truncated: false },
+    scheduleRequests: [], scheduleConflicts: { items: [], checkedFrom: '2026-10-18', checkedCount: 0, truncated: false },
     timeOffs: [], appointments: [], orders: [],
     reviews: { averageStars: null, count: 0, hasMore: false, items: [] },
     workRange: 'DAY', workTruncated: false, monthStats: { month: '2026-10', status: 'AVAILABLE', currency: 'KZT', shifts: 20, daysOff: 11, absenceDays: 0, appointmentsDone: 0, servicesDone: 0, ordersClosed: null, tablesServed: null, guests: null, revenueMinor: '0', bonusMinor: '0', percent: null },

@@ -216,7 +216,7 @@ export class EmployeePortalService {
     if(typeof month!=='string'||!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new BadRequestException('Invalid month');
     const reviewLocations=portalAccess?.locationScopes.reviews;
     const reviewLocationFilter=reviewLocations?{appointment:{locationId:reviewLocations.length===1?reviewLocations[0]!:{in:reviewLocations}}}:{};
-    const [p,media,works,services,skills,hours,timeOffs,reviewSummary,reviewItems]=await Promise.all([
+    const [p,media,works,services,skills,hours,timeOffs,reviewSummary,reviewItems,scheduleRequests]=await Promise.all([
       this.profile(db,e.id),db.employeeMedia.findMany({where:{employeeId:e.id},orderBy:{createdAt:'desc'}}),
       db.employeePortfolioItem.findMany({where:{employeeId:e.id},include:{media:true},orderBy:{createdAt:'desc'}}),
       servicesAllowed?db.beautyService.findMany({where:{businessId:b.id},include:{locations:l?{where:{locationId:l.id}}:true,employeePrices:{where:{employeeId:e.id,...(l?{locationId:l.id}:{locationId:{in:[]}})}}},orderBy:{id:'asc'}}):[],
@@ -225,6 +225,8 @@ export class EmployeePortalService {
       scheduleAllowed?db.timeOff.findMany({where:{employeeId:e.id},orderBy:{dateFrom:'asc'}}):[],
       b.vertical==='BEAUTY'&&reviewsAllowed?db.beautyAppointmentReview.aggregate({where:{employeeId:e.id,...reviewLocationFilter},_avg:{stars:true},_count:{_all:true}}):null,
       b.vertical==='BEAUTY'&&reviewsAllowed?db.beautyAppointmentReview.findMany({where:{employeeId:e.id,...reviewLocationFilter},select:{appointmentId:true,stars:true,comment:true,submittedAt:true},orderBy:[{submittedAt:'desc'},{appointmentId:'desc'}],take:50}):[],
+      // запросы графика (SCHEDULE-REQUESTS-20261028): мастер видит свои, руководитель ожидающие и последние решения
+      scheduleAllowed?db.employeeScheduleRequest.findMany({where:{employeeId:e.id},orderBy:[{createdAt:'desc'},{id:'desc'}],take:20}):[],
     ]);
     // «День» или «Месяц» (выбранный месяц по часам филиала); месяц ограничен WORK_MONTH_LIMIT строк по дате
     const mb=monthBounds(month);
@@ -266,6 +268,7 @@ export class EmployeePortalService {
       portfolio:await Promise.all(works.map(async x=>({id:x.id,title:x.title,description:x.description,serviceId:x.serviceId,published:x.published,publicationConsent:x.publicationConsent,image:await this.image(x.media)}))),
       services:services.filter(x=>!portalAccess||portalAccess.catalogServicesView||skills.some(k=>k.serviceId===x.id)).map(x=>{const ls=l?x.locations[0]:undefined,mp=x.employeePrices[0],inherited=ls?.priceOverride??(l&&x.currency===l.currency?x.price:null),priceType=mp?.priceType??'FIXED',min=mp?mp.priceMinMinor:inherited,max=mp?mp.priceMaxMinor:inherited,price=priceType==='FIXED'||priceType==='FREE'?min:null;return {id:x.id,name:x.name,durationMinutes:mp?.durationMinutes??ls?.durationOverride??x.durationMinutes,priceMinor:price?.toString()??null,currency:mp?.currency??l?.currency??x.currency,priceType,priceMinMinor:min?.toString()??null,priceMaxMinor:max?.toString()??null,priceSource:mp?'MASTER' as const:ls?.priceOverride!==null&&ls?.priceOverride!==undefined?'LOCATION' as const:'CATALOG' as const,priceRevision:mp?.revision??null,assigned:skills.some(k=>k.serviceId===x.id),available:!!l&&x.active&&!!ls?.enabled&&(mp!==undefined||inherited!==null)};}),servicesRevision:fingerprint(skills.map(x=>x.serviceId)),week:weekTemplate(intervals),weekRevision:weekSource?hoursRowsRevision(weekSource.rows,weekSource.sourceRevision):null,
       timeOffs:timeOffs.map(t=>({id:t.id,dateFrom:dateOnly(t.dateFrom),dateTo:dateOnly(t.dateTo),reason:t.reason})),appointments:appointments.map(a=>({id:a.id,date:monthRange?localDate(a.startsAt,timezone):date,startsAt:a.startsAt.toISOString(),endsAt:a.endsAt.toISOString(),customerName:s.access==='SELF'?'':[a.appointment.customer.firstName,a.appointment.customer.lastName].filter(Boolean).join(' ') /* кабинет мастера (владелец 28.10.2026): имена клиентов мастер не получает */,serviceName:a.service.name,status:a.appointment.status,priceMinor:a.priceMinor.toString(),currency:a.currency})),orders:orders.map(o=>({id:o.id,number:String(o.number),status:o.status,totalMinor:o.total.toString(),currency:o.currency,tableName:o.table?.name??null,date:localDate(o.openedAt,timezone)})),workRange:monthRange?'MONTH' as const:'DAY' as const,workTruncated,
+      scheduleRequests:scheduleRequests.map(r=>({id:r.id,kind:r.kind,status:r.status,payload:r.payload as Record<string,unknown>,createdAt:r.createdAt.toISOString(),decidedAt:r.decidedAt?.toISOString()??null,decisionNote:r.decisionNote})),
       scheduleConflicts:{items:conflicts,checkedFrom:checkedFrom.toISOString(),checkedCount:Math.min(upcoming.length,500),truncated:upcoming.length>500},
       reviews:{averageStars:reviewSummary?._avg.stars??null,count:reviewSummary?._count._all??0,hasMore:(reviewSummary?._count._all??0)>reviewItems.length,items:reviewItems.map(review=>({appointmentId:review.appointmentId,stars:review.stars,comment:review.comment,submittedAt:review.submittedAt.toISOString()}))},
       pay:payrollAllowed?await this.pay(db,e.id,b.id,b.vertical,l,month):this.unavailablePay(month,l?.currency??''),monthStats};
@@ -309,6 +312,47 @@ export class EmployeePortalService {
       } else if(action==='time-off') {
         const input=objectInput(raw,['dateFrom','dateTo','reason']);const result=parseTimeOffInput(input);if(!result.ok)throw new BadRequestException(result.reason);
         await tx.timeOff.create({data:{employeeId:e.id,dateFrom:new Date(`${result.value.dateFrom}T00:00:00Z`),dateTo:new Date(`${result.value.dateTo}T00:00:00Z`),reason:result.value.reason}});
+      } else if(action==='schedule-request') {
+        // запрос мастера на изменение своего графика (владелец 28.10.2026, SCHEDULE-REQUESTS-20261028); решает руководитель
+        if(s.access!=='SELF') throw new ForbiddenException('Запрос подаёт сам сотрудник');
+        if(!s.location) throw new BadRequestException('Select assigned branch');
+        const input=objectInput(raw,['kind','intervals','dateFrom','dateTo','reason']);
+        if(input.kind==='WEEK') {
+          const result=parseWorkingHoursWeek({intervals:input.intervals});if(!result.ok) throw new BadRequestException(result.reason);
+          if(await tx.employeeScheduleRequest.count({where:{employeeId:e.id,locationId:s.location.id,kind:'WEEK',status:'PENDING'}})) throw new ConflictException('Запрос недели уже ждёт решения');
+          await tx.employeeScheduleRequest.create({data:{employeeId:e.id,locationId:s.location.id,kind:'WEEK',payload:{intervals:result.value.map(h=>({weekday:h.weekday,timeFrom:h.timeFrom,timeTo:h.timeTo}))},baseRevision:await hoursRevision(tx,e.id,s.location.id),createdById:currentUserId()!}});
+        } else if(input.kind==='TIME_OFF') {
+          const result=parseTimeOffInput({dateFrom:input.dateFrom,dateTo:input.dateTo,reason:input.reason??''});if(!result.ok)throw new BadRequestException(result.reason);
+          if(await tx.employeeScheduleRequest.count({where:{employeeId:e.id,kind:'TIME_OFF',status:'PENDING'}})>=10) throw new ConflictException('Слишком много ожидающих запросов');
+          await tx.employeeScheduleRequest.create({data:{employeeId:e.id,locationId:s.location.id,kind:'TIME_OFF',payload:{dateFrom:result.value.dateFrom,dateTo:result.value.dateTo,reason:result.value.reason},createdById:currentUserId()!}});
+        } else throw new BadRequestException('Invalid request kind');
+      } else if(action==='cancel-schedule-request') {
+        if(s.access!=='SELF') throw new ForbiddenException('Отменяет сам сотрудник');
+        const r=await tx.employeeScheduleRequest.findFirst({where:{id:id(itemId),employeeId:e.id,status:'PENDING'}});
+        if(!r) throw new NotFoundException('Request not found');
+        await tx.employeeScheduleRequest.update({where:{id:r.id},data:{status:'CANCELLED',decidedById:currentUserId()!,decidedAt:new Date()}});
+      } else if(action==='approve-schedule-request'||action==='reject-schedule-request') {
+        if(employeeId===null) throw new ForbiddenException('Manager endpoint required');this.manager();
+        const r=await tx.employeeScheduleRequest.findFirst({where:{id:id(itemId),employeeId:e.id,status:'PENDING'}});
+        if(!r) throw new NotFoundException('Request not found');
+        if(action==='reject-schedule-request') {
+          const input=objectInput(raw,['note']);const note=typeof input.note==='string'?input.note.trim().slice(0,300):'';
+          await tx.employeeScheduleRequest.update({where:{id:r.id},data:{status:'REJECTED',decidedById:currentUserId()!,decidedAt:new Date(),decisionNote:note||null}});
+        } else {
+          const payload=r.payload as Record<string,unknown>;
+          if(r.kind==='WEEK') {
+            const result=parseWorkingHoursWeek({intervals:payload.intervals});if(!result.ok) throw new BadRequestException(result.reason);
+            // неделю успели поменять после запроса: одобрять устаревшее нельзя, мастер подаёт заново
+            if(r.baseRevision!==await hoursRevision(tx,e.id,r.locationId)) throw new ConflictException('Запрос устарел: неделя изменилась после него');
+            await tx.workingHours.deleteMany({where:{employeeId:e.id,locationId:r.locationId}});
+            await tx.workingHours.createMany({data:result.value.map(h=>({employeeId:e.id,locationId:r.locationId,weekday:h.weekday,timeFrom:new Date(`1970-01-01T${h.timeFrom}:00Z`),timeTo:endTimeToDate(h.timeTo)}))});
+            await touchEmployeeSourceRevision(tx,e.id);
+          } else {
+            const result=parseTimeOffInput({dateFrom:payload.dateFrom,dateTo:payload.dateTo,reason:payload.reason??''});if(!result.ok)throw new BadRequestException(result.reason);
+            await tx.timeOff.create({data:{employeeId:e.id,dateFrom:new Date(`${result.value.dateFrom}T00:00:00Z`),dateTo:new Date(`${result.value.dateTo}T00:00:00Z`),reason:result.value.reason}});
+          }
+          await tx.employeeScheduleRequest.update({where:{id:r.id},data:{status:'APPROVED',decidedById:currentUserId()!,decidedAt:new Date()}});
+        }
       } else if(action==='delete-time-off') {
         if(!(await tx.timeOff.deleteMany({where:{id:id(itemId),employeeId:e.id}})).count) throw new NotFoundException('Time off not found');
       } else if(action==='account') {

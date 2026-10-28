@@ -206,6 +206,8 @@ export const activityOps: Record<string, string> = {
   'Инструкция ИИ-продавца восстановлена': 'AI sales agent instructions restored',
   'Инструкция ИИ-продавца изменена': 'AI sales agent instructions changed',
   'Заявка с сайта': 'Website request',
+  'Оплата клиента записана': 'Client payment recorded',
+  'Подписка клиента изменена': 'Client subscription changed',
   'Статус заявки изменён': 'Request status changed',
   'Доступ к конструктору сайта изменён': 'Website builder access changed',
   'Обращение закрыто': 'Support request closed',

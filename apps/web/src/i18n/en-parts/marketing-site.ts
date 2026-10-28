@@ -670,6 +670,17 @@ export const marketingSite: Record<string, string> = {
   "Запись с сайта идёт формой в блоке страницы и сразу попадает в журнал.": "Website bookings go through the form in a page block and land in the journal right away.",
   "Нет в данных филиала": "Not in the branch data",
   "Сайт филиала, живой просмотр": "Branch website, live preview",
+  // SEO в простом экране (аудит «Сайт и SEO» S5, 28.10.2026)
+  "Поиск Google": "Google search",
+  "Так сайт увидят в Google": "How the website looks in Google",
+  "адрес сайта после публикации": "website address after publishing",
+  "Описание появится здесь": "The description will appear here",
+  "Заголовок в Google": "Title in Google",
+  "До {n} знаков. Пусто: возьмём заголовок сайта.": "Up to {n} characters. Empty: we use the website heading.",
+  "Описание в Google": "Description in Google",
+  "До {n} знаков: чем вы лучше и как записаться.": "Up to {n} characters: why you are better and how to book.",
+  "Показывать сайт в поиске": "Show the website in search",
+  "Выключите, пока сайт не готов: Google его не покажет.": "Turn off until the website is ready: Google will not show it.",
   // заявки с сайта (аудит «Сайт и SEO» S3, 28.10.2026)
   "В работе": "In progress",
   "Заявки по статусу": "Requests by status",

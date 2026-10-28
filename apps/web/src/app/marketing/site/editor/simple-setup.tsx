@@ -6,11 +6,17 @@ import {
   SITE_COPY_COUNT,
   applySiteTemplate,
   canonicalJson,
+  SEO_DESCRIPTION_MAX,
+  SEO_TITLE_MAX,
   currentSiteTemplate,
+  searchPreview,
   setAboutText,
   setGalleryPhotos,
   setHeroPhoto,
   setHeroText,
+  setHomeSeo,
+  setSiteIndexing,
+  simpleSiteSeo,
   simpleSiteState,
   siteCopySuggestion,
   siteTemplatesFor,
@@ -85,6 +91,8 @@ export function SimpleSiteSetup({
   const { ask, dialog } = useConfirm();
 
   const st = simpleSiteState(spec);
+  const seo = simpleSiteSeo(spec);
+  const google = searchPreview(spec, url, locationName);
   const current = currentSiteTemplate(spec, vertical);
   const locale = String((spec['site'] as Record<string, unknown> | undefined)?.['defaultLocale'] ?? 'ru');
   const assetUrls = useMemo(() => Object.fromEntries(assets.filter((a) => a.previewUrl).map((a) => [a.id, a.previewUrl as string])), [assets]);
@@ -438,9 +446,51 @@ export function SimpleSiteSetup({
           })}
         </fieldset>
 
+        <fieldset className="setup__step" disabled={readOnly || !!busy} data-testid="setup-seo">
+          <legend>
+            <span className="setup__n">5</span>
+            {t('Поиск Google')}
+          </legend>
+          <div className="setup__google" aria-label={t('Так сайт увидят в Google')} data-testid="setup-google">
+            <span className="setup__google-url">{google.url || t('адрес сайта после публикации')}</span>
+            <span className="setup__google-title">{google.title}</span>
+            <span className="setup__google-text">{google.description || t('Описание появится здесь')}</span>
+          </div>
+          <TextBox
+            id="setup-seo-title"
+            label={t('Заголовок в Google')}
+            hint={t('До {n} знаков. Пусто: возьмём заголовок сайта.', { n: SEO_TITLE_MAX })}
+            value={seo.title}
+            max={SEO_TITLE_MAX}
+            onCommit={(v) => apply(setHomeSeo(specRef.current, 'title', locale, v) as Spec)}
+          />
+          <TextBox
+            id="setup-seo-description"
+            label={t('Описание в Google')}
+            hint={t('До {n} знаков: чем вы лучше и как записаться.', { n: SEO_DESCRIPTION_MAX })}
+            value={seo.description}
+            max={SEO_DESCRIPTION_MAX}
+            rows={2}
+            onCommit={(v) => apply(setHomeSeo(specRef.current, 'description', locale, v) as Spec)}
+          />
+          <label className="setup__toggle">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={seo.indexed}
+              onChange={(e) => apply(setSiteIndexing(specRef.current, e.currentTarget.checked) as Spec)}
+              data-testid="setup-seo-index"
+            />
+            <span>
+              <b>{t('Показывать сайт в поиске')}</b>
+              <span className="muted">{t('Выключите, пока сайт не готов: Google его не покажет.')}</span>
+            </span>
+          </label>
+        </fieldset>
+
         <div className="setup__step setup__publish" data-testid="setup-publish">
           <div className="setup__publish-head">
-            <span className="setup__n">5</span>
+            <span className="setup__n">6</span>
             <b>{t('Публикация')}</b>
           </div>
           {url && (

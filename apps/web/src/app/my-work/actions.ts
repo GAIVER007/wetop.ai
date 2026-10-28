@@ -12,7 +12,7 @@ import { msg } from '../../i18n';
 export interface PortalResult { data?: EmployeePortalDto; error?: string }
 const text = (form: FormData, key: string) => String(form.get(key) ?? '').trim();
 const checked = (form: FormData, key: string) => form.get(key) === 'on';
-const managerCommands = new Set(['publication', 'account', 'unlink', 'pay', 'pay-policy', 'active']);
+const managerCommands = new Set(['publication', 'account', 'unlink', 'pay', 'pay-policy', 'active', 'approve-request', 'reject-request']);
 /** Every command re-reads authenticated access and scope; browser flags never confer permission. */
 export async function savePortal(target: PortalTarget, scope: string, command: string, form: FormData): Promise<PortalResult> {
   try {
@@ -66,6 +66,23 @@ export async function savePortal(target: PortalTarget, scope: string, command: s
         data = await employeePortalApi.timeOff(target, input); break;
       }
       case 'remove-time-off': data = await employeePortalApi.removeTimeOff(target, text(form, 'timeOffId')); break;
+      // запросы графика (SCHEDULE-REQUESTS-20261028): мастер подаёт и отменяет, руководитель решает
+      case 'request-week': {
+        const parsed = parseWorkingHoursWeek({ intervals: JSON.parse(text(form, 'intervals')) as unknown });
+        if (!parsed.ok) return { error: parsed.reason };
+        data = await employeePortalApi.scheduleRequest({ kind: 'WEEK', intervals: parsed.value }); break;
+      }
+      case 'request-time-off': {
+        const input = { dateFrom: text(form, 'dateFrom'), dateTo: text(form, 'dateTo'), reason: text(form, 'reason') };
+        const parsed = parseTimeOffInput(input); if (!parsed.ok) return { error: parsed.reason };
+        data = await employeePortalApi.scheduleRequest({ kind: 'TIME_OFF', ...input }); break;
+      }
+      case 'cancel-request': data = await employeePortalApi.cancelScheduleRequest(text(form, 'requestId')); break;
+      case 'approve-request': case 'reject-request': {
+        if (!target.employeeId) return { error: msg('Решает руководитель.') };
+        data = await employeePortalApi.decideScheduleRequest(target.employeeId, text(form, 'requestId'), command === 'approve-request' ? 'approve' : 'reject', text(form, 'note'));
+        break;
+      }
       case 'account': {
         const userId = text(form, 'userId');
         if (!/^[0-9a-f-]{36}$/i.test(userId)) return { error: msg('Выберите подтверждённого участника команды. Идентификатор не создаёт аккаунт.') };

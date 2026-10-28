@@ -11,6 +11,9 @@ vi.mock('../ui', () => ({
 vi.mock('./forms', () => ({
   PortalForm: ({ children, command, label }: { children?: ReactNode; command: string; label: string }) =>
     createElement('form', { 'data-command': command }, children, createElement('button', { type: 'submit' }, label)),
+  PortalWeek: () => null,
+  PortalWeekView: () => null,
+  PortalScheduleRequests: () => null,
 }));
 
 vi.mock('../../app/login/actions', () => ({ inviteNewStaffAction: vi.fn() }));
@@ -41,7 +44,7 @@ const data = (accountLinked = false, access: 'MANAGER' | 'SELF' = 'MANAGER'): Em
   servicesRevision: 'services-r1',
   week: [],
   weekRevision: 'week-r1',
-  scheduleConflicts: { items: [], checkedFrom: '2026-10-18', checkedCount: 0, truncated: false },
+  scheduleRequests: [], scheduleConflicts: { items: [], checkedFrom: '2026-10-18', checkedCount: 0, truncated: false },
   timeOffs: [],
   appointments: [],
   orders: [],

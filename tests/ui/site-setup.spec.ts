@@ -86,6 +86,27 @@ test('фото: обложка загружается с экрана и вст�
   await expect(m.getByTestId('setup-status')).toContainText('Сохранено', { timeout: 10_000 });
 });
 
+test('поиск Google: свой заголовок и описание видны в превью выдачи, скрыть из поиска; сохраняется само', async ({ page }) => {
+  await page.goto('/marketing/site/editor');
+  const step = main(page).getByTestId('setup-seo');
+  await expect(step).toBeVisible();
+  const google = step.getByTestId('setup-google');
+  await step.getByLabel('Заголовок в Google').fill('Luxx Aparts: апартаменты у вокзала');
+  await step.getByLabel('Описание в Google').fill('Тихие номера, кухня и парковка. Бронь онлайн без комиссии.');
+  await step.getByLabel('Описание в Google').blur();
+  await expect(google).toContainText('Luxx Aparts: апартаменты у вокзала');
+  await expect(google).toContainText('Тихие номера, кухня и парковка.');
+  const index = step.getByTestId('setup-seo-index');
+  await expect(index).toBeChecked();
+  await index.uncheck();
+  await expect(index).not.toBeChecked();
+  await expect(main(page).getByTestId('setup-status')).toHaveText(/Сохранено/, { timeout: 15_000 });
+  await page.reload();
+  await expect(main(page).getByTestId('setup-seo').getByLabel('Заголовок в Google')).toHaveValue('Luxx Aparts: апартаменты у вокзала');
+  await expect(main(page).getByTestId('setup-seo-index')).not.toBeChecked();
+  await main(page).getByTestId('setup-seo').screenshot({ path: `${SHOTS}/setup-seo-step.png` });
+});
+
 test('публикация одной кнопкой: после неё кнопка «Опубликовано»', async ({ page }) => {
   await page.goto('/marketing/site/editor');
   const m = main(page);

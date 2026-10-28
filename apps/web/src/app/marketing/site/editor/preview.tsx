@@ -315,7 +315,7 @@ export function SitePreview({
       )}
       <div className={cx('ed-preview__stage', device === 'phone' && 'is-phone', device === 'tablet' && 'is-tablet')}>
         {html !== null && (
-          <iframe ref={frame} className="ed-preview__frame" title={t('Сайт гостиницы, живой просмотр')} sandbox="allow-same-origin" srcDoc={html} onLoad={onLoad} data-testid="ed-frame" />
+          <iframe ref={frame} className="ed-preview__frame" title={t('Сайт филиала, живой просмотр')} sandbox="allow-same-origin" srcDoc={html} onLoad={onLoad} data-testid="ed-frame" />
         )}
       </div>
     </section>

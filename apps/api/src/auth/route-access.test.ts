@@ -671,6 +671,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── «Платформа» — главный администратор (§16.2) ─────────────────────────────────────────
   'GET /platform/organizations': 'platform',
   'GET /platform/overview': 'platform',
+  // кабинет компании WETOP (28.10.2026)
+  'GET /platform/cabinet': 'platform',
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор
   'PUT /platform/organizations/:id/status': 'platform',

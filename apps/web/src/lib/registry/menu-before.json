@@ -736,6 +736,10 @@
             "label": "Все настройки"
           },
           {
+            "href": "/platform/cabinet",
+            "label": "Кабинет WETOP"
+          },
+          {
             "href": "/platform",
             "label": "Организации"
           }
@@ -1576,6 +1580,10 @@
           {
             "href": "/settings",
             "label": "Все настройки"
+          },
+          {
+            "href": "/platform/cabinet",
+            "label": "Кабинет WETOP"
           },
           {
             "href": "/platform",
@@ -2535,6 +2543,10 @@
           {
             "href": "/settings",
             "label": "Все настройки"
+          },
+          {
+            "href": "/platform/cabinet",
+            "label": "Кабинет WETOP"
           },
           {
             "href": "/platform",

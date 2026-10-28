@@ -2481,6 +2481,51 @@ const platformOrganizations = () => [
     locations: 1,
   })),
 ];
+/** Кабинет компании WETOP (срез 1): клиенты без своей организации, путь клиента и сроки, той же арифметикой, что API */
+const platformCabinet = () => {
+  const now = Date.now();
+  const orgs = platformOrganizations().filter((o) => o.id !== 'ui-org');
+  const live = orgs.filter((o) => o.status !== 'SUSPENDED');
+  const daysLeft = (iso: string | null) => (iso ? Math.max(0, Math.ceil((Date.parse(iso) - now) / DAY_MS)) : null);
+  const login = (id: string) => (id === 'ui-org-2' ? new Date(now - 3_600_000).toISOString() : null);
+  const clients = live.map((o) => ({
+    id: o.id,
+    name: o.name,
+    status: o.status,
+    verticals: o.verticals,
+    locations: o.locations,
+    members: o.members,
+    owner: o.owners[0] ?? null,
+    since: o.createdAt,
+    lastLoginAt: login(o.id),
+    records30d: o.id === 'ui-org-2' ? 12 : 0,
+    trialDaysLeft: o.status === 'TRIAL' ? daysLeft(o.trialEndsAt) : null,
+  }));
+  return {
+    totals: {
+      clients: live.length,
+      people: live.reduce((n, o) => n + o.members, 0),
+      activePeople7d: clients.filter((c) => c.lastLoginAt).length,
+    },
+    funnel: {
+      registered30d: orgs.filter((o) => Date.parse(o.createdAt) >= now - 30 * DAY_MS).length,
+      working: clients.filter((c) => c.lastLoginAt).length,
+      trial: live.filter((o) => o.status === 'TRIAL').length,
+      paying: live.filter((o) => o.status === 'ACTIVE').length,
+      left: orgs.filter((o) => o.status === 'SUSPENDED' || o.status === 'READ_ONLY').length,
+    },
+    clients,
+    deadlines: [
+      ...live
+        .filter((o) => o.status === 'TRIAL')
+        .map((o) => ({ id: o.id, name: o.name, kind: 'trial', daysLeft: daysLeft(o.trialEndsAt), date: o.trialEndsAt })),
+      ...live
+        .filter((o) => o.status === 'READ_ONLY')
+        .map((o) => ({ id: o.id, name: o.name, kind: 'unpaid', daysLeft: 0, date: null })),
+    ],
+  };
+};
+
 /** Обзор платформы (срез P1): считается из тех же организаций, что и таблица, той же арифметикой, что у API */
 const platformOverview = () => {
   const orgs = platformOrganizations();
@@ -8110,6 +8155,8 @@ createServer(async (req, res) => {
       // Обзор платформы (срез P1, план platform-superadmin-2026-10-10): денег в ответе нет (ADR-102)
       if (path === '/platform/overview' && req.method === 'GET')
         return send(200, platformOverview());
+      // Кабинет компании WETOP (28.10.2026): своя организация ui-org не клиент, остальные как в таблице
+      if (path === '/platform/cabinet' && req.method === 'GET') return send(200, platformCabinet());
       // MKT9.2: лицензии конструктора сайта по филиалам
       const siteBuilder = platformSiteBuilderFixture(path, req.method ?? 'GET', body);
       if (siteBuilder) return send(siteBuilder.status, siteBuilder.data);

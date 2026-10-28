@@ -572,6 +572,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'platform',
       },
       {
+        // кабинет компании WETOP (владелец 28.10.2026, вариант «Г»): клиенты, путь клиента, сроки
+        href: '/platform/cabinet',
+        label: 'Кабинет WETOP',
+        icon: 'today',
+        description: 'Компания WETOP: клиенты, их путь от регистрации до оплаты и сроки.',
+        requires: 'platform',
+      },
+      {
         href: '/platform',
         label: 'Организации',
         icon: 'inventory',
@@ -737,7 +745,8 @@ const ROW: Array<{
       { label: 'История действий', at: ALL('/journal') },
       // хаб со всеми настройками направления карточками (21.10.2026): последним рабочим пунктом, порядок прочих прежний
       { label: 'Все настройки', at: ALL('/settings') },
-      // «Организации» только главному администратору (отметка `platform`)
+      // «Кабинет WETOP» и «Организации» только главному администратору (отметка `platform`)
+      { label: 'Кабинет WETOP', at: ALL('/platform/cabinet') },
       { label: 'Организации', at: ALL('/platform') },
     ],
     match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/branch-payment-methods', '/connections', '/channel-manager', '/platform'],

@@ -70,6 +70,7 @@ function fixture(permissions: Permission[], assignmentLocationId:string|null=nul
     employeeService: { findMany: vi.fn<() => Promise<EmployeeServiceRow[]>>(async () => []) },
     workingHours: { findMany: vi.fn(async () => []) },
     timeOff: { findMany: vi.fn(async () => []) },
+    employeeScheduleRequest: { findMany: vi.fn(async () => []) },
     beautyAppointmentReview: { aggregate: privateReads.reviewSummary, findMany: privateReads.reviewItems },
     appointmentLine: { findMany: privateReads.appointments, groupBy: privateReads.paySales },
     restaurantOrder: { findMany: vi.fn(async () => []), aggregate: vi.fn(async () => ({ _sum: { total: 0n } })) },

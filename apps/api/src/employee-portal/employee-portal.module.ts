@@ -25,6 +25,8 @@ export class EmployeePortalManagerController {
   @BeautyAccess('employees','update') @Put('week') week(@Param('id') employeeId:string, @Body() b:unknown) { return this.service.mutate(employeeId,'week',b); }
   @BeautyAccess('employees','update') @Post('time-offs') timeOff(@Param('id') employeeId:string, @Body() b:unknown) { return this.service.mutate(employeeId,'time-off',b); }
   @BeautyAccess('employees','update') @Delete('time-offs/:timeOffId') deleteTimeOff(@Param('id') employeeId:string, @Param('timeOffId') itemId:string) { return this.service.mutate(employeeId,'delete-time-off',{},itemId); }
+  @BeautyAccess('employees','update') @Post('schedule-requests/:requestId/approve') approveRequest(@Param('id') employeeId:string, @Param('requestId') itemId:string) { return this.service.mutate(employeeId,'approve-schedule-request',{},itemId); }
+  @BeautyAccess('employees','update') @Post('schedule-requests/:requestId/reject') rejectRequest(@Param('id') employeeId:string, @Param('requestId') itemId:string, @Body() b:unknown) { return this.service.mutate(employeeId,'reject-schedule-request',b,itemId); }
   @BeautyAccess('employees','update') @Put('account') account(@Param('id') employeeId:string, @Body() b:unknown) { return this.service.mutate(employeeId,'account',b); }
   @BeautyAccess('employees','update') @Delete('account') unlinkAccount(@Param('id') employeeId:string) { return this.service.mutate(employeeId,'unlink-account',{}); }
   @BeautyAccess('payroll','update') @Put('pay-settings') paySettings(@Param('id') employeeId:string, @Body() b:unknown) { return this.service.mutate(employeeId,'pay-settings',b); }
@@ -57,6 +59,9 @@ export class EmployeePortalSelfController {
   @BeautyAccess('journal','update',{own:false}) @Put('week') week(@Body() b:unknown) { return this.service.mutate(null,'week',b); }
   @BeautyAccess('journal','update',{own:false}) @Post('time-offs') timeOff(@Body() b:unknown) { return this.service.mutate(null,'time-off',b); }
   @BeautyAccess('journal','update',{own:false}) @Delete('time-offs/:timeOffId') deleteTimeOff(@Param('timeOffId') itemId:string) { return this.service.mutate(null,'delete-time-off',{},itemId); }
+  // запрос графика (SCHEDULE-REQUESTS-20261028): мастер видит свой кабинет, поэтому то же право, что и чтение
+  @BeautyAccess('journal','view',{own:true,anyOf:['appointments','payroll','reviews']}) @Post('schedule-requests') scheduleRequest(@Body() b:unknown) { return this.service.mutate(null,'schedule-request',b); }
+  @BeautyAccess('journal','view',{own:true,anyOf:['appointments','payroll','reviews']}) @Post('schedule-requests/:requestId/cancel') cancelRequest(@Param('requestId') itemId:string) { return this.service.mutate(null,'cancel-schedule-request',{},itemId); }
   @BeautyAccess('journal','update',{own:false})
   @Put('avatar')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize:SITE_ASSET_LIMITS.maxUploadBytes, files:1, fields:6 } }))

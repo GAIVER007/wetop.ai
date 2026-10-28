@@ -83,6 +83,13 @@ export interface EmployeePortalDto {
   workRange: 'DAY' | 'MONTH'; workTruncated: boolean;
   pay: PortalPay;
   monthStats: PortalMonthStats;
+  /** Запросы мастера на изменение графика (SCHEDULE-REQUESTS-20261028), новые сверху, не больше 20 */
+  scheduleRequests: PortalScheduleRequest[];
+}
+export interface PortalScheduleRequest {
+  id: string; kind: 'WEEK' | 'TIME_OFF'; status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  /** WEEK: {intervals:[{weekday,timeFrom,timeTo}]}; TIME_OFF: {dateFrom,dateTo,reason} */
+  payload: Record<string, unknown>; createdAt: string; decidedAt: string | null; decisionNote: string | null;
 }
 // Public projection has no private Employee, account, schedule reasons, orders, pay or customer fields.
 export interface PublicEmployeeDto {

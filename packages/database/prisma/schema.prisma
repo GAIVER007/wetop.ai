@@ -166,6 +166,7 @@ model Location {
   @@index([businessId])
   @@index([bookingTrackedSiteId])
   @@map("locations")
+  scheduleRequests EmployeeScheduleRequest[]
 }
 
 /// Фото и договор объекта (ADR-158, DATA_MODEL §32.3): файл в закрытом хранилище, в базе только ключ.
@@ -2814,6 +2815,8 @@ model User {
   staffNotifications     StaffNotification[]
 
   @@map("users")
+  scheduleRequestsCreated EmployeeScheduleRequest[] @relation("ScheduleRequestCreatedBy")
+  scheduleRequestsDecided EmployeeScheduleRequest[] @relation("ScheduleRequestDecidedBy")
 }
 
 /// Одноразовая ссылка на установку пароля: приглашение сотрудника и сброс по его просьбе (§13.9, ADR-049).
@@ -3405,6 +3408,7 @@ model Employee {
 
   @@index([businessId])
   @@map("employees")
+  scheduleRequests   EmployeeScheduleRequest[]
 }
 
 // Additive portal models, prepared migration128. Production application requires the owner-admin release step.
@@ -3664,6 +3668,42 @@ model WorkingHours {
   @@unique([employeeId, locationId, weekday, timeFrom])
   @@index([locationId, weekday])
   @@map("working_hours")
+}
+
+/// Запрос мастера на изменение своего графика; решает руководитель (SCHEDULE-REQUESTS-20261028)
+enum ScheduleRequestKind {
+  WEEK
+  TIME_OFF
+}
+
+enum ScheduleRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model EmployeeScheduleRequest {
+  id           String                @id @default(uuid()) @db.Uuid
+  employeeId   String                @map("employee_id") @db.Uuid
+  locationId   String                @map("location_id") @db.Uuid
+  kind         ScheduleRequestKind
+  payload      Json
+  baseRevision String?               @map("base_revision") @db.VarChar(100)
+  status       ScheduleRequestStatus @default(PENDING)
+  createdById  String                @map("created_by_id") @db.Uuid
+  createdAt    DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  decidedById  String?               @map("decided_by_id") @db.Uuid
+  decidedAt    DateTime?             @map("decided_at") @db.Timestamptz(6)
+  decisionNote String?               @map("decision_note") @db.VarChar(300)
+
+  employee  Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "employee_schedule_requests_employee_fkey")
+  location  Location @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "employee_schedule_requests_location_fkey")
+  createdBy User     @relation("ScheduleRequestCreatedBy", fields: [createdById], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "employee_schedule_requests_created_by_fkey")
+  decidedBy User?    @relation("ScheduleRequestDecidedBy", fields: [decidedById], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "employee_schedule_requests_decided_by_fkey")
+
+  @@index([employeeId, createdAt], map: "employee_schedule_requests_employee_idx")
+  @@map("employee_schedule_requests")
 }
 
 /// Отпуска и отсутствия мастера: календарные даты включительно с обеих сторон

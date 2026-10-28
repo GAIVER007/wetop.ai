@@ -63,7 +63,7 @@ test('хаб: карточка «Бюджет и аналитика» живая
   await page.goto('/marketing');
   const card = page.getByTestId('marketing-budget');
   await expect(card.getByTestId('marketing-budget-status')).toHaveText('Доступно');
-  await card.getByRole('link', { name: 'Открыть: Бюджет и аналитика' }).click();
+  await card.getByTestId('marketing-budget-page').click();
   await page.waitForURL('**/marketing/budget');
   const main = page.getByRole('main');
   await expect(main.getByTestId('budget-summary')).toBeVisible();

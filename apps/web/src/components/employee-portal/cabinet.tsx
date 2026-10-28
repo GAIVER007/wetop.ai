@@ -17,7 +17,7 @@ import { foodOrderStatus } from '../../lib/status/food';
 import type { BeautyEmployeeServicePriceRow, BeautySchedule } from '../../lib/api';
 import type { BeautyMasterDayStatus } from '../../lib/beauty-master-day-status';
 import { EmployeeTransitionGuard } from '../employee-workspace/workspace';
-import { portalAbsenceDays, portalAbsences, portalMonthLabel, portalMonthLine, portalShiftMonth } from '../../lib/portal-month';
+import { portalAbsenceDays, portalAbsences, portalInitials, portalMonthLabel, portalMonthLine, portalMonthTiles, portalShiftMonth } from '../../lib/portal-month';
 import { shortPeriod, zoneLabel } from '../../lib/human-period';
 import { localDate } from '@pms/domain';
 import { formatPhone, phoneFieldValue, phoneOnInput } from '../../lib/phone';
@@ -99,8 +99,28 @@ export function EmployeeCabinet({
         <a className="btn btn--secondary btn--sm" href={`?month=${portalShiftMonth(data.monthStats.month, 1)}${data.workRange === 'MONTH' ? '&range=month' : ''}`} aria-label={t('Следующий месяц')} data-testid="portal-month-next"><span aria-hidden="true">›</span></a>
       </nav></div>
       </div>
-      {data.avatar && <img className="portal-avatar" src={data.avatar.url} alt={t('Фото: {name}', { name: data.employee.name })} width={96} height={96} />}
+      {/* карточка, вариант A (владелец 28.10.2026): визитка, фото или инициалы, связь одним касанием */}
+      <div className="portal-card-actions" data-testid="portal-card-actions">
+        {manager && canEditProfile && <a className="btn btn--primary" href="#professional">{t('Редактировать')}</a>}
+        {manager && data.employee.phone && <a className="btn btn--secondary" href={`tel:${data.employee.phone}`}>{t('Позвонить')}</a>}
+        {manager && data.employee.phone && <a className="btn btn--secondary" href={`https://wa.me/${data.employee.phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp</a>}
+      </div>
+      {data.avatar
+        ? <img className="portal-avatar" src={data.avatar.url} alt={t('Фото: {name}', { name: data.employee.name })} width={96} height={96} />
+        : <span className="portal-avatar portal-avatar--initials" aria-hidden="true" data-testid="portal-initials">{portalInitials(data.employee.name)}</span>}
     </header>
+    {/* цифры месяца крупно (вариант A): только то, что сервер посчитал, листаются стрелками месяца выше */}
+    {manager && (() => {
+      const tiles = portalMonthTiles(
+        data.monthStats,
+        { pay: showPay ? data.pay : null, reviews: showReviews ? data.reviews : null },
+        t,
+        locale,
+      );
+      return tiles.length ? <ul className="portal-tiles" aria-label={t('Итоги месяца')} data-testid="portal-month-tiles">
+        {tiles.map((tile) => <li key={tile.id} data-tile={tile.id}><span>{tile.label}</span><strong>{tile.value}</strong>{tile.hint && <small>{tile.hint}</small>}</li>)}
+      </ul> : null;
+    })()}
     {/* новый мастер (онбординг 21.10.2026): что осталось, чтобы к нему могли записаться; ссылка открывает вкладку */}
     {beauty && manager && data.employee.active && (() => {
       const steps = masterSetupSteps({ services: data.services, week: data.week });

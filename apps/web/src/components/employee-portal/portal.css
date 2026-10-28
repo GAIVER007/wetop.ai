@@ -192,3 +192,42 @@
 .portal-setup li[data-done] { color: var(--text-2); font-size: var(--text-sm); align-self: center; }
 .portal-week-presets { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
 .portal-week-presets > span { color: var(--text-2); font-size: var(--text-sm); }
+
+/* карточка сотрудника, вариант A (владелец 28.10.2026): визитка крупнее, кнопки связи, цифры месяца плитками */
+.employee-portal .portal-heading .portal-avatar { width: 88px; height: 88px; border-radius: 50%; }
+.portal-avatar--initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+}
+.portal-card-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.portal-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-column: 1 / -1;
+}
+.portal-tiles li {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.portal-tiles span { color: var(--text-2); font-size: var(--text-sm); font-weight: 600; }
+.portal-tiles strong { font-size: var(--text-2xl); font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.portal-tiles small { color: var(--text-2); font-size: var(--text-sm); }
+@media (max-width: 600px) {
+  .employee-portal .portal-heading { flex-wrap: wrap; }
+  .portal-card-actions { order: 3; width: 100%; }
+  .portal-card-actions .btn { flex: 1 1 auto; }
+  .portal-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

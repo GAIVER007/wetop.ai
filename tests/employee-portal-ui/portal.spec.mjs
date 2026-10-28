@@ -86,7 +86,11 @@ test('real browser avatar/profile persistence, work approval and three views',as
  await add.getByLabel('Есть согласие на публичный показ этой работы').check();await add.getByRole('button',{name:'Добавить работу',exact:true}).click();await expect(add.getByRole('status')).toContainText('Сохранено на сервере');
  const draft=await call(request,f,'/employee-portal/me');expect(draft.portfolio).toHaveLength(1);expect(draft.portfolio[0].published).toBe(false);expect(draft.avatar.id).toBe(uploaded.avatar.id);
  await capture(page,'master-portfolio');await select(page,'Услуги');await capture(page,'master-services');await select(page,'График');await capture(page,'master-week');await expect(page.getByTestId('portal-nonworking')).toHaveCount(0);await select(page,'Оплата труда');await capture(page,'master-pay');
- const manager=await context(browser,f,'ownerA');const head=await manager.newPage();await head.goto(`/employees/${f.employeeA}/profile`);await expect(head.getByTestId('employee-manager')).toBeVisible();await capture(head,'manager-profile');
+ const manager=await context(browser,f,'ownerA');const head=await manager.newPage();await head.goto(`/employees/${f.employeeA}/profile`);await expect(head.getByTestId('employee-manager')).toBeVisible();
+ // карточка, вариант A (владелец 28.10.2026): цифры месяца плитками, фото или инициалы, кнопка «Редактировать»
+ await expect(head.getByTestId('portal-month-tiles')).toBeVisible();await expect(head.getByTestId('portal-month-tiles').locator('li[data-tile="revenue"]')).toContainText('Выручка');
+ await expect(head.getByTestId('portal-card-actions').getByRole('link',{name:'Редактировать',exact:true})).toBeVisible();
+ await capture(head,'manager-profile');
  const latest=await call(request,f,`/employee-portal/employees/${f.employeeA}`,{actor:'ownerA'});
  await call(request,f,`/employee-portal/employees/${f.employeeA}/portfolio/${latest.portfolio[0].id}`,{actor:'ownerA',method:'patch',data:{title:latest.portfolio[0].title,description:latest.portfolio[0].description,publicationConsent:true,published:true}});
  const version=await call(request,f,`/employee-portal/employees/${f.employeeA}`,{actor:'ownerA'});

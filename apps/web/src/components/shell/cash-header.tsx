@@ -73,11 +73,11 @@ export function CashHeader({
   const money = (v: string) => formatMoney(v, cash?.currency ?? 'KZT');
   const owns = !!cash?.active && cash.active.responsible_user_id === cash.currentUserId;
   const mayWrite = !!cash?.mayOperate && !readOnly;
-  async function show(next: Panel) {
+  async function show(next: Panel, preset?: string) {
     setError('');
     setSaved('');
     // новое окно: приход начинается со статьи «Внесение», расход с пустой
-    setCategory(next === 'income' ? t('Внесение') : '');
+    setCategory(next === 'income' ? t('Внесение') : (preset ?? ''));
     setPanel(next);
     try {
       const data = await loadCashHeader(scopeKey);
@@ -414,9 +414,9 @@ export function CashHeader({
                     mutate({ ...b, shiftId: cash.active?.id, fingerprint: cash.snapshot.fingerprint })
                   }
                   onCancel={() => setPanel(null)}
-                  onExpense={() => {
+                  onExpense={(category) => {
                     afterExpense.current = 'close';
-                    void show('expense');
+                    void show('expense', category);
                   }}
                 />
               ) : (

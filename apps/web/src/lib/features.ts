@@ -40,7 +40,8 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/website': H,
   // голосовой агент (ИИ-колл-центр): все направления (решение владельца 22.10.2026, второе: не только салон)
   '/marketing/voice': ALL_VERTICALS,
-  '/marketing/site': H,
+  // публикация сайта всем направлениям (аудит «Сайт и SEO» 28.10.2026: API публикует любой с ADR-185)
+  '/marketing/site': ALL_VERTICALS,
   '/marketing/site/assets': ALL_VERTICALS,
   '/marketing/site/editor': ALL_VERTICALS,
   '/reports/overview': H,

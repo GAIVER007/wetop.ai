@@ -3117,6 +3117,70 @@ export interface PlatformOrganization {
 
 export type PlatformVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
 
+/** Деньги компании WETOP (DATA_MODEL §63): суммы целыми центами USD строкой */
+export interface PlatformPlan {
+  id: string;
+  name: string;
+  priceCents: string;
+  periodMonths: number;
+  active: boolean;
+}
+export type PlatformExpenseCategory = 'SERVER' | 'DOMAINS' | 'ADS' | 'AI' | 'SALARIES' | 'SERVICES' | 'OTHER';
+export interface PlatformMoneyMonth {
+  month: string;
+  incomeCents: string;
+  expensesCents: string;
+  profitCents: string;
+}
+export type PlatformMoney =
+  | { ready: false; month: string }
+  | {
+      ready: true;
+      month: string;
+      summary: {
+        month: PlatformMoneyMonth;
+        history: PlatformMoneyMonth[];
+        expectedMonthlyCents: string;
+        expensesByCategory: Array<{ category: PlatformExpenseCategory; cents: string }>;
+        overdue: Array<{ organizationId: string; name: string; paidUntil: string | null; monthlyCents: string }>;
+      };
+      plans: PlatformPlan[];
+      clients: Array<{
+        id: string;
+        name: string;
+        planId: string | null;
+        monthlyCents: string | null;
+        paidUntil: string | null;
+        note: string | null;
+      }>;
+      payments: Array<{
+        id: string;
+        organizationId: string;
+        name: string;
+        amountCents: string;
+        paidOn: string;
+        note: string | null;
+        voided: boolean;
+      }>;
+      expenses: Array<{
+        id: string;
+        category: PlatformExpenseCategory;
+        amountCents: string;
+        spentOn: string;
+        note: string | null;
+        voided: boolean;
+      }>;
+      team: Array<{
+        id: string;
+        name: string;
+        role: string;
+        email: string | null;
+        monthlySalaryCents: string | null;
+        active: boolean;
+      }>;
+      categories: PlatformExpenseCategory[];
+    };
+
 /** Кабинет компании WETOP, срез 1: клиенты, путь клиента и сроки; денег до среза 2 нет */
 export interface PlatformCabinet {
   totals: { clients: number; people: number; activePeople7d: number };
@@ -3184,6 +3248,24 @@ export interface PlatformSiteBuilderLocation {
 export const platformApi = {
   /** Кабинет компании WETOP (вариант «Г», 28.10.2026): только главному администратору */
   cabinet: () => getJson<PlatformCabinet>('/platform/cabinet'),
+  /** Деньги компании WETOP за месяц `ГГГГ-ММ` (DATA_MODEL §63): центы USD строкой; ready=false до миграции 166 */
+  money: (month: string) => getJson<PlatformMoney>(`/platform/money?month=${encodeURIComponent(month)}`),
+  savePlan: (id: string | null, body: { name: string; price: string; periodMonths: number; active: boolean }) =>
+    sendJson<PlatformPlan>(id ? 'PUT' : 'POST', id ? `/platform/plans/${encodeURIComponent(id)}` : '/platform/plans', body),
+  saveSubscription: (
+    organizationId: string,
+    body: { planId: string | null; monthly: string; paidUntil: string | null; note: string },
+  ) => sendJson<unknown>('PUT', `/platform/subscriptions/${encodeURIComponent(organizationId)}`, body),
+  addPayment: (body: { organizationId: string; amount: string; paidOn: string; note: string; extendMonths: number }) =>
+    sendJson<unknown>('POST', '/platform/payments', body),
+  voidPayment: (id: string) => sendJson<unknown>('POST', `/platform/payments/${encodeURIComponent(id)}/void`, {}),
+  addExpense: (body: { category: string; amount: string; spentOn: string; note: string }) =>
+    sendJson<unknown>('POST', '/platform/expenses', body),
+  voidExpense: (id: string) => sendJson<unknown>('POST', `/platform/expenses/${encodeURIComponent(id)}/void`, {}),
+  saveTeamMember: (
+    id: string | null,
+    body: { name: string; role: string; email: string; salary: string; active: boolean },
+  ) => sendJson<unknown>(id ? 'PUT' : 'POST', id ? `/platform/team/${encodeURIComponent(id)}` : '/platform/team', body),
   organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
   /** Обзор платформы: только главному администратору, остальным API отвечает 403 */
   overview: () => getJson<PlatformOverview>('/platform/overview'),

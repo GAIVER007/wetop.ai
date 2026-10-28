@@ -197,6 +197,18 @@ test('салон: выбор филиала переключает стойку,
   await expect(main(page).getByTestId('setup-template').getByTestId('site-design-card').filter({ hasText: 'Запись за минуту' }).getByRole('radio')).toHaveAttribute('aria-checked', 'true');
   await expect(page.frameLocator('[data-testid="ed-frame"]').locator('main')).toContainText('Маникюр с покрытием');
   await page.screenshot({ path: `${SHOTS}/salon-editor-1440.png`, fullPage: true });
+  // аудит «Сайт и SEO» 28.10.2026: салон публикует сайт той же кнопкой, что гостиница (API с ADR-185)
+  const publish = main(page).getByTestId('setup-publish-btn');
+  await expect(publish).toBeEnabled();
+  await expect(main(page).getByTestId('setup-publish-reason')).toHaveCount(0);
+  await publish.click();
+  await page.getByRole('button', { name: 'Опубликовать', exact: true }).click();
+  await expect(publish).toHaveText('Опубликовано', { timeout: 15_000 });
+  await page.goto('/marketing/site');
+  await expect(main(page).getByRole('heading', { level: 1 })).toHaveText('Публикация сайта');
+  // тариф брони и источник брони ИИ-продавца гостиничные: у салона их нет
+  await expect(main(page).getByTestId('publication-booking')).toHaveCount(0);
+  await expect(main(page).getByLabel('Тариф брони')).toHaveCount(0);
 });
 
 test('ресторан: меню с ценами, чипы и три шаблона ресторана; создание по шаблону открывает редактор', async ({ page, request }) => {
@@ -225,6 +237,14 @@ test('ресторан: меню с ценами, чипы и три шабло�
   await expect(editor(page)).toBeVisible({ timeout: 15_000 });
   await expect(main(page).getByTestId('setup-template').getByTestId('site-design-card').filter({ hasText: 'Ресторан' }).filter({ hasText: 'Вечерний' }).getByRole('radio')).toHaveAttribute('aria-checked', 'true');
   await expect(page.frameLocator('[data-testid="ed-frame"]').locator('main')).toContainText('Бешбармак');
+  // ресторан публикует сайт с бронью стола (SITE-5), без гостиничного тарифа
+  const publish = main(page).getByTestId('setup-publish-btn');
+  await expect(publish).toBeEnabled();
+  await publish.click();
+  await page.getByRole('button', { name: 'Опубликовать', exact: true }).click();
+  await expect(publish).toHaveText('Опубликовано', { timeout: 15_000 });
+  await page.goto('/marketing/site');
+  await expect(main(page).getByTestId('publication-booking')).toHaveCount(0);
 });
 
 for (const theme of ['light', 'dark'] as const)

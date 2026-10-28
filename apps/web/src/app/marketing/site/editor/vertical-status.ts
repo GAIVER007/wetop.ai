@@ -15,13 +15,6 @@ const PENDING: Record<WebVertical, string> = {
   ),
 };
 
-const PUBLISH_LATER: Record<Exclude<WebVertical, 'HOSPITALITY'>, string> = {
-  BEAUTY: msg('Публикация сайта салонов появится вместе с онлайн-записью на сайте. Черновик и изображения сохраняются уже сейчас.'),
-  FOOD_SERVICE: msg(
-    'Публикация сайта ресторанов появится вместе с онлайн-записью на сайте. Черновик и изображения сохраняются уже сейчас.',
-  ),
-};
-
 /**
  * SITE-1: честный ответ на «Создать сайт» у направления, которое сервер ещё не подключил. Сегодня API конструктора
  * принимает только гостиницу (`marketing-site/scope.ts`: 403 без кода, «Сайт и SEO пока доступны только гостиницам»).
@@ -48,11 +41,19 @@ export function createErrorText(
 }
 
 /**
- * Куда ведёт «Опубликовать» (аудит платформы 17.10.2026, Д10). Страница публикации пока гостиничная: источник брони
- * сайта у неё тариф гостиницы. Салону и ресторану нужна своя онлайн-запись и бронь стола от их владельца; до неё кнопка
- * честно неактивна с причиной, а не уводит на «Главную».
+ * Куда ведёт «Опубликовать». С ADR-185/SITE-3 API публикует сайт любого направления, формы записи салона и брони стола
+ * работают (SITE-4/5), поэтому «Опубликовать» у всех трёх ведёт на страницу публикации (аудит «Сайт и SEO» 28.10.2026;
+ * прежний запрет Д10 от 17.10.2026 снят).
  */
-export function publishTarget(vertical: WebVertical, t: Translate = same): { href: '/marketing/site' } | { reason: string } {
-  if (vertical === 'HOSPITALITY') return { href: '/marketing/site' };
-  return { reason: t(PUBLISH_LATER[vertical]) };
+export function publishTarget(vertical: WebVertical): { href: '/marketing/site' } | { reason: string } {
+  void vertical;
+  return { href: '/marketing/site' };
+}
+
+/**
+ * Брони на сайте по направлению: виджет брони номеров (`WETOP_WIDGET`) считает цены по объекту гостиницы, у салона и
+ * ресторана объекта нет (API ответил бы 409 `NO_PROPERTY`). Их запись и бронь стола идут формой в блоке страницы.
+ */
+export function bookingModes(vertical: WebVertical): Array<'WETOP_WIDGET' | 'NONE'> {
+  return vertical === 'HOSPITALITY' ? ['WETOP_WIDGET', 'NONE'] : ['NONE'];
 }

@@ -63,9 +63,11 @@ describe('реестр функций', () => {
     }
   });
 
-  it('самый длинный адрес решает: медиатека сайта у всех, публикация у гостиницы', () => {
+  // публикация сайта у всех направлений с 28.10.2026 (аудит «Сайт и SEO»); самый длинный адрес решает по-прежнему
+  it('самый длинный адрес решает: медиатека и публикация сайта у всех, бронь сайта у гостиницы', () => {
     expect(sorted(featureVerticals('/marketing/site/assets'))).toEqual(sorted(ALL_VERTICALS));
-    expect(featureVerticals('/marketing/site')).toEqual(['HOSPITALITY']);
+    expect(sorted(featureVerticals('/marketing/site'))).toEqual(sorted(ALL_VERTICALS));
+    expect(featureVerticals('/website/booking')).toEqual(['HOSPITALITY']);
     expect(featureVerticals('/marketing/sites')).toEqual(ALL_VERTICALS);
   });
 });

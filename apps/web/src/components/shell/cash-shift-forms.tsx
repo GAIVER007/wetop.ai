@@ -221,7 +221,8 @@ export function CloseShiftForm({
               ))}
             </ul>
           )}
-          {/* забытый расход дописывается отсюда одним касанием частой статьи */}
+          {/* забытый расход дописывается отсюда одним касанием частой статьи (вариант A, 29.10.2026) */}
+          <span className="cash-money-form__label">{t('Забыли расход?')}</span>
           <div className="cash-shift-chips" role="group" aria-label={t('Добавить расход')} data-testid="cash-close-chips">
             {(cash.expenseCategories?.length
               ? cash.expenseCategories

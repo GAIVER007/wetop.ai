@@ -62,7 +62,8 @@ describe('столбец «Доход» (владелец 26.10.2026: «видн
   it('первый денежный столбец после имени: «Доход» с суммой услуг сотрудника и итог в подвале', () => {
     const html = render('visits');
     const heads = [...html.matchAll(/<th[^>]*>([^<]*)<\/th>/g)].map((m) => m[1]);
-    expect(heads.slice(0, 3)).toEqual(['Сотрудник', 'Доход', 'Как платим']);
+    // владелец 29.10.2026: первый столбец денег называется «Выручка», не «Доход»
+    expect(heads.slice(0, 3)).toEqual(['Сотрудник', 'Выручка', 'Как платим']);
     expect(html).toContain('data-testid="payroll-income"');
     expect(html).toMatch(/data-testid="payroll-income"[^>]*><strong>[^<]*7[\s\u00a0\u202f]?500/);
     expect(html).toMatch(/data-testid="payroll-income-total"[^>]*><strong>[^<]*7[\s\u00a0\u202f]?500/);

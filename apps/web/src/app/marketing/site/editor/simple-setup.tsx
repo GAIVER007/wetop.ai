@@ -179,7 +179,7 @@ export function SimpleSiteSetup({
     const r = await publishSimpleAction(head.id);
     setBusy(null);
     if (!r.ok) {
-      setError(r.needsSetup ? t('{message}. Откройте «Публикация», чтобы выбрать тариф.', { message: r.message }) : r.message);
+      setError(r.needsSetup ? t('{message}. Откройте «Публикация», чтобы закончить настройку.', { message: r.message }) : r.message);
       return;
     }
     setPublishedId(head.id);

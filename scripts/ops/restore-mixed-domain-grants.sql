@@ -160,4 +160,15 @@ BEGIN
     REVOKE ALL ON FUNCTION cash_scope_visible(uuid,uuid) FROM PUBLIC;
     GRANT EXECUTE ON FUNCTION cash_scope_visible(uuid,uuid) TO wetop_app,wetop_service;
   END IF;
+  -- 166_company_money: деньги компании WETOP, только сервисная роль (стойка клиентов прав не имеет, DELETE ни у кого)
+  SELECT count(*) INTO installed FROM unnest(ARRAY[
+    'platform_plans','platform_subscriptions','platform_payments','platform_expenses','platform_team_members'
+  ]) AS t(name) WHERE to_regclass(quote_ident(name)) IS NOT NULL;
+  IF installed NOT IN (0,5) THEN RAISE EXCEPTION 'Incomplete company money schema during ACL restore'; END IF;
+  IF installed = 5 THEN
+    REVOKE ALL ON platform_plans,platform_subscriptions,platform_payments,platform_expenses,platform_team_members
+      FROM wetop_app,wetop_service;
+    GRANT SELECT,INSERT,UPDATE ON platform_plans,platform_subscriptions,platform_payments,platform_expenses,platform_team_members
+      TO wetop_service;
+  END IF;
 END $restore_acl$;

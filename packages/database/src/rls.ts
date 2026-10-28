@@ -235,6 +235,12 @@ export const RLS_NO_TENANT_TABLES: readonly string[] = [
   'password_resets',
   'email_verifications',
   'platform_admins',
+  // кабинет компании WETOP (§63): деньги самой компании, не организаций; `wetop_app` прав не имеет
+  'platform_plans',
+  'platform_subscriptions',
+  'platform_payments',
+  'platform_expenses',
+  'platform_team_members',
   'wizard_sessions',
   'wizard_surveys',
   'wizard_events',

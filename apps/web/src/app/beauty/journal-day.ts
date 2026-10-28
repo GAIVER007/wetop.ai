@@ -7,10 +7,16 @@ import { msg } from '../../i18n';
  */
 
 /** Кто придёт: записанные и подтверждённые с «сейчас» минус 30 минут (опоздавшие видны), по времени, до пяти */
-export function upcoming(rows: BeautyAppointmentRow[], nowMinutes: number | null, limit = 5): BeautyAppointmentRow[] {
+export function upcoming(
+  rows: BeautyAppointmentRow[],
+  nowMinutes: number | null,
+  limit = 5,
+  /** записи, которые только что отметили «Пришла»: уходят сразу, до обновления страницы (владелец 29.10.2026) */
+  arrived: ReadonlySet<string> = new Set(),
+): BeautyAppointmentRow[] {
   const from = nowMinutes === null ? -Infinity : nowMinutes - 30;
   return rows
-    .filter((r) => (r.status === 'BOOKED' || r.status === 'CONFIRMED') && r.startMinutes >= from)
+    .filter((r) => (r.status === 'BOOKED' || r.status === 'CONFIRMED') && r.startMinutes >= from && !arrived.has(r.id))
     .sort((a, b) => a.startMinutes - b.startMinutes || a.id.localeCompare(b.id))
     .slice(0, limit);
 }

@@ -96,7 +96,8 @@ describe('unified owner actual DTO', () => {
     expect(html).toContain('data-series="previous"');
     expect(html).toContain('67,89 ₸');
     expect(html).toContain('role="tablist"');
-    expect(html.indexOf('<svg')).toBeLessThan(html.indexOf('<details'));
+    expect(html.indexOf('owner-chart-plot')).toBeLessThan(html.indexOf('<details'));
+    expect(html.indexOf('owner-chart-plot')).toBeGreaterThan(-1);
   });
   it('shows category bars only for a complete reconciled currency breakdown', () => {
     const d = dto();
@@ -126,7 +127,6 @@ describe('unified owner actual DTO', () => {
   ] as const)
     it(key, () => {
       const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto(key) }));
-      expect(html).toMatch(/class="seg__item is-on" aria-current="page"/);
       expect(html).toContain(label);
       expect(html).toContain('Оплаченные расходы');
       expect(html).toContain('USD');
@@ -136,7 +136,8 @@ describe('unified owner actual DTO', () => {
       expect(html).not.toContain('50%');
       expect(html).toContain('Неполное покрытие периода');
       expect(html).toContain('Временной ряд не подключён');
-      expect(html).not.toContain('<svg');
+      // график по дням не рисуется без ряда (стрелки месяца тоже svg, поэтому ищем сам график)
+      expect(html).not.toContain('owner-chart-plot');
     });
   it('renders exact signed comparable money and basis point rate, never previous workload',()=>{
     const d=dto();
@@ -157,8 +158,25 @@ describe('unified owner actual DTO', () => {
     expect(formatOwnerMoney('100', 'USD')).toBe('1 USD');
   });
   it('normalizes query, not rolling 30 days', () => {
+    // владелец 29.10.2026: по умолчанию текущий месяц; свой месяц и период «от–до» проходят как есть
+    expect(ownerPeriod(undefined)).toBe('month');
     expect(ownerPeriod('month')).toBe('month');
-    expect(ownerPeriod('30')).toBe('today');
+    expect(ownerPeriod('30')).toBe('month');
+    expect(ownerPeriod('month:2026-09')).toBe('month:2026-09');
+    expect(ownerPeriod('range:2026-10-01..2026-10-15')).toBe('range:2026-10-01..2026-10-15');
+    expect(ownerPeriod('range:2026-10-01..x')).toBe('month');
+  });
+  it('шапка: только месяц со стрелками и «Свой период» с календарём, без «Сегодня» и «7 дней»', () => {
+    const d = dto('month');
+    d.period = { ...d.period, key: 'month:2026-09', fromDate: '2026-09-01', toDate: '2026-09-30' };
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: d }));
+    const bar = html.match(/<header class="owner-bar">([\s\S]*?)<\/header>/)?.[1] ?? '';
+    expect(bar).not.toContain('>Сегодня<');
+    expect(bar).not.toContain('>7 дней<');
+    expect(bar).toContain('Сентябрь 2026');
+    expect(bar).toContain('href="/today?period=month:2026-08"');
+    expect(bar).toContain('href="/today?period=month:2026-10"');
+    expect(bar).toContain('data-testid="owner-custom-period"');
   });
   it('unknown vertical is explicit unsupported', () => {
     const d = dto();

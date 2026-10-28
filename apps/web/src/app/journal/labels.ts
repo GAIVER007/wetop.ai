@@ -217,6 +217,8 @@ export const ACTION_RU: Record<string, string> = {
   'rate_plan.derived.created': msg('Производный тариф создан'),
   'rate_plan.derived.updated': msg('Производный тариф изменён'),
   'seller.conversation.handling': msg('Диалог передан или возвращён'),
+  'platform.payment.added': msg('Оплата клиента записана'),
+  'platform.subscription.saved': msg('Подписка клиента изменена'),
   'seller.conversation.note': msg('Заметка к диалогу'),
   'seller.conversation.reply': msg('Ответ в диалоге'),
   'seller.knowledge.uploaded': msg('Знания ИИ-продавца загружены'),

@@ -666,6 +666,10 @@ export const marketingSite: Record<string, string> = {
   "Нет графика работы": "No work schedule",
   "Меню пустое: на сайте не будет блюд и цен": "The menu is empty: the website won't have dishes or prices",
   "Нет часов работы": "No opening hours",
+  "{message}. Откройте «Публикация», чтобы закончить настройку.": "{message}. Open “Publishing” to finish the setup.",
+  "Запись с сайта идёт формой в блоке страницы и сразу попадает в журнал.": "Website bookings go through the form in a page block and land in the journal right away.",
+  "Нет в данных филиала": "Not in the branch data",
+  "Сайт филиала, живой просмотр": "Branch website, live preview",
   // заявки с сайта (аудит «Сайт и SEO» S3, 28.10.2026)
   "В работе": "In progress",
   "Заявки по статусу": "Requests by status",

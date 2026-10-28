@@ -48,10 +48,11 @@ describe('readOwnerAttention', () => {
   it('салон: записи DONE без полной оплаты, мастера с окном от 2 ч, склад; всё по филиалу и дню филиала', async () => {
     const db = beautyDb();
     const items = await readOwnerAttention(db as never, { ...base, vertical: 'BEAUTY' });
+    // свободные окна подсказкой после дел (29.10.2026)
     expect(items.map((i) => i.text)).toEqual([
       'Не оплачено сегодня: 2 записи',
-      'Свободные окна: 1 мастер',
       'Заканчивается: 2 позиции',
+      'Свободные окна: 1 мастер',
     ]);
     expect(db.appointment.findMany).toHaveBeenCalledWith(expect.objectContaining({
       where: { locationId: 'branch', status: 'DONE', startsAt: { gte: DAY_START, lt: new Date('2026-10-21T19:00:00Z') } },
@@ -144,5 +145,31 @@ describe('readOwnerAttention', () => {
     const db = { restaurantOrder: { count: vi.fn().mockResolvedValue(0) }, barProduct: { findMany: vi.fn().mockResolvedValue([]) }, kitchenProduct: { findMany: vi.fn().mockResolvedValue([]) } };
     const items = await readOwnerAttention(db as never, { ...base, vertical: 'FOOD_SERVICE', unclassifiedExpenses: true });
     expect(items).toEqual([{ id: 'unclassified-expenses', tone: 'warn', text: 'Есть расходы без статьи', href: '/restaurant-finance', action: 'Разобрать' }]);
+  });
+  // владелец 29.10.2026: «Требуют решения» о том, что можно сделать сейчас
+  it('салон: вчерашняя незакрытая смена, не отмеченные «Пришла» после 15 минут и неподтверждённые на завтра', async () => {
+    const db = {
+      ...beautyDb(),
+      cashShift: { findFirst: vi.fn().mockResolvedValue({ openedAt: new Date('2026-10-20T05:00:00Z') }) },
+      appointment: {
+        findMany: vi.fn().mockResolvedValue([]),
+        count: vi.fn().mockImplementation(async ({ where }: { where: { status: unknown } }) => (JSON.stringify(where.status).includes('CONFIRMED') && JSON.stringify(where.status).includes('BOOKED') ? 2 : 3)),
+      },
+    };
+    const items = await readOwnerAttention(db as never, { ...base, vertical: 'BEAUTY' });
+    expect(items.slice(0, 3).map((i) => [i.id, i.text])).toEqual([
+      ['open-shift', 'Смена с 20.10 не закрыта'],
+      ['late-unmarked', 'Не отмечены «Пришла»: 2 записи'],
+      ['unconfirmed-tomorrow', 'Подтвердить на завтра: 3 записи'],
+    ]);
+    expect(db.cashShift.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { closedAt: null, register: { locationId: 'branch' } } }));
+    // опоздание: время записи прошло больше 15 минут назад, статус «Записан» или «Подтверждена»
+    expect(db.appointment.count).toHaveBeenCalledWith({ where: { locationId: 'branch', status: { in: ['BOOKED', 'CONFIRMED'] }, startsAt: { gte: DAY_START, lt: new Date(NOW.getTime() - 15 * 60000) } } });
+    expect(db.appointment.count).toHaveBeenCalledWith({ where: { locationId: 'branch', status: 'BOOKED', startsAt: { gte: new Date('2026-10-21T19:00:00Z'), lt: new Date('2026-10-22T19:00:00Z') } } });
+  });
+  it('смена, открытая сегодня, делом не считается', async () => {
+    const db = { ...beautyDb(), cashShift: { findFirst: vi.fn().mockResolvedValue({ openedAt: new Date('2026-10-21T03:00:00Z') }) } };
+    const items = await readOwnerAttention(db as never, { ...base, vertical: 'BEAUTY' });
+    expect(items.map((i) => i.id)).not.toContain('open-shift');
   });
 });

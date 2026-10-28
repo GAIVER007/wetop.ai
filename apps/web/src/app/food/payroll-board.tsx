@@ -621,8 +621,8 @@ export function PayrollBoard({
       <thead>
         <tr>
           <th>{t('Сотрудник')}</th>
-          {/* «Доход» первым (владелец 26.10.2026): видно, с какой суммы считается оплата */}
-          <th className="num" title={t(BASIS[basis].income)}>{t('Доход')}</th>
+          {/* «Выручка» первой (владелец 26.10, переименовано 29.10.2026): видно, с какой суммы считается оплата */}
+          <th className="num" title={t(BASIS[basis].income)}>{t('Выручка')}</th>
           <th>{t('Как платим')}</th>
           <th className="num">{t('Оклад')}</th>
           <th className="num">{t(BASIS[basis].column)}</th>

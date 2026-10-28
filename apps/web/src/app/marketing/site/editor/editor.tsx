@@ -51,6 +51,7 @@ import { SitePreview, type PreviewMode } from './preview';
 import { useAssistantRun, useGenerationRun } from './run';
 import { Structure, type Selection } from './structure';
 import { msg, type Translate } from '../../../../i18n';
+import type { WebVertical } from '../../../../lib/vertical-landing';
 import { useT } from '../../../../i18n/locale-provider';
 
 /**
@@ -138,6 +139,7 @@ export function SiteEditor({
   conversation,
   project,
   categories,
+  vertical = 'HOSPITALITY',
   assets,
   readOnly,
   publish = { href: '/marketing/site' },
@@ -150,6 +152,8 @@ export function SiteEditor({
   conversation: SiteConversationItem[];
   project: { locationName: string; builder: SiteBuilderState; instructions: string | null };
   categories: Array<{ code: string; name: string }>;
+  /** направление филиала (режимы брони, слова) */
+  vertical?: WebVertical;
   assets: SiteAssetView[];
   readOnly: boolean;
   /** «Опубликовать»: ссылка или причина, почему пока нельзя (Д10, `publishTarget`) */
@@ -586,6 +590,7 @@ export function SiteEditor({
 
   const context: EditorContextValue = {
     spec,
+    vertical,
     set,
     locales,
     defaultLocale,

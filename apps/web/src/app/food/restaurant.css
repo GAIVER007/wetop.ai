@@ -2134,3 +2134,61 @@
     }
   }
 }
+
+/* «Новая бронь» ресторана, вариант A (владелец 26.10.2026): гости и время кнопками слева, справа все столы залов
+   плитками («Стол 3, 4 места»), занятые и маленькие серые с причиной. */
+@layer sections {
+  .rest-book__quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .rest-book__times {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .rest-book__times .booking-pick__option {
+    min-width: 0;
+  }
+  .rest-book__area {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .rest-book__area-name {
+    font-weight: var(--weight-semibold);
+  }
+  .rest-book__area-name small {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+  }
+  .rest-book__tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc(var(--space-16) + var(--space-8)), 1fr));
+    gap: var(--space-2);
+  }
+  .rest-book__tiles .booking-pick__option {
+    display: grid;
+    gap: 0;
+    min-height: var(--space-12);
+    padding: var(--space-1) var(--space-2);
+    text-align: left;
+  }
+  .rest-book__tiles .booking-pick__option small {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+  }
+  .rest-book__tiles .booking-pick__option[aria-pressed='true'] small {
+    color: var(--on-primary);
+  }
+  .rest-book__tiles .booking-pick__option:disabled {
+    background: var(--surface-muted);
+    border-color: var(--border);
+  }
+  @media (max-width: 600px) {
+    .rest-book__times {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+}

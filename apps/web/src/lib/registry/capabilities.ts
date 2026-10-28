@@ -156,6 +156,8 @@ export const CAPABILITIES: readonly Capability[] = [
   cap('journal', ['/journal'], 'journal', ALL, 'ORGANIZATION'),
   cap('platform', ['/platform'], 'platform', ALL, 'ORGANIZATION'),
   cap('platform-support', ['/platform/support'], 'platform', ALL, 'ORGANIZATION'),
+  // кабинет компании WETOP (28.10.2026)
+  cap('platform-cabinet', ['/platform/cabinet'], 'platform', ALL, 'ORGANIZATION'),
 
   // ── без данных арендатора: уровень формальный ─────────────────────────
   cap('help', ['/help'], 'desk', ALL, 'ORGANIZATION'),

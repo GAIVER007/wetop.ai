@@ -82,6 +82,8 @@ export type CashShiftState = {
   expenseMethods: string[];
   /** Частые статьи расходов кнопками (владелец 27.10.2026): самые частые этой кассы за 90 дней, затем стандартные */
   expenseCategories: string[];
+  /** Расходы открытой смены списком для окна закрытия (вариант B, владелец 28.10.2026): статья, способ, сумма */
+  shiftExpenses: Array<{ category: string; method: string; amount: string }>;
   mayOperate: boolean;
   mayManage: boolean;
   currentUserId: string;
@@ -138,6 +140,20 @@ export class CashShiftsService {
              AND created_at > now() - interval '90 days'
            GROUP BY 1 ORDER BY count(*) DESC, max(created_at) DESC LIMIT 12`;
     return rows.map((r) => r.name.trim()).filter((n) => n && n.length <= 100);
+  }
+  private async shiftExpenses(db: DbTx, scope: Scope, shiftId: string) {
+    const rows = scope.propertyId
+      ? await db.$queryRaw<Array<{ category: string | null; method: string; amount: bigint }>>`
+          SELECT c.name AS category, o.method::text AS method, o.amount FROM cash_operations o
+            LEFT JOIN cash_categories c ON c.id = o.category_id
+           WHERE o.cash_shift_id = ${shiftId}::uuid AND o.kind = 'EXPENSE' AND o.status = 'COMPLETED'
+           ORDER BY o.created_at, o.id LIMIT 50`
+      : await db.$queryRaw<Array<{ category: string | null; method: string; amount: bigint }>>`
+          SELECT CASE WHEN position(': ' in coalesce(note, '')) > 0 THEN split_part(note, ': ', 1) ELSE NULL END AS category,
+                 method::text AS method, amount FROM restaurant_cash_operations
+           WHERE cash_shift_id = ${shiftId}::uuid AND kind = 'EXPENSE' AND status = 'COMPLETED'
+           ORDER BY created_at, id LIMIT 50`;
+    return rows.map((r) => ({ category: r.category?.trim() || 'Прочее', method: r.method, amount: String(r.amount) }));
   }
   private async frequentExpenseCategories(db: DbTx, scope: Scope): Promise<string[]> {
     const used = await this.usedExpenseCategories(db, scope);
@@ -228,6 +244,7 @@ export class CashShiftsService {
     ]);
     const active = shifts.find((s) => !s.closed_at) ?? null;
     const expenseCategories = await this.frequentExpenseCategories(db, scope);
+    const shiftExpenses = active ? await this.shiftExpenses(db, scope, active.id) : [];
     // напоминание о закрытии смены (владелец 27.10.2026): конец дня по графикам сотрудников этого филиала
     const hours = await db.workingHours.findMany({
       where: { locationId: scope.locationId, employee: { status: 'ACTIVE' } },
@@ -296,6 +313,7 @@ export class CashShiftsService {
       incomeMethods,
       expenseMethods,
       expenseCategories,
+      shiftExpenses,
       registerId: register.id,
       name: scope.name,
       currency: scope.currency,

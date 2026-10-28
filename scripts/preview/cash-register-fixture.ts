@@ -45,6 +45,9 @@ export function cashRegisterFixture(
         'BANK_TRANSFER_PERSON',
         'BANK_TRANSFER_LEGAL',
       ],
+      // частые статьи и расходы смены (касса #911, окно закрытия B #913): транспорт, как отдаёт API
+      expenseCategories: ['Такси', 'Закупка материалов', 'Хозяйственные расходы', 'Прочее'],
+      shiftExpenses: [],
       mayOperate: true,
       mayManage: true,
       currentUserId: userId,
@@ -73,8 +76,17 @@ export function cashRegisterFixture(
         closing: null,
       };
       view.totals = { received: {}, refunds: {}, expenses: {} };
+      view.shiftExpenses = [];
     }
     if (body.action === 'expense') {
+      view.shiftExpenses = [
+        ...(view.shiftExpenses ?? []),
+        {
+          category: String(body.category ?? '').trim() || 'Прочее',
+          method: String(body.method ?? 'CASH'),
+          amount: String(BigInt(String(body.amount)) * 100n),
+        },
+      ];
       view.snapshot.balances.CASH = String(
         BigInt(view.snapshot.balances.CASH!) - BigInt(String(body.amount)) * 100n,
       );
@@ -97,6 +109,7 @@ export function cashRegisterFixture(
       view.history.unshift(view.active);
       view.active = null;
       view.totals = null;
+      view.shiftExpenses = [];
     }
   }
   send(200, view);

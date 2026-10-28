@@ -382,6 +382,14 @@ test('бронирования: шкала по столам, бронь пол�
   await dialog.getByLabel('Время', { exact: true }).fill('12:00');
   await expect(dialog.getByRole('heading', { name: 'Доступные столы (1)' })).toBeVisible();
   await expect(dialog.getByRole('button', { name: 'Выбрать: Стол 7' })).toHaveAttribute('aria-pressed', 'true');
+  // вариант A (владелец 26.10.2026): гости кнопкой, на 19:00 стол 7 серый «занят»
+  await dialog.getByRole('button', { name: '3 гостя', exact: true }).click();
+  await expect(dialog.getByLabel('Количество гостей', { exact: true })).toHaveValue('3');
+  await dialog.getByLabel('Время', { exact: true }).fill('19:00');
+  await expect(dialog.getByRole('button', { name: 'Стол 7, занят', exact: true })).toBeDisabled();
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.screenshot({ path: 'reports/booking-window-a-2026-10-26/food-1280.png' });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   // список остаётся вторым видом
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Список', exact: true }).click();

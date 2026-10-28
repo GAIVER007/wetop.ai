@@ -3117,6 +3117,26 @@ export interface PlatformOrganization {
 
 export type PlatformVertical = 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE';
 
+/** Кабинет компании WETOP, срез 1: клиенты, путь клиента и сроки; денег до среза 2 нет */
+export interface PlatformCabinet {
+  totals: { clients: number; people: number; activePeople7d: number };
+  funnel: { registered30d: number; working: number; trial: number; paying: number; left: number };
+  clients: Array<{
+    id: string;
+    name: string;
+    status: SignedInOrganization['status'];
+    verticals: PlatformVertical[];
+    locations: number;
+    members: number;
+    owner: string | null;
+    since: string;
+    lastLoginAt: string | null;
+    records30d: number;
+    trialDaysLeft: number | null;
+  }>;
+  deadlines: Array<{ id: string; name: string; kind: 'trial' | 'unpaid'; daysLeft: number | null; date: string | null }>;
+}
+
 /**
  * Обзор платформы (срез P1, `plans/platform-superadmin-2026-10-10.md`): итоги, рост подключений за 12 месяцев,
  * направления и статусы. Денег здесь нет: платежи платформе не ведутся (ADR-102, Q-PA-1, Q-PA-2).
@@ -3162,6 +3182,8 @@ export interface PlatformSiteBuilderLocation {
 }
 
 export const platformApi = {
+  /** Кабинет компании WETOP (вариант «Г», 28.10.2026): только главному администратору */
+  cabinet: () => getJson<PlatformCabinet>('/platform/cabinet'),
   organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
   /** Обзор платформы: только главному администратору, остальным API отвечает 403 */
   overview: () => getJson<PlatformOverview>('/platform/overview'),

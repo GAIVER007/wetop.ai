@@ -7,6 +7,8 @@ import { ExtensionsService } from './extensions.service';
 import { OrganizationCreation, PLATFORM_APP_URL, PLATFORM_MAILER } from './organization-creation';
 import { appUrlFromEnv, type Mailer } from '../auth/password-reset.service';
 import { PlatformController } from './platform.controller';
+import { CabinetController } from './cabinet.controller';
+import { CABINET_REPOSITORY, PrismaCabinetRepository } from './cabinet.repository';
 import { PrismaSupportAudit, SUPPORT_AUDIT } from './support.audit';
 import { EnvSupportConnection, SUPPORT_CONNECTION } from './support.connection';
 import { SupportController } from './support.controller';
@@ -16,9 +18,11 @@ import { SiteBuilderLicenses } from './site-builder-licenses';
 
 /** Раздел «Платформа»: организации и их расширения, техподдержка — панель ИИ-помощника (DATA_MODEL §16, ADR-083) */
 @Module({
-  controllers: [PlatformController, SupportController],
+  controllers: [PlatformController, SupportController, CabinetController],
   providers: [
     PrismaService,
+    // кабинет компании WETOP (владелец 28.10.2026)
+    { provide: CABINET_REPOSITORY, useClass: PrismaCabinetRepository },
     { provide: EXTENSIONS_REPOSITORY, useClass: PrismaExtensionsRepository },
     ExtensionsService,
     { provide: SUPPORT_CONNECTION, useClass: EnvSupportConnection },

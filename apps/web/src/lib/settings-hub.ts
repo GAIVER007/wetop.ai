@@ -81,6 +81,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
       { label: 'Подключения', at: { HOSPITALITY: '/connections' } },
       { label: 'Неисправности', at: { HOSPITALITY: '/incidents' } },
       { label: 'История действий', at: ALL('/journal') },
+      { label: 'Кабинет WETOP', at: ALL('/platform/cabinet') },
       { label: 'Организации', at: ALL('/platform') },
     ],
   },

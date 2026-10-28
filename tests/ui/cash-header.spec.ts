@@ -112,7 +112,9 @@ test('общая шапка: одна кнопка смены, расход, и�
     await header.getByRole('button', { name: 'Добавить расход', exact: true }).click();
     panel = page.getByRole('dialog');
     await panel.getByLabel('Сумма', { exact: true }).fill('500');
-    await panel.getByLabel('Статья', { exact: true }).fill('Такси');
+    // частая статья одним касанием (владелец 27.10.2026): кнопка заполняет «Статью»
+    await panel.getByTestId('cash-expense-chips').getByRole('button', { name: 'Такси', exact: true }).click();
+    await expect(panel.getByLabel('Статья', { exact: true })).toHaveValue('Такси');
     await panel.getByRole('button', { name: 'Добавить расход', exact: true }).click();
     await expect(panel).toHaveCount(0);
     await header.getByRole('button', { name: 'Итоги смены', exact: true }).click();

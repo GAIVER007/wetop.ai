@@ -80,6 +80,8 @@ export type CashShiftState = {
   } | null;
   incomeMethods: string[];
   expenseMethods: string[];
+  /** Частые статьи расходов кнопками (владелец 27.10.2026): самые частые этой кассы за 90 дней, затем стандартные */
+  expenseCategories: string[];
   mayOperate: boolean;
   mayManage: boolean;
   currentUserId: string;
@@ -107,6 +109,7 @@ export type CashCommand = {
   recipientId?: string;
   handoverId?: string;
 };
+const STANDARD_EXPENSE = ['Такси', 'Закупка материалов', 'Хозяйственные расходы', 'Прочее'];
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const METHODS = [
   'CASH',
@@ -120,6 +123,26 @@ const METHODS = [
 @Injectable()
 export class CashShiftsService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  /** Статьи расходов этой кассы за 90 дней по частоте; у ресторана и салона статья хранится в начале заметки «Статья: …» */
+  private async usedExpenseCategories(db: DbTx, scope: Scope): Promise<string[]> {
+    const rows = scope.propertyId
+      ? await db.$queryRaw<Array<{ name: string }>>`
+          SELECT c.name FROM cash_operations o JOIN cash_categories c ON c.id = o.category_id
+           WHERE o.property_id = ${scope.propertyId}::uuid AND o.kind = 'EXPENSE' AND o.status = 'COMPLETED'
+             AND o.created_at > now() - interval '90 days' AND c.active
+           GROUP BY c.name ORDER BY count(*) DESC, max(o.created_at) DESC LIMIT 12`
+      : await db.$queryRaw<Array<{ name: string }>>`
+          SELECT split_part(note, ': ', 1) AS name FROM restaurant_cash_operations
+           WHERE location_id = ${scope.locationId}::uuid AND kind = 'EXPENSE' AND status = 'COMPLETED'
+             AND cash_shift_id IS NOT NULL AND position(': ' in coalesce(note, '')) > 0
+             AND created_at > now() - interval '90 days'
+           GROUP BY 1 ORDER BY count(*) DESC, max(created_at) DESC LIMIT 12`;
+    return rows.map((r) => r.name.trim()).filter((n) => n && n.length <= 100);
+  }
+  private async frequentExpenseCategories(db: DbTx, scope: Scope): Promise<string[]> {
+    const used = await this.usedExpenseCategories(db, scope);
+    return [...new Set([...used, ...STANDARD_EXPENSE])].slice(0, 12);
+  }
   private async scope(db: DbTx): Promise<Scope> {
     const org = currentOrganizationId(),
       locationId = currentLocationId(),
@@ -204,6 +227,7 @@ export class CashShiftsService {
       >`SELECT id,recipient_id,amount,acknowledged_at,shift_id FROM cash_handovers WHERE register_id=${register.id}::uuid AND acknowledged_at IS NULL ORDER BY created_at`,
     ]);
     const active = shifts.find((s) => !s.closed_at) ?? null;
+    const expenseCategories = await this.frequentExpenseCategories(db, scope);
     // напоминание о закрытии смены (владелец 27.10.2026): конец дня по графикам сотрудников этого филиала
     const hours = await db.workingHours.findMany({
       where: { locationId: scope.locationId, employee: { status: 'ACTIVE' } },
@@ -271,6 +295,7 @@ export class CashShiftsService {
     return {
       incomeMethods,
       expenseMethods,
+      expenseCategories,
       registerId: register.id,
       name: scope.name,
       currency: scope.currency,
@@ -445,10 +470,11 @@ export class CashShiftsService {
                 const category = typeof body.category === 'string' ? body.category.trim() : '';
                 if (!category || category.length > 100)
                   throw new BadRequestException('Укажите статью расхода до 100 символов');
+                // статья, уже использованная в этой кассе, доступна администратору (частые статьи кнопками)
                 const standard =
                   kind === 'INCOME'
                     ? ['Внесение']
-                    : ['Такси', 'Закупка материалов', 'Хозяйственные расходы', 'Прочее'];
+                    : [...STANDARD_EXPENSE, ...(await this.usedExpenseCategories(db, scope))];
                 if (scope.propertyId) {
                   const existing = await db.cashCategory.findUnique({
                     where: {

@@ -4,6 +4,7 @@ export const components: Record<string, string> = {
     'Не удалось получить кассу': 'Could not load the cash register',
     'Открыть смену': 'Open shift',
     'Закрыть смену': 'Close shift',
+    'Частые статьи': 'Frequent categories',
     'Через {n} мин закрытие: закройте смену и сдайте кассу': 'Closing in {n} min: close the shift and hand over the cash',
     'Рабочий день окончен: закройте смену и сдайте кассу': 'The working day is over: close the shift and hand over the cash',
     'Внести деньги': 'Deposit cash',

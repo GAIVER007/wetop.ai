@@ -160,7 +160,7 @@ test('салон: продажи, финансы и маркетинг на да
   // В этом стенде модуль сайта не подключён (`GET /marketing/site` отвечает 404): состояние лицензии неизвестно,
   // и карточка по правилу остаётся с прежним «Доступно»
   await expect(page.getByTestId('marketing-site-status')).toHaveText('Доступно');
-  await expect(marketing).toContainText('сайт салона');
+  await expect(marketing).toContainText('Сайт салона с онлайн-записью');
   await expect(page.getByTestId('marketing-result-spent')).toContainText('63 000');
   await expect(page.getByTestId('marketing-plan')).toContainText('150 000');
   await expect(marketing).not.toContainText('гостиниц');

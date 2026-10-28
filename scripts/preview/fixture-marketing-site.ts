@@ -178,6 +178,14 @@ let runs: Run[] = [];
 let aiFail: string | null = null;
 let noVersions = false;
 let clock = Date.parse('2026-10-07T09:00:00.000Z');
+// заявки с сайта без слота (SITE-5, аудит «Сайт и SEO» S3): вымышленные клиенты стенда
+type Lead = { id: string; name: string; phone: string; comment: string | null; kind: 'CALLBACK' | 'OTHER'; status: string; createdAt: string };
+const LEADS_SEED = (): Lead[] => [
+  { id: '1ead0000-0000-4000-8000-000000000001', name: 'Айжан Тестова', phone: '+77010000001', comment: 'Перезвоните после 18:00', kind: 'CALLBACK', status: 'NEW', createdAt: '2026-10-28T09:15:00.000Z' },
+  { id: '1ead0000-0000-4000-8000-000000000002', name: 'Марат Примеров', phone: '+77010000002', comment: 'Есть ли парковка?', kind: 'OTHER', status: 'NEW', createdAt: '2026-10-28T08:40:00.000Z' },
+  { id: '1ead0000-0000-4000-8000-000000000003', name: 'Дана Образцова', phone: '+77010000003', comment: null, kind: 'CALLBACK', status: 'DONE', createdAt: '2026-10-27T15:05:00.000Z' },
+];
+let leads = LEADS_SEED();
 let archived = false;
 let instructions: string | null = null;
 let aiRuns: AiRun[] = [];
@@ -219,6 +227,7 @@ function useLocation(id: string, name: string) {
 }
 
 export function resetMarketingSiteFixture() {
+  leads = LEADS_SEED();
   parked = new Map();
   currentLocation = FIXTURE_LOCATION_ID;
   currentName = 'Luxx Aparts';
@@ -319,6 +328,28 @@ export function marketingSiteFixture(
     return { status: 200, data: { ok: true } };
   }
   if (!path.startsWith('/marketing/site')) return null;
+  // заявки с сайта: без лицензии конструктора тоже (их разбирают и после выключения, как API)
+  if (path === '/marketing/site/leads' && method === 'GET') {
+    const status = query.get('status');
+    const items = leads.filter((l) => !status || l.status === status);
+    return {
+      status: 200,
+      data: {
+        items: items.map((l) => ({ ...l, site: { id: 'site-1', name: currentName }, updatedAt: l.createdAt })),
+        nextCursor: null,
+        newCount: leads.filter((l) => l.status === 'NEW').length,
+      },
+    };
+  }
+  const leadPatch = /^\/marketing\/site\/leads\/([^/]+)$/.exec(path);
+  if (leadPatch && method === 'PATCH') {
+    const lead = leads.find((l) => l.id === leadPatch[1]);
+    if (!lead) return { status: 404, data: { message: 'Заявка не найдена', statusCode: 404 } };
+    if (!['NEW', 'IN_PROGRESS', 'DONE', 'SPAM'].includes(String(body['status'])))
+      return { status: 400, data: { message: 'status: NEW, IN_PROGRESS, DONE, SPAM', statusCode: 400 } };
+    lead.status = String(body['status']);
+    return { status: 200, data: { ...lead, site: { id: 'site-1', name: currentName }, updatedAt: lead.createdAt } };
+  }
   // SITE-1: факты и филиалы отвечает стенд (`fixture-api.ts`), здесь только «эндпоинта ещё нет»
   if (path === '/marketing/site/facts' || path === '/marketing/site/locations') return factsApiOff ? { status: 404, data: { message: 'Cannot GET ' + path } } : null;
   // SITE-3 (ADR-185): конструктор сайта открыт всем трём направлениям, как `marketing-site/scope.ts`

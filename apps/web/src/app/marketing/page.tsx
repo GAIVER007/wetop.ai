@@ -34,5 +34,13 @@ async function loadBuilder(): Promise<SiteBuilderState | null> {
 export default async function MarketingPage() {
   const me = await requireFeature('/marketing');
   const [spend, builder, locale] = await Promise.all([loadSpend(), loadBuilder(), currentLocale()]);
-  return <MarketingHub vertical={me.context?.vertical ?? 'HOSPITALITY'} spend={spend} builder={builder} locale={locale} />;
+  return (
+    <MarketingHub
+      vertical={me.context?.vertical ?? 'HOSPITALITY'}
+      spend={spend}
+      builder={builder}
+      seller={me.access?.aiSeller ?? null}
+      locale={locale}
+    />
+  );
 }

@@ -115,6 +115,7 @@ export const ACTION_RU: Record<string, string> = {
   'bar.supplier.created': msg('Поставщик добавлен'),
   'beauty.appointment.created': msg('Запись создана'),
   'beauty.appointment.moved': msg('Запись перенесена'),
+  'beauty.appointment.price_adjusted': msg('Цена записи изменена'),
   'beauty.appointment.paid': msg('Запись оплачена'),
   'beauty.appointment.refunded': msg('Возврат по записи'),
   'beauty.appointment.status': msg('Статус записи изменён'),

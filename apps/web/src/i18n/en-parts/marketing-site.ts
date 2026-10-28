@@ -692,4 +692,22 @@ export const marketingSite: Record<string, string> = {
   "Просьбы перезвонить и вопросы с сайта. Запись и бронь с выбором времени сразу в журнале.": "Callback requests and questions from the website. Bookings with a chosen time are already in the journal.",
   "Спам": "Spam",
   "Что нужно": "What is needed",
+  // тёмная роскошь, пилот 28.10.2026
+  "Тёмная роскошь": "Dark luxury",
+  "Шампань": "Champagne",
+  "Пудровая роза": "Powder rose",
+  "Изысканный": "Refined",
+  "Тёмная": "Dark",
+  // стили «Яркий поп» и «Эко-минимал», 28.10.2026
+  "Персиковая": "Peach",
+  "Шалфей": "Sage",
+  "Фуксия": "Fuchsia",
+  "Мох": "Moss",
+  "Дерзкий": "Bold",
+  "Строгий": "Clean",
+  "Эко-минимал": "Eco minimal",
+  "Чисто и натурально, как клиника: шалфей и беж, строгий шрифт, услуги списком, запись карточкой": "Clean and natural, like a clinic: sage and beige, a strict font, services as a list, booking in a card",
+  "Яркий поп": "Bright pop",
+  "Молодёжно и смело: персик и фуксия, крупный шрифт, услуги карточками, запись сразу под первым экраном": "Young and bold: peach and fuchsia, a large font, services as cards, booking right under the first screen",
+  "Тёмная роскошь: чёрный фон, шампань, антиква, услуги строками с ценой, мастера крупно": "Dark luxury: black background, champagne, serif type, services in rows with prices, large staff portraits",
 };

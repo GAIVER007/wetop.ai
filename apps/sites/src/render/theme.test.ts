@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ACCENTS, PRESETS, themeClasses } from './theme';
+import { ACCENTS, DARK_ACCENTS, DARK_PRESETS, PRESETS, themeClasses } from './theme';
 
 /** WCAG 2.x: относительная яркость и контраст; AA для обычного текста 4,5:1 */
 function luminance(hex: string): number {
@@ -16,7 +16,7 @@ const contrast = (a: string, b: string) => {
 
 describe('контраст каждого пресета и акцента (SiteSpec v0 §5): WCAG AA 4,5:1', () => {
   for (const [preset, p] of Object.entries(PRESETS))
-    for (const [accent, a] of Object.entries(ACCENTS))
+    for (const [accent, a] of Object.entries(ACCENTS).filter(([k]) => DARK_ACCENTS.has(k) === DARK_PRESETS.has(preset)))
       it(`${preset} + ${accent}`, () => {
         const pairs: Array<[string, string, string]> = [
           ['текст на фоне', p.text, p.bg],

@@ -344,12 +344,12 @@ export const LOCALE_LABEL: Readonly<Record<string, string>> = Object.freeze({ ru
 export const EDITOR_LOCALES: readonly string[] = SITE_SPEC_LOCALES;
 
 export const THEME_OPTIONS: Readonly<Record<keyof typeof SITE_SPEC_THEME, readonly EditorOption[]>> = Object.freeze({
-  preset: SITE_SPEC_THEME.preset.map((v) => option(v, ({ CALM: 'Спокойная', WARM: 'Тёплая', NIGHT: 'Вечерняя', COAST: 'Морская' } as Rec)[v] as string)),
-  accent: SITE_SPEC_THEME.accent.map((v) => option(v, ({ TEAL: 'Бирюзовый', INDIGO: 'Индиго', TERRACOTTA: 'Терракота', FOREST: 'Хвойный', GRAPHITE: 'Графит', GOLD: 'Золотой' } as Rec)[v] as string)),
-  typography: SITE_SPEC_THEME.typography.map((v) => option(v, ({ MODERN: 'Современный', CLASSIC: 'Классический', ROUNDED: 'Мягкий' } as Rec)[v] as string)),
+  preset: SITE_SPEC_THEME.preset.map((v) => option(v, ({ CALM: 'Спокойная', WARM: 'Тёплая', NIGHT: 'Вечерняя', COAST: 'Морская', NOIR: 'Тёмная роскошь', PEACH: 'Персиковая', SAGE: 'Шалфей' } as Rec)[v] as string)),
+  accent: SITE_SPEC_THEME.accent.map((v) => option(v, ({ TEAL: 'Бирюзовый', INDIGO: 'Индиго', TERRACOTTA: 'Терракота', FOREST: 'Хвойный', GRAPHITE: 'Графит', GOLD: 'Золотой', FUCHSIA: 'Фуксия', MOSS: 'Мох', CHAMPAGNE: 'Шампань', ROSE: 'Пудровая роза' } as Rec)[v] as string)),
+  typography: SITE_SPEC_THEME.typography.map((v) => option(v, ({ MODERN: 'Современный', CLASSIC: 'Классический', ROUNDED: 'Мягкий', LUXE: 'Изысканный', BOLD: 'Дерзкий', CLEAN: 'Строгий' } as Rec)[v] as string)),
   radius: SITE_SPEC_THEME.radius.map((v) => option(v, ({ SHARP: 'Прямые углы', SOFT: 'Слегка скруглённые', ROUND: 'Скруглённые' } as Rec)[v] as string)),
   density: SITE_SPEC_THEME.density.map((v) => option(v, ({ COMPACT: 'Плотно', COMFORTABLE: 'Свободно' } as Rec)[v] as string)),
-  colorScheme: SITE_SPEC_THEME.colorScheme.map((v) => option(v, 'Светлая')),
+  colorScheme: SITE_SPEC_THEME.colorScheme.map((v) => option(v, v === 'DARK' ? 'Тёмная' : 'Светлая')),
 });
 
 /** Текст на языке, иначе на первом заполненном: для подписей в структуре и разнице */

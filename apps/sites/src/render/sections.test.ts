@@ -74,6 +74,12 @@ describe('каждая секция примера', () => {
     expect(html).toContain('https://www.openstreetmap.org/?mlat=51.1694&amp;mlon=71.4491');
   });
 
+  // GEO 28.10.2026: адрес ведёт в Google Карты (публичная ссылка поиска, без ключа и API); по точке, если она есть
+  it('contacts: адрес ссылкой «Google Карты» в новой вкладке, по координатам или по тексту адреса', () => {
+    expect(html).toMatch(/href="https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=51\.1694%2C71\.4491" rel="noopener noreferrer" target="_blank"/);
+    expect(html).toContain('Google Карты');
+  });
+
   it('features и amenities: значки из словаря WETOP, aria-hidden', () => {
     expect(html).toMatch(/<svg class="icon"[^>]*aria-hidden="true"/);
   });

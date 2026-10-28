@@ -44,7 +44,10 @@ const hero: Renderer = (s, ctx, { h1 }) => {
   const actions = [ctaLink(s['primaryAction'] as Cta, ctx), ctaLink(s['secondaryAction'] as Cta | undefined, ctx, true)]
     .filter(Boolean)
     .join('');
-  return `${open(s, ' class="hero"')}${heading(s, ctx, h1)}${sub}${actions ? `<div class="actions">${actions}</div>` : ''}${image(s['image'], ctx, true)}${close}`;
+  const pic = image(s['image'], ctx, true);
+  // вариант с фото даёт свой класс: на весь экран с затемнением или фото сбоку; без фото обычный первый экран
+  const cls = pic && s.variant !== 'TEXT_ONLY' ? `hero hero--${String(s.variant).toLowerCase()}` : 'hero';
+  return `${open(s, ` class="${cls}"`)}${heading(s, ctx, h1)}${sub}${actions ? `<div class="actions">${actions}</div>` : ''}${pic}${close}`;
 };
 
 const about: Renderer = (s, ctx, { h1 }) =>
@@ -163,6 +166,14 @@ const contacts: Renderer = (s, ctx, { h1 }) => {
       rows.push(`<li><a href="${esc(href)}" rel="noopener noreferrer">${esc(strings.map)}</a></li>`);
     }
   }
+  // GEO 28.10.2026: Google Карты публичной ссылкой поиска (без ключа и API): по точке, иначе по тексту адреса
+  const geo = c.geo && Number.isFinite(c.geo.lat) && Number.isFinite(c.geo.lng) ? `${c.geo.lat},${c.geo.lng}` : null;
+  const addressText = s['showAddress'] === true ? tx(c.address, ctx.locale) : '';
+  const query = geo ?? addressText.trim();
+  if (query) {
+    const href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    rows.push(`<li><a href="${esc(href)}" rel="noopener noreferrer" target="_blank">${esc(strings.googleMaps)}</a></li>`);
+  }
   const directions = s['directions'] ? `<p>${t(s['directions'], ctx)}</p>` : '';
   return `${open(s)}${heading(s, ctx, h1)}${rows.length ? `<ul class="contact-list">${rows.join('')}</ul>` : ''}${directions}${close}`;
 };
@@ -244,7 +255,9 @@ const staff: Renderer = (s, ctx, { h1 }) => {
   const cards = list<Record<string, unknown>>(s['items'])
     .map((i) => {
       const spec = i['specialization'] ? `<p class="muted">${t(i['specialization'], ctx)}</p>` : '';
-      const body = `${image(i['image'], ctx)}<h3>${t(i['name'], ctx)}</h3>${spec}`;
+      // строкой: фото слева, имя и специализация столбиком справа
+      const text = `<div><h3>${t(i['name'], ctx)}</h3>${spec}</div>`;
+      const body = s.variant === 'CARDS' ? `${image(i['image'], ctx)}<h3>${t(i['name'], ctx)}</h3>${spec}` : `${image(i['image'], ctx)}${text}`;
       return s.variant === 'CARDS' ? `<li class="card person">${body}</li>` : `<li class="row person">${body}</li>`;
     })
     .join('');

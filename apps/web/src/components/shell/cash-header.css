@@ -57,13 +57,13 @@
     font-weight: 600;
   }
   /* окно закрытия, вариант B (владелец 28.10.2026): расходы смены списком и частые статьи для забытого расхода */
+  /* вариант A «Чек» (владелец 29.10.2026): расходы смены строками с отступом под строкой «Расходы за смену» */
   .cash-shift-expenses {
     display: grid;
     gap: var(--space-1);
-    margin: var(--space-2) 0;
-    padding: var(--space-2) var(--space-4);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    margin: 0 0 var(--space-2);
+    padding: 0 0 0 var(--space-4);
+    border-left: 3px solid var(--border);
     list-style: none;
   }
   .cash-shift-expenses li {
@@ -106,6 +106,53 @@
   }
   .cash-header__summary strong {
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .cash-header__summary p {
+    margin: 0;
+    padding: var(--space-2) 0;
+  }
+  .cash-header__summary p span {
+    color: var(--text-2);
+  }
+  .cash-header__summary h3 {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    color: var(--text-2);
+  }
+  .cash-header__summary strong[data-tone='in'] {
+    color: var(--success);
+  }
+  .cash-header__summary strong[data-tone='out'] {
+    color: var(--danger);
+  }
+  .cash-header__note {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  /* окно расхода и внесения, вариант A: сумма крупно, способ кнопками в ряд, кнопки внизу крупные */
+  .cash-money-form__group {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .cash-money-form__label {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .cash-method-seg {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .cash-method-seg > .cash-header__chip {
+    flex: 1 1 0;
+    min-width: max-content;
+  }
+  .cash-header-drawer .cash-header__footer > .btn {
+    min-height: var(--space-12);
+  }
+  .cash-header__footer--wide {
+    padding-top: var(--space-4);
   }
   .cash-header__cashier {
     display: flex;

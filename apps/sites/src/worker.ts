@@ -7,6 +7,7 @@ import { pageNeedsLead, pageNeedsPrices, renderNotFound, renderPage } from './re
 import { LEAD_JS } from './render/lead-script';
 import { PRICES_JS } from './render/prices-script';
 import { SITE_CSS } from './render/theme';
+import { fontByPath } from './render/fonts';
 import { llmsTxt, robotsTxt, seoSettings, sitemapXml, type SeoSettings } from './seo';
 import type { Env, Page, RuntimeCurrent, SiteSpec } from './types';
 
@@ -50,6 +51,13 @@ export function createRuntime(
           'Content-Type': 'application/javascript; charset=utf-8',
           'Cache-Control': CACHE.immutable,
         });
+      // шрифты сайта со своего хоста (пара LUXE): неизменяемый файл с хэшем в имени
+      const font = fontByPath(url.pathname);
+      if (font) {
+        const bytes = font.bytes();
+        const headers = { 'Content-Type': 'font/woff2', 'Cache-Control': CACHE.immutable, 'Access-Control-Allow-Origin': '*', ...BASE_SECURITY_HEADERS };
+        return new Response(request.method === 'HEAD' ? null : bytes, { status: 200, headers });
+      }
       if (url.pathname === '/favicon.ico') return plain('Not Found', 404, { 'Cache-Control': CACHE.notFound });
       // один нормализатор хоста с API (packages/domain/src/marketing/host.ts): IP и имя из одной части не сайт
       const host = normalizeSiteHost(url.hostname);

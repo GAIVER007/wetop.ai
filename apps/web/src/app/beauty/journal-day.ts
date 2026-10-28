@@ -1,24 +1,10 @@
-import type { BeautyAppointmentRow, BeautyDayColumn } from '../../lib/api';
-import { clockMinutes } from './time';
+import type { BeautyAppointmentRow } from '../../lib/api';
 import { msg } from '../../i18n';
 
 /**
  * Журнал салона, вариант B (владелец 24.10.2026, эскиз `sketches/salon-journal-2026-10-24/`): загрузка мастера
  * над колонкой, «Ближайшие» с быстрым действием и «Деньги за день» в панели справа. Чистые функции без React.
  */
-
-const counted = (r: BeautyAppointmentRow) => r.status !== 'CANCELLED' && r.status !== 'NO_SHOW';
-
-/** Записей у мастера и доля занятых рабочих минут; выходной и отсутствие без процента */
-export function masterLoad(column: BeautyDayColumn, rows: BeautyAppointmentRow[]): { count: number; percent: number | null } {
-  const mine = rows.filter((r) => r.employeeId === column.id && counted(r));
-  const work = column.timeOff
-    ? 0
-    : column.intervals.reduce((n, i) => n + Math.max(0, clockMinutes(i.timeTo) - clockMinutes(i.timeFrom)), 0);
-  if (!work) return { count: mine.length, percent: null };
-  const busy = mine.reduce((n, r) => n + Math.max(0, r.endMinutes - r.startMinutes), 0);
-  return { count: mine.length, percent: Math.min(100, Math.round((busy / work) * 100)) };
-}
 
 /** Кто придёт: записанные и подтверждённые с «сейчас» минус 30 минут (опоздавшие видны), по времени, до пяти */
 export function upcoming(rows: BeautyAppointmentRow[], nowMinutes: number | null, limit = 5): BeautyAppointmentRow[] {

@@ -140,21 +140,6 @@
     font-size: var(--text-md);
   }
 
-  /* загрузка мастера: полоска под часами работы */
-  .beauty-load {
-    display: block;
-    width: 100%;
-    height: var(--space-1);
-    overflow: hidden;
-    border-radius: var(--radius-full);
-    background: var(--border-soft);
-  }
-  .beauty-load > i {
-    display: block;
-    height: 100%;
-    background: var(--primary);
-  }
-
   /* запись карточкой: полоса и заливка тоном статуса, время и статус в строку, сумма и оплата внизу */
   .beauty-page .beauty-grid-day .beauty-tile {
     align-content: start;

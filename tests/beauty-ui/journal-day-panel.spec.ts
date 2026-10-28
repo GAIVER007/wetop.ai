@@ -52,7 +52,10 @@ test('вариант B: панель дня, загрузка мастера, «
   const panel = page.getByRole('complementary', { name: 'Панель дня' });
   await expect(panel).toBeVisible();
   // загрузка мастера над колонкой: 2 записи по часу из 9 часов
-  await expect(page.locator('.beauty-col-head').first()).toContainText('09:00–18:00, 22%');
+  // загрузку процентом владелец убрал 28.10.2026: в шапке только часы смены
+  await expect(page.locator('.beauty-col-head').first()).toContainText('09:00–18:00');
+  await expect(page.locator('.beauty-col-head').first()).not.toContainText('%');
+  await expect(page.locator('.beauty-load')).toHaveCount(0);
   // запись карточкой: статус и оплата
   const tile = page.locator('.beauty-grid-day .beauty-tile').filter({ hasText: 'Тест Жанна' });
   await expect(tile).toContainText('Подтверждена');

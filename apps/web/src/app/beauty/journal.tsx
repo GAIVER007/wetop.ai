@@ -32,7 +32,7 @@ import { DayNav } from '../../components/day-nav';
 import { JournalFilter, JournalHead, JournalSearch, FiltersTitle } from '../../components/journal-head';
 import { useNarrow, useWide } from '../../lib/use-narrow';
 import { DayPanel } from './day-panel';
-import { masterLoad, shortHour, shortName, tilePayment } from './journal-day';
+import { shortHour, shortName, tilePayment } from './journal-day';
 import { clock, clockMinutes, instantOf, localInput } from './time';
 import { beautyPeriodRows, moveAppointment } from './journal-actions';
 import { beautyStatus } from '../../lib/status/beauty';
@@ -664,20 +664,11 @@ export function JournalBoard({
                     {e.timeOff ? (
                       <Badge>{e.timeOffReason || t('Отсутствие')}</Badge>
                     ) : e.intervals.length ? (
-                      `${e.intervals.map((i) => (dense ? `${shortHour(i.timeFrom)}–${shortHour(i.timeTo)}` : `${i.timeFrom}–${i.timeTo}`)).join(', ')}${masterLoad(e, day.appointments).percent !== null ? `, ${masterLoad(e, day.appointments).percent}%` : ''}`
+                      `${e.intervals.map((i) => (dense ? `${shortHour(i.timeFrom)}–${shortHour(i.timeTo)}` : `${i.timeFrom}–${i.timeTo}`)).join(', ')}`
                     ) : (
                       t('Выходной')
                     )}
                   </small>
-                  {masterLoad(e, day.appointments).percent !== null && (
-                    <span
-                      className="beauty-load"
-                      role="img"
-                      aria-label={t('Загрузка {n}%', { n: masterLoad(e, day.appointments).percent ?? 0 })}
-                    >
-                      <i style={{ width: `${masterLoad(e, day.appointments).percent}%` }} /* slop-allow: inline-style доля загрузки мастера */ />
-                    </span>
-                  )}
                 </h2>
               ))}
               {hours}

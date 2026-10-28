@@ -244,3 +244,72 @@ export function toggleSiteBlock(spec: Rec, type: string, on: boolean, template: 
     }
   });
 }
+
+/**
+ * SEO главной в простом экране (аудит «Сайт и SEO» 28.10.2026, S5): заголовок и описание для поисковиков и показ сайта
+ * в поиске. Лимиты как у валидатора страницы (60 и 160 знаков), лишнее обрезается, пустое убирает поле.
+ */
+export const SEO_TITLE_MAX = 60;
+export const SEO_DESCRIPTION_MAX = 160;
+
+export interface SimpleSiteSeo {
+  title: string;
+  description: string;
+  /** сайт показывается в поиске: у сайта INDEX и главная с индексом */
+  indexed: boolean;
+}
+
+export function simpleSiteSeo(spec: Rec): SimpleSiteSeo {
+  const locale = localeOf(spec);
+  const home = homeOf(spec);
+  const seo = home && isRec(home['seo']) ? home['seo'] : {};
+  const site = isRec(spec['site']) ? spec['site'] : {};
+  const siteSeo = isRec(site['seo']) ? site['seo'] : {};
+  return {
+    title: textIn(seo['title'], locale),
+    description: textIn(seo['description'], locale),
+    indexed: siteSeo['robots'] !== 'NOINDEX' && seo['index'] !== false,
+  };
+}
+
+export function setHomeSeo(spec: Rec, field: 'title' | 'description', locale: string, value: string): Rec {
+  const max = field === 'title' ? SEO_TITLE_MAX : SEO_DESCRIPTION_MAX;
+  const text = [...value.replace(/\s+/g, ' ').trim()].slice(0, max).join('').trim();
+  return edit(spec, (home) => {
+    const seo = isRec(home['seo']) ? home['seo'] : (home['seo'] = { index: true, includeInSitemap: true, canonical: 'SELF' });
+    if (!text) {
+      if (isRec(seo[field])) {
+        const rest = { ...(seo[field] as Rec) };
+        delete rest[locale];
+        if (Object.keys(rest).length) seo[field] = rest;
+        else delete seo[field];
+      }
+      return;
+    }
+    seo[field] = { ...(isRec(seo[field]) ? seo[field] : {}), [locale]: text };
+  });
+}
+
+/** Показ в поиске одним переключателем: сайт INDEX/NOINDEX, главная с индексом и в карте сайта или без них */
+export function setSiteIndexing(spec: Rec, on: boolean): Rec {
+  return edit(spec, (home, doc) => {
+    const site = isRec(doc['site']) ? doc['site'] : null;
+    if (!site || !isRec(site['seo'])) return;
+    (site['seo'] as Rec)['robots'] = on ? 'INDEX' : 'NOINDEX';
+    const seo = isRec(home['seo']) ? home['seo'] : (home['seo'] = { canonical: 'SELF' });
+    seo['index'] = on;
+    seo['includeInSitemap'] = on;
+  });
+}
+
+/** Вид в выдаче Google: свой заголовок или заголовок первого экрана, иначе имя; адрес без https */
+export function searchPreview(spec: Rec, siteUrl: string | null, fallbackName: string): { title: string; description: string; url: string } {
+  const own = simpleSiteSeo(spec);
+  const st = simpleSiteState(spec);
+  const cut = (s: string, max: number) => ([...s].length > max ? `${[...s].slice(0, max - 1).join('')}…` : s);
+  return {
+    title: cut(own.title || st.heroHeading || fallbackName, SEO_TITLE_MAX),
+    description: cut(own.description || st.heroSubheading || st.about.split('\n')[0] || '', SEO_DESCRIPTION_MAX),
+    url: (siteUrl ?? '').replace(/^https?:\/\//, '').replace(/\/$/, ''),
+  };
+}

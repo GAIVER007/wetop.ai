@@ -155,6 +155,8 @@ describe('Beauty route action metadata', () => {
       week: { section: 'employees', action: 'update' },
       timeOff: { section: 'employees', action: 'update' },
       deleteTimeOff: { section: 'employees', action: 'update' },
+      approveRequest: { section: 'employees', action: 'update' },
+      rejectRequest: { section: 'employees', action: 'update' },
       account: { section: 'employees', action: 'update' },
       unlinkAccount: { section: 'employees', action: 'update' },
       paySettings: { section: 'payroll', action: 'update' },
@@ -171,6 +173,9 @@ describe('Beauty route action metadata', () => {
       week: { section: 'journal', action: 'update', own: false },
       timeOff: { section: 'journal', action: 'update', own: false },
       deleteTimeOff: { section: 'journal', action: 'update', own: false },
+      // запрос графика: подаёт и отменяет сам мастер своего кабинета, график не меняется до решения руководителя
+      scheduleRequest: { section: 'journal', action: 'view', own: true, anyOf: ['appointments', 'payroll', 'reviews'] },
+      cancelRequest: { section: 'journal', action: 'view', own: true, anyOf: ['appointments', 'payroll', 'reviews'] },
       avatar: { section: 'journal', action: 'update', own: false },
       portfolio: { section: 'journal', action: 'update', own: false },
     });

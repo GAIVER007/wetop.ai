@@ -49,6 +49,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /employee-portal/employees/:id/week': 'staff',
   'POST /employee-portal/employees/:id/time-offs': 'staff',
   'DELETE /employee-portal/employees/:id/time-offs/:timeOffId': 'staff',
+  'POST /employee-portal/employees/:id/schedule-requests/:requestId/approve': 'staff',
+  'POST /employee-portal/employees/:id/schedule-requests/:requestId/reject': 'staff',
   'PUT /employee-portal/employees/:id/publication': 'staff',
   'PUT /employee-portal/employees/:id/account': 'staff',
   'DELETE /employee-portal/employees/:id/account': 'staff',
@@ -64,6 +66,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PUT /employee-portal/me/week': 'self',
   'POST /employee-portal/me/time-offs': 'self',
   'DELETE /employee-portal/me/time-offs/:timeOffId': 'self',
+  'POST /employee-portal/me/schedule-requests': 'self',
+  'POST /employee-portal/me/schedule-requests/:requestId/cancel': 'self',
   'PUT /employee-portal/pay-policy': 'staff',
   'GET /employee-portal/public/:slug': 'public',
   'GET /onboarding': 'self',
@@ -671,8 +675,18 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // ── «Платформа» — главный администратор (§16.2) ─────────────────────────────────────────
   'GET /platform/organizations': 'platform',
   'GET /platform/overview': 'platform',
-  // кабинет компании WETOP (28.10.2026)
+  // кабинет компании WETOP (28.10.2026, DATA_MODEL §63)
   'GET /platform/cabinet': 'platform',
+  'GET /platform/money': 'platform',
+  'POST /platform/plans': 'platform',
+  'PUT /platform/plans/:id': 'platform',
+  'PUT /platform/subscriptions/:organizationId': 'platform',
+  'POST /platform/payments': 'platform',
+  'POST /platform/payments/:id/void': 'platform',
+  'POST /platform/expenses': 'platform',
+  'POST /platform/expenses/:id/void': 'platform',
+  'POST /platform/team': 'platform',
+  'PUT /platform/team/:id': 'platform',
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор
   'PUT /platform/organizations/:id/status': 'platform',

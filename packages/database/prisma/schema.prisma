@@ -166,6 +166,7 @@ model Location {
   @@index([businessId])
   @@index([bookingTrackedSiteId])
   @@map("locations")
+  scheduleRequests EmployeeScheduleRequest[]
 }
 
 /// Фото и договор объекта (ADR-158, DATA_MODEL §32.3): файл в закрытом хранилище, в базе только ключ.
@@ -2692,6 +2693,9 @@ model Organization {
   agents               SellerAgent[]
   wizardDrafts         WizardDraft[]
   extensions           OrganizationExtension[]
+  /// Кабинет компании WETOP (DATA_MODEL §63): подписка и оплаты клиента компании
+  platformSubscription PlatformSubscription?
+  platformPayments     PlatformPayment[]
   guests               Guest[]
   auditLogs            AuditLog[]
   customers            Customer[]
@@ -2811,6 +2815,8 @@ model User {
   staffNotifications     StaffNotification[]
 
   @@map("users")
+  scheduleRequestsCreated EmployeeScheduleRequest[] @relation("ScheduleRequestCreatedBy")
+  scheduleRequestsDecided EmployeeScheduleRequest[] @relation("ScheduleRequestDecidedBy")
 }
 
 /// Одноразовая ссылка на установку пароля: приглашение сотрудника и сброс по его просьбе (§13.9, ADR-049).
@@ -3402,6 +3408,7 @@ model Employee {
 
   @@index([businessId])
   @@map("employees")
+  scheduleRequests   EmployeeScheduleRequest[]
 }
 
 // Additive portal models, prepared migration128. Production application requires the owner-admin release step.
@@ -3661,6 +3668,42 @@ model WorkingHours {
   @@unique([employeeId, locationId, weekday, timeFrom])
   @@index([locationId, weekday])
   @@map("working_hours")
+}
+
+/// Запрос мастера на изменение своего графика; решает руководитель (SCHEDULE-REQUESTS-20261028)
+enum ScheduleRequestKind {
+  WEEK
+  TIME_OFF
+}
+
+enum ScheduleRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model EmployeeScheduleRequest {
+  id           String                @id @default(uuid()) @db.Uuid
+  employeeId   String                @map("employee_id") @db.Uuid
+  locationId   String                @map("location_id") @db.Uuid
+  kind         ScheduleRequestKind
+  payload      Json
+  baseRevision String?               @map("base_revision") @db.VarChar(100)
+  status       ScheduleRequestStatus @default(PENDING)
+  createdById  String                @map("created_by_id") @db.Uuid
+  createdAt    DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  decidedById  String?               @map("decided_by_id") @db.Uuid
+  decidedAt    DateTime?             @map("decided_at") @db.Timestamptz(6)
+  decisionNote String?               @map("decision_note") @db.VarChar(300)
+
+  employee  Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "employee_schedule_requests_employee_fkey")
+  location  Location @relation(fields: [locationId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "employee_schedule_requests_location_fkey")
+  createdBy User     @relation("ScheduleRequestCreatedBy", fields: [createdById], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "employee_schedule_requests_created_by_fkey")
+  decidedBy User?    @relation("ScheduleRequestDecidedBy", fields: [decidedById], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "employee_schedule_requests_decided_by_fkey")
+
+  @@index([employeeId, createdAt], map: "employee_schedule_requests_employee_idx")
+  @@map("employee_schedule_requests")
 }
 
 /// Отпуска и отсутствия мастера: календарные даты включительно с обеих сторон
@@ -5154,4 +5197,86 @@ model CashCommand {
 
   @@id([registerId, commandKey])
   @@map("cash_commands")
+}
+
+/// Кабинет компании WETOP (DATA_MODEL §63, владелец 28.10.2026): тариф компании, цена целыми центами USD
+model PlatformPlan {
+  id           String   @id @db.Uuid
+  name         String   @unique(map: "platform_plans_name") @db.VarChar(100)
+  priceCents   BigInt   @map("price_cents")
+  /// 1 или 12 месяцев (CHECK в миграции)
+  periodMonths Int      @default(1) @map("period_months") @db.SmallInt
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  subscriptions PlatformSubscription[]
+
+  @@map("platform_plans")
+}
+
+/// Подписка клиента компании WETOP: одна на организацию, договорная цена в месяц и «оплачено до»
+model PlatformSubscription {
+  organizationId String    @id @map("organization_id") @db.Uuid
+  planId         String?   @map("plan_id") @db.Uuid
+  monthlyCents   BigInt    @map("monthly_cents")
+  paidUntil      DateTime? @map("paid_until") @db.Date
+  note           String?   @db.VarChar(300)
+  updatedAt      DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  updatedBy      String?   @map("updated_by") @db.Uuid
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  plan         PlatformPlan? @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("platform_subscriptions")
+}
+
+/// Оплата клиента компании WETOP; ошибочная отменяется отметкой `voidedAt`, не удаляется
+model PlatformPayment {
+  id             String    @id @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  amountCents    BigInt    @map("amount_cents")
+  paidOn         DateTime  @map("paid_on") @db.Date
+  note           String?   @db.VarChar(300)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy      String?   @map("created_by") @db.Uuid
+  voidedAt       DateTime? @map("voided_at") @db.Timestamptz(6)
+  voidedBy       String?   @map("voided_by") @db.Uuid
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([paidOn(sort: Desc)], map: "platform_payments_day")
+  @@index([organizationId, paidOn(sort: Desc)], map: "platform_payments_org")
+  @@map("platform_payments")
+}
+
+/// Расход компании WETOP по статье (CHECK в миграции); ошибочный отменяется отметкой
+model PlatformExpense {
+  id          String    @id @db.Uuid
+  /// SERVER, DOMAINS, ADS, AI, SALARIES, SERVICES, OTHER
+  category    String    @db.VarChar(20)
+  amountCents BigInt    @map("amount_cents")
+  spentOn     DateTime  @map("spent_on") @db.Date
+  note        String?   @db.VarChar(300)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy   String?   @map("created_by") @db.Uuid
+  voidedAt    DateTime? @map("voided_at") @db.Timestamptz(6)
+  voidedBy    String?   @map("voided_by") @db.Uuid
+
+  @@index([spentOn(sort: Desc)], map: "platform_expenses_day")
+  @@map("platform_expenses")
+}
+
+/// Команда компании WETOP; ушедший остаётся с `active = false`
+model PlatformTeamMember {
+  id                 String   @id @db.Uuid
+  name               String   @db.VarChar(200)
+  role               String   @db.VarChar(100)
+  email              String?  @db.VarChar(320)
+  monthlySalaryCents BigInt?  @map("monthly_salary_cents")
+  active             Boolean  @default(true)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("platform_team_members")
 }

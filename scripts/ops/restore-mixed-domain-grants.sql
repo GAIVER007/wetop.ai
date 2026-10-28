@@ -1,4 +1,4 @@
--- Restore-only ACL companion for mixed migrations132,134-137,140,141,144,146,154.
+-- Restore-only ACL companion for mixed migrations132,134-137,140,141,144,146,154,160,161,167.
 -- Not a schema migration. Run after ordinary pure-ACL migrations, inside the restore transaction.
 -- Copy existing privileges exactly; never replay mixed DDL or end the caller's transaction.
 DO $restore_acl$
@@ -148,6 +148,11 @@ BEGIN
     GRANT SELECT, INSERT ON TABLE staff_notifications TO wetop_app;
     GRANT SELECT, INSERT, UPDATE ON TABLE staff_telegram_links, staff_telegram_link_codes, staff_notifications TO wetop_service;
   END IF;
+  -- 167_employee_schedule_requests: точный ACL смешанной миграции (запросы графика мастера), без DDL
+  IF to_regclass(quote_ident('employee_schedule_requests')) IS NOT NULL THEN
+    REVOKE ALL ON employee_schedule_requests FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON employee_schedule_requests TO wetop_app, wetop_service;
+  END IF;
   -- 160/161_cash_shifts: restore metadata ACL without replaying mixed DDL.
   -- схема по search_path (на проде public, в гейте pms_test): GRANT ниже тоже без схемы
   SELECT count(*) INTO installed FROM unnest(ARRAY['cash_registers','cash_shifts','cash_handovers','cash_commands']) AS t(name)
@@ -159,5 +164,16 @@ BEGIN
     GRANT SELECT,INSERT ON cash_commands TO wetop_app,wetop_service;
     REVOKE ALL ON FUNCTION cash_scope_visible(uuid,uuid) FROM PUBLIC;
     GRANT EXECUTE ON FUNCTION cash_scope_visible(uuid,uuid) TO wetop_app,wetop_service;
+  END IF;
+  -- 166_company_money: деньги компании WETOP, только сервисная роль (стойка клиентов прав не имеет, DELETE ни у кого)
+  SELECT count(*) INTO installed FROM unnest(ARRAY[
+    'platform_plans','platform_subscriptions','platform_payments','platform_expenses','platform_team_members'
+  ]) AS t(name) WHERE to_regclass(quote_ident(name)) IS NOT NULL;
+  IF installed NOT IN (0,5) THEN RAISE EXCEPTION 'Incomplete company money schema during ACL restore'; END IF;
+  IF installed = 5 THEN
+    REVOKE ALL ON platform_plans,platform_subscriptions,platform_payments,platform_expenses,platform_team_members
+      FROM wetop_app,wetop_service;
+    GRANT SELECT,INSERT,UPDATE ON platform_plans,platform_subscriptions,platform_payments,platform_expenses,platform_team_members
+      TO wetop_service;
   END IF;
 END $restore_acl$;

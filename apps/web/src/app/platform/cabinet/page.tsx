@@ -5,14 +5,14 @@ import { LoadError } from '../../../components/load-error';
 import { RefreshButton } from '../../../components/refresh-button';
 import { Badge, EmptyState, LoadingState, Panel, Stat, Stats, Table } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
-import { ApiError, platformApi, type PlatformCabinet } from '../../../lib/api';
+import { ApiError, platformApi, type PlatformCabinet, type PlatformMoney } from '../../../lib/api';
 import { loadErrorProps } from '../../../lib/load-error';
 import { formatInt } from '../../../lib/dashboard-format';
 import { PLATFORM_VERTICAL_LABEL } from '../../../lib/platform';
 import { serverT } from '../../../i18n/server';
 import type { Translate } from '../../../i18n';
 import { unstable_rethrow } from 'next/navigation';
-import './cabinet.css';
+import { CabinetShell, usd } from './shell';
 
 /**
  * Кабинет компании WETOP (владелец 28.10.2026, вариант «Г»): меню слева, путь клиента, клиенты и сроки. WETOP
@@ -33,8 +33,11 @@ export default async function CabinetPage() {
 async function Cabinet() {
   const t = await serverT();
   let view: PlatformCabinet;
+  let money: PlatformMoney | null;
   try {
     view = await platformApi.cabinet();
+    // деньги месяца на главной (вариант «Г»); до миграции 166 или при сбое главная без них
+    money = await platformApi.money(new Date().toISOString().slice(0, 7)).catch(() => null);
   } catch (error) {
     unstable_rethrow(error);
     if (error instanceof ApiError && error.status === 403)
@@ -51,28 +54,11 @@ async function Cabinet() {
   }
   const now = Date.now();
   return (
-    <div className="cabinet" data-testid="cabinet">
-      <div className="cabinet__side">
-        <nav className="cabinet__menu" aria-label={t('Кабинет WETOP')}>
-          <Link
-            className="cabinet__link"
-            aria-current="page"
-            href="/platform/cabinet"
-            prefetch={false}
-          >
-            <Icon name="today" />
-            {t('Главная')}
-          </Link>
-          <Link className="cabinet__link" href="/platform" prefetch={false}>
-            <Icon name="guests" />
-            {t('Клиенты')}
-            <span className="cabinet__count">{formatInt(view.totals.clients)}</span>
-          </Link>
-          <Link className="cabinet__link" href="/platform/support" prefetch={false}>
-            <Icon name="chat" />
-            {t('Поддержка')}
-          </Link>
-        </nav>
+    <CabinetShell
+      active="home"
+      t={t}
+      clients={view.totals.clients}
+      side={
         <Panel title={t('Сроки')} className="cabinet__deadlines" data-testid="cabinet-deadlines">
           {view.deadlines.length === 0 ? (
             <EmptyState title={t('Сроков нет: все клиенты платят.')} />
@@ -99,93 +85,116 @@ async function Cabinet() {
             </ul>
           )}
         </Panel>
-      </div>
-      <div className="cabinet__main">
-        <Stats min={200}>
+      }
+    >
+      <Stats min={200}>
+        <Stat
+          label={t('Клиенты')}
+          value={formatInt(view.totals.clients)}
+          hint={t('платят {paying}, пробный {trial}', {
+            paying: formatInt(view.funnel.paying),
+            trial: formatInt(view.funnel.trial),
+          })}
+          icon={<Icon name="guests" />}
+          testId="cabinet-clients"
+        />
+        <Stat
+          label={t('Люди у клиентов')}
+          value={formatInt(view.totals.people)}
+          hint={t('входили за 7 дней: {n}', { n: formatInt(view.totals.activePeople7d) })}
+          icon={<Icon name="person" />}
+          testId="cabinet-people"
+        />
+        <Stat
+          label={t('Брони и записи за 30 дней')}
+          value={formatInt(view.clients.reduce((n, c) => n + c.records30d, 0))}
+          hint={t('всё, что клиенты внесли в WETOP')}
+          icon={<Icon name="booking" />}
+          testId="cabinet-records"
+        />
+      </Stats>
+      {money?.ready ? (
+        <Stats min={200} data-testid="cabinet-money">
           <Stat
-            label={t('Клиенты')}
-            value={formatInt(view.totals.clients)}
-            hint={t('платят {paying}, пробный {trial}', {
-              paying: formatInt(view.funnel.paying),
-              trial: formatInt(view.funnel.trial),
-            })}
-            icon={<Icon name="guests" />}
-            testId="cabinet-clients"
+            label={t('Доход за месяц')}
+            value={usd(money.summary.month.incomeCents)}
+            tone="success"
+            icon={<Icon name="chart" />}
+            href="/platform/cabinet/money"
           />
           <Stat
-            label={t('Люди у клиентов')}
-            value={formatInt(view.totals.people)}
-            hint={t('входили за 7 дней: {n}', { n: formatInt(view.totals.activePeople7d) })}
-            icon={<Icon name="person" />}
-            testId="cabinet-people"
+            label={t('Расходы за месяц')}
+            value={usd(money.summary.month.expensesCents)}
+            icon={<Icon name="money" />}
+            href="/platform/cabinet/money"
           />
           <Stat
-            label={t('Брони и записи за 30 дней')}
-            value={formatInt(view.clients.reduce((n, c) => n + c.records30d, 0))}
-            hint={t('всё, что клиенты внесли в WETOP')}
-            icon={<Icon name="booking" />}
-            testId="cabinet-records"
+            label={t('Прибыль за месяц')}
+            value={usd(money.summary.month.profitCents)}
+            tone={money.summary.month.profitCents.startsWith('-') ? 'danger' : 'success'}
+            icon={<Icon name="analytics" />}
+            href="/platform/cabinet/money"
           />
         </Stats>
+      ) : null}
 
-        <Panel title={t('Путь клиента')}>
-          <ol className="cabinet__funnel" data-testid="cabinet-funnel">
-            <Step label={t('Регистраций за 30 дней')} value={view.funnel.registered30d} />
-            <Step label={t('Работают')} hint={t('входили за 7 дней')} value={view.funnel.working} />
-            <Step label={t('Пробный период')} value={view.funnel.trial} />
-            <Step label={t('Платят')} value={view.funnel.paying} tone="ok" />
-            <Step
-              label={t('Ушли')}
-              hint={t('архив или без оплаты')}
-              value={view.funnel.left}
-              tone="danger"
-            />
-          </ol>
-        </Panel>
+      <Panel title={t('Путь клиента')}>
+        <ol className="cabinet__funnel" data-testid="cabinet-funnel">
+          <Step label={t('Регистраций за 30 дней')} value={view.funnel.registered30d} />
+          <Step label={t('Работают')} hint={t('входили за 7 дней')} value={view.funnel.working} />
+          <Step label={t('Пробный период')} value={view.funnel.trial} />
+          <Step label={t('Платят')} value={view.funnel.paying} tone="ok" />
+          <Step
+            label={t('Ушли')}
+            hint={t('архив или без оплаты')}
+            value={view.funnel.left}
+            tone="danger"
+          />
+        </ol>
+      </Panel>
 
-        <Panel title={t('Клиенты')} className="cabinet__clients">
-          {view.clients.length === 0 ? (
-            <EmptyState title={t('Клиентов пока нет. Они появятся после регистрации на сайте.')} />
-          ) : (
-            <Table aria-label={t('Клиенты')} data-testid="cabinet-clients-table">
-              <thead>
-                <tr>
-                  <th>{t('Клиент')}</th>
-                  <th>{t('Вид')}</th>
-                  <th>{t('Филиалы')}</th>
-                  <th>{t('Люди')}</th>
-                  <th>{t('За 30 дней')}</th>
-                  <th>{t('Входили')}</th>
-                  <th>{t('Состояние')}</th>
+      <Panel title={t('Клиенты')} className="cabinet__clients">
+        {view.clients.length === 0 ? (
+          <EmptyState title={t('Клиентов пока нет. Они появятся после регистрации на сайте.')} />
+        ) : (
+          <Table aria-label={t('Клиенты')} data-testid="cabinet-clients-table">
+            <thead>
+              <tr>
+                <th>{t('Клиент')}</th>
+                <th>{t('Вид')}</th>
+                <th>{t('Филиалы')}</th>
+                <th>{t('Люди')}</th>
+                <th>{t('За 30 дней')}</th>
+                <th>{t('Входили')}</th>
+                <th>{t('Состояние')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {view.clients.map((c) => (
+                <tr key={c.id}>
+                  <td>
+                    <Link href={`/platform?org=${c.id}#organization`} prefetch={false}>
+                      {c.name}
+                    </Link>
+                    {c.owner && <div className="muted cabinet__sub">{c.owner}</div>}
+                  </td>
+                  <td>
+                    {c.verticals.map((v) => t(PLATFORM_VERTICAL_LABEL[v])).join(', ') || t('нет')}
+                  </td>
+                  <td>{formatInt(c.locations)}</td>
+                  <td>{formatInt(c.members)}</td>
+                  <td>{formatInt(c.records30d)}</td>
+                  <td>{loginText(c.lastLoginAt, now, t)}</td>
+                  <td>
+                    <StatusBadge client={c} t={t} />
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {view.clients.map((c) => (
-                  <tr key={c.id}>
-                    <td>
-                      <Link href={`/platform?org=${c.id}#organization`} prefetch={false}>
-                        {c.name}
-                      </Link>
-                      {c.owner && <div className="muted cabinet__sub">{c.owner}</div>}
-                    </td>
-                    <td>
-                      {c.verticals.map((v) => t(PLATFORM_VERTICAL_LABEL[v])).join(', ') || t('нет')}
-                    </td>
-                    <td>{formatInt(c.locations)}</td>
-                    <td>{formatInt(c.members)}</td>
-                    <td>{formatInt(c.records30d)}</td>
-                    <td>{loginText(c.lastLoginAt, now, t)}</td>
-                    <td>
-                      <StatusBadge client={c} t={t} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          )}
-        </Panel>
-      </div>
-    </div>
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </Panel>
+    </CabinetShell>
   );
 }
 

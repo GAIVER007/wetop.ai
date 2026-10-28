@@ -116,6 +116,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'beauty_payroll_policies',
   'working_hours',
   'time_offs',
+  // 167: запросы графика мастера (SCHEDULE-REQUESTS-20261028), политики через родителя-сотрудника, FORCE RLS
+  'employee_schedule_requests',
   'appointments',
   // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
   'competitors',
@@ -235,6 +237,12 @@ export const RLS_NO_TENANT_TABLES: readonly string[] = [
   'password_resets',
   'email_verifications',
   'platform_admins',
+  // кабинет компании WETOP (§63): деньги самой компании, не организаций; `wetop_app` прав не имеет
+  'platform_plans',
+  'platform_subscriptions',
+  'platform_payments',
+  'platform_expenses',
+  'platform_team_members',
   'wizard_sessions',
   'wizard_surveys',
   'wizard_events',

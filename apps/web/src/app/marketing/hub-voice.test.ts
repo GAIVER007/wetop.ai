@@ -25,7 +25,7 @@ describe('«Голосовой агент» во всех направления
     const html = renderToStaticMarkup(createElement(MarketingHub, { vertical }));
     expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/voice"');
-    expect(html).toContain('aria-label="Открыть: Голосовой агент"');
+    expect(html).toContain('aria-label="Подключить: Голосовой агент"');
     expect(html.match(/data-module=""/g)).toHaveLength(COUNTS[vertical]);
   });
 

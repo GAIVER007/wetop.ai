@@ -129,9 +129,13 @@
     font-weight: var(--weight-semibold);
   }
   .marketing-pult__name span,
-  .marketing-pult__plan {
+  .marketing-pult__price span {
     color: var(--text-2);
     font-size: var(--text-sm);
+  }
+  .marketing-pult__price strong {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
   }
   .marketing-pult__go {
     text-align: right;

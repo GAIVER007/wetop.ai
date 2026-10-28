@@ -36,8 +36,9 @@ for (const width of [1280, 390]) {
     await expect(hub).toBeVisible();
     await expect(hub.getByTestId('marketing-results')).toBeVisible();
     await expect(hub.locator('[data-module]')).toHaveCount(7);
-    await expect(hub.getByTestId('marketing-budget')).toContainText('В подписке');
-    await expect(hub.getByTestId('marketing-seller')).toContainText('Дополнительно');
+    if (width === 1280) await expect(hub.getByRole('columnheader', { name: 'Стоимость' })).toBeVisible();
+    else await expect(hub.getByTestId('marketing-seller-price')).toContainText('Цена скоро');
+    await expect(hub.getByRole('link', { name: /^Подключить: / })).toHaveCount(7);
     const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(wide).toBeLessThanOrEqual(0);
     if (process.env.PULT_SHOTS) await page.screenshot({ path: `${process.env.PULT_SHOTS}/salon-${width}.png`, fullPage: true });

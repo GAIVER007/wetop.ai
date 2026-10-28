@@ -722,4 +722,6 @@ export const marketingAds: Record<string, string> = {
   "Посты с ИИ на неделю": "AI posts for the week",
   "Расход, заявки и окупаемость": "Spend, requests and payback",
   "Сайт с ИИ и онлайн-запись": "AI website and online booking",
+  "Цена скоро": "Price coming soon",
+  "в месяц": "per month",
 };

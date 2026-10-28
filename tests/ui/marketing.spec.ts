@@ -128,16 +128,16 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет и аналитика', 'Реклама', 'Конкуренты', 'Голосовой агент', 'ИИ-продавец', 'Контент']);
   const competitors = hub.getByTestId('marketing-competitors');
   await expect(competitors.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
-  await expect(competitors.getByRole('link', { name: 'Открыть: Конкуренты', exact: true })).toHaveAttribute('href', '/market');
+  await expect(competitors.getByRole('link', { name: 'Подключить: Конкуренты', exact: true })).toHaveAttribute('href', '/market');
 
   // «Сайт и SEO»: рабочий модуль, главная кнопка ведёт в конструктор, остальное в меню «⋯»
   const site = hub.getByTestId('marketing-site');
   // аудит 21.10.2026 P0-4: «Доступно» только при включённом конструкторе (на стенде он включён; выключенный в unit-тесте hub)
   await expect(site.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(site).toContainText('Сайт с ИИ и онлайн-запись');
-  const builder = site.getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true });
+  const builder = site.getByRole('link', { name: 'Подключить: Сайт и SEO', exact: true });
   await expect(builder).toHaveAttribute('href', '/marketing/site/editor');
-  await expect(builder).toHaveClass(/btn--secondary/);
+  await expect(builder).toHaveClass(/^btn$/);
   const more = site.getByRole('button', { name: 'Ещё действия: Сайт и SEO', exact: true });
   await expect(more).toHaveAttribute('aria-expanded', 'false');
   await more.click();
@@ -152,7 +152,7 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   // «Бюджет»: живой модуль учёта расходов, главная кнопка в раздел, в меню «⋯» журнал и аналитика
   const budget = hub.getByTestId('marketing-budget');
   await expect(budget.getByTestId('marketing-budget-status')).toHaveText('Доступно');
-  await expect(budget.getByRole('link', { name: 'Открыть: Бюджет и аналитика', exact: true })).toHaveAttribute(
+  await expect(budget.getByRole('link', { name: 'Подключить: Бюджет и аналитика', exact: true })).toHaveAttribute(
     'href',
     '/marketing/budget',
   );
@@ -172,8 +172,8 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
     const line = card;
     await expect(line.getByTestId(`${testId}-status`)).toHaveText(status);
     await expect(line.locator('a, button')).toHaveCount(1);
-    await expect(line.getByRole('link', { name: `Открыть: ${title}`, exact: true })).toHaveAttribute('href', href);
-    await expect(line).toContainText('В подписке');
+    await expect(line.getByRole('link', { name: `Подключить: ${title}`, exact: true })).toHaveAttribute('href', href);
+    await expect(line).toContainText('Цена скоро');
   }
 
   // результаты: расход из бюджета месяца (пустой бюджет это 0 ₸), остальное без источника: «Нет данных»
@@ -198,7 +198,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   request,
 }) => {
   await page.goto('/marketing');
-  await main(page).getByRole('link', { name: 'Открыть: Реклама', exact: true }).click();
+  await main(page).getByRole('link', { name: 'Подключить: Реклама', exact: true }).click();
   await expect(page).toHaveURL(/\/marketing\/ads$/);
   const ads = main(page);
   // аудит 21.10.2026 пп. 14, 15, 34: одно имя «Реклама», пустых вкладок нет, итоги строкой вместо плиток
@@ -218,7 +218,7 @@ test('экраны «Реклама» и «Контент»: вкладки ка
   await ads.getByRole('link', { name: 'Назад к модулям', exact: true }).click();
   await expect(page).toHaveURL(/\/marketing$/);
 
-  await main(page).getByRole('link', { name: 'Открыть: Контент', exact: true }).click();
+  await main(page).getByRole('link', { name: 'Подключить: Контент', exact: true }).click();
   await expect(page).toHaveURL(/\/marketing\/content$/);
   const content = main(page);
   await expect(content.getByRole('heading', { level: 1 })).toHaveText('Контент');
@@ -349,7 +349,7 @@ for (const theme of ['light', 'dark'] as const) {
       ).toBe(true);
       // главная кнопка сайта: цель нажатия не меньше 44 px (DESIGN.md §11)
       const open = await main(page)
-        .getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true })
+        .getByRole('link', { name: 'Подключить: Сайт и SEO', exact: true })
         .boundingBox();
       expect(open!.height).toBeGreaterThanOrEqual(width === 390 ? 44 : 32);
       const audit = await new AxeBuilder({ page })
@@ -418,26 +418,26 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   await expect(hub.locator('[data-module]')).toHaveCount(7);
   await expect(hub.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
   await expect(
-    hub.getByTestId('marketing-competitors').getByRole('link', { name: 'Открыть: Конкуренты', exact: true }),
+    hub.getByTestId('marketing-competitors').getByRole('link', { name: 'Подключить: Конкуренты', exact: true }),
   ).toHaveAttribute('href', '/market/business');
   await expect(hub.getByTestId('marketing-voice-status')).toHaveText('Доступно');
   await expect(
-    hub.getByTestId('marketing-voice').getByRole('link', { name: 'Открыть: Голосовой агент', exact: true }),
+    hub.getByTestId('marketing-voice').getByRole('link', { name: 'Подключить: Голосовой агент', exact: true }),
   ).toHaveAttribute('href', '/marketing/voice');
   // аудит 21.10.2026 P0-4: «Доступно» только при включённом конструкторе (на стенде он включён)
   await expect(hub.getByTestId('marketing-site-status')).toHaveText('Доступно');
   await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');
   await expect(
-    hub.getByTestId('marketing-site').getByRole('link', { name: 'Открыть: Сайт и SEO', exact: true }),
+    hub.getByTestId('marketing-site').getByRole('link', { name: 'Подключить: Сайт и SEO', exact: true }),
   ).toHaveAttribute('href', '/marketing/site/editor');
   await expect(hub.locator('a[href^="/website"], a[href="/marketing/site"], a[href^="/marketing/site/assets"]')).toHaveCount(0);
   await expect(
-    hub.getByTestId('marketing-budget').getByRole('link', { name: 'Открыть: Бюджет и аналитика', exact: true }),
+    hub.getByTestId('marketing-budget').getByRole('link', { name: 'Подключить: Бюджет и аналитика', exact: true }),
   ).toHaveAttribute('href', '/marketing/budget');
   await expect(hub).not.toContainText('гостиниц');
   for (const screen of ['ads', 'content'] as const) {
     await hub
-      .getByRole('link', { name: screen === 'ads' ? 'Открыть: Реклама' : 'Открыть: Контент' })
+      .getByRole('link', { name: screen === 'ads' ? 'Подключить: Реклама' : 'Подключить: Контент' })
       .click();
     await expect(page).toHaveURL(new RegExp(`/marketing/${screen}$`));
     await expect(main(page).getByTestId(`marketing-${screen}-screen`)).toBeVisible();

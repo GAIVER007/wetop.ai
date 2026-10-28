@@ -203,34 +203,38 @@ export function liveModules(): Set<Module['key']> {
 }
 
 /**
- * Состояние строки пульта (вариант В владельца 28.10.2026): «в подписке» у всего, что входит в работу филиала;
- * ИИ-продавец и конструктор сайта доп. услуги, их включает WETOP (расширения организации), отсюда «Подключить».
+ * Состояние строки пульта (вариант В владельца 28.10.2026). Каждый инструмент буст со своей ценой и кнопкой
+ * «Подключить» (поправка владельца 28.10.2026). Пока витрина: работающее ведёт в инструмент, ИИ-продавец и сайт без
+ * подключения ведут туда, где его включает WETOP. Закрытия за оплату нет.
  */
-type RowState = { text: string; tone: 'ok' | 'info' | 'warn'; extra: boolean; on: boolean };
+type RowState = { text: string; tone: 'ok' | 'info' | 'warn'; on: boolean };
 
 function rowState(key: Module['key'], seller: ExtensionAccessView | null, builder: SiteBuilderState | null): RowState {
   if (key === 'seller') {
     if (seller?.access === 'active')
-      return { text: seller.status === 'TRIAL' ? msg('Пробный') : msg('Работает'), tone: 'ok', extra: true, on: true };
-    if (seller?.access === 'expired') return { text: msg('Срок вышел'), tone: 'warn', extra: true, on: false };
-    return { text: msg('Не подключён'), tone: 'info', extra: true, on: false };
+      return { text: seller.status === 'TRIAL' ? msg('Пробный') : msg('Работает'), tone: 'ok', on: true };
+    if (seller?.access === 'expired') return { text: msg('Срок вышел'), tone: 'warn', on: false };
+    return { text: msg('Не подключён'), tone: 'info', on: false };
   }
   if (key === 'site') {
-    if (builder?.access === 'off') return { text: msg('Подключает WETOP'), tone: 'warn', extra: true, on: false };
-    if (builder?.access === 'expired') return { text: msg('Срок вышел'), tone: 'warn', extra: true, on: false };
-    return { text: msg('Доступно'), tone: 'ok', extra: true, on: true };
+    if (builder?.access === 'off') return { text: msg('Подключает WETOP'), tone: 'warn', on: false };
+    if (builder?.access === 'expired') return { text: msg('Срок вышел'), tone: 'warn', on: false };
+    return { text: msg('Доступно'), tone: 'ok', on: true };
   }
-  return { text: msg('Доступно'), tone: 'ok', extra: false, on: true };
+  return { text: msg('Доступно'), tone: 'ok', on: true };
 }
 
 function PultRow({
   module,
   state,
+  price,
   hospitality,
   t,
 }: {
   module: Module;
   state: RowState;
+  /** цена буста в месяц, уже в валюте; null: WETOP ещё не назначил */
+  price: string | null;
   hospitality: boolean;
   t: Translate;
 }) {
@@ -253,28 +257,24 @@ function PultRow({
           {t(state.text)}
         </Badge>
       </td>
-      <td data-label={t('Оплата')} className="marketing-pult__plan">
-        {state.extra ? t('Дополнительно') : t('В подписке')}
+      <td data-label={t('Стоимость')} className="marketing-pult__price" data-testid={`${module.testId}-price`}>
+        {price ? (
+          <>
+            <strong>{price}</strong> <span>{t('в месяц')}</span>
+          </>
+        ) : (
+          <span>{t('Цена скоро')}</span>
+        )}
       </td>
       <td className="marketing-pult__go">
-        {state.on ? (
-          <Link
-            className="btn btn--secondary"
-            href={module.href}
-            aria-label={t('Открыть: {title}', { title: t(module.title) })}
-          >
-            {t('Открыть')}
-          </Link>
-        ) : (
-          <Link
-            className="btn"
-            href={module.key === 'seller' ? '/ai-agents' : '/marketing/site/editor'}
-            aria-label={t('Подключить: {title}', { title: t(module.title) })}
-            data-testid={`${module.testId}-connect`}
-          >
-            {t('Подключить')}
-          </Link>
-        )}
+        <Link
+          className="btn"
+          href={state.on ? module.href : module.key === 'seller' ? '/ai-agents' : '/marketing/site/editor'}
+          aria-label={t('Подключить: {title}', { title: t(module.title) })}
+          data-testid={`${module.testId}-connect`}
+        >
+          {t('Подключить')}
+        </Link>
         {hospitality && state.on && (module.key === 'site' || module.key === 'budget') && (
           <ActionMenu
             label={t('Ещё действия: {title}', { title: t(module.title) })}
@@ -291,8 +291,11 @@ export function MarketingHub({
   spend = null,
   builder = null,
   seller = null,
+  prices = null,
   locale = 'ru',
 }: {
+  /** цены бустов в месяц из кабинета WETOP по ключу инструмента; null: цены ещё не назначены */
+  prices?: Partial<Record<Module['key'], string>> | null;
   /** расширение «ИИ-продавец» организации из `/auth/me`; null: не прочитано или не подключено */
   seller?: ExtensionAccessView | null;
   vertical: WebVertical;
@@ -368,7 +371,7 @@ export function MarketingHub({
               <tr>
                 <th scope="col">{t('Инструмент')}</th>
                 <th scope="col">{t('Состояние')}</th>
-                <th scope="col">{t('Оплата')}</th>
+                <th scope="col">{t('Стоимость')}</th>
                 <th scope="col">
                   <span className="sr-only">{t('Действие')}</span>
                 </th>
@@ -380,6 +383,7 @@ export function MarketingHub({
                   key={m.key}
                   module={m}
                   state={rowState(m.key, seller, builder)}
+                  price={prices?.[m.key] ?? null}
                   hospitality={hospitality}
                   t={t}
                 />

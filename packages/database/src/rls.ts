@@ -116,6 +116,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'beauty_payroll_policies',
   'working_hours',
   'time_offs',
+  // 165: запросы графика мастера (SCHEDULE-REQUESTS-20261028), политики через родителя-сотрудника, FORCE RLS
+  'employee_schedule_requests',
   'appointments',
   // Загрузка конкурентов (DATA_MODEL §23): политики в миграции 20261003000044_competitor_occupancy
   'competitors',

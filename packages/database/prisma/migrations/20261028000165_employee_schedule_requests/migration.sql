@@ -7,7 +7,7 @@ CREATE TYPE "ScheduleRequestKind" AS ENUM ('WEEK', 'TIME_OFF');
 CREATE TYPE "ScheduleRequestStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED');
 
 CREATE TABLE "employee_schedule_requests" (
-  "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+  "id" UUID NOT NULL, -- id задаёт Prisma (@default(uuid())), как у остальных таблиц: без DEFAULT в базе
   "employee_id" UUID NOT NULL,
   "location_id" UUID NOT NULL,
   "kind" "ScheduleRequestKind" NOT NULL,

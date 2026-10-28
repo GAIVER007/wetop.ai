@@ -99,3 +99,30 @@
   .owner-expenses { flex-basis: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .owner-chart-plot { height: auto; min-height: 180px; }
 }
+
+/* период Главной (владелец 29.10.2026): ‹ месяц › и «Свой период» с полями «с–по» */
+.owner-period { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; position: relative; }
+.owner-period__month { padding: var(--space-2) var(--space-4); border-radius: var(--radius); font-weight: 600; color: var(--text); text-decoration: none; white-space: nowrap; }
+.owner-period__month.is-on { background: var(--surface); box-shadow: inset 0 0 0 1px var(--border); }
+.owner-period .icon-button.is-disabled { opacity: 0.35; pointer-events: none; }
+.owner-period__custom { position: relative; }
+.owner-period__custom .btn.is-on { border-color: var(--primary); color: var(--primary); }
+.owner-period__form {
+  position: absolute;
+  z-index: var(--layer-overlay);
+  top: calc(100% + var(--space-2));
+  left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-floating);
+}
+.owner-period__form label { display: grid; gap: var(--space-1); font-size: var(--text-sm); color: var(--text-2); }
+@media (max-width: 600px) {
+  .owner-period__form { position: static; width: 100%; }
+}

@@ -91,6 +91,29 @@ describe('owner summary real cash source', () => {
     expect(db.location.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'branch', business: { organizationId: 'org' } } }));
     expect(db.restaurantCashOperation.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { locationId: 'branch', kind: 'EXPENSE', status: 'COMPLETED', appointmentId: null, orderId: null, occurredAt: { gte: new Date('2026-10-09T19:00:00Z'), lte: new Date('2026-10-16T03:00:00Z') } } }));
   });
+  // владелец 29.10.2026: на Главной только месяц со стрелками и свой период «от–до» из календаря
+  it('месяц по стрелкам: прошлый месяц целиком, сравнение с позапрошлым', async () => {
+    const { db, service } = fixture();
+    const result = await actor(() => service.report('month:2026-09', new Date('2026-10-16T03:00:00Z'))) as Awaited<ReturnType<typeof service.report>>;
+    expect(result.period).toMatchObject({ key: 'month:2026-09', fromDate: '2026-09-01', toDate: '2026-09-30', fromUtc: '2026-08-31T19:00:00.000Z', toUtc: '2026-09-30T19:00:00.000Z' });
+    expect(db.restaurantCashOperation.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ occurredAt: { gte: new Date('2026-08-31T19:00:00Z'), lte: new Date('2026-09-30T19:00:00Z') } }) }));
+    expect(result.previous?.period).toMatchObject({ fromDate: '2026-08-01', toDate: '2026-08-31' });
+  });
+  it('свой период «от–до»: даты включительно, будущее обрезается сегодняшним моментом, сравнение с таким же отрезком до', async () => {
+    const { service } = fixture();
+    const result = await actor(() => service.report('range:2026-10-10..2026-10-20', new Date('2026-10-16T03:00:00Z'))) as Awaited<ReturnType<typeof service.report>>;
+    expect(result.period).toMatchObject({ key: 'range:2026-10-10..2026-10-20', fromDate: '2026-10-10', toDate: '2026-10-16', fromUtc: '2026-10-09T19:00:00.000Z', toUtc: '2026-10-16T03:00:00.000Z' });
+    expect(result.previous?.period).toMatchObject({ fromDate: '2026-10-03', toDate: '2026-10-09' });
+    const past = await actor(() => service.report('range:2026-10-01..2026-10-05', new Date('2026-10-16T03:00:00Z'))) as Awaited<ReturnType<typeof service.report>>;
+    expect(past.period).toMatchObject({ fromDate: '2026-10-01', toDate: '2026-10-05', toUtc: '2026-10-05T19:00:00.000Z' });
+    expect(past.previous?.period).toMatchObject({ fromDate: '2026-09-26', toDate: '2026-09-30' });
+  });
+  it('неверный свой период отклоняется до чтения кассы: конец раньше начала, будущее целиком, больше 366 дней, не дата', async () => {
+    const { db, service } = fixture();
+    for (const bad of ['range:2026-10-20..2026-10-10', 'range:2026-11-01..2026-11-05', 'range:2025-01-01..2026-10-16', 'range:2026-13-01..2026-13-02', 'month:2026-13', 'month:2026-11'])
+      await expect(actor(() => service.report(bad, new Date('2026-10-16T03:00:00Z')))).rejects.toThrow();
+    expect(db.restaurantCashOperation.findMany).not.toHaveBeenCalled();
+  });
   it('refuses foreign scope and invalid periods before cash reads', async () => {
     const { db, service } = fixture();
     db.location.findFirst.mockResolvedValueOnce(null);

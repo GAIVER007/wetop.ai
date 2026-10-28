@@ -26,6 +26,12 @@ export interface OwnerAttentionFacts {
   /** среди неубранных есть койко-места: тогда говорим «мест», а не «номеров» */
   dirtyHasBeds?: boolean;
   noPrepay?: number | null;
+  /** касса филиала: смена открыта не сегодня, дата открытия YYYY-MM-DD (владелец 29.10.2026) */
+  openShiftSince?: string | null;
+  /** салон: записи, время которых прошло больше 15 минут, а «Пришла» не нажата */
+  lateUnmarked?: number | null;
+  /** салон: записи на завтра в статусе «Записан», не подтверждены */
+  unconfirmedTomorrow?: number | null;
   extra?: OwnerAttentionItem[];
 }
 
@@ -89,17 +95,37 @@ export function ownerAttention(f: OwnerAttentionFacts): OwnerAttentionItem[] {
       });
   };
   const facts: Array<number | null | undefined> = [f.lowStock];
+  // незакрытая вчерашняя смена: деньги кассы висят, первой строкой во всех направлениях
+  if (f.openShiftSince)
+    items.push({
+      id: 'open-shift', tone: 'warn',
+      text: `Смена с ${f.openShiftSince.slice(8, 10)}.${f.openShiftSince.slice(5, 7)} не закрыта`,
+      href: f.vertical === 'FOOD_SERVICE' ? '/restaurant-finance' : '/finance', action: 'Касса',
+    });
   if (f.vertical === 'BEAUTY') {
-    facts.push(f.unpaidDone, f.freeMasters);
+    facts.push(f.unpaidDone, f.freeMasters, f.lateUnmarked, f.unconfirmedTomorrow);
+    if (has(f.lateUnmarked))
+      items.push({
+        id: 'late-unmarked', tone: 'warn', count: f.lateUnmarked,
+        text: `Не отмечены «Пришла»: ${ruCount(f.lateUnmarked, ['запись', 'записи', 'записей'])}`,
+        href: '/calendar', action: 'Журнал',
+      });
     if (has(f.unpaidDone))
       items.push({
         id: 'unpaid-visits', tone: 'warn', count: f.unpaidDone,
         text: `Не оплачено сегодня: ${ruCount(f.unpaidDone, ['запись', 'записи', 'записей'])}`,
         href: '/calendar', action: 'Журнал',
       });
+    if (has(f.unconfirmedTomorrow) && f.today)
+      items.push({
+        id: 'unconfirmed-tomorrow', tone: 'warn', count: f.unconfirmedTomorrow,
+        text: `Подтвердить на завтра: ${ruCount(f.unconfirmedTomorrow, ['запись', 'записи', 'записей'])}`,
+        href: `/calendar?date=${plusDays(f.today, 1)}`, action: 'Журнал',
+      });
+    // свободные окна это подсказка, не дело: после предупреждений и только если осталось место
     if (has(f.freeMasters))
       items.push({
-        id: 'free-windows', tone: 'warn', count: f.freeMasters,
+        id: 'free-windows', tone: 'ok', count: f.freeMasters,
         text: `Свободные окна: ${ruCount(f.freeMasters, ['мастер', 'мастера', 'мастеров'])}`,
         href: '/calendar', action: 'Журнал',
       });

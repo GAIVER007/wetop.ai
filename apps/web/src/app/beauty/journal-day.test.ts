@@ -34,6 +34,11 @@ describe('ближайшие', () => {
     expect(upcoming(rows, 765).map((r) => r.id)).toEqual(['soon', 'conf', 'late']);
     expect(upcoming(Array.from({ length: 9 }, (_, i) => row({ id: String(i), startMinutes: 800 + i })), 765)).toHaveLength(5);
   });
+  // владелец 29.10.2026: нажали «Пришла», и запись сразу уходит из «Ближайших», не дожидаясь обновления страницы
+  it('отмеченные «Пришла» сразу уходят из списка, на их место встаёт следующая', () => {
+    const rows = Array.from({ length: 7 }, (_, i) => row({ id: `r${i}`, startMinutes: 800 + i * 10, status: 'CONFIRMED' }));
+    expect(upcoming(rows, 765, 5, new Set(['r0', 'r2'])).map((r) => r.id)).toEqual(['r1', 'r3', 'r4', 'r5', 'r6']);
+  });
   it('не сегодня: весь день сначала', () => {
     expect(upcoming([row({ id: 'x', startMinutes: 500 })], null).map((r) => r.id)).toEqual(['x']);
   });

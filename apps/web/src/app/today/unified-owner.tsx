@@ -1,15 +1,15 @@
 import { financePeriodHref } from '../../lib/finance-period';
 import type { OwnerSummaryDto, Workload } from '../../lib/owner-summary';
-import { formatOwnerMoney, ownerReason } from '../../lib/owner-summary';
+import { formatOwnerMoney, ownerMonth, ownerReason, shiftMonth } from '../../lib/owner-summary';
+import { OwnerPeriodPicker } from './owner-period-picker';
 import './unified-owner.css';
 import { OwnerDailyChart } from './owner-daily-chart';
-import { intlLocale, msg, translator, type DeskLocale, type Translate } from '../../i18n';
+import { intlLocale, translator, type DeskLocale, type Translate } from '../../i18n';
+import { Icon } from '../../components/icon';
+/** «сентябрь 2026 г.» → «Сентябрь 2026»: заглавная и без «г.» */
+const capitalMonth = (s: string) => (s.charAt(0).toUpperCase() + s.slice(1)).replace(/\s?\S\.$/u, '');
 import { dateFormat } from '../../i18n/dates';
-const periods = [
-  ['today', msg('Сегодня')],
-  ['week', msg('7 дней')],
-  ['month', msg('Месяц')],
-] as const;
+
 function MoneyValue({ value, t }: { value: OwnerSummaryDto['current']['revenue']; t: Translate }) {
   return (
     <>
@@ -185,19 +185,35 @@ export function OwnerSummaryView({
             timeZone: s.period.timezone,
           }).format(new Date(s.generatedAt))}
         </span>
-        <nav className="seg" aria-label={t('Период отчёта')}>
-          {periods.map(([key, label]) => (
-            <a
-              key={key}
-              className={s.period.key === key ? 'seg__item is-on' : 'seg__item'}
-              aria-current={s.period.key === key ? 'page' : undefined}
-              href={`/today?period=${key}`}
-              title={key === 'month' ? t('С начала календарного месяца') : undefined}
-            >
-              {t(label)}
-            </a>
-          ))}
-        </nav>
+        {/* владелец 29.10.2026: только месяц со стрелками и «Свой период» с календарём «от–до» */}
+        {(() => {
+          const month = ownerMonth(s.period.fromDate, s.period.key);
+          const custom = s.period.key.startsWith('range:');
+          // текущий месяц филиала: дальше вперёд листать нечего
+          const thisMonth = new Date(s.generatedAt).toISOString().slice(0, 7);
+          const title = dateFormat(intlLocale(locale), { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${month}-01T00:00:00Z`));
+          const next = shiftMonth(month, 1);
+          return (
+            <nav className="owner-period" aria-label={t('Период отчёта')}>
+              <a className="icon-button" href={`/today?period=month:${shiftMonth(month, -1)}`} aria-label={t('Предыдущий месяц')}>
+                <Icon name="chevron" className="rotate-left" />
+              </a>
+              <a className={custom ? 'owner-period__month' : 'owner-period__month is-on'} href={`/today?period=month:${month}`} aria-current={custom ? undefined : 'page'}>
+                {capitalMonth(title)}
+              </a>
+              {next <= thisMonth ? (
+                <a className="icon-button" href={`/today?period=month:${next}`} aria-label={t('Следующий месяц')}>
+                  <Icon name="chevron" />
+                </a>
+              ) : (
+                <span className="icon-button is-disabled" aria-hidden="true">
+                  <Icon name="chevron" />
+                </span>
+              )}
+              <OwnerPeriodPicker from={s.period.fromDate} to={s.period.toDate} today={new Date(s.generatedAt).toISOString().slice(0, 10)} active={custom} />
+            </nav>
+          );
+        })()}
         <time className="owner-bar__period" dateTime={s.period.fromDate}>
           {humanPeriod(s.period.fromDate, s.period.toDate, locale)}
         </time>

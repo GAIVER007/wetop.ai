@@ -42,6 +42,8 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/marketing/voice': ALL_VERTICALS,
   '/marketing/site': H,
   '/marketing/site/assets': ALL_VERTICALS,
+  // заявки с сайта (просьбы перезвонить, вопросы): все направления (аудит «Сайт и SEO» 28.10.2026, S3)
+  '/marketing/site/leads': ALL_VERTICALS,
   '/marketing/site/editor': ALL_VERTICALS,
   '/reports/overview': H,
   '/reports/finance': H,

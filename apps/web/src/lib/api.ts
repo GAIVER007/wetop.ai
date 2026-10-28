@@ -2241,6 +2241,28 @@ export interface MarketingSiteCurrent {
   instructions: string | null;
 }
 
+/** Заявки с сайта без слота (SITE-5, аудит «Сайт и SEO» S3): `GET/PATCH /marketing/site/leads`, право `dialogs` */
+export type SiteLeadStatus = 'NEW' | 'IN_PROGRESS' | 'DONE' | 'SPAM';
+export interface SiteLeadView {
+  id: string;
+  name: string;
+  phone: string;
+  comment: string | null;
+  kind: 'CALLBACK' | 'OTHER';
+  status: SiteLeadStatus;
+  site: { id: string; name: string };
+  createdAt: string;
+  updatedAt: string;
+}
+export const siteLeadsApi = {
+  list: (status: SiteLeadStatus) =>
+    getJson<{ items: SiteLeadView[]; nextCursor: string | null; newCount: number }>(
+      `/marketing/site/leads?status=${status}&limit=100`,
+    ),
+  setStatus: (id: string, status: SiteLeadStatus) =>
+    sendJson<SiteLeadView>('PATCH', `/marketing/site/leads/${encodeURIComponent(id)}`, { status }),
+};
+
 export const marketingSiteApi = {
   current: () => getJson<MarketingSiteCurrent>('/marketing/site'),
   publications: () =>

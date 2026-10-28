@@ -666,4 +666,15 @@ export const marketingSite: Record<string, string> = {
   "Нет графика работы": "No work schedule",
   "Меню пустое: на сайте не будет блюд и цен": "The menu is empty: the website won't have dishes or prices",
   "Нет часов работы": "No opening hours",
+  // заявки с сайта (аудит «Сайт и SEO» S3, 28.10.2026)
+  "В работе": "In progress",
+  "Заявки по статусу": "Requests by status",
+  "Заявки с сайта": "Website requests",
+  "Заявок пока нет": "No requests yet",
+  "Здесь появятся просьбы перезвонить и вопросы с сайта. Запись и бронь с выбором времени сразу встают в журнал.": "Callback requests and questions from the website will appear here. Bookings with a chosen time go straight into the journal.",
+  "Новая": "New",
+  "Перезвонить": "Call back",
+  "Просьбы перезвонить и вопросы с сайта. Запись и бронь с выбором времени сразу в журнале.": "Callback requests and questions from the website. Bookings with a chosen time are already in the journal.",
+  "Спам": "Spam",
+  "Что нужно": "What is needed",
 };

@@ -197,3 +197,6 @@ export function autoFaqQuestionSet(x: AutoSeoInput): Set<string> {
   const book = v === 'BEAUTY' ? cut(w.qBookBeauty(x.name), 200) : v === 'FOOD_SERVICE' ? w.qBookFood : w.qBookHotel;
   return new Set([book, w.qPrices[v], w.qHours, w.qCheck, w.qRooms, w.qWhere]);
 }
+
+/** Заголовок блока «Вопросы и ответы» на языке сайта (тот же, что у заготовки) */
+export const FAQ_HEADING: Record<SeoLocale, string> = { ru: 'Вопросы и ответы', kk: 'Сұрақтар мен жауаптар', en: 'Questions and answers' };

@@ -1,7 +1,7 @@
 import type { SiteFacts, SiteFactsCatalogItem } from './site-facts';
 import { starterPhone, starterText } from './starter';
 import { validateSiteSpec } from './site-spec';
-import { AUTO_FAQ_ID, autoFaqItems, autoFaqQuestionSet, type AutoSeoInput, type SeoLocale } from './seo-auto';
+import { AUTO_FAQ_ID, FAQ_HEADING, autoFaqItems, autoFaqQuestionSet, autoSeoDescription, autoSeoTitle, type AutoSeoInput, type SeoLocale } from './seo-auto';
 
 /**
  * Живые данные на опубликованном сайте (SITE-1, поручение владельца 15.10.2026: «сайт сам обновляется от WETOP»).
@@ -110,18 +110,13 @@ function hours(section: Rec, facts: SiteFacts): Rec | null {
   return days.length ? { ...section, days } : null;
 }
 
-/**
- * «Вопросы и ответы» из фактов (S7): цены, часы, заезд и адрес в ответах следуют за WETOP, пока владелец блок не
- * переписывал (все вопросы из автоматического набора). Переписанный или свой блок остаётся как есть.
- */
-function faq(section: Rec, facts: SiteFacts, locale: string, spec: Rec): Rec | null {
-  if (section['id'] !== AUTO_FAQ_ID || !['ru', 'kk', 'en'].includes(locale)) return null;
-  const site = isRec(spec['site']) ? spec['site'] : {};
+/** Вход генератора SEO из свежих фактов: тот же, что у заготовки (`starter.ts`) */
+function seoInput(facts: SiteFacts, locale: SeoLocale): AutoSeoInput | null {
   const name = starterText(facts.location.name, 80);
   if (!name) return null;
-  const input: AutoSeoInput = {
+  return {
     facts,
-    locale: locale as SeoLocale,
+    locale,
     name,
     address: starterText(facts.location.address, 200),
     city: starterText(facts.location.city, 60),
@@ -129,6 +124,67 @@ function faq(section: Rec, facts: SiteFacts, locale: string, spec: Rec): Rec | n
     items: facts.catalog.items.filter((i) => CODE_RE.test(i.code) && starterText(i.name, 80)),
     itemName: (i) => starterText(i.name, 80)!,
   };
+}
+
+/**
+ * SEO и GEO у готовых сайтов (владелец 28.10.2026). Сайт, собранный шаблоном до S7, узнаётся по прежним
+ * автоматическим текстам главной: заголовок это имя, описание «Имя.» или «Имя, Город.». Такие тексты заменяются
+ * новыми из данных, и раз описание было автоматическим, перед контактами встаёт блок «Вопросы и ответы». Свой
+ * заголовок, своё описание и свой блок вопросов владельца не трогаются; после замены описание уже новое, поэтому
+ * выключенный владельцем блок сам не возвращается. Итог не прошёл валидатор: документ как был.
+ */
+export function upgradeSiteSeo(spec: Rec, facts: SiteFacts): Rec {
+  const site = isRec(spec['site']) ? spec['site'] : {};
+  const locale = site['defaultLocale'];
+  if (site['vertical'] !== facts.vertical || (locale !== 'ru' && locale !== 'kk' && locale !== 'en')) return spec;
+  const input = seoInput(facts, locale);
+  if (!input) return spec;
+  const pages = Array.isArray(spec['pages']) ? (spec['pages'] as unknown[]) : [];
+  const homeIndex = pages.findIndex((p) => isRec(p) && p['isHome'] === true);
+  const home = pages[homeIndex];
+  if (!isRec(home) || !isRec(home['seo']) || !Array.isArray(home['sections'])) return spec;
+  const seo = home['seo'] as Rec;
+  const textOf = (v: unknown) => (isRec(v) && typeof v[locale] === 'string' ? (v[locale] as string) : null);
+  const title = textOf(seo['title']);
+  const description = textOf(seo['description']);
+  const legacyTitle = starterText(input.name, 60);
+  const legacyDescriptions = new Set([`${input.name}.`, input.city ? `${input.name}, ${input.city}.` : ''].map((d) => starterText(d, 160)));
+  const oldTitle = title !== null && title === legacyTitle;
+  const oldDescription = description !== null && legacyDescriptions.has(description);
+  if (!oldTitle && !oldDescription) return spec;
+
+  const nextSeo: Rec = { ...seo };
+  if (oldTitle) nextSeo['title'] = { ...(seo['title'] as Rec), [locale]: autoSeoTitle(input) };
+  if (oldDescription) nextSeo['description'] = { ...(seo['description'] as Rec), [locale]: autoSeoDescription(input) };
+  let sections = home['sections'] as unknown[];
+  const hasFaq = sections.some((x) => isRec(x) && (x['type'] === 'faq' || x['id'] === AUTO_FAQ_ID));
+  const qa = autoFaqItems(input);
+  if (oldDescription && !hasFaq && qa.length) {
+    const block: Rec = {
+      id: AUTO_FAQ_ID,
+      type: 'faq',
+      variant: 'ACCORDION',
+      heading: { [locale]: FAQ_HEADING[locale] },
+      items: qa.map((i) => ({ question: { [locale]: i.question }, answer: { [locale]: i.answer } })),
+      emitStructuredData: true,
+    };
+    const at = ['contacts', 'cta'].map((t) => sections.findIndex((x) => isRec(x) && x['type'] === t)).find((i) => i >= 0) ?? sections.length;
+    sections = [...sections.slice(0, at), block, ...sections.slice(at)];
+  }
+  const nextPages = pages.map((p, i) => (i === homeIndex ? { ...home, seo: nextSeo, sections } : p));
+  const next: Rec = { ...spec, pages: nextPages };
+  return validateSiteSpec(next).ok ? next : spec;
+}
+
+/**
+ * «Вопросы и ответы» из фактов (S7): цены, часы, заезд и адрес в ответах следуют за WETOP, пока владелец блок не
+ * переписывал (все вопросы из автоматического набора). Переписанный или свой блок остаётся как есть.
+ */
+function faq(section: Rec, facts: SiteFacts, locale: string, spec: Rec): Rec | null {
+  if (section['id'] !== AUTO_FAQ_ID || !['ru', 'kk', 'en'].includes(locale)) return null;
+  const site = isRec(spec['site']) ? spec['site'] : {};
+  const input = seoInput(facts, locale as SeoLocale);
+  if (!input) return null;
   const allowed = autoFaqQuestionSet(input);
   const items = Array.isArray(section['items']) ? (section['items'] as unknown[]) : [];
   const auto = items.every((i) => isRec(i) && isRec(i['question']) && allowed.has(String((i['question'] as Rec)[locale] ?? '')));
@@ -141,7 +197,9 @@ function faq(section: Rec, facts: SiteFacts, locale: string, spec: Rec): Rec | n
  * Документ сайта со свежими фактами WETOP. Возвращает тот же объект, если менять нечего или итог не прошёл валидатор;
  * иначе новый документ (входной не меняется)
  */
-export function liveSiteSpec(spec: Rec, facts: SiteFacts): Rec {
+export function liveSiteSpec(input: Rec, facts: SiteFacts): Rec {
+  // готовые сайты до S7 получают SEO и GEO здесь же, без публикации (владелец 28.10.2026)
+  const spec = upgradeSiteSeo(input, facts);
   const site = isRec(spec['site']) ? spec['site'] : {};
   const locale = typeof site['defaultLocale'] === 'string' ? site['defaultLocale'] : 'ru';
   const pages = Array.isArray(spec['pages']) ? (spec['pages'] as unknown[]) : [];

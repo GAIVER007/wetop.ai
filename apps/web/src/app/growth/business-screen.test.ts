@@ -25,17 +25,18 @@ describe('Разделы роста по направлению бизнеса',
     const html = renderToStaticMarkup(
       createElement(BusinessGrowthScreen, { vertical: 'BEAUTY', mode: 'marketing' }),
     );
-    expect(html).toContain('marketing-hub__modules');
+    // вариант В владельца (28.10.2026): пульт одной строкой на инструмент вместо карточек
+    expect(html).toContain('data-testid="marketing-pult"');
     expect(html).toContain('Сайт и SEO');
     // «Конкуренты» у всех направлений (решение 23.10.2026, п. 5; DATA_MODEL §60): у салона карточка живая и ведёт на загрузку
     // соседей по дням, а не на гостиничный /market. «Голосовой агент» (22.10.2026) тоже у всех: модулей шесть, сетка обычная
-    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(6);
+    expect(html.match(/data-module=""/g)).toHaveLength(7);
     expect(html).toContain('data-testid="marketing-competitors"');
     expect(html).toMatch(/data-testid="marketing-competitors-status"[^>]*>Доступно</);
     expect(html).toContain('href="/market/business"');
     expect(html).not.toContain('href="/market"');
-    expect(html).toContain('Загрузка ближайших салонов по дням');
-    expect(html).not.toContain('marketing-hub__modules--four');
+    // вариант В: строка пульта коротко, полный текст на экране конкурентов
+    expect(html).toContain('Загрузка соседей по дням');
     // ИИ-колл-центр: карточка живая, ведёт на свой экран (есть у всех направлений)
     expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/voice"');
@@ -47,8 +48,8 @@ describe('Разделы роста по направлению бизнеса',
     expect(html).toMatch(/data-testid="marketing-site-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/site/editor"');
     expect(html).not.toContain('href="/marketing/site/assets"');
-    expect(html).toContain('сайт салона');
-    expect(html).toContain('Онлайн-запись');
+    expect(html).toContain('бренд салона');
+    expect(html).toContain('онлайн-запись');
     expect(html).not.toMatch(/гостиниц/);
     // п. 5: у рабочей «Рекламы» значок «Доступно», а не «Скоро» рядом с живой кнопкой
     expect(html).toMatch(/data-testid="marketing-ads-status"[^>]*>Доступно</);
@@ -169,7 +170,7 @@ describe('«Сайт и SEO» говорит правду о конструкт�
       createElement(MarketingHub, { vertical: 'BEAUTY', builder: { access: 'off', status: null, activeUntil: null } }),
     );
     expect(html).toMatch(/data-testid="marketing-site-status"[^>]*>Подключает WETOP</);
-    expect(html).toContain('Конструктор сайта подключает команда WETOP');
+    expect(html).toContain('aria-label="Подключить: Сайт и SEO"');
   });
   it('лицензия кончилась: «Срок вышел»; активна или неизвестна: «Доступно»', async () => {
     const { MarketingHub } = await import('../marketing/hub');

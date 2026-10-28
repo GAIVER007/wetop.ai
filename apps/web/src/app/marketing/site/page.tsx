@@ -56,6 +56,9 @@ export default async function MarketingSitePage() {
           <Link className="btn btn--secondary" href="/marketing/site/assets" data-testid="publication-assets-link">
             {t('Изображения сайта')}
           </Link>
+          <Link className="btn btn--secondary" href="/marketing/site/leads" data-testid="publication-leads-link">
+            {t('Заявки с сайта')}
+          </Link>
         </>
       }
     >

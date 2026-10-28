@@ -43,6 +43,8 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   // публикация сайта всем направлениям (аудит «Сайт и SEO» 28.10.2026: API публикует любой с ADR-185)
   '/marketing/site': ALL_VERTICALS,
   '/marketing/site/assets': ALL_VERTICALS,
+  // заявки с сайта (просьбы перезвонить, вопросы): все направления (аудит «Сайт и SEO» 28.10.2026, S3)
+  '/marketing/site/leads': ALL_VERTICALS,
   '/marketing/site/editor': ALL_VERTICALS,
   '/reports/overview': H,
   '/reports/finance': H,

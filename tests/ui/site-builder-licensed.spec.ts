@@ -120,7 +120,7 @@ test('«Собрать с ИИ по описанию» на первом экр�
   await expect(win.getByTestId('create-site-steps')).toContainText('Анализирую данные объекта');
   await expect(main(page).getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
   await tab(page, 'Дизайн').click();
-  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NIGHT');
+  await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NOIR');
 });
 
 test('«Выбор / Текст»: T включает правку текста, Enter применяет в черновике, Escape отменяет; сохранение без ИИ', async ({ page }) => {

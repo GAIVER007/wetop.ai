@@ -166,6 +166,14 @@ const contacts: Renderer = (s, ctx, { h1 }) => {
       rows.push(`<li><a href="${esc(href)}" rel="noopener noreferrer">${esc(strings.map)}</a></li>`);
     }
   }
+  // GEO 28.10.2026: Google Карты публичной ссылкой поиска (без ключа и API): по точке, иначе по тексту адреса
+  const geo = c.geo && Number.isFinite(c.geo.lat) && Number.isFinite(c.geo.lng) ? `${c.geo.lat},${c.geo.lng}` : null;
+  const addressText = s['showAddress'] === true ? tx(c.address, ctx.locale) : '';
+  const query = geo ?? addressText.trim();
+  if (query) {
+    const href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    rows.push(`<li><a href="${esc(href)}" rel="noopener noreferrer" target="_blank">${esc(strings.googleMaps)}</a></li>`);
+  }
   const directions = s['directions'] ? `<p>${t(s['directions'], ctx)}</p>` : '';
   return `${open(s)}${heading(s, ctx, h1)}${rows.length ? `<ul class="contact-list">${rows.join('')}</ul>` : ''}${directions}${close}`;
 };

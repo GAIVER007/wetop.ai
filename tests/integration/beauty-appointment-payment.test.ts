@@ -123,6 +123,37 @@ describe('оплата записи салона (integration, §49)', () => {
     expect((await db.restaurantCashOperation.findUniqueOrThrow({ where: { id: op.id } })).status).toBe('COMPLETED');
   });
 
+  // админ салона 28.10.2026: после потерянного ответа оплата записи висела «Безопасная отправка недоступна…»
+  it('сверка ключа оплаты: касса отвечает, прошла ли операция с этим ключом у этой записи', async () => {
+    const a = await book('11:00');
+    const key = randomUUID();
+    expect(await as(() => service.paymentKeyStatus(a.id, key))).toEqual({ found: false });
+    await pay(a.id, 100000, 'CASH', key);
+    expect(await as(() => service.paymentKeyStatus(a.id, key))).toEqual({ found: true });
+    const other = await book('13:00');
+    // ключ чужой записи не раскрывается: для другой записи «нет»
+    expect(await as(() => service.paymentKeyStatus(other.id, key))).toEqual({ found: false });
+    await expect(as(() => service.paymentKeyStatus(a.id, 'not-a-key'))).rejects.toThrow();
+    // отменённой записи цену не правят: деньги по ней уже разобраны
+    await as(() => service.setStatus(other.id, { status: 'CANCELLED' }));
+    await expect(as(() => service.adjustPrice(other.id, { priceMinor: '100', reason: 'x' }))).rejects.toThrow('Цену отменённой записи');
+  });
+
+  // админ салона 28.10.2026: «клиент заплатил больше или меньше, а цену выполненной записи не поменять»
+  it('цена выполненной записи меняется с правом цен: больше и меньше, но не ниже уже оплаченного', async () => {
+    const a = await book('15:00');
+    await pay(a.id, 300000);
+    await as(() => service.setStatus(a.id, { status: 'DONE' }));
+    const up = await as(() => service.adjustPrice(a.id, { priceMinor: '900000', reason: 'Добавили укладку' }));
+    expect(up.appointments.find((r) => r.id === a.id)).toMatchObject({ status: 'DONE', priceMinor: '900000' });
+    const down = await as(() => service.adjustPrice(a.id, { priceMinor: '300000', reason: 'Скидка постоянной клиентке' }));
+    expect(down.appointments.find((r) => r.id === a.id)).toMatchObject({ priceMinor: '300000', paidMinor: '300000' });
+    await expect(as(() => service.adjustPrice(a.id, { priceMinor: '299999', reason: 'x' }))).rejects.toThrow('Цена меньше уже оплаченного');
+    await expect(as(() => service.adjustPrice(a.id, { priceMinor: '400000', reason: '' }))).rejects.toThrow('Укажите причину');
+    const history = await db.auditLog.findMany({ where: { entityId: a.id, action: 'beauty.appointment.price_adjusted' }, orderBy: { createdAt: 'asc' } });
+    expect(history.map((h) => [(h.before as { priceMinor: string }).priceMinor, (h.after as { priceMinor: string; reason: string }).priceMinor])).toEqual([['800000', '900000'], ['900000', '300000']]);
+  });
+
   it('база: со ссылкой на запись только приход и возврат, только своего филиала, и после вставки не меняется', async () => {
     const a = await book('16:00');
     const base = { locationId: own.location, method: 'CASH' as const, amount: 1n, currency: 'KZT', appointmentId: a.id };

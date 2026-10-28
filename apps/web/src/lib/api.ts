@@ -4491,6 +4491,12 @@ export const beautyApi = {
   /** Возврат по выполненной записи (§54) */
   refundAppointment: (id: string, body: { method: string; amount: number; reason: string; idempotencyKey: string }) =>
     sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/refunds`, body),
+  /** Итоговая цена записи с причиной, в том числе выполненной (28.10.2026) */
+  adjustAppointmentPrice: (id: string, body: { priceMinor: string; reason: string }) =>
+    sendJson<BeautyDay>('POST', `/beauty/appointments/${encodeURIComponent(id)}/price`, body),
+  /** Прошла ли оплата записи с этим ключом (сверка зависшей метки, 28.10.2026) */
+  appointmentPaymentKey: (id: string, key: string) =>
+    getJson<{ found: boolean }>(`/beauty/appointments/${encodeURIComponent(id)}/payment-keys/${encodeURIComponent(key)}`),
 };
 
 // ── Загрузка конкурентов (ADR-142, DATA_MODEL §23) ─────────────────────────────────────────────

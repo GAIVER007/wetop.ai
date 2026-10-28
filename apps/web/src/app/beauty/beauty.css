@@ -2533,3 +2533,10 @@
 .appointment-customer-fields .appointment-customer-quick {
   flex-direction: row;
 }
+
+/* «Изменить цену» в карточке записи (28.10.2026): две кнопки в ряд, на узком экране друг под другом */
+.appointment-price-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

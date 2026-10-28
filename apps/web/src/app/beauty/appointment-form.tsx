@@ -1,16 +1,17 @@
 'use client';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
-import { matchesCustomer } from '../../lib/customer-match';
+import { matchesCustomer, splitCustomerQuery } from '../../lib/customer-match';
 import type { BeautyAppointmentRow, BeautyCustomerRow, BeautyDay } from '../../lib/api';
 import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { createAppointment, moveAppointment } from './journal-actions';
 import { instantOf, localInput } from './time';
 import { zoneLabel } from '../../lib/human-period';
-import { formatPhone, formatPhoneInput } from '../../lib/phone';
+import { formatPhone } from '../../lib/phone';
 import { BookingShell, PickButton, PickHeading } from '../../components/booking-shell';
 import { masterDayMap } from './master-map';
 import { useT } from '../../i18n/locale-provider';
+import { Icon } from '../../components/icon';
 
 // A5 (паритет с zapis.kz): кого выбирали в прошлый раз на этой вкладке; удобство, не данные
 let lastPickedCustomerId: string | null = null;
@@ -69,12 +70,12 @@ export function AppointmentForm({
     null,
   );
   const [draft, setDraft] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
     notes: source?.notes ?? '',
     employeeId,
   });
+  // выезд на дом (владелец 27.10.2026): у повтора записи и изменения берётся из исходной записи
+  const [atHome, setAtHome] = useState(Boolean(source?.atHome));
+  const [homeAddress, setHomeAddress] = useState(source?.homeAddress ?? '');
   const field = (key: keyof typeof draft) => ({
     value: draft[key],
     onChange: (e: { target: { value: string } }) => setDraft({ ...draft, [key]: e.target.value }),
@@ -200,6 +201,7 @@ export function AppointmentForm({
     0,
   );
   const search = customerSearch.trim().toLocaleLowerCase();
+  const newCustomer = splitCustomerQuery(customerSearch);
   const matchingCustomers = customers.filter(
     (customer) =>
       customer.status !== 'ARCHIVED' &&
@@ -229,10 +231,9 @@ export function AppointmentForm({
     scopeKey,
   });
   const dirty = Boolean(
-    draft.firstName ||
-    draft.lastName ||
-    draft.phone ||
     draft.notes !== (source?.notes ?? '') ||
+    atHome !== Boolean(source?.atHome) ||
+    homeAddress !== (source?.homeAddress ?? '') ||
     draft.employeeId !== initial.current.employeeId ||
     date !== initial.current.date ||
     hour !== initial.current.time ||
@@ -340,67 +341,7 @@ export function AppointmentForm({
       {!editing && (
         <fieldset className="appointment-customer-fields">
           <legend>{t('Клиент')}</legend>
-          <Field label={t('Телефон или имя')}>
-            <Input
-              type="search"
-              value={customerSearch}
-              onChange={(event) => setCustomerSearch(event.target.value)}
-              autoComplete="off"
-            />
-          </Field>
-          {search && matchingCustomers.length > 0 && (
-            <div className="appointment-customer-suggest" role="listbox" aria-label={t('Найденные клиенты')}>
-              {matchingCustomers.slice(0, 5).map((c) => (
-                <Button
-                  key={c.id}
-                  type="button"
-                  size="sm"
-                  tone="ghost"
-                  onClick={() => {
-                    setCustomerId(c.id);
-                    lastPickedCustomerId = c.id;
-                    setCustomerSearch('');
-                  }}
-                >
-                  {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${formatPhone(c.phone)}` : ''}`}
-                </Button>
-              ))}
-            </div>
-          )}
-          <div className="appointment-customer-quick">
-            {/* A5 (паритет с zapis.kz): «Гость» - визит без контактов, «Последний клиент» - выбранный в прошлый раз */}
-            <Button
-              type="button"
-              size="sm"
-              tone="secondary"
-              onClick={() => {
-                setCustomerId('');
-                setDraft({ ...draft, firstName: 'Гость', lastName: '', phone: '' }); // kk-allow: имя клиента сохраняется в базу как данные, как и раньше
-              }}
-            >
-              {t('Гость')}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              tone="secondary"
-              disabled={!lastPickedCustomerId || !customers.some((c) => c.id === lastPickedCustomerId)}
-              onClick={() => lastPickedCustomerId && setCustomerId(lastPickedCustomerId)}
-            >
-              {t('Последний клиент')}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              tone="ghost"
-              aria-pressed={!customerId}
-              onClick={() => setCustomerId('')}
-            >
-              {t('+ Новый клиент')}
-            </Button>
-          </div>
-          <input type="hidden" name="customerId" value={customerId} />
-          {pickedCustomer && (
+          {pickedCustomer ? (
             <span className="appointment-customer-chip" data-testid="appointment-customer-chip">
               {`${pickedCustomer.name}${pickedCustomer.phone ? `, ${pickedCustomer.phone}` : ''}`}
               <button
@@ -412,31 +353,84 @@ export function AppointmentForm({
                 ×
               </button>
             </span>
-          )}
-          {!customerId && (
-            <div className="appointment-customer-new">
-              <Field label={t('Имя клиента')}>
-                <Input name="firstName" {...field('firstName')} required maxLength={100} />
-              </Field>
-              <Field label={t('Фамилия')}>
-                <Input name="lastName" {...field('lastName')} maxLength={100} />
-              </Field>
-              <Field label={t('Телефон')}>
+          ) : (
+            <>
+              {/* одно поле (владелец 26.10.2026): при вводе имени или номера ниже появляются клиенты из базы;
+                  если клиента нет, запись создаёт нового из того, что введено (номер телефоном, слова именем) */}
+              <Field label={t('Телефон или имя')}>
                 <Input
-                  name="phone"
-                  value={draft.phone}
-                  onChange={(e) => setDraft({ ...draft, phone: formatPhoneInput(e.target.value) })}
-                  type="tel"
-                  inputMode="tel"
-                  maxLength={32}
+                  type="search"
+                  value={customerSearch}
+                  onChange={(event) => setCustomerSearch(event.target.value)}
+                  autoComplete="off"
+                  required={!customerId}
+                  maxLength={160}
                 />
               </Field>
-            </div>
+              {search && matchingCustomers.length > 0 && (
+                <div className="appointment-customer-suggest" role="listbox" aria-label={t('Найденные клиенты')}>
+                  {matchingCustomers.slice(0, 5).map((c) => (
+                    <Button
+                      key={c.id}
+                      type="button"
+                      size="sm"
+                      tone="ghost"
+                      onClick={() => {
+                        setCustomerId(c.id);
+                        lastPickedCustomerId = c.id;
+                        setCustomerSearch('');
+                      }}
+                    >
+                      {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${formatPhone(c.phone)}` : ''}`}
+                    </Button>
+                  ))}
+                </div>
+              )}
+              {search && (
+                <p className="appointment-customer-new" data-testid="appointment-customer-new">
+                  {newCustomer.firstName
+                    ? t('Новый клиент: {name}', {
+                        name: [newCustomer.firstName, newCustomer.lastName, newCustomer.phone]
+                          .filter(Boolean)
+                          .join(', '),
+                      })
+                    : t('Добавьте имя клиента к номеру')}
+                </p>
+              )}
+              <div className="appointment-customer-quick">
+                <Button
+                  type="button"
+                  size="sm"
+                  tone="secondary"
+                  onClick={() => setCustomerSearch('Гость')} // kk-allow: имя клиента сохраняется в базу как данные
+                >
+                  {t('Гость')}
+                </Button>
+                {lastPickedCustomerId && customers.some((c) => c.id === lastPickedCustomerId) && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    tone="secondary"
+                    onClick={() => lastPickedCustomerId && setCustomerId(lastPickedCustomerId)}
+                  >
+                    {t('Последний клиент')}
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
+          <input type="hidden" name="customerId" value={customerId} />
+          {!customerId && (
+            <>
+              <input type="hidden" name="firstName" value={newCustomer.firstName} />
+              <input type="hidden" name="lastName" value={newCustomer.lastName} />
+              <input type="hidden" name="phone" value={newCustomer.phone} />
+            </>
           )}
         </fieldset>
       )}
       <fieldset className="appointment-pick">
-        <legend className="sr-only">{t('Услуга')}</legend>
+        <legend>{t('Услуга и время')}</legend>
         {!editing && lines.length === 1 && (
           <div className="appointment-services" data-testid="service-cards">
             {categories.length > 1 && (
@@ -763,6 +757,23 @@ export function AppointmentForm({
             {/* заметка справа под временем: левая колонка на один экран (26.10.2026) */}
       <fieldset className="appointment-note">
         <legend>{t('Дополнительно')}</legend>
+        <label className="beauty-check">
+          <input type="checkbox" name="atHome" checked={atHome} onChange={(e) => setAtHome(e.target.checked)} />
+          <Icon name="pin" aria-hidden="true" />
+          <span>{t('Выезд на дом')}</span>
+        </label>
+        {atHome && (
+          <Field label={t('Адрес выезда')}>
+            <Input
+              name="homeAddress"
+              required
+              maxLength={300}
+              autoComplete="street-address"
+              value={homeAddress}
+              onChange={(e) => setHomeAddress(e.target.value)}
+            />
+          </Field>
+        )}
         <Field label={t('Заметка')}>
           <Input name="notes" {...field('notes')} maxLength={2000} />
         </Field>

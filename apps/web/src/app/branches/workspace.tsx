@@ -9,6 +9,7 @@ import { loadErrorProps } from '../../lib/load-error';
 import { unstable_rethrow } from 'next/navigation';
 import { BranchCreateDialog } from './branch-create-dialog';
 import { ReferenceBoard } from './reference-board';
+import { OrganizationLocaleField } from '../../components/organization-locale';
 import { Page } from '../../components/page';
 import { msg } from '../../i18n';
 import { currentLocale, serverT } from '../../i18n/server';
@@ -54,6 +55,11 @@ export async function BranchWorkspace({
         period={<MonthPicker key="month" month={month} locale={locale} />}
         financial={financial}
         archive={canCreate ? <ArchivedBranches key="archive" items={archived} /> : null}
+        language={
+          canCreate ? (
+            <OrganizationLocaleField key="language" value={organization.locale ?? 'ru'} canEdit />
+          ) : null
+        }
         periodLabel={from === date && to === date ? t('за сегодня') : t('за {from} - {to}', { from, to })}
         items={items}
         businesses={businesses}

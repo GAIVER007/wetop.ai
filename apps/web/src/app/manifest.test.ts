@@ -15,7 +15,7 @@ describe('PWA1: манифест стойки', () => {
   const m = manifest();
 
   it('ставится как приложение и открывается на «Сегодня»', () => {
-    expect(m).toMatchObject({ name: 'WETOP', short_name: 'WETOP', start_url: '/today', scope: '/', display: 'standalone' });
+    expect(m).toMatchObject({ name: 'WETOP', short_name: 'WETOP', start_url: '/', scope: '/', display: 'standalone' });
   });
 
   it('значки 192 и 512 px, отдельный маскируемый 512 px, все PNG', () => {

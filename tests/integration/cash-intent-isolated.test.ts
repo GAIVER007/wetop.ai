@@ -5,6 +5,7 @@ import {withSignedInUser} from '../../apps/api/src/auth/request-context';
 import type {PrismaService} from '../../apps/api/src/database/prisma.provider';
 import {RestaurantService} from '../../apps/api/src/food-service/restaurant.service';
 import type {StockService} from '../../apps/api/src/food-service/stock.service';
+import {enableKzBranchMethods} from './kz-methods-on';
 const db=createPrismaClient('postgresql://owner_home_test@127.0.0.1:55516/wetop_owner_home','pms_test');
 const user=randomUUID();let organizationId:string,businessId:string,locationId:string;
 const writer=new RestaurantService({db} as PrismaService,null,{} as StockService);
@@ -14,6 +15,7 @@ beforeAll(async()=>{
  await db.user.create({data:{id:user,name:'Synthetic owner',email:`cash-${user}@example.invalid`}});
  businessId=(await db.business.create({data:{organizationId,name:'Synthetic cash',vertical:'FOOD_SERVICE'}})).id;
  locationId=(await db.location.create({data:{businessId,name:'Synthetic cash',timezone:'Asia/Almaty',currency:'KZT'}})).id;
+ await enableKzBranchMethods(db,[locationId]); // филиал сам включил Kaspi
  vi.stubEnv('EXPENSE_LINKS_ENABLED','1');
 });
 afterAll(async()=>{vi.unstubAllEnvs();await db.$disconnect();});

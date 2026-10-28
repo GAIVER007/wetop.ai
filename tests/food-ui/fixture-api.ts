@@ -27,6 +27,7 @@ import {
 } from '../../apps/api/src/auth/request-context';
 import { SharedOnboardingService } from '../../apps/api/src/onboarding/onboarding.module';
 import { isLocalDatabase } from '../tools/seed-local';
+import { openTestShift } from '../tools/test-shift';
 
 if (!isLocalDatabase(process.env.DATABASE_URL ?? ''))
   throw new Error('Own local database required');
@@ -213,6 +214,10 @@ app.use(
                     },
                   }),
                 );
+              // смена открыта в каждом филиале, как утром у стойки: без неё администратор и официант не
+              // вносят брони и заказы (владелец 27.10.2026, finance/shift-guard). Тест «без смены» закрывает её сам.
+              for (const l of locations)
+                await openTestShift(db, { organizationId: org, userId: user, locationId: l.id });
               return res.json({
                 business: b1.id,
                 otherBusiness: b2.id,
@@ -305,6 +310,11 @@ app.use(
                 await tx.onboardingProgress.deleteMany({ where: { location: { business: b } } });
                 // способы оплаты филиала (§21.7, миграция 151) держат филиал внешним ключом
                 await tx.branchPaymentMethodSetting.deleteMany({ where: { location: { business: b } } });
+                // кассы и смены филиалов (сторож смены): держат филиал внешним ключом
+                await tx.$executeRaw`DELETE FROM cash_commands WHERE register_id IN (SELECT id FROM cash_registers WHERE organization_id = ${org}::uuid)`;
+                await tx.$executeRaw`DELETE FROM cash_handovers WHERE register_id IN (SELECT id FROM cash_registers WHERE organization_id = ${org}::uuid)`;
+                await tx.$executeRaw`DELETE FROM cash_shifts WHERE register_id IN (SELECT id FROM cash_registers WHERE organization_id = ${org}::uuid)`;
+                await tx.$executeRaw`DELETE FROM cash_registers WHERE organization_id = ${org}::uuid`;
                 await tx.location.deleteMany({ where: { business: b } });
                 await tx.business.deleteMany({ where: b });
                 await tx.membership.deleteMany({ where: { organizationId: org, userId: user } });

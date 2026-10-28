@@ -1,5 +1,8 @@
 /** EN1: английский для области «salon-journal» (пути в kk-parts/salon-journal.ts). Ключ русская фраза, значение перевод */
 export const salonJournal: Record<string, string> = {
+  // выезд на дом (владелец 27.10.2026)
+  'Выезд на дом': 'Home visit',
+  'Адрес выезда': 'Visit address',
   "Филиал изменён. Вернитесь к настройке текущего филиала; прежний ввод не сохранён поверх его данных.": 'Branch changed. Return to the current branch settings; your earlier input was not saved over its data.',
   "Не удалось проверить филиал. Попробуйте ещё раз; данные формы сохранены.": 'Could not check the branch. Try again; the form data is kept.',
   "Услуга создана, но не включилась в филиале. Нажмите «Сохранить для филиала» ниже.": 'Service created but not enabled in the branch. Click “Save for branch” below.',
@@ -123,6 +126,11 @@ export const salonJournal: Record<string, string> = {
   "Частично": 'Partial',
   "Гость": 'Guest',
   "Последний клиент": 'Last client',
+  'Месяц журнала': 'Journal month',
+  'Записей за месяц': 'Bookings this month',
+  'Месяц специалистов': 'Specialists month',
+  "Новый клиент: {name}": 'New client: {name}',
+  "Добавьте имя клиента к номеру": 'Add the client name to the number',
   "+ Новый клиент": '+ New client',
   "Новый клиент": 'New client',
   " (в архиве)": ' (archived)',

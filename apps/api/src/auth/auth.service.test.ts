@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   hashPassword,
   hashSessionToken,
-  MAX_FAILED_ATTEMPTS,
+  ACCOUNT_LOCK_ATTEMPTS as MAX_FAILED_ATTEMPTS, // учётка целиком запирается после ACCOUNT_LOCK_ATTEMPTS (27.10.2026); 5 промахов запирают адрес, см. login-guard.test
   PRIVACY_POLICY_VERSION,
   SESSION_HOURS,
 } from '@pms/domain';
@@ -128,7 +128,7 @@ describe('AuthService.login', () => {
     ).rejects.toThrow('Неверная почта или пароль');
     await expect(
       auth.login({ email: 'nikogo-net@example.invalid', password: PASSWORD }, NOW),
-    ).rejects.toThrow(/запирается на 15 минут/);
+    ).rejects.toThrow(/закрывается на 15 минут/);
   });
 
   it('когда замок истёк, одна ошибка снова не запирает: счёт неудач начинается заново (аудит 26.09, С-6)', async () => {
@@ -585,6 +585,16 @@ describe('AuthService.register', () => {
     await auth.register({ ...NEW, phoneCountry: 'UZ', phone: '90 123 45 67', locale: 'kk' }, NOW);
     expect(users.find((u) => u.email === NEW.email)!.locale).toBe('kk');
     expect(organizations.find((o) => o.name === 'Хостел на Абая')!.countryCode).toBe('UZ');
+  });
+
+  // ORG-LOCALE-20261026: язык из окна регистрации становится и языком организации (приглашения сотрудникам)
+  it('язык из регистрации становится языком организации; без выбора русский', async () => {
+    const { auth, organizations } = service();
+    await auth.register({ ...NEW, phoneCountry: 'QA', phone: '5186 5708', locale: 'en' }, NOW);
+    expect(organizations.find((o) => o.name === 'Хостел на Абая')!.locale).toBe('en');
+    const second = service();
+    await second.auth.register(NEW, NOW);
+    expect(second.organizations.find((o) => o.name === 'Хостел на Абая')!.locale ?? 'ru').toBe('ru');
   });
 
   it('без языка в форме человек получает русский; чужой код языка — отказ без записи', async () => {

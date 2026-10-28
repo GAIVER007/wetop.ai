@@ -172,8 +172,7 @@ test('AV3: places as a compact list; automatic choice and picked beds prefill th
   // источник с 01.10.2026 за свёрнутым «Дополнительно» (booking-compact)
   await form.getByText('Дополнительно', { exact: true }).click();
   await form.locator('[name="source"]').selectOption('PHONE');
-  await form.getByLabel('Имя *', { exact: true }).fill('Автовыбор');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Автовыбор Тест');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
   const created = async () =>

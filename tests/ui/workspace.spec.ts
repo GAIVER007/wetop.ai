@@ -249,26 +249,21 @@ test('показатели за период: готовые отрезки и �
   // «Аналитику → Обзор» — состав и определения ADR-047 те же, по умолчанию этот месяц
   await page.goto('/management/dashboard');
   await expect(page).toHaveURL(/\/management\/analytics$/);
-  await expect(page.getByRole('link', { name: 'Этот месяц', exact: true })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
+  // только месяц (владелец 26.10.2026): «‹ октябрь 2026 ›»
+  await expect(page.getByTestId('analytics-month-label')).toBeVisible();
   await expect(page.getByTestId('pa-chart-occupancy')).toBeVisible();
   await expect(page.getByTestId('pa-kpi-occupancy')).toContainText('%');
   await expect(page.getByTestId('pa-kpi-revenue')).toContainText('₸');
   await expect(page.getByTestId('pa-compare')).toContainText('Сравнение с');
   await expect(page.getByTestId('pa-sources')).toContainText('Booking.com');
-  // один день — загрузка по категориям вместо столбиков по дням
-  await page.getByRole('link', { name: 'Сегодня', exact: true }).click();
-  await expect(page).toHaveURL(/period=today/);
+  // старые ссылки на день и свой отрезок (Главная, закладки) открываются как раньше; выбор на экране только месяцем
+  await page.goto('/management/analytics?period=today');
   await expect(page.getByTestId('pa-chart-categories')).toBeVisible();
-  // свой отрезок — три дня; старый адрес с периодом переносит его на «Обзор»
-  await page.getByText('Период', { exact: true }).click();
-  await page.getByLabel('Период: с', { exact: true }).fill('2026-09-01');
-  await page.getByLabel('Период: по', { exact: true }).fill('2026-09-03');
-  await page.getByTestId('pa-range-form').getByRole('button', { name: 'Применить' }).click();
-  await expect(page).toHaveURL(/period=custom&from=2026-09-01&to=2026-09-03/);
+  await page.goto('/management/analytics?period=custom&from=2026-09-01&to=2026-09-03');
   await expect(page.getByTestId('pa-period')).toContainText('3 дня');
+  // стрелка месяца ведёт в месяц
+  await page.getByTestId('analytics-month-prev').click();
+  await expect(page).toHaveURL(/month=2026-08/);
   // неверный отрезок — ошибка на экране, показан сегодняшний день
   await page.goto('/management/dashboard?period=custom&from=2026-09-10&to=2026-09-01');
   await expect(page).toHaveURL(
@@ -362,8 +357,7 @@ test('ошибка создания сохраняет ввод; повтор о
   // источник, промокод и заметки — за свёрнутым «Дополнительно» (booking-compact)
   await form.locator('.booking-create__extras > summary').click();
   await form.locator('[name="source"]').selectOption('PHONE');
-  await form.getByLabel('Имя *', { exact: true }).fill('Новый');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Новый Тест');
   await form.getByLabel('Отчество').fill('Тестович');
   await form.getByLabel('Email').fill('new@example.invalid');
   await form.getByLabel('Заметки').fill('Тест сохранения полей');
@@ -578,8 +572,7 @@ test('групповая бронь: разные категории сохра�
   const second = form.getByTestId('placement-fields').nth(1);
   await second.getByLabel('Категория *').selectOption('MALE');
   await second.getByLabel('Количество мест').fill('4');
-  await form.getByLabel('Имя *', { exact: true }).fill('Тест');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Группа');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Тест Группа');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(form.getByRole('alert')).toContainText('Место уже занято');
   await expect(second.getByLabel('Категория *')).toHaveValue('MALE');
@@ -1478,8 +1471,7 @@ test('новая бронь: резюме выбора обновляется п
   await form.locator('.booking-create__extras > summary').click();
   await form.getByLabel('Источник *').selectOption('PHONE');
   await expect(summary).toContainText('Телефон');
-  await form.getByLabel('Имя *', { exact: true }).fill('Айгуль');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Тестовая');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Айгуль Тестовая');
   // §14: «Фамилия Имя»
   await expect(summary).toContainText('Тестовая Айгуль');
   await category.selectOption('ROOM');

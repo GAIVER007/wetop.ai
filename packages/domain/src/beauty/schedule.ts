@@ -19,6 +19,28 @@ const MAX_TIME_OFF_DAYS = 366;
 
 export type WorkingTimeMiss = 'UNSUPPORTED' | 'EMPLOYEE_INACTIVE' | 'NOT_ASSIGNED' | 'NO_SCHEDULE' | 'TIME_OFF' | 'OUTSIDE_WORKING_HOURS';
 
+/**
+ * Смена до полуночи (владелец 27.10.2026: «график везде с 10:00 до 24:00»). Тип `time` в PostgreSQL не держит 24:00,
+ * а `working_hours_span` требует конец позже начала, поэтому конец дня хранится как 23:59:59.999 (без миграции).
+ * Конец от 23:59 и позже читается как «24:00».
+ */
+export const END_OF_DAY = '24:00';
+/** Конец смены «ЧЧ:ММ» или «24:00» в значение для `working_hours.time_to` */
+export function endTimeToDate(clock: string): Date {
+  return new Date(clock === END_OF_DAY ? '1970-01-01T23:59:59.999Z' : `1970-01-01T${clock}:00Z`);
+}
+/** Конец смены из `working_hours.time_to` в «ЧЧ:ММ», последняя минута суток как «24:00» */
+export function endClockOf(at: Date): string {
+  const clock = at.toISOString().slice(11, 16);
+  return clock === '23:59' ? END_OF_DAY : clock;
+}
+
+/** Конец смены «ЧЧ:ММ» или «24:00»: время начала по normalizeClockTime, конец дополнительно принимает полночь */
+function normalizeEndClock(v: unknown): string | null {
+  if (typeof v === 'string' && /^24[:.]?00$/.test(v.trim())) return END_OF_DAY;
+  return normalizeClockTime(v);
+}
+
 /** Общий расчёт для присутствия сейчас и полного окна услуги. Конец интервала невключительный. */
 export function resolveWorkingTime(input: {
   startsAt: Date;
@@ -39,13 +61,42 @@ export function resolveWorkingTime(input: {
     return { date, weekday: new Date(`${date}T00:00:00Z`).getUTCDay(), minute: Number(p.get('hour')) * 60 + Number(p.get('minute')) + Number(p.get('second')) / 60 + at.getUTCMilliseconds() / 60000 };
   };
   const start = local(input.startsAt);
-  const end = input.endsAt ? local(input.endsAt) : start;
+  const rawEnd = input.endsAt ? local(input.endsAt) : start;
+  // конец записи ровно в полночь: это 24:00 дня начала, а не 00:00 следующего (смена до 24:00)
+  const end =
+    input.endsAt && rawEnd.date !== start.date && rawEnd.minute === 0 && rawEnd.date === dayOffsetUtc(start.date, 1)
+      ? { ...rawEnd, date: start.date, weekday: start.weekday, minute: 24 * 60 }
+      : rawEnd;
   if (input.timeOffs.some(off => (off.dateFrom <= start.date && start.date <= off.dateTo) || (off.dateFrom <= end.date && end.date <= off.dateTo)))
     return { ok: false, reason: 'TIME_OFF' };
   if (!input.workingHours.length) return { ok: false, reason: 'NO_SCHEDULE' };
   const fits = (!input.endsAt || input.endsAt > input.startsAt) && start.date === end.date && input.workingHours.some(h =>
     h.weekday === start.weekday && minutes(h.timeFrom) <= start.minute && start.minute < minutes(h.timeTo) && end.minute <= minutes(h.timeTo));
   return fits ? { ok: true } : { ok: false, reason: 'OUTSIDE_WORKING_HOURS' };
+}
+
+/**
+ * Конец рабочего дня филиала сегодня (напоминание о закрытии смены, владелец 27.10.2026): самый поздний конец
+ * графиков сотрудников на текущий день недели в часовом поясе филиала, как момент UTC. Нет графиков: `null`.
+ */
+export function dayClosesAt(now: Date, timezone: string, hours: readonly WorkingInterval[]): string | null {
+  const p = new Map(fmt(timezone).formatToParts(now).map((part) => [part.type, part.value]));
+  const date = `${p.get('year')}-${p.get('month')}-${p.get('day')}`;
+  const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
+  const ends = hours.filter((h) => h.weekday === weekday).map((h) => minutes(h.timeTo));
+  if (!ends.length) return null;
+  const last = Math.max(...ends);
+  // местное «date + last минут» в UTC: смещение пояса берём на этот момент (два прохода на случай перевода часов)
+  const naive = Date.parse(`${date}T00:00:00Z`) + last * 60_000;
+  const offset = (at: number) => {
+    const q = new Map(fmt(timezone).formatToParts(new Date(at)).map((part) => [part.type, part.value]));
+    const asUtc = Date.UTC(Number(q.get('year')), Number(q.get('month')) - 1, Number(q.get('day')),
+      Number(q.get('hour')) % 24, Number(q.get('minute')), Number(q.get('second')));
+    return asUtc - Math.floor(at / 1000) * 1000;
+  };
+  let at = naive - offset(naive);
+  at = naive - offset(at);
+  return new Date(at).toISOString();
 }
 
 /** Интервал недельного шаблона: день недели и местное время филиала */
@@ -78,7 +129,7 @@ export function parseWorkingHoursWeek(raw: unknown): ParseResult<WorkingInterval
     if (weekday === null) return { ok: false, reason: 'День недели: число от 0 (воскресенье) до 6' };
 
     const timeFrom = normalizeClockTime(item['timeFrom']);
-    const timeTo = normalizeClockTime(item['timeTo']);
+    const timeTo = normalizeEndClock(item['timeTo']);
     if (timeFrom === null || timeTo === null)
       return { ok: false, reason: 'Время графика в часах и минутах, например 09:00' };
     if (minutes(timeTo) <= minutes(timeFrom))

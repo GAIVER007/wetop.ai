@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Db } from '@pms/database';
 import { actorOf, seedLocation, seedUser, type Actor } from './harness';
+import { openTestShift } from '../../tools/test-shift';
 
 /**
  * CORE-SECURITY-FIX-01: стенд салона и ресторана для проверок границы филиала/бизнеса/организации.
@@ -204,5 +205,12 @@ export async function seedBeautyFoodWorld(admin: Db): Promise<BeautyFoodWorld> {
       });
     }
   }
+  // Открытые смены во всех филиалах мира: администратор пишет записи и брони только в открытую смену
+  // (владелец 27.10.2026, finance/shift-guard). Мир живёт до конца прогона на тестовой схеме, как и остальные строки.
+  for (const [key, organizationId, opener] of [
+    ['bl1', org, 'owner'], ['bl2', org, 'owner'], ['bl3', org, 'owner'], ['fl1', org, 'owner'], ['fl2', org, 'owner'],
+    ['fl3', org, 'owner'], ['fbl1', foreignOrg, 'foreignOwner'],
+  ] as const)
+    await openTestShift(admin, { organizationId, userId: actors.get(opener)!.id, locationId: ids[key]! });
   return { org, foreignOrg, ids, actors };
 }

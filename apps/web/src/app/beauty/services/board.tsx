@@ -261,7 +261,7 @@ export function ServicesBoard({
                 <tr className="beauty-price-group">
                   <th colSpan={7} scope="rowgroup">
                     <span className="beauty-price-dot" aria-hidden="true" />
-                    <span className="beauty-service-group">{group.name} </span>
+                    <span className="beauty-service-group">{group.key ? group.name : t(group.name)} </span>
                     <span className="beauty-price-group__meta">
                       {countLabel(locale, t, group.rows.length, [msg('услуга'), 'услуги', msg('услуг')])}, {t('в филиале {here}', { here })} {/* kk-allow: форма склонения */}
                     </span>

@@ -49,6 +49,29 @@ const payroll: PayrollView = {
   adjustments: [],
 };
 
+describe('столбец «Доход» (владелец 26.10.2026: «видно, с чего считается оплата»)', () => {
+  const render = (basis: 'visits' | 'orders') =>
+    renderToStaticMarkup(
+      createElement(PayrollBoard, {
+        scopeKey: 'synthetic-business:synthetic-location',
+        write: false,
+        payroll: { ...payroll, rows: [{ ...payroll.rows[0]!, salesMinor: '750000' }] },
+        basis,
+      }),
+    );
+  it('первый денежный столбец после имени: «Доход» с суммой услуг сотрудника и итог в подвале', () => {
+    const html = render('visits');
+    const heads = [...html.matchAll(/<th[^>]*>([^<]*)<\/th>/g)].map((m) => m[1]);
+    expect(heads.slice(0, 3)).toEqual(['Сотрудник', 'Доход', 'Как платим']);
+    expect(html).toContain('data-testid="payroll-income"');
+    expect(html).toMatch(/data-testid="payroll-income"[^>]*><strong>[^<]*7[\s\u00a0\u202f]?500/);
+    expect(html).toMatch(/data-testid="payroll-income-total"[^>]*><strong>[^<]*7[\s\u00a0\u202f]?500/);
+  });
+  it('ресторан: тот же столбец «Доход» по закрытым заказам', () => {
+    expect(render('orders')).toContain('data-testid="payroll-income"');
+  });
+});
+
 describe('payroll in the configured currency', () => {
   it('renders exact decimal minor units without rounding to whole tenge', () => {
     const html = renderToStaticMarkup(

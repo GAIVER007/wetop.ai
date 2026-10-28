@@ -60,12 +60,17 @@ export const BRANCH_PAYMENT_METHODS = [
 ] as const satisfies readonly BranchPaymentMethod[];
 export type BranchPaymentMethod = ConfigurablePaymentMethod | 'OTHER';
 
+/**
+ * Без строки в базе выключены: «Другое» (новый способ, у действующих филиалов ничего не появляется само) и Kaspi с
+ * Halyk (владелец 27.10.2026: «убери везде каспи халык, не привязывайся к Казахстану», NO-KZ-METHODS-20261027).
+ * Кто включил Kaspi или Halyk сам, сохраняет их: строка в базе главнее умолчания.
+ */
 /** Новые способы без строки в базе выключены: у действующих филиалов ничего не появляется само */
-const OFF_BY_DEFAULT: ReadonlySet<string> = new Set(['OTHER']);
+const OFF_BY_DEFAULT: ReadonlySet<string> = new Set(['OTHER', 'KASPI', 'HALYK']);
 
 /** Умолчания без строк в базе: все восемь включены в системном порядке (У3) */
 export const DEFAULT_PAYMENT_METHOD_SETTINGS: readonly PaymentMethodSetting[] =
-  CONFIGURABLE_PAYMENT_METHODS.map((method) => ({ method, enabled: true }));
+  CONFIGURABLE_PAYMENT_METHODS.map((method) => ({ method, enabled: !OFF_BY_DEFAULT.has(method) }));
 /** Умолчания филиала (§21.7): прежние шесть включены, «Другое» выключено, поэтому выкладка ничего не меняет */
 export const DEFAULT_BRANCH_PAYMENT_METHOD_SETTINGS: readonly PaymentMethodSetting[] =
   BRANCH_PAYMENT_METHODS.map((method) => ({ method, enabled: !OFF_BY_DEFAULT.has(method) }));

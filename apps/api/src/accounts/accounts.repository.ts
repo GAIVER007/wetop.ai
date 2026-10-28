@@ -6,6 +6,9 @@ import type {
 } from '@pms/domain';
 
 /** Пользователь и его организация — всё, что нужно для выдачи сессии (DATA_MODEL §13). */
+/** Язык организации (`organizations.locale`, ORG-LOCALE-20261026) */
+export type OrganizationLocale = 'ru' | 'kk' | 'en';
+
 export interface AccountRecord {
   userId: string;
   email: string;
@@ -55,6 +58,8 @@ export interface InviteRecord {
   id: string;
   organizationId: string;
   organizationName: string;
+  /** Язык организации (ORG-LOCALE-20261026): язык письма, страницы по ссылке и нового человека */
+  organizationLocale?: OrganizationLocale;
   email: string;
   expiresAt: Date;
   acceptedAt: Date | null;

@@ -5,8 +5,6 @@ import { loadErrorProps } from '../../lib/load-error';
 import { loadFood } from './load';
 import { WorkspaceBoard } from './workspace-board';
 import { CatalogBoard } from './catalog-board';
-import { FoodRemindersToday } from './reminders-today';
-import { foodApi, type FoodReminderItem } from '../../lib/food-api';
 import { serverT } from '../../i18n/server';
 import { deskShell } from '../../lib/desk-shell';
 import { CustomerSectionTabs } from '../customers/section-tabs';
@@ -18,6 +16,7 @@ export async function FoodScreen({
   time,
   startNew = false,
   listView = false,
+  monthView = false,
 }: {
   kind: 'floor' | 'list' | 'catalog';
   date?: string | undefined;
@@ -25,19 +24,13 @@ export async function FoodScreen({
   /** `?new=1`: форма новой брони открыта сразу (быстрое действие «Главной») */
   startNew?: boolean;
   listView?: boolean;
+  /** `?view=month`: месяц расписания броней */
+  monthView?: boolean;
 }) {
   const t = await serverT();
   const title = kind === 'floor' ? t('Журнал') : kind === 'list' ? t('Брони столов') : t('Залы и столы');
   try {
-    const data = await loadFood(date, time, kind !== 'floor', kind === 'floor');
-    // «Напомнить сегодня» (§61): только «Вручную» и «Ошибка»; сбой загрузки не ломает экран, блока просто нет
-    const manual =
-      kind === 'catalog'
-        ? null
-        : await foodApi
-            .reminders()
-            .then((d) => ({ timezone: d.timezone, items: d.items.filter((i: FoodReminderItem) => i.state === 'MANUAL' || i.state === 'FAILED') }))
-            .catch(() => null);
+    const data = await loadFood(date, time, kind !== 'floor', kind === 'floor', kind === 'list' && monthView);
     return (
       <Page
         title={title}
@@ -52,13 +45,12 @@ export async function FoodScreen({
           {kind === 'list' && (
             <CustomerSectionTabs access={(await deskShell()).access} vertical="FOOD_SERVICE" current="/table-reservations" t={t} />
           )}
-          {manual && manual.items.length > 0 && (
-            <FoodRemindersToday items={manual.items} timezone={manual.timezone} canUpdate={data.canDesk && !data.readOnly} />
-          )}
           {kind === 'catalog' ? (
             <CatalogBoard data={data} />
           ) : (
-            <WorkspaceBoard data={data} floor={kind === 'floor'} startNew={startNew} listView={listView} />
+            <WorkspaceBoard
+              key={kind === 'list' && monthView ? 'month' : listView ? 'list' : 'day'}
+              data={data} floor={kind === 'floor'} startNew={startNew} listView={listView} monthView={kind === 'list' && monthView} />
           )}
         </div>
       </Page>

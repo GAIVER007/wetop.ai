@@ -7,8 +7,9 @@ import type { SharedOnboardingState } from '../../../lib/api';
 import { reloadOnboarding, saveOnboarding } from './actions';
 import { Icon, type IconName } from '../../../components/icon';
 import { setupCountLine, setupPath, type BookingPreview, type SetupPathRow } from './setup-path';
-import { msg } from '../../../i18n';
+import { LOCALE_NAMES, deskLocale, msg } from '../../../i18n';
 import { useLocale, useT } from '../../../i18n/locale-provider';
+import { OrganizationLocaleField } from '../../../components/organization-locale';
 
 const TITLES: Record<string, string> = {
   profile: msg('Основные сведения'),
@@ -46,7 +47,7 @@ const HINTS: Record<string, string> = {
 };
 const NEXT: Array<{ href: string; icon: IconName; title: string; text: string; action: string }> = [
   {
-    href: '/beauty-settings',
+    href: '/beauty-settings?section=hours',
     icon: 'clock',
     title: msg('Часы работы салона'),
     text: msg('Журнал и онлайн-запись показывают время только внутри этих часов.'),
@@ -248,6 +249,10 @@ export function BeautyChecklist({
       <p className="setup-help">
         {t('Название салона общее для всех филиалов. Пояс и валюта задаются страной.')}
       </p>
+      <OrganizationLocaleField
+        value={state.organizationLocale ?? 'ru'}
+        canEdit={Boolean(state.canEditLocale)}
+      />
       {state.canEdit && (
         <div className="onboarding__actions">
           <Button type="submit" disabled={pending}>
@@ -292,6 +297,12 @@ export function BeautyChecklist({
   // кнопки окна: у готового салона в шапке справа (вариант B владельца 26.10.2026), иначе под шагами
   const actions = welcome ? (
     <div className="onboarding__actions">
+      {/* быстрый запуск (владелец 27.10.2026): вся анкета в одном окне, одна кнопка «Создать салон» */}
+      {state.canEdit && !state.profileApplied && (
+        <Link className="btn" href="/register/setup/quick" data-testid="quick-start-link">
+          {t('Запустить за 5 минут')}
+        </Link>
+      )}
       {state.canEdit && (
         <Button disabled={pending} onClick={() => save('next')}>
           {state.updatedAt ? t('Продолжить настройку') : t('Настроить салон')}
@@ -412,7 +423,8 @@ export function BeautyChecklist({
                   )}
                   {status === 'done' && row.id === 'profile' && (
                     <p className="setup-path__summary">
-                      {String(state.draft.businessName ?? '')}, {String(state.draft.currency ?? '')}
+                      {String(state.draft.businessName ?? '')}, {String(state.draft.currency ?? '')},{' '}
+                      {LOCALE_NAMES[deskLocale(state.organizationLocale)]}
                     </p>
                   )}
                   {(status === 'current' || welcome) && (

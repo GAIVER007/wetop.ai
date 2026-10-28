@@ -11,7 +11,8 @@ import { weekdays } from '../../lib/food-data';
 import { countLabel, msg } from '../../i18n';
 import { useLocale, useT } from '../../i18n/locale-provider';
 import { compareTables, tableTitle } from '../../lib/table-title';
-import { formatPhone, phoneOnInput } from '../../lib/phone';
+import { formatPhone } from '../../lib/phone';
+import { matchesCustomer, splitCustomerQuery } from '../../lib/customer-match';
 import { reservationProblem, WALK_IN_GUEST, walkInFirstName } from '../../lib/food-reservation-check';
 import { BookingFooter, BookingShell, PickButton, PickHeading } from '../../components/booking-shell';
 export function ReservationForm({
@@ -39,8 +40,14 @@ export function ReservationForm({
   // своя ошибка хранится русским ключом (по нему подсвечивается поле), переводится при показе
   const [error, setError] = useState('');
   const [key] = useState(() => crypto.randomUUID());
-  // гостю без брони карточка клиента не нужна: сразу «Новый», имя по умолчанию «Гость»
-  const [mode, setMode] = useState<'existing' | 'new'>(!walkIn && data.customers.length ? 'existing' : 'new');
+  // гость одним полем (владелец 26.10.2026): найденный клиент чипом, иначе новый из введённого; без брони имя «Гость»
+  const [customerId, setCustomerId] = useState('');
+  const [guestSearch, setGuestSearch] = useState('');
+  const mode: 'existing' | 'new' = customerId ? 'existing' : 'new';
+  const picked = data.customers.find((c) => c.id === customerId);
+  const query = guestSearch.trim();
+  const found = query ? data.customers.filter((c) => matchesCustomer(query, { name: [c.firstName, c.lastName].filter(Boolean).join(' '), phone: c.phone })).slice(0, 5) : [];
+  const newGuest = splitCustomerQuery(guestSearch);
   const [party, setParty] = useState(reservation?.partySize ?? 2);
   const local = reservation
     ? localInput(reservation.startsAt, data.timezone)
@@ -174,63 +181,70 @@ export function ReservationForm({
           <>
             <fieldset className="rest-book__mode">
               <legend>{t('Гость')}</legend>
-              <div className="food-inline-actions">
-                <label className="food-check">
-                  <input
-                    type="radio"
-                    name="customerMode"
-                    checked={mode === 'existing'}
-                    onChange={() => setMode('existing')}
-                  />
-                  {t('Существующий')}
-                </label>
-                <label className="food-check">
-                  <input
-                    type="radio"
-                    name="customerMode"
-                    checked={mode === 'new'}
-                    onChange={() => setMode('new')}
-                  />
-                  {t('Новый')}
-                </label>
-              </div>
+              {picked ? (
+                <span className="rest-book__chip" data-testid="food-guest-chip">
+                  {[picked.firstName, picked.lastName].filter(Boolean).join(' ')}
+                  {picked.phone ? `, ${formatPhone(picked.phone)}` : ''}
+                  <button
+                    type="button"
+                    className="rest-book__chip-remove"
+                    aria-label={t('Убрать клиента')}
+                    onClick={() => setCustomerId('')}
+                  >
+                    ×
+                  </button>
+                </span>
+              ) : (
+                <>
+                  <Field label={t('Телефон или имя')}>
+                    <Input
+                      type="search"
+                      value={guestSearch}
+                      onChange={(e) => setGuestSearch(e.target.value)}
+                      autoComplete="off"
+                      maxLength={160}
+                      {...(walkIn ? { placeholder: WALK_IN_GUEST } : {})}
+                    />
+                  </Field>
+                  {found.length > 0 && (
+                    <div className="rest-book__suggest" role="listbox" aria-label={t('Найденные клиенты')}>
+                      {found.map((c) => (
+                        <Button
+                          key={c.id}
+                          type="button"
+                          size="sm"
+                          tone="ghost"
+                          onClick={() => {
+                            setCustomerId(c.id);
+                            setGuestSearch('');
+                          }}
+                        >
+                          {[c.firstName, c.lastName].filter(Boolean).join(' ')}
+                          {c.phone ? `, ${formatPhone(c.phone)}` : ''}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                  {query && (
+                    <p className="rest-book__new" data-testid="food-guest-new">
+                      {newGuest.firstName
+                        ? t('Новый клиент: {name}', {
+                            name: [newGuest.firstName, newGuest.lastName, newGuest.phone].filter(Boolean).join(', '),
+                          })
+                        : t('Добавьте имя клиента к номеру')}
+                    </p>
+                  )}
+                </>
+              )}
+              <input type="hidden" name="customerId" value={customerId} />
+              {!customerId && (
+                <>
+                  <input type="hidden" name="firstName" value={newGuest.firstName} />
+                  <input type="hidden" name="lastName" value={newGuest.lastName} />
+                  <input type="hidden" name="phone" value={newGuest.phone} />
+                </>
+              )}
             </fieldset>
-            {mode === 'existing' ? (
-              <Field label={t('Выбор клиента')}>
-                <Select name="customerId" required defaultValue="">
-                  <option value="">{t('Выберите клиента')}</option>
-                  {data.customers.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {[c.firstName, c.lastName].filter(Boolean).join(' ')}
-                      {c.phone ? `, ${formatPhone(c.phone)}` : ''}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-            ) : (
-              // порядок владельца 23.10.2026 во всех окнах брони: сначала имя, затем телефон
-              <div className="rest-book__guest">
-                <Field label={t('Имя')}>
-                  <Input
-                    name="firstName"
-                    {...(walkIn ? { placeholder: WALK_IN_GUEST } : { required: true })}
-                    maxLength={100}
-                  />
-                </Field>
-                <Field label={t('Фамилия')}>
-                  <Input name="lastName" maxLength={100} />
-                </Field>
-                <Field label={t('Телефон')} className="rest-book__phone">
-                  <Input
-                    name="phone"
-                    type="tel"
-                    inputMode="tel"
-                    maxLength={40}
-                    onInput={phoneOnInput}
-                  />
-                </Field>
-              </div>
-            )}
           </>
         );
         const when = (

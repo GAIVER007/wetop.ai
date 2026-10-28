@@ -40,6 +40,7 @@ const KEPT = [
   'middleName',
   'email',
   'phone',
+  'guestQuery',
   'notes',
   'promoCode',
   'placementIds',
@@ -151,6 +152,30 @@ export async function findGuestsByPhoneAction(phone: string): Promise<BookingGue
   if (digits.length < 10) return [];
   try {
     const found = await guestsApi.directory({ q: digits, page: '1', pageSize: '3' });
+    return found.rows.map((g) => ({
+      id: g.id,
+      name: [g.lastName, g.firstName, g.middleName].filter(Boolean).join(' '),
+      phone: g.phone,
+      email: g.email,
+      visits: g.staysCount,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Гость одним полем (владелец 26.10.2026): поиск по имени или телефону. В справочник уходит номер (от 4 цифр) или
+ * самое длинное слово запроса; остальные слова сверяет форма тем же `matchesCustomer`, что у салона и ресторана.
+ */
+export async function findGuestsAction(query: string): Promise<BookingGuest[]> {
+  const text = query.replace(/\s+/g, ' ').trim();
+  const digits = text.replace(/\D/g, '');
+  const words = text.split(' ').filter((w) => /\p{L}/u.test(w));
+  const q = digits.length >= 4 ? digits : ([...words].sort((a, b) => b.length - a.length)[0] ?? '');
+  if (q.length < 2) return [];
+  try {
+    const found = await guestsApi.directory({ q, page: '1', pageSize: '5' });
     return found.rows.map((g) => ({
       id: g.id,
       name: [g.lastName, g.firstName, g.middleName].filter(Boolean).join(' '),

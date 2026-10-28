@@ -23,13 +23,14 @@ function fixture() {
         business: {
           name: 'Бизнес',
           vertical: 'BEAUTY',
-          organization: { status: 'ACTIVE', trialEndsAt: null },
+          organization: { status: 'ACTIVE', trialEndsAt: null, locale: 'en' },
         },
       }),
     },
     onboardingProgress: { findUnique: vi.fn().mockResolvedValue(null), upsert: vi.fn() },
     beautyService: { findMany: vi.fn().mockResolvedValue([]) },
     employee: { findMany: vi.fn().mockResolvedValue([]) },
+    beautyPositionAssignment: { findMany: vi.fn().mockResolvedValue([]) },
     $queryRaw: vi.fn(),
     $transaction: vi.fn(),
   };
@@ -93,4 +94,83 @@ it('READ_ONLY organization denies owner mutation before any write', async () => 
     withSignedInUser(actor, () => service.save({ action: 'next', draft: {} })),
   ).rejects.toThrow();
   expect(db.$transaction).not.toHaveBeenCalled();
+});
+
+/** ORG-LOCALE-20261026: настройка салона показывает язык организации, менять его может только владелец */
+it('beauty status carries the organization language; only the owner may change it', async () => {
+  const { service } = fixture();
+  const owner = await withSignedInUser(actor, () => service.status());
+  expect(owner).toMatchObject({ organizationLocale: 'en', canEditLocale: true });
+  const manager = await withSignedInUser({ ...actor, role: 'MANAGER' }, () => service.status());
+  expect(manager).toMatchObject({ organizationLocale: 'en', canEditLocale: false });
+});
+
+it('быстрый запуск: профиль салона сохраняет адрес и телефон филиала, лишнее поле отклоняется', async () => {
+  const { service, db } = fixture();
+  const update = vi.fn();
+  Object.assign(db, {
+    location: { ...db.location, update, findUnique: vi.fn().mockResolvedValue({ property: null, _count: {} }) },
+    business: { update: vi.fn() },
+    auditLog: { create: vi.fn() },
+    $queryRaw: vi.fn(),
+  });
+  const draft = {
+    businessName: 'Бизнес',
+    locationName: 'Филиал',
+    timezone: 'Asia/Almaty',
+    currency: 'KZT',
+    address: 'Doha, Garafa, B05',
+    phone: '+974 5000 0000',
+  };
+  await withSignedInUser(actor, () => service.save({ action: 'apply-profile', draft, updatedAt: null }));
+  expect(update).toHaveBeenCalledWith({
+    where: { id: 'location' },
+    data: expect.objectContaining({ address: 'Doha, Garafa, B05', phone: '+974 5000 0000' }),
+  });
+  await expect(
+    withSignedInUser(actor, () =>
+      service.save({ action: 'apply-profile', draft: { ...draft, vertical: 'HOSPITALITY' }, updatedAt: null }),
+    ),
+  ).rejects.toThrow('Неизвестное поле настройки');
+});
+
+it('быстрый запуск ресторана: завершение настройки сохраняет адрес и телефон филиала', async () => {
+  const { service, db } = fixture();
+  const base = await db.location.findFirst();
+  db.location.findFirst.mockResolvedValue({
+    ...base,
+    business: { ...base.business, vertical: 'FOOD_SERVICE' },
+  });
+  const update = vi.fn();
+  db.onboardingProgress.findUnique.mockResolvedValue({
+    currentStep: 'review',
+    flowVersion: 1,
+    draft: {},
+    completedAt: null,
+    updatedAt: new Date('2026-10-27T00:00:00Z'),
+  });
+  Object.assign(db, {
+    location: { ...db.location, update, findUnique: vi.fn().mockResolvedValue({ property: null, _count: {} }) },
+    business: { update: vi.fn() },
+    auditLog: { create: vi.fn() },
+    $executeRaw: vi.fn(),
+  });
+  await withSignedInUser(actor, () =>
+    service.save({
+      action: 'complete',
+      draft: {
+        businessName: 'Ресторан',
+        locationName: 'Филиал',
+        timezone: 'Asia/Almaty',
+        currency: 'KZT',
+        address: 'Doha, Pearl, 12',
+        phone: '+974 5000 0001',
+      },
+      updatedAt: '2026-10-27T00:00:00.000Z',
+    }),
+  );
+  expect(update).toHaveBeenCalledWith({
+    where: { id: 'location' },
+    data: expect.objectContaining({ address: 'Doha, Pearl, 12', phone: '+974 5000 0001' }),
+  });
 });

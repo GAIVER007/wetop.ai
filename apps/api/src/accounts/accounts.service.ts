@@ -3,7 +3,6 @@ import { Inject, Injectable, Logger, Optional, ServiceUnavailableException } fro
 import {
   INVITES_PER_DAY,
   INVITE_TTL_MS,
-  MEMBERSHIP_ROLES,
   canInvite,
   canEditMemberDetails,
   canManageStaff,
@@ -36,6 +35,7 @@ import {
   ACCOUNTS_REPOSITORY,
   type AccountsRepository,
   type InviteRecord,
+  type OrganizationLocale,
   type OrganizationStructure,
   type SessionRecord,
 } from './accounts.repository';
@@ -116,6 +116,8 @@ export type MemberRefusal =
 /** Что видит человек, открывший ссылку: кто зовёт и кого. */
 export interface InvitePreview {
   organizationName: string;
+  /** Язык организации (ORG-LOCALE-20261026): на нём страница по ссылке и экран пароля */
+  locale: OrganizationLocale;
   email: string;
   expiresAt: Date;
   /**
@@ -264,12 +266,14 @@ export class AccountsService {
     try {
       if (!this.mailReady) throw new Error('Mail is not configured');
       await this.sender.send(
+        // роль кодом: письмо само называет её на языке организации (ORG-LOCALE-20261026)
         mail.inviteLetter(
           email,
           who.organizationName,
           link,
           INVITE_TTL_MS,
-          MEMBERSHIP_ROLES[inviteRole],
+          inviteRole,
+          invite.organizationLocale ?? 'ru',
         ),
       );
     } catch {
@@ -596,6 +600,7 @@ export class AccountsService {
     return invite
       ? {
           organizationName: invite.organizationName,
+          locale: invite.organizationLocale ?? 'ru',
           email: invite.email,
           expiresAt: invite.expiresAt,
         }
@@ -622,6 +627,7 @@ export class AccountsService {
     if (!accepted) return null;
     return {
       organizationName: invite.organizationName,
+      locale: invite.organizationLocale ?? 'ru',
       email: invite.email,
       expiresAt: invite.expiresAt,
       // null — пароль у человека уже есть: он просто входит им, задавать заново нечего

@@ -97,7 +97,7 @@ test('поздняя загрузка гостиницы сохраняет вв
   });
   try {
     await page.goto('/reservations/new', { waitUntil: 'commit' });
-    const firstName = page.getByRole('main').getByRole('textbox', { name: 'Имя *', exact: true });
+    const firstName = page.getByRole('main').getByRole('searchbox', { name: 'Телефон или имя *', exact: true });
     await firstName.fill('Тестовый ввод');
     // страница ещё стримится (гостиница задержана): меню открывается, когда React оживил кнопку. Клик до
     // оживления терялся на медленном раннере CI (20.09, 184/185)

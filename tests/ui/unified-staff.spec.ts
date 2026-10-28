@@ -72,13 +72,24 @@ test('владелец: одна строка на человека, вход б
   // приглашение без карточки: строка с действиями приглашения
   const invited = row(page, 'zhdet@example.com');
   await expect(invited.getByTestId('person-access')).toHaveText('Ждёт ответа');
-  await expect(invited.getByRole('button', { name: 'Отозвать' })).toBeVisible();
+  // действия приглашения в «⋯» строки (27.10.2026: строка не шире экрана)
+  await invited.getByRole('button', { name: 'Ещё: zhdet@example.com' }).click();
+  await expect(page.getByRole('menuitem', { name: 'Отозвать' })).toBeVisible();
+  await page.keyboard.press('Escape');
   // карточка без входа: «Без входа» и «Дать доступ»
   const aliya = row(page, 'Алия Без входа');
   await expect(aliya.getByTestId('person-access')).toHaveText('Без входа');
   await page.screenshot({ path: `${SNAPSHOTS}/employees-owner-1440-light.png`, fullPage: true });
+  // один экран с компьютера (владелец 27.10.2026): таблица без прокрутки вбок на 1280
+  await page.setViewportSize({ width: 1280, height: 800 });
+  for (const scroller of await page.getByRole('main').locator('.table-scroll').all())
+    expect(await scroller.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  if (process.env.STAFF_SHOTS) await page.screenshot({ path: `${process.env.STAFF_SHOTS}/employees-1280.png` });
+  await page.setViewportSize({ width: 1440, height: 1000 });
 
-  await aliya.getByRole('button', { name: 'Дать доступ: Алия Без входа' }).click();
+  await aliya.getByRole('button', { name: 'Ещё: Алия Без входа' }).click();
+  await page.getByRole('menuitem', { name: 'Дать доступ' }).click();
   const dialog = page.getByRole('dialog', { name: 'Доступ в WETOP: Алия Без входа' });
   await expect(dialog.getByLabel('Почта')).toHaveValue('aliya@example.invalid');
   await expect(dialog.getByRole('radio', { name: /^Без входа/ })).toHaveCount(0);

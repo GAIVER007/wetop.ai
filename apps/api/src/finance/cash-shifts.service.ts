@@ -37,6 +37,7 @@ import {
 import { readCashShiftSnapshot } from './cash-shift-sources';
 import { createHotelCash } from './hotel-cash';
 import { cashAmount, cashDelta, closeCashShift } from './cash-shift-rules';
+import { dayClosesAt, endClockOf } from '@pms/domain';
 
 type Scope = {
   organizationId: string;
@@ -67,6 +68,8 @@ export type CashShiftState = {
   name: string;
   currency: string;
   timezone: string;
+  /** Конец рабочего дня филиала сегодня (самый поздний конец графиков): напоминание о закрытии смены */
+  closesAt: string | null;
   snapshot: Snapshot;
   active: Shift | null;
   history: Shift[];
@@ -201,6 +204,20 @@ export class CashShiftsService {
       >`SELECT id,recipient_id,amount,acknowledged_at,shift_id FROM cash_handovers WHERE register_id=${register.id}::uuid AND acknowledged_at IS NULL ORDER BY created_at`,
     ]);
     const active = shifts.find((s) => !s.closed_at) ?? null;
+    // напоминание о закрытии смены (владелец 27.10.2026): конец дня по графикам сотрудников этого филиала
+    const hours = await db.workingHours.findMany({
+      where: { locationId: scope.locationId, employee: { status: 'ACTIVE' } },
+      select: { weekday: true, timeFrom: true, timeTo: true },
+    });
+    const closesAt = dayClosesAt(
+      new Date(),
+      scope.timezone,
+      hours.map((h) => ({
+        weekday: h.weekday,
+        timeFrom: h.timeFrom.toISOString().slice(11, 16),
+        timeTo: endClockOf(h.timeTo),
+      })),
+    );
     const members = await db.membership.findMany({
       where: { organizationId: scope.organizationId, status: 'ACTIVE' },
       select: {
@@ -258,6 +275,7 @@ export class CashShiftsService {
       name: scope.name,
       currency: scope.currency,
       timezone: scope.timezone,
+      closesAt,
       snapshot,
       active,
       history: shifts.filter((s) => s.closed_at),

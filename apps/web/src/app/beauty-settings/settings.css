@@ -42,8 +42,8 @@
   .salon-hours-day + .salon-hours-day {
     border-top: 1px solid var(--border);
   }
-  .salon-hours-day > h3 {
-    margin: 0;
+  /* заголовок раздела у страницы (h1), дни и «Записи вне режима» идут h2 по порядку уровней, вид прежний */
+  .salon-hours-form h2 {
     font-size: var(--text-md);
     font-weight: var(--weight-semibold);
   }

@@ -23,7 +23,8 @@ describe('способы оплаты филиала (§21.7)', () => {
   it('без строк прежние шесть включены, «Другое» выключено: после выкладки у филиалов ничего не меняется', () => {
     expect(resolveBranchPaymentMethodSettings([])).toEqual(DEFAULT_BRANCH_PAYMENT_METHOD_SETTINGS);
     expect(enabledPaymentMethods(resolveBranchPaymentMethodSettings([]))).toEqual(
-      BRANCH_PAYMENT_METHODS.filter((m) => m !== 'OTHER'),
+      // Kaspi и Halyk тоже выключены без настройки (NO-KZ-METHODS-20261027)
+      BRANCH_PAYMENT_METHODS.filter((m) => m !== 'OTHER' && m !== 'KASPI' && m !== 'HALYK'),
     );
   });
 

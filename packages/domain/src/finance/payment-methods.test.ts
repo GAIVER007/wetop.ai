@@ -30,10 +30,10 @@ describe('способы оплаты объекта (DATA_MODEL §21.6, ADR-185
 
   it('без строк действуют умолчания: все восемь включены в системном порядке', () => {
     expect(resolvePaymentMethodSettings([])).toEqual(DEFAULT_PAYMENT_METHOD_SETTINGS);
-    expect(DEFAULT_PAYMENT_METHOD_SETTINGS.every((s) => s.enabled)).toBe(true);
-    expect(enabledPaymentMethods(DEFAULT_PAYMENT_METHOD_SETTINGS)).toEqual([
-      ...CONFIGURABLE_PAYMENT_METHODS,
-    ]);
+    // Kaspi и Halyk без настройки выключены (NO-KZ-METHODS-20261027), остальные шесть включены
+    expect(enabledPaymentMethods(DEFAULT_PAYMENT_METHOD_SETTINGS)).toEqual(
+      CONFIGURABLE_PAYMENT_METHODS.filter((m) => m !== 'KASPI' && m !== 'HALYK'),
+    );
   });
 
   it('строки объекта задают порядок и включение; недостающие способы дописываются включёнными, чужие коды отбрасываются', () => {

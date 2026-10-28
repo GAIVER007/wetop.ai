@@ -1,0 +1,391 @@
+@layer sections {
+  /* Быстрый запуск салона (вариант Г, 27.10.2026): плитки разделов, поля в окне, одна большая кнопка */
+  /* общий .onboarding держит 960: окну запуска нужна вся ширина рабочего экрана */
+  .onboarding.quick-shell {
+    max-width: none;
+  }
+  .quick-shell {
+    width: min(100% - 32px, 1240px);
+    margin: var(--space-6) auto;
+    display: grid;
+    gap: var(--space-4);
+  }
+  .quick-shell h1 {
+    margin: 0;
+  }
+  /* после создания остаётся только «Салон готов»: заголовок анкеты больше не нужен */
+  .quick-shell:has(.quick-done) > h1 {
+    display: none;
+  }
+  .quick {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .quick-tiles {
+    display: grid;
+    /* плиток 4 или 5 (гостиница, ресторан, салон): ряд всегда во всю ширину */
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .quick-tile {
+    display: grid;
+    gap: var(--space-1);
+    justify-items: start;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+  .quick-tile b {
+    font-size: var(--text-xl);
+    line-height: 1;
+  }
+  .quick-tile span {
+    font-weight: var(--weight-semibold);
+  }
+  .quick-tile small {
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
+  .quick-tile.is-done small {
+    color: var(--success);
+  }
+  .quick-tile.is-warning {
+    background: var(--warning-bg);
+    border-color: var(--warning-border);
+  }
+  .quick-tile.is-warning small {
+    color: var(--warning);
+  }
+  .quick-tile.is-error {
+    background: var(--danger-soft);
+    border-color: var(--danger-border);
+  }
+  .quick-tile.is-error small {
+    color: var(--danger);
+  }
+  .quick-tile.is-open {
+    border-color: var(--primary);
+    box-shadow: inset 0 0 0 1px var(--primary);
+  }
+  .quick-panel {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .quick-salon {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+    width: 100%;
+  }
+  .quick-cell {
+    display: grid;
+    gap: var(--space-1);
+    align-content: start;
+  }
+  .quick-cell > span {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .quick-wide {
+    grid-column: span 2;
+  }
+  .quick-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  /* поле занимает свою ячейку: ширина таблицы не больше окна (1280 без прокрутки вбок) */
+  .quick-table :is(input, select) {
+    width: 100%;
+    min-width: 0;
+  }
+  /* числа узкие, выпадающие списки читаются целиком */
+  .quick-table th.quick-col--number {
+    width: 11%;
+  }
+  .quick-table th.quick-col--select {
+    width: 17%;
+  }
+  .quick-table--masters {
+    table-layout: fixed;
+  }
+  .quick-table--masters th:nth-child(1) {
+    width: 14%;
+  }
+  .quick-table--masters th:nth-child(2) {
+    width: 18%;
+  }
+  .quick-table--masters th:nth-child(3) {
+    width: 13%;
+  }
+  .quick-table--masters th:nth-child(5) {
+    width: 17%;
+  }
+  .quick-table--masters th:nth-child(6) {
+    width: 17%;
+  }
+  .quick-table--masters th:last-child {
+    width: 5%;
+  }
+  .quick-table th {
+    padding: var(--space-2);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    text-align: start;
+    border-bottom: 1px solid var(--border);
+  }
+  /* ячейка таблицы остаётся ячейкой: класс поля с ошибкой не превращает её в сетку */
+  .quick-table td,
+  .quick-table td.quick-cell {
+    display: table-cell;
+    padding: var(--space-1);
+    vertical-align: top;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .quick-cell.is-error,
+  .quick-table td.is-error {
+    background: var(--danger-soft);
+  }
+  .quick-cell.is-warning,
+  .quick-table td.is-warning {
+    background: var(--warning-soft);
+  }
+  .quick-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .quick-chip {
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .quick-chip[aria-pressed='true'] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+  }
+  .quick-pair,
+  .quick-pay {
+    display: flex;
+    gap: var(--space-1);
+  }
+  .quick-table--masters .quick-pair,
+  .quick-table--masters .quick-pay {
+    flex-direction: column;
+  }
+  .quick-issues {
+    display: grid;
+    gap: var(--space-2);
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .quick-fix {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-control);
+  }
+  .quick-fix > span {
+    flex: 1;
+  }
+  .quick-fix.is-error {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .quick-fix.is-warning {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .quick-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-4);
+  }
+  .quick-go {
+    min-height: var(--space-12);
+    padding-inline: var(--space-8);
+    font-size: var(--text-lg);
+  }
+  @media (max-width: 960px) {
+    .quick-tiles {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .quick-salon {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .quick-wide {
+      grid-column: auto;
+    }
+    .quick-panel {
+      overflow-x: auto;
+    }
+  }
+
+  /* «Салон готов», вариант А (27.10.2026): шапка, пять цифр, три колонки созданного, действия */
+  .quick-done {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .quick-done__hero {
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .quick-done__hero h2 {
+    margin: 0;
+    font-size: var(--text-3xl);
+  }
+  .quick-done__hero p {
+    margin: var(--space-1) 0 0;
+  }
+  .quick-done__kpis {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .quick-done__kpi {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .quick-done__kpi dd {
+    margin: 0;
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-bold);
+    line-height: 1;
+  }
+  .quick-done__kpi dt {
+    color: var(--text-2);
+  }
+  .quick-done__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 0.8fr);
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+  .quick-done__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  .quick-done__card h3 {
+    margin: 0;
+    font-size: var(--text-lg);
+  }
+  .quick-done__card table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .quick-done__card td {
+    padding: var(--space-2) var(--space-1);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .quick-done__num {
+    text-align: end;
+    white-space: nowrap;
+  }
+  .quick-done__muted {
+    color: var(--text-2);
+  }
+  .quick-done__ok {
+    color: var(--success);
+    font-weight: var(--weight-semibold);
+  }
+  .quick-done__person {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .quick-done__avatar {
+    display: inline-grid;
+    place-items: center;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-full);
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+  }
+  .quick-done__pill {
+    white-space: nowrap;
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+  .quick-done__pill.is-sent {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+  .quick-done__pill.is-failed {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .quick-done__pill.is-none {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .quick-done__more {
+    color: var(--primary);
+    font-weight: var(--weight-semibold);
+  }
+  .quick-done__warn {
+    margin: 0;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-control);
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+  .quick-done__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+  @media (max-width: 960px) {
+    .quick-done__kpis {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .quick-done__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .quick-done__actions {
+      flex-wrap: wrap;
+    }
+  }
+}

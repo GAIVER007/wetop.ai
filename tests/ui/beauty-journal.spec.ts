@@ -109,7 +109,7 @@ async function book(page: Page, time: string, name: string) {
   const panel = page.getByRole('dialog');
   // exact: правая часть окна брони (23.10.2026) называется «Услуга и время»
   await panel.getByLabel('Услуга', { exact: true }).selectOption({ label: 'Маникюр, 60 мин' });
-  await panel.getByLabel('Имя клиента').fill(name);
+  await panel.getByLabel('Телефон или имя', { exact: true }).fill(name);
   await panel.getByRole('button', { name: 'Записать', exact: true }).click();
   // Клик запускает серверное действие: дальше идём только после подтверждения записи (78dac8d64, против флейка)
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -157,7 +157,7 @@ test('запись из пустой клетки появляется в сет
   await expect(person).toHaveAttribute('aria-pressed', 'false');
 });
 
-test('неделя показывает запись и открывает её карточку, телефон без прокрутки вбок', async ({
+test('месяц показывает запись и открывает её карточку, телефон без прокрутки вбок', async ({
   page,
   request,
 }) => {
@@ -165,36 +165,38 @@ test('неделя показывает запись и открывает её 
   await readySalon(page, request);
   await openDay(page);
   await book(page, '10:00', 'Тестовый клиент недели');
-  await page.goto(`/calendar?date=${DAY}&view=week`);
-  const week = page.getByTestId('beauty-week');
+  await page.goto(`/calendar?date=${DAY}&view=month`);
+  const week = page.getByTestId('beauty-month');
   await expect(week).toBeVisible();
-  // неделя строкой месячного календаря: семь дней, номер дня открывает день
-  await expect(week.getByRole('link', { name: /^Открыть день: / })).toHaveCount(7);
+  // месяц (владелец 26.10.2026, эскиз А): 5–6 недель по 7 дней, номер дня открывает день, кнопки «День / Месяц»
+  expect([35, 42]).toContain(await week.getByRole('link', { name: /^Открыть день: / }).count());
+  await expect(page.getByRole('link', { name: 'Месяц', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('link', { name: 'Неделя', exact: true })).toHaveCount(0);
   await page.screenshot({
-    path: 'reports/beauty-continuation-2026-10-14/week-1440.png',
+    path: 'reports/beauty-continuation-2026-10-14/month-1440.png',
     fullPage: true,
   });
   await week.getByRole('link').filter({ hasText: 'Тестовый клиент недели' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await expect(page.getByRole('dialog')).toContainText('Тестовый клиент недели');
-  await page.goto(`/calendar?date=${DAY}&view=week`);
+  await page.goto(`/calendar?date=${DAY}&view=month`);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(week).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );
   await page.screenshot({
-    path: 'reports/beauty-continuation-2026-10-14/week-390.png',
+    path: 'reports/beauty-continuation-2026-10-14/month-390.png',
     fullPage: true,
   });
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
   await page.emulateMedia({ colorScheme: 'dark' });
-  await page.goto(`/calendar?date=${DAY}&view=week`);
+  await page.goto(`/calendar?date=${DAY}&view=month`);
   await expect(week).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({
-    path: 'reports/beauty-continuation-2026-10-14/week-dark-390.png',
+    path: 'reports/beauty-continuation-2026-10-14/month-dark-390.png',
     fullPage: true,
   });
 });
@@ -587,8 +589,8 @@ test('быстрый отчёт календаря: выбранный маст�
   await expect(
     page.getByTestId('beauty-grid').getByRole('heading', { name: /Мира/ }),
   ).toBeVisible();
-  await page.getByRole('link', { name: 'Неделя', exact: true }).click();
-  await expect(page.getByTestId('beauty-week')).toBeVisible();
+  await page.getByRole('link', { name: 'Месяц', exact: true }).click();
+  await expect(page.getByTestId('beauty-month')).toBeVisible();
   await page.getByRole('button', { name: 'Быстрый отчёт', exact: true }).click();
   await expect(page.getByRole('dialog', { name: /Статистика за/ })).toContainText('Выбранный день');
 });

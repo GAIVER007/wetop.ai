@@ -17,7 +17,7 @@ const safeZone = (timeZone: string) => {
 /** Части подписи: «24 октября», «24 окт.», «20:00», «суббота» по поясу филиала и языку стойки */
 export function headerClockParts(now: Date, timezone: string, locale: string) {
   const timeZone = safeZone(timezone);
-  const lang = locale === 'kk' ? 'kk-KZ' : 'ru-RU';
+  const lang = locale === 'kk' ? 'kk-KZ' : locale === 'en' ? 'en-GB' : 'ru-RU';
   const part = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(lang, { timeZone, ...o }).format(now);
   return {
     date: part({ day: 'numeric', month: 'long' }),

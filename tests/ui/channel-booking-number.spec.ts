@@ -22,8 +22,7 @@ test('новая бронь OTA: канал и номер брони в кана
   await expect(form.getByTestId('channel-number-hint')).toContainText('из экстранета');
   await form.locator('[name="channel"]').selectOption('Booking.com');
   await form.locator('[name="externalId"]').fill('999 601 3801');
-  await form.getByLabel('Имя *', { exact: true }).fill('Канал');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Канал Тест');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
   const commands = (await (await request.get(`${fixture}/__test/commands`)).json()) as Array<{

@@ -314,11 +314,16 @@ export function EmployeesBoard({
       label: t('Назначение'),
       cell: (e) => <KindCell scopeKey={scopeKey} employee={e} canAssign={canAssignPersonnelKind && write} />,
     },
-    { key: 'shift', label: t('Смена сегодня'), cell: (e) => e.shift ?? t('Выходной') },
+    // смена и статус одной колонкой, как у салона (владелец 27.10.2026)
     {
       key: 'status',
-      label: t('Статус'),
-      cell: (e) => <Badge tone={e.onShift ? 'ok' : 'neutral'}>{e.onShift ? t('На смене') : t('Не на смене')}</Badge>,
+      label: t('Смена сегодня'),
+      cell: (e) => (
+        <span className="staff-shift">
+          <Badge tone={e.onShift ? 'ok' : 'neutral'}>{e.onShift ? t('На смене') : t('Не на смене')}</Badge>
+          <span>{e.shift ?? t('Выходной')}</span>
+        </span>
+      ),
     },
     {
       key: 'earned',

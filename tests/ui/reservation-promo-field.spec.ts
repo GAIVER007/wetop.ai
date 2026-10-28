@@ -23,8 +23,7 @@ async function createBooking(
   const form = page.getByTestId('new-reservation-form');
   await form.getByText('Дополнительно', { exact: true }).click();
   if (promo) await form.getByLabel('Промокод', { exact: true }).fill(promo);
-  await form.getByLabel('Имя *', { exact: true }).fill('Промо');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Промо Тест');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/20260913-NEW\d+$/);
   const commands = (await (await request.get(`${fixture}/__test/commands`)).json()) as Command[];

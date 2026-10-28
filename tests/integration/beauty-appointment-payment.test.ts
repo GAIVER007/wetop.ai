@@ -9,6 +9,7 @@ import { StockService } from '../../apps/api/src/food-service/stock.service';
 import { withSignedInUser } from '../../apps/api/src/auth/request-context';
 import type { PrismaService } from '../../apps/api/src/database/prisma.provider';
 import { isLocalDatabase } from '../tools/seed-local';
+import { enableKzBranchMethods } from './kz-methods-on';
 
 /**
  * Оплата записи салона приходом кассы филиала (DATA_MODEL §49): частями и разными способами, не больше цены,
@@ -53,6 +54,7 @@ describe('оплата записи салона (integration, §49)', () => {
     await db.organization.create({ data: { id: own.org, name: `Оплата ${own.org.slice(0, 8)}`, status: 'ACTIVE' } });
     await db.business.create({ data: { id: own.business, organizationId: own.org, name: 'Салон', vertical: 'BEAUTY' } });
     await db.location.create({ data: { id: own.location, businessId: own.business, name: 'Филиал', timezone: 'Asia/Almaty', currency: 'KZT' } });
+    await enableKzBranchMethods(db, [own.location]); // филиал сам включил Kaspi и Halyk
     await db.user.create({ data: { id: own.user, email: `pay-${own.user}@example.invalid`, name: 'Владелец' } });
     employeeId = (await as(() => catalog.createEmployee({ name: 'Дина' }))).id;
     pricey = (await as(() => catalog.createService({ name: 'Окрашивание', durationMinutes: 60, priceMinor: '800000', currency: 'KZT' }))).id;

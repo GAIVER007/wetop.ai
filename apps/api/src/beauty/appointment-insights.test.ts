@@ -28,6 +28,8 @@ type InsightsService = BeautyAppointmentsService & {
       employeeId: string;
       customers: number;
       returning: number;
+      returnedToMaster: number;
+      ltvMinor: string;
       reviews: number;
       avgTenths: number | null;
     }>;
@@ -41,11 +43,13 @@ function fixture() {
     { employeeId: 'm1', stars: 4 },
     { employeeId: 'm2', stars: 5 },
   ]);
-  const done = vi.fn().mockResolvedValue([
+  const periodRows = [
     { customerId: 'c-old', employeeId: 'm1', lines: [{ employeeId: 'm1' }] },
     { customerId: 'c-new', employeeId: 'm1', lines: [{ employeeId: 'm1' }, { employeeId: 'm2' }] },
     { customerId: 'c-new', employeeId: 'm2', lines: [] },
-  ]);
+  ];
+  // первый запрос: визиты периода (`gte`), второй: история мастеров до конца периода (здесь пустая)
+  const done = vi.fn(async (args: { where: { startsAt: { gte?: Date } } }) => (args.where.startsAt.gte ? periodRows : []));
   const groupBy = vi.fn().mockResolvedValue([
     {
       customerId: 'c-old',
@@ -120,12 +124,43 @@ describe('сводка пульта салона', () => {
   it('пустой филиал: нули и null вместо деления на ноль', async () => {
     const { service, reviews, done, groupBy } = fixture();
     reviews.mockResolvedValue([]);
-    done.mockResolvedValue([]);
+    done.mockImplementation(async () => []);
     groupBy.mockResolvedValue([]);
     expect(await service.insights('2026-10-25', '2026-10-25')).toMatchObject({
       reviews: { count: 0, avgTenths: null },
       customers: { total: 0, new: 0, repeat: 0, lapsed: 0 },
       employees: [],
     });
+  });
+});
+
+/**
+ * «Вернулись» и LTV мастера (владелец 26.10.2026: «Вернулись (LTV тут считаем четко)»): клиент вернулся к мастеру, если
+ * до начала периода у него уже был завершённый визит именно у этого мастера. LTV: сколько в среднем принёс мастеру
+ * один его клиент периода за всё время по завершённым визитам до конца периода (строки записи по своей цене).
+ */
+describe('вернулись к мастеру и LTV', () => {
+  it('считает по истории строк мастера, а не по салону', async () => {
+    const { service, done } = fixture();
+    const inPeriod = [
+      { customerId: 'c-old', employeeId: 'm1', lines: [{ employeeId: 'm1' }] },
+      { customerId: 'c-new', employeeId: 'm1', lines: [{ employeeId: 'm1' }, { employeeId: 'm2' }] },
+      { customerId: 'c-new', employeeId: 'm2', lines: [] },
+    ];
+    const history = [
+      // c-old: раньше был у m1 (вернулся к m1), сейчас снова у m1
+      { customerId: 'c-old', employeeId: 'm1', price: 0n, startsAt: at('2026-06-01T05:00:00Z'), lines: [{ employeeId: 'm1', priceMinor: 500000n }] },
+      { customerId: 'c-old', employeeId: 'm1', price: 0n, startsAt: at('2026-10-20T05:00:00Z'), lines: [{ employeeId: 'm1', priceMinor: 300000n }] },
+      // c-new: впервые, у m1 и m2 одной записью
+      { customerId: 'c-new', employeeId: 'm1', price: 0n, startsAt: at('2026-10-21T05:00:00Z'), lines: [{ employeeId: 'm1', priceMinor: 100000n }, { employeeId: 'm2', priceMinor: 200000n }] },
+      // старая запись без строк: цена записи целиком мастеру записи
+      { customerId: 'c-new', employeeId: 'm2', price: 400000n, startsAt: at('2026-10-22T05:00:00Z'), lines: [] },
+    ];
+    done.mockImplementation(async (args: { where: { startsAt: { gte?: Date } } }) => (args.where.startsAt.gte ? inPeriod : history));
+    const r = await service.insights('2026-10-19', '2026-10-25');
+    const m1 = r.employees.find((e) => e.employeeId === 'm1')!;
+    const m2 = r.employees.find((e) => e.employeeId === 'm2')!;
+    expect(m1).toMatchObject({ customers: 2, returnedToMaster: 1, ltvMinor: '450000' });
+    expect(m2).toMatchObject({ customers: 1, returnedToMaster: 0, ltvMinor: '600000' });
   });
 });

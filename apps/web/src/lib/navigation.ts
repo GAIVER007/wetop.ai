@@ -729,7 +729,7 @@ const ROW: Array<{
     label: 'Настройки',
     icon: 'settings',
     items: [
-      { label: { word: 'place' }, at: { HOSPITALITY: '/hotel-settings', BEAUTY: '/beauty-settings', FOOD_SERVICE: '/restaurant-settings' } },
+      { label: { word: 'place' }, at: { HOSPITALITY: '/hotel-settings', FOOD_SERVICE: '/restaurant-settings' } },
       { label: 'Каналы продаж', at: { HOSPITALITY: '/channels' } },
       { label: 'Подключения', at: { HOSPITALITY: '/connections' } },
       // право `desk`: администратор видит неисправности (ADR-107)
@@ -848,7 +848,7 @@ export function helpSteps(
     if (!section) return [];
     if (section.direct) return [{ path: t(section.label), href: section.items[0]!.href, text: step.text(words) }];
     // слово пункта своё у направления (`vertical-copy.ts`), как в меню этого направления
-    const item = section.items.find((i) => i.label === wordOf(step.item, vertical));
+    const item = section.items.find((i) => i.label === (vertical === 'BEAUTY' && step.section === 'settings' ? 'Все настройки' : wordOf(step.item, vertical)));
     return item ? [{ path: `${t(section.label)} → ${t(item.label)}`, href: item.href, text: step.text(words) }] : [];
   });
 }

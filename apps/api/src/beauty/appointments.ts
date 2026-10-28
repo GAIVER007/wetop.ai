@@ -15,30 +15,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import {
-  beautyPermissionScope,
-  appointmentPayment,
-  appointmentRefund,
-  appointmentStatusAllowed,
-  allocateStock,
-  customerPhoneKey,
-  foodCashBalances,
-  nextStatuses,
-  milliOf,
-  milliText,
-  parseAppointmentInput,
-  parseAppointmentPayment,
-  parseFoodPayment,
-  isLoyaltyMethod,
-  planAppointment,
-  statusChange,
-  timeOffWindow,
-  dayOffsetUtc,
-  type AppointmentPlan,
-  type AppointmentItemInput,
-  type AppointmentStatus,
-  type AppointmentPaymentMethod,
-} from '@pms/domain';
+import { beautyPermissionScope, appointmentPayment, appointmentRefund, appointmentStatusAllowed, allocateStock, customerPhoneKey, foodCashBalances, nextStatuses, milliOf, milliText, parseAppointmentInput, parseAppointmentPayment, parseFoodPayment, isLoyaltyMethod, planAppointment, statusChange, timeOffWindow, dayOffsetUtc, type AppointmentPlan, type AppointmentItemInput, type AppointmentStatus, type AppointmentPaymentMethod, endClockOf, parseHomeVisit } from '@pms/domain';
 import { currentUserId, currentBeautyOperation } from '../auth/request-context';
 import { currentBeautyPositionAccess } from './access';
 import { lockBeautyCustomerPhone } from './customer-identity';
@@ -53,6 +30,7 @@ import { fitsSalonHours, intersectLocationHours, salonHours } from './location-h
 import { appointmentLineHistorySnapshot } from './appointment-history-snapshot';
 import { syncAppointmentReminders } from './reminders';
 import { checkLoyaltyRefund, prepareLoyaltyPayment, recordLoyaltyPayment, recordLoyaltyRefund } from './loyalty';
+import { assertShiftOpen } from '../finance/shift-guard';
 
 /**
  * Журнал записей салона (DATA_MODEL §19.1, срез B5): день филиала столбцами по мастерам.
@@ -109,6 +87,8 @@ const APPOINTMENT_VIEW_SELECT = {
   price: true,
   currency: true,
   notes: true,
+  atHome: true,
+  homeAddress: true,
   service: { select: { name: true } },
   employee: { select: { name: true } },
   lines: {
@@ -169,6 +149,8 @@ function appointmentView(row: AppointmentViewRow, timezone: string, anchorDate: 
     refundedMinor: row.payments.reduce((sum, payment) => payment.kind === 'EXPENSE' ? sum + payment.amount : sum, 0n).toString(),
     currency: row.currency,
     notes: row.notes,
+    atHome: row.atHome,
+    homeAddress: row.homeAddress,
     source: row.source,
     createdByName: row.createdBy ? (row.createdBy.name ?? row.createdBy.email) : null,
     // A4 (паритет с zapis.kz): платежи записи списком в карточке, а не только суммой
@@ -293,7 +275,7 @@ export class BeautyAppointmentsService {
     const columns = employees.map((e) => ({
       id: e.id,
       name: e.name,
-      intervals: intersectLocationHours(e.workingHours.map((h) => ({ timeFrom: clockOf(h.timeFrom), timeTo: clockOf(h.timeTo) })), openHours, weekday),
+      intervals: intersectLocationHours(e.workingHours.map((h) => ({ timeFrom: clockOf(h.timeFrom), timeTo: endClockOf(h.timeTo) })), openHours, weekday),
       timeOff: e.timeOffs.length > 0,
       timeOffReason: e.timeOffs[0]?.reason ?? null,
       serviceIds: e.services.map((s) => s.serviceId),
@@ -412,7 +394,7 @@ export class BeautyAppointmentsService {
       timezone: tz,
     });
     const db = this.prisma.db;
-    const [reviews, done, history] = await Promise.all([
+    const [reviews, done, history, masterHistory] = await Promise.all([
       db.beautyAppointmentReview.findMany({
         where: { submittedAt: { gte: window.fromUtc, lt: window.toUtcExclusive }, appointment: { locationId: scope.locationId } },
         select: { employeeId: true, stars: true },
@@ -426,6 +408,18 @@ export class BeautyAppointmentsService {
         where: { locationId: scope.locationId, status: 'DONE', startsAt: { lt: window.toUtcExclusive } },
         _min: { startsAt: true },
         _max: { startsAt: true },
+      }),
+      // «Вернулись» и LTV мастера (владелец 26.10.2026): вся история завершённых визитов филиала до конца периода по
+      // строкам записи; без строк (старые записи) цена записи целиком мастеру записи
+      db.appointment.findMany({
+        where: { locationId: scope.locationId, status: 'DONE', startsAt: { lt: window.toUtcExclusive } },
+        select: {
+          customerId: true,
+          employeeId: true,
+          price: true,
+          startsAt: true,
+          lines: { select: { employeeId: true, priceMinor: true } },
+        },
       }),
     ]);
     const first = new Map(history.map((h) => [h.customerId, h._min.startsAt]));
@@ -450,6 +444,21 @@ export class BeautyAppointmentsService {
       x.count += 1;
       stars.set(r.employeeId, x);
     }
+    // по мастеру и клиенту: сумма завершённого за всё время и был ли визит до начала периода
+    const byMaster = new Map<string, Map<string, { minor: bigint; before: boolean }>>();
+    for (const a of masterHistory) {
+      const parts = a.lines.length
+        ? a.lines.map((l) => [l.employeeId, BigInt(l.priceMinor)] as const)
+        : [[a.employeeId, BigInt(a.price)] as const];
+      for (const [master, minor] of parts) {
+        const clients = byMaster.get(master) ?? new Map<string, { minor: bigint; before: boolean }>();
+        const c = clients.get(a.customerId) ?? { minor: 0n, before: false };
+        c.minor += minor;
+        if (a.startsAt < window.fromUtc) c.before = true;
+        clients.set(a.customerId, c);
+        byMaster.set(master, clients);
+      }
+    }
     const tenths = (sum: number, count: number) => (count ? Math.round((sum * 10) / count) : null);
     const lapsed = history.filter(
       (h) => h._max.startsAt && h._max.startsAt >= lapse.fromUtc && h._max.startsAt < lapse.toUtcExclusive,
@@ -463,10 +472,15 @@ export class BeautyAppointmentsService {
       employees: [...new Set([...perEmployee.keys(), ...stars.keys()])].sort().map((employeeId) => {
         const served = [...(perEmployee.get(employeeId) ?? [])];
         const s = stars.get(employeeId);
+        const own = byMaster.get(employeeId);
+        const lifetime = served.reduce((sum, c) => sum + (own?.get(c)?.minor ?? 0n), 0n);
         return {
           employeeId,
           customers: served.length,
           returning: served.filter((c) => !isNew(c)).length,
+          returnedToMaster: served.filter((c) => own?.get(c)?.before).length,
+          // средняя выручка мастера с одного его клиента периода за всё время, в минорных единицах строкой
+          ltvMinor: String(served.length ? lifetime / BigInt(served.length) : 0n),
           reviews: s?.count ?? 0,
           avgTenths: s ? tenths(s.sum, s.count) : null,
         };
@@ -483,6 +497,8 @@ export class BeautyAppointmentsService {
     if (!parsed.ok) throw new BadRequestException(parsed.reason);
     const input = parsed.value;
     this.assertRatePermission(input.items);
+    // без открытой смены администратор записей не вносит (владелец 27.10.2026)
+    await assertShiftOpen(this.prisma.db, { propertyId: null, locationId: scope.locationId });
     const preflight = await this.planLines(this.prisma.db, scope, input.items, input.startsAt);
     for (const line of preflight)
       await this.assertFree(this.prisma.db, line.employeeId, line.startsAt, line.endsAt, null);
@@ -543,6 +559,8 @@ export class BeautyAppointmentsService {
           price: total,
           currency: first.currency,
           notes: input.notes,
+          atHome: input.atHome,
+          homeAddress: input.homeAddress,
           createdById: currentUserId(),
         },
       });
@@ -573,6 +591,7 @@ export class BeautyAppointmentsService {
             priceMinor: total.toString(),
             currency: first.currency,
             items: lines.map((line, position) => appointmentLineHistorySnapshot(line, position)),
+            ...(input.atHome ? { atHome: true, homeAddress: input.homeAddress } : {}),
           },
         },
       });
@@ -593,6 +612,7 @@ export class BeautyAppointmentsService {
       throw new ConflictException('Валюта записи не совпадает с валютой филиала');
 
     const body = (raw ?? {}) as Record<string, unknown>;
+    const visit = homeVisitPatch(body);
     const startsAt = body['startsAt'] === undefined ? row.startsAt : new Date(String(body['startsAt']));
     if (Number.isNaN(startsAt.getTime())) throw new BadRequestException('Время записи не разобрать');
     let itemInputs: AppointmentItemInput[];
@@ -670,6 +690,7 @@ export class BeautyAppointmentsService {
           price: total,
           currency: first.currency,
           ...(body['notes'] !== undefined ? { notes: String(body['notes'] ?? '').trim() || null } : {}),
+          ...(visit ?? {}),
         },
       });
       if (changed.count !== 1) throw new ConflictException('Запись уже изменена, обновите данные');
@@ -688,6 +709,7 @@ export class BeautyAppointmentsService {
             priceMinor: row.price.toString(),
             currency: row.currency,
             items: row.lines.map((line) => appointmentLineHistorySnapshot(line, line.position)),
+            ...(visit ? { atHome: row.atHome, homeAddress: row.homeAddress } : {}),
           },
           after: {
             employeeId: first.employeeId,
@@ -697,6 +719,7 @@ export class BeautyAppointmentsService {
             priceMinor: total.toString(),
             currency: first.currency,
             items: lines.map((line, position) => appointmentLineHistorySnapshot(line, position)),
+            ...(visit ?? {}),
           },
         },
       });
@@ -1000,6 +1023,8 @@ export class BeautyAppointmentsService {
         startsAt: true,
         endsAt: true,
         status: true,
+        atHome: true,
+        homeAddress: true,
         updatedAt: true,
         price: true,
         currency: true,
@@ -1181,7 +1206,7 @@ export async function planBeautyAppointment(
   const opening = await db.beautyLocationHours.findUnique({ where: { locationId } });
   const openHours = opening ? salonHours(opening.intervals) : null;
   const workingHours = employee.workingHours.map((shift) => ({
-    weekday: shift.weekday, timeFrom: clockOf(shift.timeFrom), timeTo: clockOf(shift.timeTo),
+    weekday: shift.weekday, timeFrom: clockOf(shift.timeFrom), timeTo: endClockOf(shift.timeTo),
   }));
   const plan = planAppointment({
     startsAt,
@@ -1236,6 +1261,17 @@ export async function employeeBusy(
 }
 
 /** `time` Prisma отдаёт как момент 1970-01-01 */
+/**
+ * Выезд на дом при изменении записи (HOME-VISIT-20261027): поле не прислали, значит не трогаем; прислали, значит
+ * галочка и адрес вместе по правилам домена, снятая галочка стирает адрес.
+ */
+export function homeVisitPatch(body: Record<string, unknown>): { atHome: boolean; homeAddress: string | null } | null {
+  if (body['atHome'] === undefined) return null;
+  const parsed = parseHomeVisit(body['atHome'], body['homeAddress']);
+  if (!parsed.ok) throw new BadRequestException(parsed.reason);
+  return parsed.value;
+}
+
 export function clockOf(at: Date): string {
   return at.toISOString().slice(11, 16);
 }

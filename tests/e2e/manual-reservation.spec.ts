@@ -29,10 +29,8 @@ test('создать бронь с ячейкой → видна в календ
   const unitCode = await unitOption(unitSelect);
   expect(unitCode).toBeTruthy();
   await unitSelect.selectOption(unitCode!);
-  await form.locator('input[name="firstName"]').fill('Гость');
-  await form.locator('input[name="lastName"]').fill('Тест-e2e');
+  await form.locator('input[name="guestQuery"]').fill('Гость Тест-e2e +70000000000');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
-  await form.locator('input[name="phone"]').fill('+70000000000');
   await form.getByRole('button', { name: 'Создать бронь' }).click();
 
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);

@@ -15,6 +15,7 @@ import type {
 } from '../../lib/food-types';
 import { mayAccess } from '../../lib/navigation';
 import { localInput } from '../beauty/time';
+import { monthGrid } from '../beauty/month-grid';
 import { msg } from '../../i18n';
 import { serverT } from '../../i18n/server';
 export async function loadFood(
@@ -22,6 +23,8 @@ export async function loadFood(
   timeParam?: string,
   day = false,
   withOrders = false,
+  /** вид «Месяц» расписания: брони всей сетки месяца одним запросом */
+  month = false,
 ): Promise<FoodWorkspace> {
   const me = await requireVertical(['FOOD_SERVICE']);
   if (me.context?.vertical !== 'FOOD_SERVICE' || !me.context.businessId || !me.context.locationId)
@@ -55,15 +58,21 @@ export async function loadFood(
         ? local.slice(11, 16)
         : (first?.timeFrom ?? '12:00');
   const days = day ? [date] : [date, previousDate(date)];
+  const grid = month ? monthGrid(date).days : null;
   const [lists, orders] = await Promise.all([
-    Promise.all(
-      days.map((d) =>
-        completeFoodList<RestaurantReservation>(
-          (cursor) => foodApi.reservations(d, cursor),
+    grid
+      ? completeFoodList<RestaurantReservation>(
+          (cursor) => foodApi.reservationsRange(grid[0]!, grid.at(-1)!, cursor),
           validFoodReservation,
+        ).then((list) => [list])
+      : Promise.all(
+          days.map((d) =>
+            completeFoodList<RestaurantReservation>(
+              (cursor) => foodApi.reservations(d, cursor),
+              validFoodReservation,
+            ),
+          ),
         ),
-      ),
-    ),
     withOrders
       ? completeFoodList<OrderView>((cursor) => restaurantApi.openOrders(cursor))
       : Promise.resolve(undefined),

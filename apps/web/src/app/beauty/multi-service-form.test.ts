@@ -71,7 +71,8 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
       createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn() }),
     );
     expect(html).toContain('>Гость<');
-    expect(html).toContain('Последний клиент');
+    // «Последний клиент» только когда он есть (владелец 26.10.2026: без серых пустых кнопок)
+    expect(html).not.toContain('Последний клиент');
   });
   it('клиент одним блоком (владелец 25.10.2026): поиск «Телефон или имя», быстрые кнопки и одна строка нового клиента, без второго выбора «Клиент»', () => {
     const html = renderToStaticMarkup(
@@ -80,12 +81,15 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     const block = html.slice(html.indexOf('appointment-customer-fields'), html.indexOf('appointment-pick'));
     expect(block.match(/>Клиент</g)).toHaveLength(1);
     expect(block).not.toContain('<select');
-    expect(block).not.toContain('>Новый клиент<');
     expect(block).toContain('type="hidden" name="customerId" value=""');
-    expect(block).toContain('name="firstName"');
-    expect(block).toContain('name="lastName"');
-    expect(block).toContain('name="phone"');
-    expect(block).toContain('>+ Новый клиент<');
+    // одно поле поиска; имя, фамилия и телефон нового клиента берутся из него скрытыми полями (владелец 26.10.2026)
+    expect(block.match(/<input[^>]*type="search"/g)).toHaveLength(1);
+    expect(block).toContain('type="hidden" name="firstName"');
+    expect(block).toContain('type="hidden" name="lastName"');
+    expect(block).toContain('type="hidden" name="phone"');
+    expect(block).not.toContain('>Имя клиента<');
+    expect(block).not.toContain('>Фамилия<');
+    expect(block).not.toContain('Новый клиент<');
   });
   it('повтор записи: выбранный клиент чипом «имя, телефон ×», строки нового клиента нет, id уходит прежним полем', () => {
     const repeatFrom = {
@@ -352,4 +356,42 @@ it('repeats a visit as a new draft with the same client and services, never the 
   expect(html).toContain('>Записать</button>');
   expect(html).not.toContain('name="id"');
   expect(html).not.toContain('name="paidMinor"');
+});
+
+/** Выезд на дом (владелец 27.10.2026): галочка в окне записи, адрес появляется только с галочкой */
+describe('выезд на дом', () => {
+  it('в окне записи галочка «Выезд на дом», поля адреса без галочки нет', () => {
+    const html = renderToStaticMarkup(createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn() }));
+    expect(html).toContain('Выезд на дом');
+    expect(html).toMatch(/type="checkbox"[^>]*name="atHome"|name="atHome"[^>]*type="checkbox"/);
+    expect(html).not.toContain('name="homeAddress"');
+  });
+  it('изменение записи с выездом: галочка стоит, адрес заполнен', () => {
+    const source = { id: 'visit', employeeId: 'master', serviceId: 'cut', startsAt: '2026-10-18T10:00:00.000Z', startMinutes: 600, endMinutes: 630, priceMinor: '2500', notes: null, atHome: true, homeAddress: 'West Bay 5' };
+    const html = renderToStaticMarkup(createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn(), editing: source as never }));
+    expect(html).toMatch(/name="atHome"[^>]*checked|checked[^>]*name="atHome"/);
+    expect(html).toMatch(/name="homeAddress"[^>]*value="West Bay 5"|value="West Bay 5"[^>]*name="homeAddress"/);
+  });
+  it('создание передаёт выезд и адрес в API', async () => {
+    vi.spyOn(authApi, 'me').mockResolvedValue({ user: { organizationId: 'org' }, context: scope } as never);
+    const save = vi.spyOn(beautyApi, 'createAppointment').mockResolvedValue({ appointments: [{ id: 'saved' }] } as never);
+    const form = new FormData();
+    form.set('scopeKey', JSON.stringify(scope));
+    form.set('startsAt', '2026-10-18T10:00:00.000Z');
+    form.set('firstName', 'Synthetic');
+    form.set('items', JSON.stringify([{ employeeId: 'master', serviceId: 'cut' }]));
+    form.set('atHome', 'on');
+    form.set('homeAddress', 'West Bay 5');
+    expect(await createAppointment(null, form)).toMatchObject({ message: 'Запись создана' });
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ atHome: 'on', homeAddress: 'West Bay 5' }));
+  });
+  it('изменение передаёт выезд всегда: снятая галочка стирает адрес', async () => {
+    const save = vi.spyOn(beautyApi, 'moveAppointment').mockResolvedValue({} as never);
+    const form = new FormData();
+    form.set('id', 'visit');
+    form.set('startsAt', '2026-10-18T10:00:00.000Z');
+    form.set('items', JSON.stringify([{ employeeId: 'master', serviceId: 'cut' }]));
+    await moveAppointment(null, form);
+    expect(save).toHaveBeenCalledWith('visit', expect.objectContaining({ atHome: '', homeAddress: '' }));
+  });
 });

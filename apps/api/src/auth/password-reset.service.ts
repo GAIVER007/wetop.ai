@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { loginGuard } from './login-guard';
 import {
   BadRequestException,
   Inject,
@@ -134,6 +135,8 @@ export class PasswordResetService {
       });
       if (updated.count !== 1)
         throw new UnauthorizedException('Ссылка не годится: запросите новую');
+      // новый пароль снимает замки входа этой почты на всех устройствах (владелец 27.10.2026)
+      loginGuard.clearEmail(user.email);
       const { count } = await tx.session.updateMany({
         where: { userId: user.id, revokedAt: null },
         data: { revokedAt: now },

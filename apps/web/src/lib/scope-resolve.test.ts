@@ -40,7 +40,8 @@ it('несколько филиалов: тот, что человек выби�
   expect(decideScope(items, null, L1)).toEqual({
     kind: 'select',
     pointer: `business=${B1};location=${L1}`,
-    target: '/today',
+    // стартовый экран по роли выбирает корень `/` (владелец 27.10.2026)
+    target: '/',
   });
 });
 
@@ -52,7 +53,7 @@ it('запомненный филиал, которого нет в ответе
 });
 
 it('next чужого направления заменяется стартовой страницей направления', () => {
-  expect(decideScope([branch('HOSPITALITY')], '/calendar')).toMatchObject({ target: '/today' });
+  expect(decideScope([branch('HOSPITALITY')], '/calendar')).toMatchObject({ target: '/' });
   expect(decideScope([branch('FOOD_SERVICE')], '/chessboard')).toMatchObject({
     target: '/register/setup',
   });
@@ -61,9 +62,10 @@ it('next чужого направления заменяется стартов
   });
 });
 
-it('/today сохраняется у гостиницы и ресторана, Beauty проверяет готовность', () => {
-  for (const v of ['HOSPITALITY', 'FOOD_SERVICE'] as const)
-    expect(decideScope([branch(v)], '/today')).toMatchObject({ target: '/today' });
+it('вход без своего адреса ведёт на корень `/`: там стартовый экран по роли (владелец 27.10.2026); Beauty проверяет готовность', () => {
+  expect(decideScope([branch('HOSPITALITY')], '/today')).toMatchObject({ target: '/' });
+  expect(decideScope([branch('HOSPITALITY')], null)).toMatchObject({ target: '/' });
+  expect(decideScope([branch('FOOD_SERVICE')], '/today')).toMatchObject({ target: '/' });
 });
 
 it('next своего направления и общие разделы сохраняются', () => {
@@ -79,10 +81,10 @@ it('next своего направления и общие разделы сох
 });
 
 it('next только безопасный локальный путь', () => {
-  // небезопасная строка падает в общий «/today» (safeReturnPath), гостиницу оттуда уводит редирект в «Финансы»
+  // небезопасная строка падает в общий «/today» (safeReturnPath), а оттуда на корень: стартовый экран по роли
   for (const next of ['//evil.invalid', 'https://evil.invalid/today', '/login', '/\\evil'])
-    expect(decideScope([branch('HOSPITALITY')], next)).toMatchObject({ target: '/today' });
-  expect(decideScope([branch('HOSPITALITY')], null)).toMatchObject({ target: '/today' });
+    expect(decideScope([branch('HOSPITALITY')], next)).toMatchObject({ target: '/' });
+  expect(decideScope([branch('HOSPITALITY')], null)).toMatchObject({ target: '/' });
 });
 
 it('устаревший указатель: кука есть, а /auth/me не подтвердил ни Business, ни филиал', () => {

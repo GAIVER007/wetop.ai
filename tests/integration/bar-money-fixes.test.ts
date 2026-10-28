@@ -125,7 +125,7 @@ describe.skipIf(process.env.A23_RUNTIME_AUDIT !== '1')('A3 approved money audit 
 
   auditCase('M2 payload identity: product, quantity, method and retail/Folio reuse', 'TZ2.2 M2; no approved mismatch HTTP status', async () => {
     const a = await actor(); const c = await stocked(a, '8'); const other = await stocked(a); const f = await folio(a); const key = randomUUID(); const original = await sell(a, c.product, '1', key); const before = await snapshot(a, 'identity original');
-    const variants = [await sell(a, other.product, '1', key), await sell(a, c.product, '2', key), await sell(a, c.product, '1', key, 'KASPI'), await folioSell(a, c.product, f, key)];
+    const variants = [await sell(a, other.product, '1', key), await sell(a, c.product, '2', key), await sell(a, c.product, '1', key, 'CARD_TERMINAL'), await folioSell(a, c.product, f, key)];
     expect((await snapshot(a, 'identity variants')).state).toEqual(before.state);
     const folioKey = randomUUID(); const originalFolio = await folioSell(a, c.product, f, folioKey); const beforeRetailMode = await snapshot(a, 'Folio first before retail-mode replay'); const retailOfFolio = await sell(a, c.product, '1', folioKey); expect((await snapshot(a, 'Folio to retail key reuse')).state).toEqual(beforeRetailMode.state);
     note('mismatch replies point at the original unrelated request', { original, variants, originalFolio, retailOfFolio });

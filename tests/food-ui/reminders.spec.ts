@@ -61,9 +61,6 @@ test('напоминания гостям: настройки с предпро�
   const area = await post(request, headers, '/food-service/areas', { name: 'Основной зал', sortOrder: 0, active: true });
   await post(request, headers, '/food-service/tables', { areaId: area.id, name: '1', capacity: 4, sortOrder: 0, active: true });
   const startsAt = new Date(Date.now() + 150 * 60_000);
-  // «Напомнить сегодня» показывает день филиала: в последние полчаса суток по Алматы напоминание уже завтрашнее
-  const almatyDay = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(d);
-  test.skip(almatyDay(new Date(startsAt.getTime() - 2 * 3_600_000)) !== almatyDay(new Date()), 'около полуночи по Алматы');
   // Период строится вокруг самой брони (Алматы, UTC+5): «Весь день» до 23:59 не вмещал бронь, начатую после 22:59
   // (запуск после 20:29 по Алматы), и тест краснел каждый вечер. Окно начала брони плюс 90 минут, через полночь явно.
   const local = new Date(startsAt.getTime() + 5 * 3_600_000);
@@ -83,23 +80,15 @@ test('напоминания гостям: настройки с предпро�
   expect(run.ok(), await run.text()).toBe(true);
   expect((await run.json()).manual, 'напоминание без почты ушло в «Вручную»').toBe(1);
 
-  // 3. «Бронирования»: «Напомнить сегодня» с WhatsApp и «Напомнил»
+  // 3. «Бронирования» без блока «Напомнить сегодня» (владелец 26.10.2026: «убери, не о чём», как в салоне, #881):
+  //    напоминание лежит в «Вручную», на экране броней его нет
   for (const [scheme, width] of [['light', 1440], ['dark', 390]] as const) {
     await page.emulateMedia({ colorScheme: scheme });
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/table-reservations');
-    // потоковая отрисовка оставляет в DOM скрытую копию раздела: берём видимую, в main
-    const box = page.getByRole('main').getByTestId('food-reminders-today');
-    await expect(box).toBeVisible({ timeout: 60_000 });
-    await expect(box.getByRole('heading')).toHaveText('Напомнить сегодня (1)');
-    await expect(box.getByTestId('food-reminder-row')).toContainText('Ерлан, бронь в');
-    await expect(box.getByRole('link', { name: 'Написать в WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\/77005556677\?text=/);
+    await expect(page.getByRole('main').getByRole('heading').first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId('food-reminders-today')).toHaveCount(0);
+    await expect(page.getByText(/Напомнить сегодня/)).toHaveCount(0);
     await noHorizontalScroll(page);
-    await box.screenshot({ path: `${shots}/today-${scheme}-${width}.png` });
   }
-  await expect((await new AxeBuilder({ page }).include('[data-testid="food-reminders-today"]').withTags(['wcag2a', 'wcag2aa']).analyze()).violations).toEqual([]);
-  await page.getByTestId('food-reminders-today').getByRole('button', { name: 'Напомнил' }).click();
-  await expect(page.getByTestId('food-reminders-today')).toHaveCount(0);
-  await page.reload();
-  await expect(page.getByTestId('food-reminders-today')).toHaveCount(0);
 });

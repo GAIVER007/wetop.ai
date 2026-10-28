@@ -1,6 +1,6 @@
 import { safeReturnPath } from './auth-entry';
 import { scopeHeader } from './scope-pointer';
-import { landingForVertical, routeVertical, type WebVertical } from './vertical-landing';
+import { routeVertical, type WebVertical } from './vertical-landing';
 
 /**
  * Выбор рабочего филиала после входа и после устаревшего указателя (SCOPE-HARDENING, решение владельца 06.10.2026).
@@ -55,8 +55,12 @@ function targetFor(vertical: WebVertical, rawNext: string | null): string {
   const next = rawNext ? safeReturnPath(rawNext) : null;
   if (vertical === 'BEAUTY' && (!next || next === '/today' || !compatible(next, vertical)))
     return '/register/setup?entry=1';
+  // без своего адреса (или общий «/today»): корень `/`, он выбирает стартовый экран по роли (владелец 27.10.2026)
+  if (vertical === 'HOSPITALITY' && (!next || next === '/today')) return '/';
+  // ресторан без адреса по-прежнему идёт через настройку, она сама отправит на `/`, когда настройка завершена
+  if (vertical === 'FOOD_SERVICE' && next === '/today') return '/';
   if (next && compatible(next, vertical)) return next;
-  return vertical === 'HOSPITALITY' ? landingForVertical(vertical) : '/register/setup';
+  return vertical === 'HOSPITALITY' ? '/' : '/register/setup';
 }
 
 export function decideScope(

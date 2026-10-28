@@ -9,13 +9,12 @@ test('быстрые даты сохраняют гостя, заметки и �
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/reservations/new?unit=M03');
   const form = page.getByTestId('new-reservation-form');
-  await form.getByLabel('Имя *', { exact: true }).fill('Компакт');
-  await form.getByLabel('Фамилия *', { exact: true }).fill('Тест');
+  await form.getByLabel('Телефон или имя *', { exact: true }).fill('Компакт Тест');
   await form.getByText('Дополнительно', { exact: true }).click();
   await form.getByLabel('Заметки', { exact: true }).fill('Тестовая заметка');
   await form.getByRole('button', { name: '3 ночи', exact: true }).click();
   await expect(form.getByTestId('availability')).toContainText('3 ночи');
-  await expect(form.getByLabel('Имя *', { exact: true })).toHaveValue('Компакт');
+  await expect(form.getByLabel('Телефон или имя *', { exact: true })).toHaveValue('Компакт Тест');
   await expect(form.getByLabel('Заметки', { exact: true })).toHaveValue('Тестовая заметка');
   await form.getByText('Дополнительно', { exact: true }).click();
   const submit = form.getByRole('button', { name: 'Создать бронь', exact: true });

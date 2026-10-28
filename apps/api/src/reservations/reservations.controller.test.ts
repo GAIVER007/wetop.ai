@@ -317,6 +317,7 @@ function makeFake() {
         end: endDate,
       });
     },
+    async assertShiftOpen() {},
     async lockReservation(number) {
       state.events.push(`lock:${number}`);
     },

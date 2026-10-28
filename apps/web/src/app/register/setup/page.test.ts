@@ -17,7 +17,7 @@ describe('reopen salon setup', () => {
   it('does not grant setup access to an administrator through the reopen query', async () => {
     mocks.role = 'STAFF';
     mocks.status.mockResolvedValue({ vertical: 'BEAUTY', readiness: { ready: false } });
-    await expect(SetupPage({ searchParams: Promise.resolve({ entry: 'reopen' }) })).rejects.toThrow('redirect:/today');
+    await expect(SetupPage({ searchParams: Promise.resolve({ entry: 'reopen' }) })).rejects.toThrow('redirect:/'); // стартовый экран по роли (владелец 27.10.2026)
   });
   it('allows a manager to reopen the existing checklist', async () => {
     mocks.role = 'MANAGER';

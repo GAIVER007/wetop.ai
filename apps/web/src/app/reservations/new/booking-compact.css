@@ -288,6 +288,16 @@
   .booking-create .booking-guest-fields__phone {
     grid-column: 1 / -1;
   }
+  /* гость одним полем (владелец 26.10.2026): поле во всю ширину, под ним строка нового гостя */
+  .booking-create .booking-guest-fields--one {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .booking-guest-new {
+    margin: 0;
+  }
+  .booking-guest-new.is-missing {
+    color: var(--warning);
+  }
   .booking-create .booking-shell__form .placement-fields .grid-auto {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -313,5 +323,12 @@
     .booking-create .booking-shell__pick {
       padding: 0;
     }
+  }
+  /* одно размещение (26.10.2026): категория и номер выбираются на карте фонда справа, слева гостей, тариф и мест */
+  .booking-create .placement-fields.is-single .grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  }
+  .booking-create .placement-fields.is-single .grid-auto > * {
+    grid-column: auto;
   }
 }

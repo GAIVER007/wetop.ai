@@ -21,7 +21,7 @@ async function signIn(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL(/\/(today|chessboard)(\?.*)?$/); // стартовый экран по роли
 }
 
 test('первый вход: обучение открывается само, идёт по шагам и больше само не открывается', async ({
@@ -160,6 +160,9 @@ test('администратор на телефоне видит рабочие
   await request.post(`${API}/__test/control`, { data: { role: 'STAFF' } });
   await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page);
+  // администратор стартует в шахматке (стартовый экран по роли), обучение само открывается на Главной
+  await expect(page).toHaveURL(/\/chessboard(\?.*)?$/);
+  await page.goto('/today');
   const tour = page.getByTestId('product-tour');
   await expect(tour).toBeVisible();
   const topics = tour.getByLabel('Тема обучения');

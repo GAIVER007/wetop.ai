@@ -1,6 +1,11 @@
 import { currentBeautyAssignments, filterBeautyLocations } from '../beauty/access';
 import { currentOrganizationId, currentUserId } from './request-context';
-import { parseBusinessVertical } from '@pms/domain';
+import {
+  parseBusinessVertical,
+  ACCOUNT_LOCK_ATTEMPTS,
+} from '@pms/domain';
+import { loginGuard } from './login-guard';
+export { loginGuard } from './login-guard';
 import { registrationBusiness } from './registration-contract';
 import 'reflect-metadata';
 import {
@@ -120,7 +125,8 @@ export interface RegisterResult {
  * Один и тот же ответ на неверную почту, неверный пароль и запертую учётку: форма входа не рассказывает, кто у нас есть
  * (аудит 26.09, С-6 — ответ «Вход заперт…» раньше выдавал существование почты). Про замок текст говорит сам.
  */
-const WRONG = `Неверная почта или пароль. После ${MAX_FAILED_ATTEMPTS} неверных попыток подряд вход запирается на ${LOCK_MINUTES} минут.`;
+const WRONG = `Неверная почта или пароль. Проверьте раскладку и Caps Lock. После ${MAX_FAILED_ATTEMPTS} неверных попыток подряд вход с этого устройства закрывается на ${LOCK_MINUTES} минут; если не помните пароль, нажмите «Забыли пароль?».`;
+
 /** Организацию приостановил владелец WETOP (ADR-046): входа нет ни у кого из неё. Пароль при этом назван верно. */
 export const ORGANIZATION_SUSPENDED_MESSAGE =
   'Доступ вашей организации приостановлен. Обратитесь в поддержку WETOP.';
@@ -209,7 +215,7 @@ export class AuthService {
               select: { failedAttempts: true },
             })
           ).failedAttempts;
-    if (failedAttempts >= MAX_FAILED_ATTEMPTS)
+    if (failedAttempts >= ACCOUNT_LOCK_ATTEMPTS)
       await this.prisma.db.user.updateMany({
         where: { id: userId, OR: [{ lockedUntil: null }, { lockedUntil: { lte: now } }] },
         data: { lockedUntil: new Date(now.getTime() + LOCK_MINUTES * 60_000) },
@@ -325,10 +331,16 @@ export class AuthService {
   }
 
   async login(
-    input: { email: string; password: string; userAgentFamily?: string | null },
+    input: { email: string; password: string; userAgentFamily?: string | null; ip?: string | null },
     now = new Date(),
   ): Promise<LoginResult> {
     const email = validEmail(input.email);
+    const guardEmail = email ?? input.email;
+    // адрес заперт для этой почты: пароль «проверяется» в пустую, ответ и время те же, что у неверного
+    if (loginGuard.locked(guardEmail, input.ip, now)) {
+      await checkPasswordQueued(input.password, DECOY_HASH);
+      throw new UnauthorizedException(WRONG);
+    }
     const user = email
       ? await this.prisma.db.user.findUnique({
           where: { email },
@@ -343,6 +355,7 @@ export class AuthService {
 
     if (!user) {
       await checkPasswordQueued(input.password, DECOY_HASH);
+      loginGuard.fail(guardEmail, input.ip, now);
       throw new UnauthorizedException(WRONG);
     }
 
@@ -367,10 +380,13 @@ export class AuthService {
     const decision = decideLogin({ user: state, passwordOk: hashable && passwordOk, now });
 
     if (decision.outcome !== 'ok') {
-      if (decision.outcome === 'wrong')
+      if (decision.outcome === 'wrong') {
+        loginGuard.fail(guardEmail, input.ip, now);
         await this.countFailure(user.id, decision.resetCounter, now);
+      }
       throw new UnauthorizedException(WRONG);
     }
+    loginGuard.success(guardEmail, input.ip);
 
     // Почта не подтверждена — вход закрыт (решение владельца 20.09.2026). Ответ отличается от WRONG
     // намеренно: пароль человек уже назвал верно, скрывать от него нечего, а иначе он не поймёт,
@@ -501,6 +517,8 @@ export class AuthService {
             trialEndsAt: trialEndsAt(now),
             // страна телефона уже проверена `registrationPhone`: код из того же списка
             countryCode: input.phoneCountry,
+            // язык из окна регистрации: на нём уходят приглашения сотрудникам (ORG-LOCALE-20261026)
+            locale,
           },
           select: { id: true },
         });

@@ -1,5 +1,5 @@
 'use server';
-import { scopeResolvePath } from '../../lib/scope-pointer';
+import { lastBranchCookieOptions, scopeResolvePath } from '../../lib/scope-pointer';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
@@ -19,8 +19,9 @@ import {
   setSessionCookie,
 } from '../../lib/session';
 import { publicAuthUrl, safeReturnPath } from '../../lib/auth-entry';
-import { msg } from '../../i18n';
-import { serverT } from '../../i18n/server';
+import { LOCALE_COOKIE, deskLocale, msg } from '../../i18n';
+import { serverT, cookieLocale } from '../../i18n/server';
+import { cookies } from 'next/headers';
 
 /**
  * Серверные действия экрана входа. Два входа живут рядом, пока владелец не выбрал (Q-146):
@@ -101,6 +102,9 @@ export async function setPassword(
     if (error instanceof ApiError) return { error: error.message };
     throw error;
   }
+  // сайт wetop.ai пока только русский и казахский: человек на английском входит здесь же, на резервной форме стойки
+  // на своём языке (ORG-LOCALE-20261026)
+  if ((await cookieLocale()) === 'en') return redirect('/auth/fallback?password=set');
   const destination = new URL(publicAuthUrl());
   destination.searchParams.set('password', 'set');
   redirect(destination.toString());
@@ -400,12 +404,15 @@ export async function setMemberDetailsAction(
  * организацию), ключа не будет — тогда обычный экран входа. Мёртвая ссылка — текст API на той же странице.
  */
 export async function acceptInviteAction(rawToken: string): Promise<AuthActionResult> {
-  let invite: { email: string; setPasswordToken?: string | null };
+  let invite: { email: string; locale?: string; setPasswordToken?: string | null };
   try {
     invite = await authApi.acceptInvite(rawToken, await clientInfo());
   } catch (e) {
     return { error: errorText(e) };
   }
+  // экран пароля и вход на языке организации (ORG-LOCALE-20261026): у нового человека куки языка ещё нет
+  if (invite.locale)
+    (await cookies()).set(LOCALE_COOKIE, deskLocale(invite.locale), lastBranchCookieOptions(process.env));
   redirect(
     invite.setPasswordToken
       ? `/login/set-password?token=${encodeURIComponent(invite.setPasswordToken)}`

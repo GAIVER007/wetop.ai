@@ -74,3 +74,14 @@ describe('аудит салона 22.10.2026: цена один раз, бону
     expect(html).not.toContain('value="BONUS"');
   });
 });
+
+describe('выезд на дом в карточке записи (владелец 27.10.2026)', () => {
+  it('запись с выездом: строка «Выезд на дом» с адресом', () => {
+    const html = render({ ...row, atHome: true, homeAddress: 'West Bay 5' });
+    expect(html).toContain('Выезд на дом');
+    expect(html).toContain('West Bay 5');
+  });
+  it('обычная запись: строки выезда нет', () => {
+    expect(render()).not.toContain('Выезд на дом');
+  });
+});

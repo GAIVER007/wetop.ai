@@ -37,8 +37,7 @@ test('заселить → карточка и шахматка показыва
   const unitSelect = form.locator('select[name="unitCode"]');
   const unitCode = await unitOption(unitSelect);
   await unitSelect.selectOption(unitCode);
-  await form.locator('input[name="firstName"]').fill('Гость');
-  await form.locator('input[name="lastName"]').fill('Тест-заезд');
+  await form.locator('input[name="guestQuery"]').fill('Гость Тест-заезд');
   await form.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await form.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);
@@ -156,8 +155,7 @@ test('заселить → карточка и шахматка показыва
   const freeUnit = f2.locator('select[name="unitCode"]');
   await expect(freeUnit.locator('option')).not.toHaveCount(1); // есть хотя бы одна свободная койка
   await freeUnit.selectOption(await unitOption(freeUnit));
-  await f2.locator('input[name="firstName"]').fill('Гость');
-  await f2.locator('input[name="lastName"]').fill('Тест-незаезд');
+  await f2.locator('input[name="guestQuery"]').fill('Гость Тест-незаезд');
   await f2.locator('textarea[name="notes"]').fill('E2E-АВТОТЕСТ'); // сверка исключает автотесты
   await f2.getByRole('button', { name: 'Создать бронь' }).click();
   await expect(page).toHaveURL(/\/reservations\/\d{8}-[A-Z0-9]{6}$/);

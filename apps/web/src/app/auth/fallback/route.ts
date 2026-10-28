@@ -34,6 +34,8 @@ function formPage(
   error = '',
   status = 200,
   vertical = 'HOSPITALITY',
+  /** Сообщение над формой: «пароль сохранён» после ссылки из приглашения (ORG-LOCALE-20261026) */
+  notice = '',
 ) {
   const register = mode === 'register';
   const field = (label: string, name: string, type = 'text', extra = '') =>
@@ -42,7 +44,7 @@ function formPage(
     `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${register ? t('Регистрация') : t('Вход')}: WETOP</title>
     <style>body{margin:0;background:#0a1322;color:#edf2fa;font:16px/1.5 system-ui}main{max-width:440px;padding:32px 24px;margin:4vh auto}a{color:#80bbff;display:inline-block;padding:10px 0}h1{font-size:28px}form,label{display:grid;gap:8px}form{gap:18px}input,select,button{box-sizing:border-box;width:100%;min-height:46px;border-radius:8px;padding:10px;font:inherit;background:#122236;color:inherit;border:1px solid #58718d}button{background:#146bcb;color:white;cursor:pointer}input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #80bbff;outline-offset:3px}.consent{display:flex;align-items:flex-start}.consent input{width:24px;min-height:24px;flex:none}.error{padding:12px;border:1px solid #eba988;border-radius:8px}p{color:#b9c9dc}</style></head><body><main>
     <a href="${escape(publicAuthUrl())}">${t('← На главную WETOP')}</a><h1>${register ? t('Регистрация') : t('Вход в WETOP')}</h1>
-    <p>${t('Резервная форма. Работает без JavaScript.')}</p>${error ? `<p class="error" role="alert">${escape(t(error))}</p>` : ''}
+    ${notice ? `<p role="status">${escape(t(notice))}</p>` : `<p>${t('Резервная форма. Работает без JavaScript.')}</p>`}${error ? `<p class="error" role="alert">${escape(t(error))}</p>` : ''}
     <form method="post" action="/auth/fallback"><input type="hidden" name="mode" value="${register ? 'register' : 'login'}"><input type="hidden" name="next" value="${escape(safeReturnPath(next))}">
     ${field('Email', 'email', 'email', `autocomplete="username" maxlength="254" value="${escape(email)}"`)}
     ${register ? `${field(msg('Имя'), 'name', 'text', 'autocomplete="name" maxlength="200"')}${field(msg('Название бизнеса'), 'businessName', 'text', 'maxlength="200"')}<label>${t('Чем вы управляете?')}<select name="vertical">${BUSINESS_VERTICALS.map((id) => `<option value="${id}"${id === vertical ? ' selected' : ''}>${escape(t(verticalDefinition(id).label))}${id === 'HOSPITALITY' ? '' : t(' (Пилот, по приглашению)')}</option>`).join('')}</select></label><label>${t('Код страны')}<select name="phoneCountry">${PHONE_COUNTRIES.map((c) => `<option value="${escape(c.code)}"${c.code === 'KZ' ? ' selected' : ''}>${escape(c.name)} ${escape(c.dial)}</option>`).join('')}</select></label>${field(msg('Телефон'), 'phone', 'tel', 'autocomplete="tel-national" maxlength="40"')}` : ''}
@@ -79,6 +81,7 @@ export async function GET(request: Request): Promise<Response> {
     '',
     200,
     parseBusinessVertical(q.get('vertical')) ?? 'HOSPITALITY',
+    q.get('password') === 'set' ? msg('Пароль сохранён. Войдите с новым паролем.') : '',
   );
 }
 

@@ -245,6 +245,7 @@ function makeFakes() {
       return [];
     },
     async lockCategories() {},
+    async assertShiftOpen() {},
     async lockReservation() {},
     async categoryAvailability() {
       return 99;

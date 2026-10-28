@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'WETOP',
     description: 'Стойка WETOP: брони, гости, записи и заказы',
     lang: 'ru',
-    start_url: '/today',
+    start_url: '/', // приложение открывается на стартовом экране по роли (владелец 27.10.2026)
     scope: '/',
     display: 'standalone',
     theme_color: PWA_THEME.light,

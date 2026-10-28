@@ -29,12 +29,21 @@ export async function loadBranchPeriod(
         !Array.isArray(day.appointments)
       )
         throw new Error(msg('Контекст отчёта изменился. Обновите страницу.'));
+      // День отдаёт и хвосты записей прошлого дня через полночь (салон до 24:00, 27.10.2026): запись считается один
+      // раз, по дню начала, как в «Отчётах» (loadSalonReport). Запись, которая этот день не задевает, это ошибка данных.
+      const own: BeautyDay['appointments'] = [];
       for (const row of day.appointments) {
-        if (localInput(row.startsAt, branch.timezone).slice(0, 10) !== date)
-          throw new Error(msg('Некорректная дата записи'));
-        beautyRows.push(row);
+        const start = localInput(row.startsAt, branch.timezone).slice(0, 10);
+        if (start === date) {
+          own.push(row);
+          continue;
+        }
+        const end = row.endsAt ? localInput(row.endsAt, branch.timezone) : '';
+        const tail = start < date && end.slice(0, 10) >= date && end > `${date}T00:00`;
+        if (!tail) throw new Error(msg('Некорректная дата записи'));
       }
-      beautyDays.push(day);
+      beautyRows.push(...own);
+      beautyDays.push({ ...day, appointments: own });
     } else if (branch.vertical === 'FOOD_SERVICE') {
       const rows = await completeFoodList<RestaurantReservation>(
         (cursor) =>

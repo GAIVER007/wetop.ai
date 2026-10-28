@@ -116,10 +116,14 @@ describe('посадить без брони', () => {
       createElement(ReservationForm, { data, walkIn: true, tableId: 't', created: () => {}, onStale: () => {} }),
     );
     expect(html.toLowerCase()).toContain('novalidate');
-    expect(html).toMatch(/<input type="radio" name="customerMode" checked=""[^>]*\/>Новый/);
-    const first = html.match(/<input[^>]*name="firstName"[^>]*>/)?.[0] ?? '';
-    expect(first).toContain('placeholder="Гость"');
-    expect(first).not.toContain('required');
+    // гость одним полем (владелец 26.10.2026): без «Существующий / Новый» и полей Имя/Фамилия/Телефон
+    expect(html).not.toContain('name="customerMode"');
+    expect(html).not.toContain('>Фамилия<');
+    const search = html.match(/<input[^>]*type="search"[^>]*>/g) ?? [];
+    expect(search).toHaveLength(1);
+    expect(search[0]).toContain('placeholder="Гость"');
+    expect(search[0]).not.toContain('required');
+    expect(html).toContain('type="hidden" name="firstName"');
   });
 });
 

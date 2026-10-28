@@ -29,7 +29,7 @@ describe('чипы статусов салона: отбор по статусу
     const journal = readFileSync(join(web, 'app/beauty/journal.tsx'), 'utf8');
     expect(journal).not.toContain('Свободно: пустая клетка');
     expect(journal).toMatch(/aria-label=\{t\('Компактный вид'\)\}/);
-    expect(readFileSync(join(web, 'app/beauty/week-calendar.tsx'), 'utf8')).toContain('<StatusChips');
+    expect(readFileSync(join(web, 'app/beauty/month-calendar.tsx'), 'utf8')).toContain('<StatusChips');
     expect(journal).toContain('<StatusChips');
   });
   it('на телефоне значка «Компактный вид» нет: он внутри части только для компьютера (шапка телефона не растёт)', () => {

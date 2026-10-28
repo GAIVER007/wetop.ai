@@ -1,8 +1,14 @@
 import { verifyPassword } from './password';
 
-/** Сколько промахов подряд до запрета и на сколько минут. Умолчание шага 1 (ADR-049). */
+/**
+ * Сколько промахов подряд до запрета и на сколько минут. Умолчание шага 1 (ADR-049).
+ * С 27.10.2026 (владелец: «поставить защиту от подбора паролей», главного администратора салона запирали чужие ошибки):
+ * 5 промахов запирают пару «почта + адрес устройства» (`LoginGuard` в API), учётка целиком запирается только после
+ * `ACCOUNT_LOCK_ATTEMPTS` промахов, то есть при подборе с многих адресов.
+ */
 export const MAX_FAILED_ATTEMPTS = 5;
 export const LOCK_MINUTES = 15;
+export const ACCOUNT_LOCK_ATTEMPTS = 20;
 
 export type UserStatus = 'ACTIVE' | 'BLOCKED';
 
@@ -54,7 +60,7 @@ export function decideLogin({
     outcome: 'wrong',
     failedAttempts,
     lockedUntil:
-      failedAttempts >= MAX_FAILED_ATTEMPTS ? new Date(now.getTime() + LOCK_MINUTES * 60_000) : null,
+      failedAttempts >= ACCOUNT_LOCK_ATTEMPTS ? new Date(now.getTime() + LOCK_MINUTES * 60_000) : null,
     resetCounter,
   };
 }

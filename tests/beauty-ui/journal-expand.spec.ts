@@ -24,7 +24,7 @@ test('салон: «На весь экран» перед «Быстрым от�
   const rev = (await call(`/beauty/schedule?employee=${master.id}`, {}, 'get')).weekRevision;
   await call(`/beauty/employees/${master.id}/working-hours`, { expectedRevision: rev, intervals: [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }] }, 'put');
   await page.setViewportSize({ width: 1440, height: 900 });
-  for (const path of ['/calendar?date=2026-10-19', '/calendar?date=2026-10-19&view=week']) {
+  for (const path of ['/calendar?date=2026-10-19', '/calendar?date=2026-10-19&view=month']) {
     await page.goto(path);
     const actions = page.getByRole('group', { name: 'Период и действия журнала' });
     const expand = actions.getByRole('button', { name: 'На весь экран', exact: true });

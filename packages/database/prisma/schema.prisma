@@ -2674,6 +2674,9 @@ model Organization {
   /// Страна организации, ISO 3166-1 alpha-2 (v2.17, Q-REG-1): при регистрации — страна, выбранная в окне
   /// (она же страна телефона). NULL у заведённых до 10.10.2026 и платформой.
   countryCode       String?            @map("country_code") @db.VarChar(2)
+  /// Язык организации (ORG-LOCALE-20261026): письма-приглашения, экраны приглашения и пароля, язык новых сотрудников.
+  /// `ru`, `kk`, `en`, CHECK `organizations_locale_known`
+  locale            String             @default("ru") @db.VarChar(5)
   trialEndsAt       DateTime?          @map("trial_ends_at") @db.Timestamptz(6)
   createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
 
@@ -3690,6 +3693,9 @@ model Appointment {
   price               BigInt
   currency            String            @db.VarChar(3)
   notes               String?
+  /// HOME-VISIT-20261027: выезд мастера к клиенту; адрес только у записи с выездом (CHECK в миграции 163)
+  atHome              Boolean           @default(false) @map("at_home")
+  homeAddress         String?           @map("home_address") @db.VarChar(300)
   /// SITE-4: откуда запись; стойка DESK, форма сайта WEBSITE
   source              AppointmentSource @default(DESK)
   /// SITE-4: ключ создания (повтор формы сайта); у записей стойки NULL. Ставится вместе с отпечатком (CHECK)

@@ -34,14 +34,18 @@ async function openSalon(page: Page, request: APIRequestContext) {
 
 test('настройки: напоминания с предпросмотром и бонусы сохраняются', async ({ page, request }) => {
   await openSalon(page, request);
-  await page.goto('/beauty-settings');
+  await page.goto('/beauty-settings?section=reminders');
   const reminders = page.getByTestId('reminder-settings');
-  await expect(reminders.getByRole('heading', { name: 'Напоминания клиентам' })).toBeVisible({ timeout: 60_000 });
+  // заголовок раздела один, у страницы (владелец 26.10.2026)
+  await expect(page.getByRole('heading', { name: 'Напоминания клиентам' })).toHaveCount(1, { timeout: 60_000 });
+  await expect(reminders).toBeVisible();
   await reminders.getByLabel('За сколько часов до записи').fill('24, 3');
   await reminders.getByLabel('Текст напоминания').fill('Здравствуйте, {имя}! Ждём вас {дата} в {время}.');
   await expect(reminders.getByTestId('reminder-preview')).toHaveText('Здравствуйте, Айгуль! Ждём вас 23 октября в 10:30.');
   await reminders.getByRole('button', { name: 'Сохранить напоминания' }).click();
   await expect(reminders.getByText('Напоминания сохранены')).toBeVisible();
+  // единый вход (PR 879): бонусы открываются своим разделом
+  await page.goto('/beauty-settings?section=bonuses');
   const bonuses = page.getByTestId('bonus-settings');
   await bonuses.getByLabel('Начислять и принимать бонусы').check();
   await bonuses.getByLabel('Начислять, % от оплаты').fill('7');
@@ -52,23 +56,16 @@ test('настройки: напоминания с предпросмотром
   expect(saved).toMatchObject({ enabled: true, accrualPercent: 7 });
 });
 
-test('журнал: «Напомнить сегодня» со ссылкой WhatsApp и отметкой «Напомнил»', async ({ page, request }) => {
+test('журнал без блока «Напомнить сегодня» (владелец 26.10.2026: «убери, не о чём»)', async ({ page, request }) => {
   await openSalon(page, request);
   const inTwoHours = new Date(Date.now() + 2 * 3_600_000).toISOString();
   await request.post(`${FIXTURE_API}/__test/salon-loyalty`, {
-    data: { reminders: [{ customerName: 'Айгуль', customerPhone: '+7 701 000 00 00', startsAt: inTwoHours }, { customerName: 'Сауле', customerPhone: null, startsAt: inTwoHours }] },
+    data: { reminders: [{ customerName: 'Айгуль', customerPhone: '+7 701 000 00 00', startsAt: inTwoHours }] },
   });
   await page.goto('/calendar');
-  const block = page.getByTestId('reminders-today');
-  await expect(block.getByRole('heading', { name: 'Напомнить сегодня (2)' })).toBeVisible({ timeout: 60_000 });
-  const aigul = block.getByTestId('reminder-row').filter({ hasText: 'Айгуль' });
-  const link = aigul.getByRole('link', { name: 'Написать в WhatsApp' });
-  await expect(link).toHaveAttribute('href', /^https:\/\/wa\.me\/77010000000\?text=/);
-  await expect(link).toHaveAttribute('target', '_blank');
-  await expect(block.getByTestId('reminder-row').filter({ hasText: 'Сауле' })).toContainText('Нет телефона');
-  await page.screenshot({ path: `${SHOTS}/journal-reminders.png` });
-  await aigul.getByRole('button', { name: 'Напомнил' }).click();
-  await expect(block.getByRole('heading', { name: 'Напомнить сегодня (1)' })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId('reminders-today')).toHaveCount(0);
+  await expect(page.getByText(/Напомнить сегодня/)).toHaveCount(0);
 });
 
 test('финансы: продажа сертификата в окне по центру и проверка остатка по коду', async ({ page, request }) => {
@@ -79,7 +76,7 @@ test('финансы: продажа сертификата в окне по ц�
   await main.getByRole('button', { name: 'Продать сертификат' }).click();
   const dialog = page.getByRole('dialog', { name: 'Продать сертификат' });
   await dialog.getByLabel(/Номинал/).fill('15000');
-  await dialog.getByLabel('Оплата').selectOption({ label: 'Kaspi' });
+  await dialog.getByLabel('Оплата').selectOption({ label: 'Карта (терминал)' });
   await dialog.getByRole('button', { name: 'Продать', exact: true }).click();
   const sold = dialog.getByTestId('certificate-sold');
   await expect(sold).toContainText('Сертификат продан');

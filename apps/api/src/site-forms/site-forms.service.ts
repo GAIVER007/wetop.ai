@@ -11,27 +11,7 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
-import {
-  beautyBookFingerprint,
-  bookingRuleViolation,
-  canWrite,
-  DEFAULT_BOOKING_RULES,
-  foodEnd,
-  foodLocal,
-  foodReserveFingerprint,
-  freeBeautySlots,
-  hostMatches,
-  parseBeautyBookRequest,
-  parseBeautySlotsQuery,
-  parseFoodReserveRequest,
-  parseSiteLeadRequest,
-  siteLeadFingerprint,
-  timeOffWindow,
-  type BeautyBookRequest,
-  type BeautySlotsQuery,
-  type FoodReserveRequest,
-  type SiteLeadRequest,
-} from '@pms/domain';
+import { beautyBookFingerprint, bookingRuleViolation, canWrite, DEFAULT_BOOKING_RULES, foodEnd, foodLocal, foodReserveFingerprint, freeBeautySlots, hostMatches, parseBeautyBookRequest, parseBeautySlotsQuery, parseFoodReserveRequest, parseSiteLeadRequest, siteLeadFingerprint, timeOffWindow, type BeautyBookRequest, type BeautySlotsQuery, type FoodReserveRequest, type SiteLeadRequest, endClockOf } from '@pms/domain';
 import { isOverlapViolation, type DbTx, type Prisma } from '@pms/database';
 import { freeTextForStorage } from '@pms/shared';
 import { AttemptWindows, visitorKey } from '../auth/attempt-limits';
@@ -250,7 +230,7 @@ export class SiteFormsService {
         now,
         masters: masters.map((m) => ({
           id: m.id,
-          workingHours: m.workingHours.map((h) => ({ weekday: h.weekday, timeFrom: clockOf(h.timeFrom), timeTo: clockOf(h.timeTo) })),
+          workingHours: m.workingHours.map((h) => ({ weekday: h.weekday, timeFrom: clockOf(h.timeFrom), timeTo: endClockOf(h.timeTo) })),
           timeOffs: m.timeOffs.map((t) => ({ dateFrom: t.dateFrom.toISOString().slice(0, 10), dateTo: t.dateTo.toISOString().slice(0, 10) })),
           busy: m.appointmentLines,
         })),

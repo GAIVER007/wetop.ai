@@ -21,6 +21,9 @@ const state = vi.hoisted(() => ({
 }));
 
 vi.mock('next/navigation', () => ({
+  redirect(url: string) {
+    throw new Error(`redirect ${url}`);
+  },
   unstable_rethrow() {},
   useRouter: () => ({ refresh() {}, replace() {} }),
   useSearchParams: () => new URLSearchParams(),
@@ -51,7 +54,6 @@ vi.mock('../../lib/api', () => ({
     bonusProgram: state.bonusProgram,
   },
 }));
-vi.mock('../../lib/beauty-reminders', () => ({ loadManualReminders: async () => null }));
 vi.mock('../beauty-settings/loyalty-forms', () => ({
   ReminderSettingsForm: (props: Record<string, unknown>) =>
     createElement('div', { 'data-testid': 'reminders-update', 'data-allowed': String(props.canEdit) }),
@@ -271,12 +273,14 @@ describe('Beauty page action access', () => {
   it('keeps salon hours read-only without settings.update', async () => {
     assigned([permission('settings', 'view')]);
 
-    const html = renderToStaticMarkup(await BeautySettingsPage());
+    // единый вход в настройки (PR 879): режим, напоминания и бонусы открываются каждый своим разделом
+    const render = async (section: string) =>
+      renderToStaticMarkup(await BeautySettingsPage({ searchParams: Promise.resolve({ section }) }));
 
-    expect(html).toContain('data-testid="settings-update" data-allowed="false"');
+    expect(await render('hours')).toContain('data-testid="settings-update" data-allowed="false"');
     // напоминания и бонусы (решение 21.10.2026) под тем же правом settings.update
-    expect(html).toContain('data-testid="reminders-update" data-allowed="false"');
-    expect(html).toContain('data-testid="bonus-update" data-allowed="false"');
+    expect(await render('reminders')).toContain('data-testid="reminders-update" data-allowed="false"');
+    expect(await render('bonuses')).toContain('data-testid="bonus-update" data-allowed="false"');
   });
 });
 

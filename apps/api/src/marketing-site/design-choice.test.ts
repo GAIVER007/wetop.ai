@@ -56,7 +56,7 @@ describe('шаблон готового сайта как оформление �
     const choice = parseDesignChoice({ designPresetId: 'beauty-boutique' });
     if (!choice || !('preset' in choice)) throw new Error('ожидалось готовое оформление');
     expect(choice.preset.id).toBe('beauty-boutique');
-    expect(choice.preset.theme.preset).toBe('NIGHT');
+    expect(choice.preset.theme.preset).toBe('NOIR');
     expect(designAudit(choice)).toEqual({ designPresetId: 'beauty-boutique' });
   });
 });

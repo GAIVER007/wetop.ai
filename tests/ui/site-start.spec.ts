@@ -189,12 +189,12 @@ test('салон: выбор филиала переключает стойку,
   await page.screenshot({ path: `${SHOTS}/salon-light-1440.png`, fullPage: true });
   // три своих шаблона салона; выбранный создаётся сразу, без ИИ, и открывается редактор с услугами и мастерами
   expect(await designIds(page)).toEqual(['beauty-studio', 'beauty-boutique', 'beauty-express']);
-  await win.getByTestId('site-design-card').filter({ hasText: 'Запись за минуту' }).getByTestId('site-design-choose').click();
-  await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран шаблон «Запись за минуту».');
+  await win.getByTestId('site-design-card').filter({ hasText: 'Яркий поп' }).getByTestId('site-design-choose').click();
+  await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран шаблон «Яркий поп».');
   await win.getByTestId('create-site-start').click();
   await expect(editor(page)).toBeVisible({ timeout: 15_000 });
   await expect(main(page).getByTestId('create-site-error')).toHaveCount(0);
-  await expect(main(page).getByTestId('setup-template').getByTestId('site-design-card').filter({ hasText: 'Запись за минуту' }).getByRole('radio')).toHaveAttribute('aria-checked', 'true');
+  await expect(main(page).getByTestId('setup-template').getByTestId('site-design-card').filter({ hasText: 'Яркий поп' }).getByRole('radio')).toHaveAttribute('aria-checked', 'true');
   await expect(page.frameLocator('[data-testid="ed-frame"]').locator('main')).toContainText('Маникюр с покрытием');
   await page.screenshot({ path: `${SHOTS}/salon-editor-1440.png`, fullPage: true });
   // аудит «Сайт и SEO» 28.10.2026: салон публикует сайт той же кнопкой, что гостиница (API с ADR-185)

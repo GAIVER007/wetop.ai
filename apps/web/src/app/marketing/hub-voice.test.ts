@@ -12,7 +12,8 @@ import { MarketingHub, liveModules } from './hub';
  * Карточка живая везде, ведёт на `/marketing/voice`, а текст говорит про то, что агент реально умеет в этом направлении.
  */
 const VERTICALS = ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const;
-const COUNTS = { HOSPITALITY: 6, BEAUTY: 6, FOOD_SERVICE: 6 } as const;
+// пульт «Продвижения» (вариант В, 28.10.2026): шесть инструментов и строка «ИИ-продавец»
+const COUNTS = { HOSPITALITY: 7, BEAUTY: 7, FOOD_SERVICE: 7 } as const;
 
 describe('«Голосовой агент» во всех направлениях', () => {
   it('реестр функций: экран открыт всем трём направлениям', () => {
@@ -25,14 +26,14 @@ describe('«Голосовой агент» во всех направления
     expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
     expect(html).toContain('href="/marketing/voice"');
     expect(html).toContain('aria-label="Открыть: Голосовой агент"');
-    expect(html.match(/data-testid="marketing-module"/g)).toHaveLength(COUNTS[vertical]);
+    expect(html.match(/data-module=""/g)).toHaveLength(COUNTS[vertical]);
   });
 
   it('тексты карточки по направлению, без чужих слов', () => {
     const card = (vertical: (typeof VERTICALS)[number]) => {
       const html = renderToStaticMarkup(createElement(MarketingHub, { vertical }));
       const start = html.indexOf('data-testid="marketing-voice"');
-      return html.slice(start, html.indexOf('</section>', start));
+      return html.slice(start, html.indexOf('</tr>', start));
     };
     expect(card('BEAUTY')).toContain('услугам и ценам');
     expect(card('FOOD_SERVICE')).toContain('часах работы');

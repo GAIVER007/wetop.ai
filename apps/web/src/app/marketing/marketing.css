@@ -2,29 +2,13 @@
   /* Хаб «Маркетинг» (MKT2; макет Marketing 2.0 09.10.2026, DESIGN.md §8): слева три модуля одного вида, справа
    колонка результатов. У модуля своя цветная плитка значка, кнопка «Открыть» внизу. До 1279 px колонка уходит под
    модули, до 960 px модули встают в столбец */
+  /* Хаб «Продвижение», вариант В владельца (28.10.2026): сверху цифры месяца, ниже пульт одной строкой на
+   инструмент: название, состояние, оплата, кнопка. Весь экран в ширину, без колонок карточек */
   .marketing-hub {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
-    gap: var(--space-4);
-    align-items: start;
-  }
-  .marketing-hub__modules {
-    display: grid;
-    /* ADR-184: пять модулей; на широком экране 3 + 2, дальше 2 колонки */
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
-    align-items: stretch;
-    gap: var(--space-4);
-  }
-  /* салон и ресторан: четыре модуля ровной сеткой 2 на 2, без пустой ячейки (аудит 21.10.2026 п. 35) */
-  .marketing-hub__modules--four {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .marketing-hub__aside {
     display: grid;
     gap: var(--space-4);
   }
   .marketing-module {
-    display: grid;
     --module-fill: var(--primary-soft);
     --module-ink: var(--primary);
   }
@@ -44,20 +28,7 @@
     --module-fill: var(--warning-soft);
     --module-ink: var(--warning);
   }
-  .marketing-module__body {
-    min-height: 280px;
-    display: grid;
-    grid-template-rows: auto auto 1fr auto;
-    gap: var(--space-4);
-  }
-  .marketing-module__head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2) var(--space-4);
-  }
-  .marketing-module__icon,
-  .marketing-start__icon {
+  .marketing-module__icon {
     display: grid;
     place-items: center;
     width: 44px;
@@ -67,127 +38,126 @@
     background: var(--module-fill, var(--primary-soft));
     color: var(--module-ink, var(--primary));
   }
-  .marketing-module__head h2 {
-    margin: 0;
-    font-size: var(--text-lg);
-    font-weight: var(--weight-semibold);
-  }
-  .marketing-module__text {
-    margin: 0;
-    color: var(--text-2);
-    font-size: var(--text-sm);
-  }
-  .marketing-module__caps {
-    display: grid;
-    align-content: start;
-    gap: var(--space-2);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    font-size: var(--text-sm);
-  }
-  .marketing-module__caps li {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-  .marketing-module__caps svg {
-    flex-shrink: 0;
-    color: var(--primary);
-  }
-  .marketing-module__foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2);
-    min-height: 44px;
-  }
-  .marketing-results h2,
-  .marketing-start h2 {
-    margin: 0;
-    font-size: var(--text-md);
-    font-weight: var(--weight-semibold);
-  }
   .marketing-results {
     display: grid;
     gap: var(--space-4);
   }
+  .marketing-results__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+  }
+  .marketing-results__head h2 {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .marketing-results__head a,
+  .marketing-results__note a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
   .marketing-results__list {
     display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-2);
     margin: 0;
   }
   .marketing-results__row {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: 'mark label' 'mark value';
     align-items: center;
-    gap: var(--space-4);
+    column-gap: var(--space-2);
     background: var(--surface-muted);
     border-radius: var(--radius-control);
     padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
-    font-size: var(--text-xs);
-  }
-  .marketing-results__row dd.muted {
-    color: var(--text-2);
-    font-weight: 400;
   }
   .marketing-results__mark {
+    grid-area: mark;
     display: grid;
     place-items: center;
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
     border-radius: var(--radius-control);
     background: var(--primary-soft);
     color: var(--primary);
   }
+  .marketing-results__row dt {
+    grid-area: label;
+    color: var(--text-2);
+    font-size: var(--text-xs);
+  }
   .marketing-results__row dd {
+    grid-area: value;
     margin: 0;
-    color: var(--muted);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
     white-space: nowrap;
+  }
+  .marketing-results__row dd.muted {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-regular);
   }
   .marketing-results__note {
     margin: 0;
     color: var(--text-2);
     font-size: var(--text-sm);
   }
-  .marketing-results__note a {
-    text-decoration: underline;
-    text-underline-offset: 2px;
+  .marketing-pult {
+    padding: 0;
+    overflow: hidden;
   }
-  .marketing-start {
-    display: grid;
-    gap: var(--space-4);
+  .marketing-pult .tbl td {
+    vertical-align: middle;
   }
-  .marketing-start__head {
+  .marketing-pult__tool {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--space-4);
   }
-  .marketing-start__body {
+  .marketing-pult__name {
     display: grid;
     gap: var(--space-1);
   }
-  .marketing-start__body p {
+  .marketing-pult__name h2 {
     margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+  .marketing-pult__name span,
+  .marketing-pult__plan {
     color: var(--text-2);
     font-size: var(--text-sm);
   }
-  .marketing-start__cta {
-    justify-content: center;
-    width: 100%;
+  .marketing-pult__go {
+    text-align: right;
+    white-space: nowrap;
   }
-  @media (max-width: 1279px) {
-    .marketing-hub {
-      grid-template-columns: minmax(0, 1fr);
-    }
+  .marketing-pult__go > * + * {
+    margin-left: var(--space-2);
+  }
+  .marketing-pult__go .btn {
+    min-width: 128px;
+    justify-content: center;
   }
   @media (max-width: 960px) {
-    .marketing-hub__modules {
-      grid-template-columns: minmax(0, 1fr);
+    .marketing-results__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .marketing-module__foot .btn:not(.action-menu__button) {
-      flex: 1 1 auto;
+  }
+  @media (max-width: 600px) {
+    .marketing-pult {
+      padding: var(--space-2);
+    }
+    .marketing-pult__go {
+      text-align: left;
+    }
+    .marketing-pult__go .btn {
+      width: 100%;
     }
   }
   /* Экраны модулей «Реклама» и «Контент» (макет Marketing 2.0, экраны 2 и 3): плашка «Скоро», вкладки, пустые

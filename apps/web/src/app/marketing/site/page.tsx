@@ -18,7 +18,9 @@ import '../marketing.css';
  * ИИ-продавца (Q-275) и архив. Право `marketing` и строгий scope филиала проверяет API.
  */
 export default async function MarketingSitePage() {
-  await requireFeature('/marketing/site');
+  const me = await requireFeature('/marketing/site');
+  // тариф брони и источник брони ИИ-продавца гостиничные (по объекту): у салона и ресторана их нет
+  const hotel = (me.context?.vertical ?? 'HOSPITALITY') === 'HOSPITALITY';
   const shell = await deskShell();
   const t = await serverT();
   // журнал и источник брони есть только у существующего сайта: без него страница показывает пустое состояние
@@ -62,6 +64,7 @@ export default async function MarketingSitePage() {
           site={site}
           publications={loaded.journal.publications}
           booking={loaded.booking}
+          hotel={hotel}
           readOnly={shell.readOnly}
         />
       ) : (

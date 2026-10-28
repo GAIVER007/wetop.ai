@@ -41,11 +41,14 @@ export function PublicationBoard({
   site,
   publications,
   booking,
+  hotel = true,
   readOnly,
 }: {
   site: MarketingSiteSummary;
   publications: SitePublicationRow[];
   booking: BookingSourceView;
+  /** гостиница: тариф брони при публикации и источник брони ИИ-продавца (у салона и ресторана объекта нет) */
+  hotel?: boolean;
   readOnly: boolean;
 }) {
   const t = useT();
@@ -132,6 +135,7 @@ export function PublicationBoard({
           )}
           {latest && dirty && (
             <>
+              {hotel && (
               <Field label={t('Тариф брони')} controlId="publication-rate">
                 <Select value={ratePlan} onChange={(e) => setRatePlan(e.target.value)} disabled={disabled}>
                   <option value="">{t('Как сейчас у сайта')}</option>
@@ -142,6 +146,7 @@ export function PublicationBoard({
                   ))}
                 </Select>
               </Field>
+              )}
               <Button
                 disabled={disabled}
                 data-testid="publication-publish"
@@ -179,6 +184,7 @@ export function PublicationBoard({
         </div>
       </Panel>
 
+      {hotel && (
       <Panel aria-labelledby="publication-booking-title" data-testid="publication-booking">
         <PanelTitle>
           <span id="publication-booking-title">{t('Источник бронирования для ИИ-продавца')}</span>
@@ -215,6 +221,7 @@ export function PublicationBoard({
           <EmptyState title={t('Нет сайтов с включённой бронью и тарифом')} />
         )}
       </Panel>
+      )}
 
       <Panel className="publication-history" aria-labelledby="publication-history-title" data-testid="publication-history">
         <PanelTitle>

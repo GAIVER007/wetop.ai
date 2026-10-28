@@ -878,6 +878,22 @@
     }
   },
   {
+    "route": "/platform/cabinet",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/platform/cabinet",
+    "rule": {
+      "href": "/platform/cabinet",
+      "label": "Кабинет WETOP",
+      "requires": "platform"
+    }
+  },
+  {
     "route": "/platform/support",
     "vertical": null,
     "features": [

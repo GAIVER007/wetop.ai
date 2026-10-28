@@ -520,6 +520,11 @@ export function SimpleSiteSetup({
               <Link href="/marketing/site">{t('Публикация и домен')}</Link>
             </li>
             <li>
+              <Link href="/marketing/site/leads" data-testid="setup-leads-link">
+                {t('Заявки с сайта')}
+              </Link>
+            </li>
+            <li>
               <Link href="/marketing/site/editor?full=1">{t('Расширенный режим')}</Link>
             </li>
           </ul>

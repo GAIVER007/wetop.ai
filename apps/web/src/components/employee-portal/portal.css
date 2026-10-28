@@ -231,3 +231,22 @@
   .portal-card-actions .btn { flex: 1 1 auto; }
   .portal-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* кабинет мастера, «Сегодня» (владелец 28.10.2026): крупное время, услуга, статус; одна запись одной строкой */
+.portal-today { grid-column: 1 / -1; }
+.portal-today h2 { margin: 0 0 var(--space-2); font-size: var(--text-lg); }
+.portal-today__list { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.portal-today__list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.portal-today__list b { font-size: var(--text-lg); font-variant-numeric: tabular-nums; }
+.portal-today__list span { display: grid; min-width: 0; }
+.portal-today__list strong { overflow-wrap: anywhere; }
+.portal-today__list small { color: var(--text-2); font-size: var(--text-sm); }
+.portal-today__list em { font-style: normal; color: var(--primary); font-size: var(--text-sm); font-weight: 600; }

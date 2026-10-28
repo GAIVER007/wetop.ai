@@ -21,7 +21,7 @@ import { portalAbsenceDays, portalAbsences, portalInitials, portalMonthLabel, po
 import { shortPeriod, zoneLabel } from '../../lib/human-period';
 import { localDate } from '@pms/domain';
 import { formatPhone, phoneFieldValue, phoneOnInput } from '../../lib/phone';
-import { intlLocale, msg, type Translate } from '../../i18n';
+import { countLabel, intlLocale, msg, type Translate } from '../../i18n';
 import { useLocale, useT } from '../../i18n/locale-provider';
 import { dateFormat } from '../../i18n/dates';
 
@@ -110,7 +110,16 @@ export function EmployeeCabinet({
         : <span className="portal-avatar portal-avatar--initials" aria-hidden="true" data-testid="portal-initials">{portalInitials(data.employee.name)}</span>}
     </header>
     {/* цифры месяца крупно (вариант A): только то, что сервер посчитал, листаются стрелками месяца выше */}
-    {manager && (() => {
+    {/* кабинет мастера (владелец 28.10.2026): «Сегодня» сверху, свои записи дня; имя клиента сервер мастеру не отдаёт */}
+    {beauty && !manager && data.workRange === 'DAY' && (!access || access.appointmentsView) && <section className="panel portal-section portal-today" data-testid="portal-today">
+      <h2>{data.appointments.length ? t('Сегодня: {n}', { n: countLabel(locale, t, data.appointments.length, [msg('запись'), 'записи', msg('записей')]) }) /* kk-allow: форма склонения */ : t('Сегодня записей нет')}</h2>
+      {data.appointments.length > 0 && <ul className="portal-today__list">{data.appointments.map((a) => <li key={a.id}>
+        <b>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</b>
+        <span><strong>{a.serviceName}</strong><small>{a.customerName || t('Клиент')}</small><small>{formatMoney(a.priceMinor, a.currency)}</small></span>
+        <em>{t(beautyStatus[a.status as AppointmentStatus]?.label ?? msg('Неизвестный статус'))}</em>
+      </li>)}</ul>}
+    </section>}
+    {(() => {
       const tiles = portalMonthTiles(
         data.monthStats,
         { pay: showPay ? data.pay : null, reviews: showReviews ? data.reviews : null },
@@ -163,7 +172,7 @@ export function EmployeeCabinet({
       </nav>
       {data.workRange === 'DAY' ? <form className="portal-filters" method="get"><Field label={beauty ? t('Дата записей') : t('Дата заказов')}><Input name="date" type="date" /></Field><button className="btn btn--secondary" type="submit">{t('Показать')}</button></form>
         : <p data-testid="portal-work-period">{beauty ? t('Записи за {month}, по дате.', { month: workMonth }) : t('Заказы за {month}, по дате.', { month: workMonth })}{data.workTruncated ? ` ${t('Показаны первые 200.')}` : ''}</p>}
-      {beauty ? data.appointments.length ? <ul className="portal-list">{data.appointments.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{shortPeriod(a.date, a.date, intlLocale(locale))}</span><span>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</span><span>{a.customerName}</span><span>{t(beautyStatus[a.status as AppointmentStatus]?.label ?? msg('Неизвестный статус'))}</span><span>{formatMoney(a.priceMinor, a.currency)}</span></li>)}</ul> : <div className="portal-work-empty"><p>{data.workRange === 'MONTH' ? t('За этот месяц записей нет') : t('На выбранную дату записей нет')}</p>{manager && data.employee.active && <a className="btn btn--secondary btn--sm" href={`/calendar?employee=${encodeURIComponent(data.employee.id)}&new=1`} data-testid="portal-work-new">{t('Новая запись')}</a>}</div>
+      {beauty ? data.appointments.length ? <ul className="portal-list">{data.appointments.map(a => <li key={a.id}><strong>{a.serviceName}</strong><span>{shortPeriod(a.date, a.date, intlLocale(locale))}</span><span>{new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: data.location?.timezone ?? 'UTC' }).format(new Date(a.startsAt))}</span><span>{a.customerName || t('Клиент')}</span><span>{t(beautyStatus[a.status as AppointmentStatus]?.label ?? msg('Неизвестный статус'))}</span><span>{formatMoney(a.priceMinor, a.currency)}</span></li>)}</ul> : <div className="portal-work-empty"><p>{data.workRange === 'MONTH' ? t('За этот месяц записей нет') : t('На выбранную дату записей нет')}</p>{manager && data.employee.active && <a className="btn btn--secondary btn--sm" href={`/calendar?employee=${encodeURIComponent(data.employee.id)}&new=1`} data-testid="portal-work-new">{t('Новая запись')}</a>}</div>
         : data.orders.length ? <ul className="portal-list">{data.orders.map(order => <li key={order.id}><strong>{t('Заказ №{n}', { n: order.number })}</strong>{data.workRange === 'MONTH' && <span>{shortPeriod(order.date, order.date, intlLocale(locale))}</span>}<span>{order.tableName ?? t('Стол не указан')}</span><span>{t(foodOrderStatus[order.status as OrderStatus]?.label ?? msg('Неизвестный статус'))}</span><span>{formatMoney(order.totalMinor, order.currency)}</span></li>)}</ul> : <p>{t('Собственных заказов за выбранный период нет')}</p>}
     </section> }] : []),
       ...(showReviews ? [{

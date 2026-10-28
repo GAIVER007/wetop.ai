@@ -105,6 +105,18 @@ describe('«Мой месяц» мастера салона', () => {
     expect(day.appointments.map((a) => a.date)).toEqual(['2026-09-02']);
     await expect(as('staffA', f.locationA, () => portal.get(null, { range: 'year' }))).rejects.toThrow();
   });
+
+  // кабинет мастера (владелец 28.10.2026): имена клиентов мастер не получает вовсе, руководитель видит
+  it('мастер не получает имён клиентов в своих записях; руководитель получает', async () => {
+    const own = await as('staffA', f.locationA, () => portal.get(null, { month, range: 'month' }));
+    expect(own.access).toBe('SELF');
+    expect(own.appointments.length).toBeGreaterThan(0);
+    expect(new Set(own.appointments.map((a) => a.customerName))).toEqual(new Set(['']));
+    expect(JSON.stringify(own.appointments)).not.toContain('Synthetic month client');
+    const managed = await as('ownerA', f.locationA, () => portal.get(f.employeeA, { month, range: 'month' }));
+    expect(managed.access).toBe('MANAGER');
+    expect(managed.appointments.every((a) => a.customerName.length > 0)).toBe(true);
+  });
 });
 
 describe('«Мой месяц» официанта', () => {

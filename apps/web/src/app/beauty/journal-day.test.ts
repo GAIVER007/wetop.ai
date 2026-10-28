@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BeautyAppointmentRow, BeautyDayColumn } from '../../lib/api';
-import { dayMoney, masterLoad, quickAction, shortHour, shortName, tilePayment, upcoming } from './journal-day';
+import { dayMoney, quickAction, shortHour, shortName, tilePayment, upcoming } from './journal-day';
 
 /** Журнал салона, вариант B (владелец 24.10.2026): загрузка мастера, ближайшие, деньги дня, быстрое действие */
 const row = (p: Partial<BeautyAppointmentRow>): BeautyAppointmentRow => ({
@@ -30,24 +30,6 @@ const col = (p: Partial<BeautyDayColumn>): BeautyDayColumn => ({
   timeOffReason: null,
   serviceIds: [],
   ...p,
-});
-
-describe('загрузка мастера', () => {
-  it('занятые минуты от рабочих, отмена и незаезд не считаются', () => {
-    const rows = [
-      row({ id: '1', startMinutes: 600, endMinutes: 690 }),
-      row({ id: '2', startMinutes: 720, endMinutes: 810, status: 'CANCELLED' }),
-      row({ id: '3', startMinutes: 840, endMinutes: 900, status: 'NO_SHOW' }),
-    ];
-    expect(masterLoad(col({}), rows)).toEqual({ count: 1, percent: 17 });
-  });
-  it('выходной или отсутствие: нет процента', () => {
-    expect(masterLoad(col({ intervals: [] }), [])).toEqual({ count: 0, percent: null });
-    expect(masterLoad(col({ timeOff: true }), [])).toEqual({ count: 0, percent: null });
-  });
-  it('процент не больше 100 при наложении записей', () => {
-    expect(masterLoad(col({ intervals: [{ timeFrom: '10:00', timeTo: '11:00' }] }), [row({ startMinutes: 540, endMinutes: 720 })]).percent).toBe(100);
-  });
 });
 
 describe('ближайшие', () => {

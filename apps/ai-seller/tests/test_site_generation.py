@@ -237,6 +237,13 @@ def test_salon_and_restaurant_rules_and_vertical_in_task() -> None:
     assert "(HOSPITALITY)" in hotel["content"]
 
 
+def test_hero_heading_is_a_phrase_not_the_name() -> None:
+    """28.10.2026: заголовок первого экрана это фраза, название уходит в подзаголовок; без выдумок"""
+    assert "hero.heading это короткая фраза" in SYSTEM_PROMPT
+    assert "а не название" in SYSTEM_PROMPT
+    assert "стаж" in SYSTEM_PROMPT
+
+
 def test_request_contract_rejects_keys_models_and_organizations() -> None:
     for extra in ({"apiKey": "sk-x"}, {"model": "x/y"}, {"organizationId": str(uuid.uuid4())}):
         with pytest.raises(ValueError):

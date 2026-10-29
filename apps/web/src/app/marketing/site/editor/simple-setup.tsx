@@ -9,6 +9,7 @@ import {
   SEO_DESCRIPTION_MAX,
   SEO_TITLE_MAX,
   currentSiteTemplate,
+  heroTone,
   searchPreview,
   setAboutText,
   setGalleryPhotos,
@@ -164,7 +165,10 @@ export function SimpleSiteSetup({
   };
 
   const suggest = () => {
-    const c = siteCopySuggestion(vertical, copyIndex, locationName);
+    // с фактами филиала фраза первого экрана под стиль сайта (тон по шрифту темы), без выдумок
+    const typography = ((specRef.current as Record<string, unknown>)['theme'] as Record<string, unknown> | undefined)?.['typography'];
+    const lang = locale === 'kk' || locale === 'en' ? locale : 'ru';
+    const c = siteCopySuggestion(vertical, copyIndex, locationName, facts, heroTone(typography), lang);
     let next = setHeroText(specRef.current, 'heading', locale, c.heading);
     next = setHeroText(next, 'subheading', locale, c.subheading);
     next = setAboutText(next, locale, c.about);

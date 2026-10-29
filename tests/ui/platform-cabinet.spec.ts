@@ -61,7 +61,7 @@ test('кабинет главного администратора без стр
   await expect(header.getByRole('button', { name: 'Открыть меню' })).toHaveCount(0);
   // остаются знак (ведёт в кабинет), тема и профиль с «Выйти»
   await expect(header.getByRole('link', { name: 'WETOP, стартовый экран' })).toHaveAttribute('href', '/platform/cabinet');
-  await expect(header.getByRole('button', { name: 'Меню администратора' })).toBeVisible();
+  await expect(header.locator('.profile-trigger')).toBeVisible();
   if (process.env.CABINET_SHOTS)
     await page.screenshot({ path: `${process.env.CABINET_SHOTS}/cabinet-1440.png` });
   // в стойке клиента строка разделов на месте

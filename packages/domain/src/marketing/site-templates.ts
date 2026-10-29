@@ -2,6 +2,7 @@ import { applyDesignDirection, type DesignDirection } from './builder';
 import type { SiteFacts, SiteFactsVertical } from './site-facts';
 import { heroCopy, heroTone, type HeroLocale } from './hero-copy';
 import { starterSpecFromFacts } from './starter';
+import { isStockAssetId, stockImage, stockPhotoFor } from './stock-photos';
 
 /**
  * Шаблоны готовых сайтов по сегментам (SITE-1, поручение владельца 15.10.2026): у гостиницы, салона и ресторана по три
@@ -156,9 +157,24 @@ export function applySiteTemplate(spec: unknown, templateId: unknown): Rec | nul
   const pages = ((spec as Rec | null)?.['pages'] as Rec[] | undefined) ?? [];
   const home = pages.find((p) => p['isHome'] === true) ?? pages[0];
   const hero = ((home?.['sections'] as Rec[] | undefined) ?? []).find((s) => s['type'] === 'hero');
-  const keepHero = hero && hero['image'] !== undefined && typeof hero['variant'] === 'string';
-  const direction: DesignDirection = keepHero ? { ...tpl.direction, heroVariant: hero['variant'] as DesignDirection['heroVariant'] } : tpl.direction;
-  const next = applyDesignDirection(spec, direction) as Rec;
+  const heroImage = hero?.['image'] as Rec | undefined;
+  // своё фото клиента главнее: шаблон его не меняет и оставляет его раскладку первого экрана
+  const ownPhoto = heroImage !== undefined && !isStockAssetId(heroImage['assetId']) && typeof hero?.['variant'] === 'string';
+  const stock = stockPhotoFor(tpl.id);
+  const direction: DesignDirection = ownPhoto
+    ? { ...tpl.direction, heroVariant: hero!['variant'] as DesignDirection['heroVariant'] }
+    : stock
+      ? { ...tpl.direction, heroVariant: stock.heroVariant }
+      : tpl.direction;
+  // фото набора WETOP (владелец 29.10.2026): у сайта без своего фото первый экран с фото шаблона
+  const withStock = structuredClone(spec) as Rec;
+  if (!ownPhoto && stock) {
+    const locales = (((withStock['site'] as Rec | undefined)?.['locales'] as string[] | undefined) ?? ['ru']);
+    for (const page of (withStock['pages'] as Rec[] | undefined) ?? [])
+      for (const s of (page['sections'] as Rec[] | undefined) ?? [])
+        if (s['type'] === 'hero' && (page['isHome'] === true || page === home)) s['image'] = stockImage(stock, locales);
+  }
+  const next = applyDesignDirection(withStock, direction) as Rec;
   for (const page of (next['pages'] as Rec[] | undefined) ?? [])
     page['sections'] = ((page['sections'] as Rec[] | undefined) ?? []).map((s) => {
       const type = String(s['type']);

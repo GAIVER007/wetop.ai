@@ -295,5 +295,16 @@ test('сайт по промту: живое превью, свой дизайн
   await page.screenshot({ path: `${SHOTS}/prompt-flow-1440.png`, fullPage: true });
   await win.getByTestId('create-site-prompt').click();
   await expect(editor(page)).toBeVisible({ timeout: 15_000 });
+  // в редакторе дизайн пересобирается новым описанием: тема меняется, название филиала на месте
+  const setup = main(page).getByTestId('site-setup');
+  if (await setup.count()) {
+    const frameOf = () => main(page).getByTestId('ed-frame');
+    const before = await frameOf().getAttribute('srcdoc');
+    await setup.getByLabel(/Опишите новый дизайн/).fill('Светлый спокойный эко стиль, зелёный');
+    await setup.getByTestId('setup-redesign').click();
+    await expect(setup.getByTestId('setup-notice')).toContainText('Дизайн пересобран');
+    await expect.poll(async () => (await frameOf().getAttribute('srcdoc')) !== before).toBe(true);
+    await expect(frameOf()).toHaveAttribute('srcdoc', /Luxx Aparts/);
+  }
 });
 

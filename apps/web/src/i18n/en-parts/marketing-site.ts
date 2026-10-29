@@ -740,6 +740,11 @@ export const marketingSite: Record<string, string> = {
   'Начните писать слева: здесь сразу появится ваш сайт.': 'Start typing on the left: your site will appear here right away.',
   'Или начните с готового стиля': 'Or start from a ready-made style',
   'Какой сайт сделать?': 'What kind of website?',
+  'Опишите новый дизайн': 'Describe the new design',
+  'Например: светлый и спокойный, зелёный, акцент на отзывы': 'For example: light and calm, green, focus on reviews',
+  'Пересобрать дизайн': 'Rebuild the design',
+  'Готовые стили': 'Ready-made styles',
+  'Дизайн пересобран по описанию. Тексты, фото и блоки на месте.': 'The design was rebuilt from the description. Texts, photos and blocks stay in place.',
   'Создать по стилю': 'Create from style',
   'Открыть редактор сейчас': 'Open the editor now',
 };

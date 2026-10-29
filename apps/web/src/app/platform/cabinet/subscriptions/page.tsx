@@ -5,6 +5,21 @@ import { serverT } from '../../../../i18n/server';
 import { CabinetShell, centsToInput, dayText, usd } from '../shell';
 import { PlanForm, SubscriptionForm } from '../money-forms';
 import { NotReady, loadMoney } from '../load-money';
+import { ClientAccess } from '../client-access';
+import { platformApi, type PlatformSiteBuilderLocation } from '../../../../lib/api';
+
+/** Филиалы клиентов с доступом к конструктору сайта; ошибка одного клиента не ломает страницу (пустой список) */
+async function accessByClient(ids: string[]): Promise<Map<string, PlatformSiteBuilderLocation[]>> {
+  const rows = await Promise.all(
+    ids.map((id) =>
+      platformApi.siteBuilder(id).then(
+        (r) => [id, r.items] as const,
+        () => [id, [] as PlatformSiteBuilderLocation[]] as const,
+      ),
+    ),
+  );
+  return new Map(rows);
+}
 
 /** Подписки клиентов и тарифы компании WETOP (DATA_MODEL §63): цены вводит сам владелец, в долларах */
 export default async function SubscriptionsPage() {
@@ -34,6 +49,8 @@ async function Subscriptions() {
       </CabinetShell>
     );
   const overdue = new Set(view.summary.overdue.map((o) => o.organizationId));
+  // доступы к модулям тарифа (владелец 29.10.2026): филиалы каждого клиента с конструктором сайта
+  const access = await accessByClient(view.clients.map((c) => c.id));
   return (
     <CabinetShell
       active="subscriptions"
@@ -104,6 +121,13 @@ async function Subscriptions() {
                       client={{ ...c, monthlyInput: centsToInput(c.monthlyCents) }}
                       plans={view.plans.filter((p) => p.active || p.id === c.planId)}
                     />
+                    {(access.get(c.id) ?? []).length > 0 && (
+                      <div className="cabinet-access-list" data-testid="subscription-access-list">
+                        {(access.get(c.id) ?? []).map((l) => (
+                          <ClientAccess key={l.id} organizationId={c.id} location={l} />
+                        ))}
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

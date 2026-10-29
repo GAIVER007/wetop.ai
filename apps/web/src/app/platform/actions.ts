@@ -138,6 +138,34 @@ export async function changeSiteBuilderAction(
 }
 
 /**
+ * Выдача доступа из «Подписки клиентов» (владелец 29.10.2026): пробный на 14 дней одной кнопкой (срок считает сервер
+ * стойки, последний день включительно), «Оплачен» бессрочно, «Выключить». Тот же API лицензии, что форма выше.
+ */
+const ACCESS_TRIAL_DAYS = 14;
+export async function grantAccessAction(
+  organizationId: string,
+  locationId: string,
+  prev: SiteBuilderFormResult | null,
+  form: FormData,
+): Promise<SiteBuilderFormResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  const action = String(form.get('action') ?? '');
+  const status = action === 'trial' ? 'TRIAL' : action === 'off' ? 'OFF' : 'ACTIVE';
+  const activeUntil = status === 'TRIAL' ? new Date(Date.now() + ACCESS_TRIAL_DAYS * 86_400_000).toISOString().slice(0, 10) : '';
+  try {
+    const saved = await platformApi.changeSiteBuilder(organizationId, locationId, { status, activeUntil, note: String(form.get('note') ?? '').trim() });
+    revalidatePath('/platform/cabinet', 'layout');
+    revalidatePath('/platform');
+    const t = await serverT();
+    const word = saved.license.access === 'active' ? t('действует') : saved.license.access === 'expired' ? t('срок вышел') : t('выключен');
+    return { error: null, message: t('Сохранено: конструктор сайта филиала «{name}» {state}', { name: saved.name, state: word }), attempt };
+  } catch (e) {
+    const t = await serverT();
+    return { error: e instanceof ApiError || e instanceof Error ? e.message : t('Не удалось сохранить'), message: null, attempt };
+  }
+}
+
+/**
  * Название, архив и возврат организации (ORG1, ADR-ORG1, Q-282): «удалить» заменено архивом, данные не удаляются.
  * Проверяет API, отказ его словами.
  */

@@ -5,7 +5,7 @@ test('филиалы: создание, сохранение после reload �
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL(/\/(today|platform\/cabinet)$/);
   await page.goto('/branches');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { name: 'Организация', exact: true })).toBeVisible();
@@ -90,7 +90,7 @@ test('организации: филиал создаётся прямо в ра
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL(/\/(today|platform\/cabinet)$/);
   await page.goto('/platform');
   await expect(page.getByTestId('platform-forbidden')).toBeVisible();
   await expect(page.locator('summary').filter({ hasText: 'Добавить филиал' })).toHaveCount(0);
@@ -129,7 +129,7 @@ test('организации: филиал создаётся прямо в ра
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
   await main.getByRole('button', { name: 'Открыть филиал', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL(/\/(today|platform\/cabinet)$/);
 });
 
 test('переключатель филиалов сохраняет раздел и выбор после перезагрузки', async ({

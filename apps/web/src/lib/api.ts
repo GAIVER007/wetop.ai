@@ -3208,6 +3208,18 @@ export type PlatformMoney =
 
 /** Кабинет компании WETOP, срез 1: клиенты, путь клиента и сроки; денег до среза 2 нет */
 /** Путь клиента месяца, MRR и LTV руководителя WETOP (`GET /platform/growth`, 29.10.2026); центы строкой, проценты десятыми */
+/** Карточка клиента кабинета руководителя (срез 3): люди, филиалы, журнал действий с организацией */
+export interface PlatformClientCard {
+  id: string;
+  name: string;
+  status: 'TRIAL' | 'ACTIVE' | 'READ_ONLY' | 'SUSPENDED';
+  createdAt: string;
+  trialEndsAt: string | null;
+  members: Array<{ email: string; name: string | null; owner: boolean; lastLoginAt: string | null }>;
+  locations: Array<{ name: string; business: string; vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' }>;
+  journal: Array<{ at: string; action: string; by: string | null; status: string | null; note: string | null }>;
+}
+
 export interface PlatformGrowth {
   month: string;
   kpi: { mrrCents: string; paying: number; trial: number; trialEndingSoon: number; unpaid: number; avgLtvCents: string; avgDaysWithUs: number };
@@ -3305,6 +3317,11 @@ export const platformApi = {
   /** Кабинет компании WETOP (вариант «Г», 28.10.2026): только главному администратору */
   cabinet: () => getJson<PlatformCabinet>('/platform/cabinet'),
   growth: (month: string) => getJson<PlatformGrowth>(`/platform/growth?month=${encodeURIComponent(month)}`),
+  clientCard: (organizationId: string) =>
+    getJson<PlatformClientCard>(`/platform/organizations/${encodeURIComponent(organizationId)}/card`),
+  /** Продлить пробный на 1–30 дней (от сегодня, если срок прошёл) */
+  extendTrial: (organizationId: string, days: number) =>
+    sendJson<PlatformClientCard>('PUT', `/platform/organizations/${encodeURIComponent(organizationId)}/trial`, { days }),
   /** Деньги компании WETOP за месяц `ГГГГ-ММ` (DATA_MODEL §63): центы USD строкой; ready=false до миграции 166 */
   money: (month: string) => getJson<PlatformMoney>(`/platform/money?month=${encodeURIComponent(month)}`),
   savePlan: (id: string | null, body: { name: string; price: string; periodMonths: number; active: boolean }) =>

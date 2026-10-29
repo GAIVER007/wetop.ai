@@ -127,9 +127,9 @@ async function Clients({ filter }: { filter: Filter }) {
                     <td>
                       <Link
                         className="cabinet__client-name"
-                        href={`/platform?org=${c.id}#organization`}
+                        href={`/platform/cabinet/clients/${c.id}`}
                         prefetch={false}
-                        aria-label={t('Доступ: {name}', { name: c.name })}
+                        aria-label={t('Карточка клиента: {name}', { name: c.name })}
                       >
                         {c.name}
                       </Link>

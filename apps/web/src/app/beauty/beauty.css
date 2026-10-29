@@ -1308,6 +1308,38 @@
   .beauty-appointments-table td .btn {
     text-align: left;
   }
+  @media (min-width: 601px) {
+    /* записи в одну строку (владелец 29.10.2026, Kyial): строка 47 px вместо 83-121, на 1440 px без прокрутки вбок;
+       длинные клиент, услуга, специалист, автор с многоточием, полный текст в подсказке; телефон целиком */
+    .beauty-appointments-table th,
+    .beauty-appointments-table td {
+      padding-inline: var(--space-2);
+      padding-block: var(--space-1);
+      white-space: nowrap;
+    }
+    .beauty-appointments-table td[data-col='client'],
+    .beauty-appointments-table td[data-col='service'],
+    .beauty-appointments-table td[data-col='staff'],
+    .beauty-appointments-table td[data-col='author'] {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 13ch;
+    }
+    .beauty-appointments-table td[data-col='service'] {
+      max-width: 26ch;
+    }
+    .beauty-appointments-table td[data-col='author'] {
+      max-width: 10ch;
+    }
+    .beauty-appointments-table td .btn {
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-height: var(--space-8);
+      padding-block: var(--space-1);
+    }
+  }
   .beauty-contact a {
     white-space: nowrap;
   }

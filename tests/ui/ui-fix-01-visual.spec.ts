@@ -36,7 +36,7 @@ for (const theme of ['light', 'dark'] as const)
         await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
         await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
         await page.getByRole('button', { name: 'Войти', exact: true }).click();
-        await page.waitForURL('**/today');
+        await page.waitForURL(/\/(today|platform\/cabinet)$/);
         if (route === '/team') {
           await request.post(`${FIXTURE_API}/__test/control`, {
             data: { failPath: '/auth/access-structure', failStatus: 503 },

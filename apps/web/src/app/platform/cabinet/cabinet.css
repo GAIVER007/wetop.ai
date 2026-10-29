@@ -317,6 +317,61 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  /* Карточка клиента (срез 3, 29.10.2026): шапка со статусом и доступом, ниже люди и филиалы парой, журнал */
+  .cabinet__client-head {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .cabinet__client-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .cabinet__client-title h2 {
+    margin: 0;
+    font-size: var(--text-xl);
+  }
+  .cabinet__back,
+  .cabinet__more {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .cabinet__back {
+    flex-basis: 100%;
+    font-size: var(--text-sm);
+  }
+  .cabinet__more {
+    margin-left: auto;
+  }
+  .cabinet__access {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: end;
+  }
+  .cabinet__access > .alert,
+  .cabinet__access > .notice {
+    grid-column: 1 / -1;
+  }
+  .cabinet__label {
+    font-weight: 600;
+    font-size: var(--text-sm);
+  }
+  .cabinet__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: start;
+  }
+  /* люди и филиалы в половине ширины: таблица по панели, без прокрутки вбок, почта переносится */
+  .cabinet__pair .table-scroll > .tbl {
+    min-width: 0;
+  }
+  .cabinet__pair td {
+    overflow-wrap: anywhere;
+  }
 }
 
 @media (max-width: 960px) {
@@ -341,6 +396,8 @@
       overscroll-behavior-x: contain;
     }
     .cabinet__grid,
+    .cabinet__access,
+    .cabinet__pair,
     .cabinet__form--wide,
     .cabinet__form--row {
       grid-template-columns: minmax(0, 1fr);

@@ -682,6 +682,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // кабинет компании WETOP (28.10.2026, DATA_MODEL §63)
   'GET /platform/cabinet': 'platform',
   'GET /platform/growth': 'platform',
+  'GET /platform/organizations/:id/card': 'platform',
+  'PUT /platform/organizations/:id/trial': 'platform',
   'GET /platform/money': 'platform',
   'POST /platform/plans': 'platform',
   'PUT /platform/plans/:id': 'platform',

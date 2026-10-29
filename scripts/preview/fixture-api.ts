@@ -2201,6 +2201,9 @@ function recordPlan(
   if (plan && (!item.ratePlanCode || can(uiRole, 'rates')))
     Object.assign(item, { ratePlanCode: plan.code, ratePlanName: plan.name });
 }
+/** Карточка клиента (срез 3 кабинета): продлённый пробный и журнал действий стенда */
+const platformTrials = new Map<string, string>();
+const platformJournal = new Map<string, Array<{ at: string; action: string; by: string | null; status: string | null; note: string | null }>>();
 let uiPlatformAdmin = false;
 /**
  * Люди вымышленной организации и её ожидающие приглашения (ADR-107): вошедшая Дана — с ролью `uiRole`, остальные —
@@ -2428,6 +2431,8 @@ function resetAccess() {
   platformArchived.clear();
   platformCreated.length = 0;
   platformLinkAt.clear();
+  platformTrials.clear();
+  platformJournal.clear();
   platformMailOn = true;
   setSellerExtension('active', null, false);
 }
@@ -2466,7 +2471,7 @@ const platformOrganizations = () => [
     status: platformArchived.has('ui-org-2')
       ? 'SUSPENDED'
       : (platformStatuses.get('ui-org-2') ?? 'TRIAL'),
-    trialEndsAt: new Date(Date.now() + 5 * DAY_MS).toISOString(),
+    trialEndsAt: platformTrials.get('ui-org-2') ?? new Date(Date.now() + 5 * DAY_MS).toISOString(),
     createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
     members: 1,
     owners: ['owner@example.com'],
@@ -8366,6 +8371,45 @@ createServer(async (req, res) => {
         if (!parsed.ok) return send(400, { message: parsed.errors.join('; ') });
         platformExtensions.set(org.id, { ...parsed.value, updatedAt: new Date() });
         return send(200, platformOrganizationJson(org));
+      }
+      // Карточка клиента кабинета (срез 3): люди, филиалы, журнал; «продлить пробный» на 1–30 дней
+      const card = /^\/platform\/organizations\/([^/]+)\/(card|trial)$/.exec(path);
+      if (card) {
+        const org = platformOrganizations().find((o) => o.id === decodeURIComponent(card[1]!));
+        if (!org) return send(404, { message: 'Такой организации нет' });
+        const cardJson = () => {
+          const o = platformOrganizations().find((x) => x.id === org.id)!;
+          return {
+            id: o.id,
+            name: o.name,
+            status: o.status,
+            createdAt: o.createdAt,
+            trialEndsAt: o.trialEndsAt,
+            members: o.owners.map((email) => ({ email, name: null, owner: true, lastLoginAt: o.id === 'ui-org' ? new Date().toISOString() : null })),
+            locations: o.verticals.map((vertical, i) => ({ name: `Филиал ${i + 1}`, business: o.name, vertical })),
+            journal: [
+              ...(platformJournal.get(o.id) ?? []),
+              { at: o.createdAt, action: 'organization.created', by: null, status: null, note: null },
+            ],
+          };
+        };
+        if (card[2] === 'card' && req.method === 'GET') return send(200, cardJson());
+        if (card[2] === 'trial' && req.method === 'PUT') {
+          const days = body['days'];
+          if (typeof days !== 'number' || !Number.isInteger(days) || days < 1 || days > 30)
+            return send(400, { message: 'Продлить пробный: от 1 до 30 дней целым числом' });
+          if (org.status !== 'TRIAL' && org.status !== 'READ_ONLY')
+            return send(409, { message: 'Пробный продлевается только пробному клиенту или клиенту «только чтение»' });
+          const end = org.trialEndsAt ? new Date(org.trialEndsAt).getTime() : 0;
+          const until = new Date(Math.max(end, Date.now()) + days * DAY_MS).toISOString();
+          platformTrials.set(org.id, until);
+          platformStatuses.set(org.id, 'TRIAL');
+          platformJournal.set(org.id, [
+            { at: new Date().toISOString(), action: 'organization.trial_extended', by: 'admin@wetop.test', status: 'TRIAL', note: null },
+            ...(platformJournal.get(org.id) ?? []),
+          ]);
+          return send(200, cardJson());
+        }
       }
       // Оплата счётом (Q-141 — А, ADR-102): «оплата получена» — ACTIVE, обратно — READ_ONLY
       const status = /^\/platform\/organizations\/([^/]+)\/status$/.exec(path);

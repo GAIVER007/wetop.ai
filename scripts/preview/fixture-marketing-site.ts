@@ -9,6 +9,7 @@ import {
   planFollowUpText,
   siteBuilderAccess,
   siteSpecAssetRefs,
+  withoutStockRefs,
   siteSpecHash,
   siteTemplateById,
   templateSiteSpec,
@@ -495,7 +496,8 @@ const conflictVersion = () => conflict('VERSION_CONFLICT', 'Сайт уже из
 /** Картинки документа: готовые ассеты библиотеки стенда нужного вида, как `checkSpecAssets` API */
 function assetProblems(spec: unknown) {
   const kinds = fixtureAssetKinds();
-  return siteSpecAssetRefs(spec)
+  // фото набора WETOP (шаблоны) не из библиотеки филиала: как в API (`withoutStockRefs`, asset-refs.ts)
+  return withoutStockRefs(siteSpecAssetRefs(spec))
     .filter((r) => kinds.get(r.assetId) !== r.expectedKind)
     .map((r) => ({ path: r.path, code: kinds.has(r.assetId) ? 'wrong_kind' : 'unavailable' }));
 }

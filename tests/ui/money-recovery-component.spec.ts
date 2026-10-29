@@ -49,6 +49,9 @@ export async function customerBonusQuote(){return null}
 export async function lookupCertificate(){return {error:'not used'}}
 export async function moveAppointment(){return {}}
 export async function setAppointmentStatus(){return {}}
+// сверка зависшей метки (28.10.2026): касса «не ответила», метка держит блок, как требует этот сценарий
+export async function appointmentPaymentKeyFound(){return null}
+export async function adjustAppointmentPrice(){return {}}
 async function command(kind,args){
  window.__beautyCalls.push({kind,args});
  const response=await fetch('/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind,args})});

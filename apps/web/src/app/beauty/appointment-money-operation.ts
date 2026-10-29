@@ -10,6 +10,17 @@ export type MoneyRequest = Readonly<{
 }>;
 export type PreparedMoneyRequest = MoneyRequest & { readonly idempotencyKey: string };
 type MarkerStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+/** Метка неподтверждённой операции: ключ и время отправки (сверка с кассой, 28.10.2026) */
+export type PendingMarker = Readonly<{ idempotencyKey: string; startedAt: number }>;
+/** Без ответа и без операции в кассе дольше 2 минут: запрос до сервера не дошёл или откатился */
+export const MONEY_MARKER_STALE_MS = 2 * 60 * 1000;
+const parseMarker = (value: string | null): PendingMarker | null => {
+  if (!value) return null;
+  const at = value.lastIndexOf('@');
+  if (at < 0) return { idempotencyKey: value, startedAt: 0 }; // метка до исправления: без времени
+  const startedAt = Number(value.slice(at + 1));
+  return { idempotencyKey: value.slice(0, at), startedAt: Number.isFinite(startedAt) ? startedAt : 0 };
+};
 
 /** One mounted request. Persistence contains only scope IDs and an opaque operation ID.
  * An unresolved remount cannot reconstruct a reason, so it must reconcile, never replay new input.
@@ -20,6 +31,7 @@ export class AppointmentMoneyOperation {
   private key = '';
   private request: PreparedMoneyRequest | undefined;
   private wasUnknown = false;
+  private marker = '';
 
   constructor(
     scope: string,
@@ -47,8 +59,10 @@ export class AppointmentMoneyOperation {
       // Check again immediately before dispatch; never overwrite a surviving marker.
       if (this.storage.getItem(this.key) !== null) { this.status = 'blocked'; return null; }
       const idempotencyKey = this.uuid();
-      this.storage.setItem(this.key, idempotencyKey);
-      if (this.storage.getItem(this.key) !== idempotencyKey) throw new Error('marker');
+      const marker = `${idempotencyKey}@${Date.now()}`;
+      this.storage.setItem(this.key, marker);
+      if (this.storage.getItem(this.key) !== marker) throw new Error('marker');
+      this.marker = marker;
       const request: PreparedMoneyRequest = Object.freeze({
         ...input,
         ...(input.reason === undefined ? {} : { reason: input.reason.trim() }),
@@ -70,12 +84,35 @@ export class AppointmentMoneyOperation {
     return this.request;
   }
 
+  /** Метка, оставшаяся от прошлого открытия (вкладка закрылась без ответа): её ключ сверяют с кассой */
+  pendingMarker(): PendingMarker | null {
+    if (this.status !== 'blocked' || !this.storage) return null;
+    try { return parseMarker(this.storage.getItem(this.key)); } catch { return null; }
+  }
+
+  /**
+   * Ответ кассы по ключу метки: операция есть (деньги прошли) или её нет дольше 2 минут (не дошла). Тогда метка
+   * снимается и можно принимать оплату дальше; повтор старого ключа сервер всё равно не проведёт второй раз.
+   * Снимается только та метка, которую сверяли: если другая вкладка успела поставить свою, она остаётся.
+   */
+  reconcile(found: boolean, now: number, expected: PendingMarker | null = this.pendingMarker()): boolean {
+    if (this.status !== 'blocked' || !this.storage || !expected) return false;
+    if (!found && now - expected.startedAt < MONEY_MARKER_STALE_MS) return false;
+    try {
+      const current = parseMarker(this.storage.getItem(this.key));
+      if (!current || current.idempotencyKey !== expected.idempotencyKey || current.startedAt !== expected.startedAt) return false;
+      this.storage.removeItem(this.key);
+      this.status = 'idle';
+      return true;
+    } catch { return false; }
+  }
+
   settle(result: JournalResult | null | undefined): boolean {
     if (this.status !== 'pending' || !this.request) return false;
     const confirmed = Boolean(result?.message) && !result?.error && !result?.outcome;
     if (confirmed || (result?.outcome === 'rejected' && !this.wasUnknown)) {
       try {
-        if (this.storage?.getItem(this.key) === this.request.idempotencyKey) {
+        if (this.storage?.getItem(this.key) === this.marker) {
           this.storage.removeItem(this.key);
           this.status = 'idle';
         } else this.status = 'blocked';

@@ -14,6 +14,7 @@ export * from './design-presets';
 export * from './site-templates';
 export * from './live-sync';
 export * from './simple-edit';
+export * from './seo-auto';
 export * from './site-copy';
 export * from './site-notification';
 export * from './staff-telegram';

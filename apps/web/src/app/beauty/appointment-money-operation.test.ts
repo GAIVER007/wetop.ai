@@ -78,4 +78,36 @@ describe('Appointment money unknown-outcome lifecycle', () => {
     expect(op.settle({ message: 'Оплата принята' })).toBe(true);
     expect([...f.data.values()]).toEqual(['another-operation']); expect(op.status).toBe('blocked');
   });
+  // админ салона 28.10.2026: «Безопасная отправка недоступна…» навсегда блокировала оплату записи.
+  // Метка без ответа теперь сверяется с кассой на сервере: нашлась операция с этим ключом или прошло 2 минуты
+  // и операции нет, метка снимается; пока ответа нет, оплата закрыта, как и раньше
+  it('сверка с кассой: операция с ключом нашлась, метка снимается и оплата снова доступна', () => {
+    const f = fixture(); const first = f.open().begin(pay)!; // вкладку закрыли, ответа не было
+    const reopened = f.open(); expect(reopened.status).toBe('blocked');
+    expect(reopened.pendingMarker()?.idempotencyKey).toBe(first.idempotencyKey);
+    expect(reopened.reconcile(true, Date.now())).toBe(true);
+    expect(reopened.status).toBe('idle'); expect(f.data.size).toBe(0);
+  });
+  it('сверка с кассой: операции нет, но прошло меньше 2 минут, запрос мог ещё идти, оплата закрыта', () => {
+    const f = fixture(); f.open().begin(pay);
+    const reopened = f.open(); const started = reopened.pendingMarker()!.startedAt;
+    expect(reopened.reconcile(false, started + 60_000)).toBe(false);
+    expect(reopened.status).toBe('blocked'); expect(f.data.size).toBe(1);
+    expect(reopened.reconcile(false, started + 121_000)).toBe(true);
+    expect(reopened.status).toBe('idle'); expect(f.data.size).toBe(0);
+  });
+  it('старая метка без времени (до исправления) снимается сверкой, если операции в кассе нет', () => {
+    const f = fixture(); f.open().begin(pay);
+    for (const key of f.data.keys()) f.data.set(key, '00000000-0000-4000-8000-000000000099');
+    const reopened = f.open();
+    expect(reopened.pendingMarker()).toEqual({ idempotencyKey: '00000000-0000-4000-8000-000000000099', startedAt: 0 });
+    expect(reopened.reconcile(false, Date.now())).toBe(true); expect(f.data.size).toBe(0);
+  });
+  it('сверка не трогает метку, которую успела сменить другая вкладка', () => {
+    const f = fixture(); f.open().begin(pay);
+    const reopened = f.open(); const marker = reopened.pendingMarker()!;
+    for (const key of f.data.keys()) f.data.set(key, `another@${Date.now()}`);
+    expect(reopened.reconcile(true, marker.startedAt + 1, marker)).toBe(false);
+    expect([...f.data.values()][0]).toMatch(/^another@/); expect(reopened.status).toBe('blocked');
+  });
 });

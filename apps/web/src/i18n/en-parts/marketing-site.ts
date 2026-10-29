@@ -710,6 +710,8 @@ export const marketingSite: Record<string, string> = {
   "Яркий поп": "Bright pop",
   "Молодёжно и смело: персик и фуксия, крупный шрифт, услуги карточками, запись сразу под первым экраном": "Young and bold: peach and fuchsia, a large font, services as cards, booking right under the first screen",
   "Тёмная роскошь: чёрный фон, шампань, антиква, услуги строками с ценой, мастера крупно": "Dark luxury: black background, champagne, serif type, services in rows with prices, large staff portraits",
+  // SEO и GEO при создании сайта (S7, 28.10.2026)
+  "Для Google и ИИ-поиска, из данных WETOP": "For Google and AI search, from WETOP data",
   // стили шаблонов гостиницы и ресторана, 28.10.2026
   "Эко-минимал: шалфей и беж, строгий шрифт, номера карточками, цены «от» и бронь сразу под ними": "Eco minimal: sage and beige, a strict font, rooms as cards, prices «from» and booking right below",
   "Тёмная роскошь: чёрный фон, шампань, антиква, номера крупными строками": "Dark luxury: black background, champagne, serif type, rooms in large rows",

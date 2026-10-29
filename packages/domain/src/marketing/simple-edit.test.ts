@@ -119,7 +119,7 @@ describe('простой экран сайта: пять действий кли
   });
 
   it('список блоков для экрана: только необязательные, с подписями', () => {
-    expect(SIMPLE_BLOCKS.map((b) => b.type)).toEqual(['features', 'staff', 'hours', 'cta']);
+    expect(SIMPLE_BLOCKS.map((b) => b.type)).toEqual(['features', 'staff', 'hours', 'faq', 'cta']);
     expect(SIMPLE_BLOCKS.every((b) => b.label.length > 0)).toBe(true);
   });
 });

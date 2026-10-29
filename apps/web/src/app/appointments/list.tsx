@@ -338,7 +338,12 @@ export function AppointmentsList({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {rows.map((r) => {
+              const services = r.items?.length ? r.items.map((item) => item.serviceName).join(', ') : r.serviceName;
+              const staff = r.items?.length
+                ? [...new Set(r.items.map((item) => item.employeeName))].join(', ')
+                : (day.columns.find((e) => e.id === r.employeeId)?.name ?? t('Специалист в архиве'));
+              return (
               <tr key={r.id}>
                 <td data-label={t('Дата')} data-col="date">
                   {shortDay(localInput(r.startsAt, day.location.timezone).slice(0, 10))}
@@ -346,7 +351,7 @@ export function AppointmentsList({
                 <td data-label={t('Время')} data-col="time">
                   {clock(r.startMinutes)}–{clock(r.endMinutes)}
                 </td>
-                <td data-label={t('Клиент')}>
+                <td data-label={t('Клиент')} data-col="client" title={r.customer.name}>
                   <Button size="sm" tone="ghost" onClick={() => address({ appointment: r.id })}>
                     {r.customer.name}
                   </Button>
@@ -363,21 +368,19 @@ export function AppointmentsList({
                     t('Не указан')
                   )}
                 </td>
-                <td data-label={t('Услуга')}>
-                  {r.items?.length
-                    ? r.items.map((item) => item.serviceName).join(', ')
-                    : r.serviceName}
+                <td data-label={t('Услуга')} data-col="service" title={services}>
+                  {services}
                 </td>
-                <td data-label={t('Специалист')}>
-                  {r.items?.length
-                    ? [...new Set(r.items.map((item) => item.employeeName))].join(', ')
-                    : (day.columns.find((e) => e.id === r.employeeId)?.name ?? t('Специалист в архиве'))}
+                <td data-label={t('Специалист')} data-col="staff" title={staff}>
+                  {staff}
                 </td>
                 <td data-label={t('Статус')} data-col="status">
                   <StatusBadge kind="beauty" value={r.status} />
                 </td>
                 <td data-label={t('Источник')} data-col="source">{t(appointmentSourceLabel(r.source))}</td>
-                <td data-label={t('Автор')}>{r.createdByName ?? '-'}</td>
+                <td data-label={t('Автор')} data-col="author" title={r.createdByName ?? undefined}>
+                  {r.createdByName ?? '-'}
+                </td>
                 <td data-label={t('Стоимость')} data-col="price" className="beauty-amount">
                   {formatMoney(r.priceMinor, r.currency)}
                 </td>
@@ -387,7 +390,8 @@ export function AppointmentsList({
                   </Button>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </Table>
       )}

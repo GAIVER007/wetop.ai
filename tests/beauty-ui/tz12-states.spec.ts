@@ -61,9 +61,9 @@ for (const theme of ['light', 'dark'] as const)
       await page.keyboard.press('Enter');
       const editor = page.getByRole('dialog', { name: 'Новая запись', exact: true });
       await expect(editor).toBeVisible();
-      await editor.getByLabel('Телефон или имя', { exact: true }).focus();
+      await editor.getByLabel('Имя клиента', { exact: true }).focus();
       const focus = await editor
-        .getByLabel('Телефон или имя', { exact: true })
+        .getByLabel('Имя клиента', { exact: true })
         .evaluate((el) => ({
           matches: el.matches(':focus-visible'),
           outline: getComputedStyle(el).outlineStyle,

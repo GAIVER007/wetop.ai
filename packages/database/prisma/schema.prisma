@@ -3307,11 +3307,15 @@ enum AppointmentStatus {
   CANCELLED
 }
 
-/// SITE-4 (ADR-185): источник записи к мастеру
+/// SITE-4 (ADR-185): источник записи к мастеру. APPOINTMENT-SOURCE-20261028: администратор отмечает, откуда клиент
 enum AppointmentSource {
   DESK
   WEBSITE
   VOICE
+  INSTAGRAM
+  WHATSAPP
+  PHONE
+  WALK_IN
 }
 
 enum EmployeeServicePriceType {
@@ -3739,7 +3743,7 @@ model Appointment {
   /// HOME-VISIT-20261027: выезд мастера к клиенту; адрес только у записи с выездом (CHECK в миграции 163)
   atHome              Boolean           @default(false) @map("at_home")
   homeAddress         String?           @map("home_address") @db.VarChar(300)
-  /// SITE-4: откуда запись; стойка DESK, форма сайта WEBSITE
+  /// SITE-4: откуда запись; стойка DESK (или INSTAGRAM, WHATSAPP, PHONE, WALK_IN по выбору администратора), форма сайта WEBSITE
   source              AppointmentSource @default(DESK)
   /// SITE-4: ключ создания (повтор формы сайта); у записей стойки NULL. Ставится вместе с отпечатком (CHECK)
   creationKey         String?           @map("creation_key") @db.VarChar(200)

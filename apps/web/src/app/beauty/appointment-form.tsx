@@ -1,13 +1,15 @@
 'use client';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Alert, Button, Field, Input, Select } from '../../components/ui';
-import { matchesCustomer, splitCustomerQuery } from '../../lib/customer-match';
+import { matchesCustomer } from '../../lib/customer-match';
+import { APPOINTMENT_DESK_SOURCES } from '@pms/domain';
+import { appointmentSourceLabel } from '../../lib/appointment-source';
 import type { BeautyAppointmentRow, BeautyCustomerRow, BeautyDay } from '../../lib/api';
 import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { createAppointment, moveAppointment } from './journal-actions';
 import { instantOf, localInput } from './time';
 import { zoneLabel } from '../../lib/human-period';
-import { formatPhone } from '../../lib/phone';
+import { formatPhone, formatPhoneInput } from '../../lib/phone';
 import { BookingShell, PickButton, PickHeading } from '../../components/booking-shell';
 import { masterDayMap } from './master-map';
 import { useT } from '../../i18n/locale-provider';
@@ -139,7 +141,13 @@ export function AppointmentForm({
   );
   const initialLines = useRef(JSON.stringify(lines));
   nextKey.current = Math.max(nextKey.current, ...lines.map((line) => line.key + 1));
-  const [customerSearch, setCustomerSearch] = useState('');
+  // имя и телефон отдельными полями (владелец 28.10.2026: «где поля имя и номер телефона, как отдельно должно быть»);
+  // по обоим ниже ищутся клиенты из базы, как раньше по одному полю
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const customerSearch = `${customerName} ${customerPhone}`.trim();
+  // откуда клиент (владелец 28.10.2026): Instagram, WhatsApp, звонок, пришёл сам; без выбора «Администратор»
+  const [clientSource, setClientSource] = useState<string>('DESK');
   const updateLine = (key: number, change: Partial<Line>) =>
     setLines((current) =>
       current.map((line) => (line.key === key ? { ...line, ...change } : line)),
@@ -201,7 +209,8 @@ export function AppointmentForm({
     0,
   );
   const search = customerSearch.trim().toLocaleLowerCase();
-  const newCustomer = splitCustomerQuery(customerSearch);
+  const nameWords = customerName.replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  const newCustomer = { firstName: nameWords[0] ?? '', lastName: nameWords.slice(1).join(' '), phone: customerPhone.trim() };
   const matchingCustomers = customers.filter(
     (customer) =>
       customer.status !== 'ARCHIVED' &&
@@ -239,6 +248,7 @@ export function AppointmentForm({
     hour !== initial.current.time ||
     JSON.stringify(lines) !== initialLines.current ||
     customerId !== (repeatFrom?.customer.id ?? '') ||
+    clientSource !== 'DESK' ||
     customerSearch,
   );
   useEffect(() => {
@@ -355,18 +365,28 @@ export function AppointmentForm({
             </span>
           ) : (
             <>
-              {/* одно поле (владелец 26.10.2026): при вводе имени или номера ниже появляются клиенты из базы;
-                  если клиента нет, запись создаёт нового из того, что введено (номер телефоном, слова именем) */}
-              <Field label={t('Телефон или имя')}>
-                <Input
-                  type="search"
-                  value={customerSearch}
-                  onChange={(event) => setCustomerSearch(event.target.value)}
-                  autoComplete="off"
-                  required={!customerId}
-                  maxLength={160}
-                />
-              </Field>
+              <div className="appointment-customer-row">
+                <Field label={t('Имя клиента')}>
+                  <Input
+                    type="search"
+                    value={customerName}
+                    onChange={(event) => setCustomerName(event.target.value)}
+                    autoComplete="off"
+                    required={!customerId}
+                    maxLength={160}
+                  />
+                </Field>
+                <Field label={t('Телефон')}>
+                  <Input
+                    type="tel"
+                    inputMode="tel"
+                    value={customerPhone}
+                    onChange={(event) => setCustomerPhone(formatPhoneInput(event.target.value))}
+                    autoComplete="off"
+                    maxLength={32}
+                  />
+                </Field>
+              </div>
               {search && matchingCustomers.length > 0 && (
                 <div className="appointment-customer-suggest" role="listbox" aria-label={t('Найденные клиенты')}>
                   {matchingCustomers.slice(0, 5).map((c) => (
@@ -378,7 +398,8 @@ export function AppointmentForm({
                       onClick={() => {
                         setCustomerId(c.id);
                         lastPickedCustomerId = c.id;
-                        setCustomerSearch('');
+                        setCustomerName('');
+                        setCustomerPhone('');
                       }}
                     >
                       {`${[c.firstName, c.lastName].filter(Boolean).join(' ')}${c.phone ? `, ${formatPhone(c.phone)}` : ''}`}
@@ -386,15 +407,9 @@ export function AppointmentForm({
                   ))}
                 </div>
               )}
-              {search && (
+              {search && !newCustomer.firstName && (
                 <p className="appointment-customer-new" data-testid="appointment-customer-new">
-                  {newCustomer.firstName
-                    ? t('Новый клиент: {name}', {
-                        name: [newCustomer.firstName, newCustomer.lastName, newCustomer.phone]
-                          .filter(Boolean)
-                          .join(', '),
-                      })
-                    : t('Добавьте имя клиента к номеру')}
+                  {t('Добавьте имя клиента к номеру')}
                 </p>
               )}
               <div className="appointment-customer-quick">
@@ -402,7 +417,7 @@ export function AppointmentForm({
                   type="button"
                   size="sm"
                   tone="secondary"
-                  onClick={() => setCustomerSearch('Гость')} // kk-allow: имя клиента сохраняется в базу как данные
+                  onClick={() => setCustomerName('Гость')} // kk-allow: имя клиента сохраняется в базу как данные
                 >
                   {t('Гость')}
                 </Button>
@@ -418,6 +433,23 @@ export function AppointmentForm({
                 )}
               </div>
             </>
+          )}
+          {!editing && (
+            <div className="appointment-source" role="group" aria-label={t('Откуда клиент')}>
+              <span className="appointment-source__title">{t('Откуда клиент')}</span>
+              {APPOINTMENT_DESK_SOURCES.filter((key) => key !== 'DESK').map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  className="appointment-source__chip"
+                  aria-pressed={clientSource === key}
+                  onClick={() => setClientSource(clientSource === key ? 'DESK' : key)}
+                >
+                  {t(appointmentSourceLabel(key))}
+                </button>
+              ))}
+              <input type="hidden" name="source" value={clientSource} />
+            </div>
           )}
           <input type="hidden" name="customerId" value={customerId} />
           {!customerId && (

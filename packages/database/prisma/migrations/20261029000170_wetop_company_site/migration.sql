@@ -1,4 +1,4 @@
--- 169: служебная запись компании WETOP и счётчик её сайта wetop.ai (кабинет руководителя, владелец 29.10.2026).
+-- 170: служебная запись компании WETOP и счётчик её сайта wetop.ai (кабинет руководителя, владелец 29.10.2026).
 -- Кабинет считает компанией организацию, к филиалу которой привязан сайт wetop.ai (companyOrganizationIds), и
 -- считает посетителей по этому сайту. Ключ счётчика уже вписан в главную (apps/site/src/site.config.ts).
 -- Только добавление строк, ничего не меняется и не удаляется. На пустой базе (новая установка, тесты) ничего не
@@ -22,5 +22,5 @@ BEGIN
   INSERT INTO audit_logs (id, organization_id, user_id, entity_type, entity_id, action, after)
     -- строка платформы, не организации (organization_id пуст): откат может убрать служебную запись целиком
     VALUES (gen_random_uuid(), NULL, NULL, 'tracked_site', site_id::text, 'platform.company_site.counter',
-            jsonb_build_object('by', 'migration-169', 'hosts', ARRAY['wetop.ai', 'www.wetop.ai']));
+            jsonb_build_object('by', 'migration-170', 'hosts', ARRAY['wetop.ai', 'www.wetop.ai']));
 END $$;

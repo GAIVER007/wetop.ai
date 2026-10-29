@@ -1,4 +1,4 @@
--- Откат 169: убрать служебную запись WETOP (сайт), только если у неё нет людей и посетителей не копили.
+-- Откат 170: убрать служебную запись WETOP (сайт), только если у неё нет людей и посетителей не копили.
 -- Посетители сайта (web_sessions) при откате остаются в базе вместе с записью: тогда откат ничего не делает.
 DO $$
 DECLARE site record;
@@ -14,7 +14,7 @@ BEGIN
   -- журнал только дописывается: строка о заведении остаётся, рядом пишется строка об откате
   INSERT INTO audit_logs (id, organization_id, user_id, entity_type, entity_id, action, after)
     VALUES (gen_random_uuid(), NULL, NULL, 'tracked_site', site.id::text, 'platform.company_site.counter_removed',
-            jsonb_build_object('by', 'migration-169-down'));
+            jsonb_build_object('by', 'migration-170-down'));
   DELETE FROM tracked_sites WHERE id = site.id;
   DELETE FROM locations WHERE id = site.loc;
   DELETE FROM businesses WHERE id = site.biz;

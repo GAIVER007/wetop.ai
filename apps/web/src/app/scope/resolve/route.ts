@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { ApiError, branchesApi } from '../../../lib/api';
+import { ApiError, authApi, branchesApi } from '../../../lib/api';
 import { publicAuthUrl } from '../../../lib/auth-entry';
 import {
   LAST_BRANCH_COOKIE,
@@ -42,6 +42,14 @@ export async function GET(request: Request): Promise<Response> {
     jar.set(SCOPE_COOKIE, decision.pointer, scopeCookieOptions(process.env));
     const location = pointerLocation(decision.pointer);
     if (location) jar.set(LAST_BRANCH_COOKIE, location, lastBranchCookieOptions(process.env));
+  }
+  // Главный администратор WETOP (владелец 29.10.2026): вход без своего адреса ведёт в кабинет компании, а не в стойку.
+  // Филиал выбран как у всех выше (один или последний на этом устройстве), чтобы стойка из кабинета открывалась сразу;
+  // несколько филиалов без выбранного: стойка сама предложит выбрать.
+  const next = new URL(request.url).searchParams.get('next');
+  if (!next || next === '/today') {
+    const me = await authApi.me().catch(() => null);
+    if (me?.user?.platformAdmin === true) redirect('/platform/cabinet');
   }
   redirect(decision.target);
 }

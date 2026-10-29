@@ -45,7 +45,7 @@ describe('фраза первого экрана', () => {
   it('ресницы и брови в тёмной роскоши: про взгляд; подзаголовок: название, услуги и город (название в первом экране нужно SEO и GEO)', () => {
     const c = heroCopy(buildSiteFacts(snap()), 'LUXE', 0, 'ru');
     expect(c.heading).toBe('Взгляд, который запоминают');
-    expect(c.subheading).toBe('Lashes Studio: ресницы и брови в городе Доха. Запись онлайн в удобное время.');
+    expect(c.subheading).toBe('Lashes Studio, Доха: ресницы и брови от 80\u00a0QAR, от 40 минут. Запись онлайн за минуту, без звонков.');
   });
   it('три тона дают разные фразы, варианты идут по кругу', () => {
     const f = buildSiteFacts(food());
@@ -54,12 +54,12 @@ describe('фраза первого экрана', () => {
     expect(heroCopy(f, 'BOLD', HERO_COPY_COUNT, 'ru')).toEqual(heroCopy(f, 'BOLD', 0, 'ru'));
   });
   it('ресторан и гостиница: разделы меню и типы номеров в подзаголовке', () => {
-    expect(heroCopy(buildSiteFacts(food()), 'CLEAN', 0, 'ru').subheading).toBe('Saffron House: закуски, горячее и десерты в городе Доха. Меню с ценами и бронь стола онлайн.');
-    expect(heroCopy(buildSiteFacts(hotel()), 'CLEAN', 0, 'ru').subheading).toBe('Pearl Bay Hotel: Стандарт и Делюкс в городе Доха. Бронь напрямую на нашем сайте.');
+    expect(heroCopy(buildSiteFacts(food()), 'CLEAN', 0, 'ru').subheading).toContain('Saffron House, Доха: закуски, горячее и десерты');
+    expect(heroCopy(buildSiteFacts(hotel()), 'CLEAN', 0, 'ru').subheading).toContain('Pearl Bay Hotel, Доха: Стандарт и Делюкс');
   });
   it('без города и без каталога подзаголовок всё равно осмысленный', () => {
     const f = buildSiteFacts(snap({ location: { ...snap().location, city: null }, catalog: { kind: 'services', items: [] } }));
-    expect(heroCopy(f, 'BOLD', 0, 'ru').subheading).toBe('Lashes Studio. Запись онлайн в удобное время.');
+    expect(heroCopy(f, 'BOLD', 0, 'ru').subheading).toBe('Lashes Studio. Запись онлайн за минуту, без звонков.');
   });
   it('ни одной выдумки и в пределах полей, на всех языках и тонах', () => {
     for (const s of [snap(), hotel(), food()])
@@ -103,6 +103,44 @@ describe('«Предложить текст» без выдумок', () => {
         const x = siteCopySuggestion(v, i, 'Тест');
         expect(`${x.heading} ${x.subheading} ${x.about}`).not.toMatch(INVENTED);
         expect(x.about).not.toMatch(/стерил|косметик|чай|кофе|трансфер|круглосуточн|ранний заезд|свеж|заготов|минута в минуту|годами|неделями/i);
+      }
+  });
+});
+
+/**
+ * Владелец 29.10.2026: «офферы в стиле Брансона или Хормози, цепляющие заголовки, на первом экране всё чётко». По
+ * уравнению ценности Хормози: желанный результат в заголовке, под ним стопка конкретики из данных филиала (цена «от»,
+ * сколько длится, сколько мастеров, номера и гости, разделы меню), лёгкость (запись онлайн без звонков) и
+ * доказательство только из настоящей оценки. Ничего не выдумываем: ни стажа, ни скидок, ни гарантий.
+ */
+describe('оффер первого экрана: результат, конкретика из данных, лёгкость, доказательство', () => {
+  it('салон: цена «от» и время из услуг, мастера, запись без звонков', () => {
+    const f = buildSiteFacts(snap({ staff: [{ id: 'a', name: 'Alina', specialization: null }, { id: 'b', name: 'Aliia', specialization: null }] }));
+    const c = heroCopy(f, 'LUXE', 0, 'ru');
+    expect(c.heading).toBe('Взгляд, который запоминают');
+    expect(c.subheading).toBe('Lashes Studio, Доха: ресницы и брови от 80\u00a0QAR, от 40 минут, 2 мастера. Запись онлайн за минуту, без звонков.');
+  });
+  it('настоящая оценка становится доказательством; без оценки слова «отзыв» нет', () => {
+    const f = buildSiteFacts(snap({ reviews: { avg: 4.9, count: 127 } }));
+    expect(heroCopy(f, 'BOLD', 0, 'ru').subheading).toContain('4,9 из 5 по 127 оценкам');
+    expect(heroCopy(buildSiteFacts(snap()), 'BOLD', 0, 'ru').subheading).not.toMatch(/оценк|отзыв/);
+  });
+  it('ресторан: меню и цены блюд «от», бронь стола онлайн', () => {
+    expect(heroCopy(buildSiteFacts(food()), 'CLEAN', 0, 'ru').subheading).toBe('Saffron House, Доха: закуски, горячее и десерты, блюда от 28\u00a0QAR. Стол онлайн за минуту, без звонков.');
+  });
+  it('гостиница: типы номеров и сколько гостей, бронь напрямую без комиссий площадок', () => {
+    expect(heroCopy(buildSiteFacts(hotel()), 'CLEAN', 0, 'ru').subheading).toBe('Pearl Bay Hotel, Доха: Стандарт и Делюкс, до 2 гостей в номере. Бронь напрямую на сайте, без посредников.');
+  });
+  it('английский и казахский тоже конкретны', () => {
+    const f = buildSiteFacts(snap());
+    expect(heroCopy(f, 'CLEAN', 0, 'en').subheading).toBe('Lashes Studio, Доха: ресницы and брови from 80\u00a0QAR, from 40 min. Book online in a minute, no calls.');
+    expect(heroCopy(f, 'CLEAN', 0, 'kk').subheading).toContain('80\u00a0QAR');
+  });
+  it('заголовки это результат для клиента, а не настроение: в каждом тоне и направлении', () => {
+    for (const s of [snap(), hotel(), food()])
+      for (const tone of ['LUXE', 'BOLD', 'CLEAN'] as const) {
+        const h = heroCopy(buildSiteFacts(s), tone, 0, 'ru').heading;
+        expect(h).not.toMatch(/^(Спокойный уход|Простая еда|Просто и уютно)/);
       }
   });
 });

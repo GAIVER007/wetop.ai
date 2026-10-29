@@ -26,56 +26,60 @@ export function heroTone(typography: unknown): HeroTone {
 export const HERO_COPY_COUNT = 3;
 
 type Phrases = Record<HeroTone, readonly [string, string, string]>;
+/**
+ * Заголовки по Хормози и Брансону (владелец 29.10.2026): желанный результат клиента, коротко, без выдумок (без
+ * стажа, скидок, «лучших» и гарантий). Тон шаблона задаёт голос: премиальный, смелый, спокойный.
+ */
 const PHRASES: Record<HeroLocale, Record<SiteFactsVertical, Phrases>> = {
   ru: {
     BEAUTY: {
-      LUXE: ['{focus}', 'Красота в каждой детали', 'Ваш ритуал красоты'],
-      BOLD: ['Время сиять', 'Красота без скуки', 'Ярко. Смело. Про вас'],
-      CLEAN: ['Спокойный уход за собой', 'Чистая красота без спешки', 'Забота, которую чувствуешь'],
+      LUXE: ['{focus}', 'Выходите красивее, чем пришли', 'Красота, которую замечают сразу'],
+      BOLD: ['Запишитесь сегодня, сияйте завтра', 'Новый образ за один визит', 'Красота без очередей и звонков'],
+      CLEAN: ['Ухоженный вид без лишних хлопот', 'Красота в удобное вам время', 'Запись за минуту, результат надолго'],
     },
     HOSPITALITY: {
-      LUXE: ['Ваш спокойный дом в поездке', 'Отель для особых поездок', 'Место, куда хочется вернуться'],
-      BOLD: ['Заселяйтесь и вперёд', 'Ваша база для приключений', 'Уютно, просто, по-своему'],
-      CLEAN: ['Спокойный сон в поездке', 'Просто и уютно', 'Отдых без лишних хлопот'],
+      LUXE: ['Номер, в который хочется вернуться', 'Ваша поездка начинается с отдыха', 'Тишина, сон и всё рядом'],
+      BOLD: ['Бронируйте напрямую и отдыхайте', 'Заселяйтесь и живите поездкой', 'Ваша база в городе'],
+      CLEAN: ['Выспитесь в поездке', 'Уютный номер без переплат', 'Бронь напрямую за минуту'],
     },
     FOOD_SERVICE: {
-      LUXE: ['Вечер, который хочется повторить', 'Вкус, ради которого возвращаются', 'Ужин как событие'],
-      BOLD: ['Вкусно. Громко. С друзьями', 'Голодны? Вам к нам', 'Приходите голодными'],
-      CLEAN: ['Простая еда с характером', 'Честный вкус каждый день', 'Место для неспешного обеда'],
+      LUXE: ['Вечер, который хочется повторить', 'Ужин, о котором будут говорить', 'Стол на вечер, который запомнят'],
+      BOLD: ['Голодны? Стол уже ждёт', 'Вкусно, громко, с друзьями', 'Бронируйте стол и приходите голодными'],
+      CLEAN: ['Вкусный обед без ожидания', 'Свободный стол в пару касаний', 'Еда, ради которой возвращаются'],
     },
   },
   kk: {
     BEAUTY: {
-      LUXE: ['{focus}', 'Әр детальдағы сұлулық', 'Сіздің сұлулық рәсіміңіз'],
-      BOLD: ['Жарқырайтын уақыт', 'Зерікпейтін сұлулық', 'Жарқын. Батыл. Сіз туралы'],
-      CLEAN: ['Өзіңе байсалды күтім', 'Асықпай таза сұлулық', 'Сезілетін қамқорлық'],
+      LUXE: ['{focus}', 'Келгеннен де әдемі болып шығыңыз', 'Бірден байқалатын сұлулық'],
+      BOLD: ['Бүгін жазылыңыз, ертең жарқыраңыз', 'Бір келгенде жаңа бейне', 'Кезексіз әрі қоңыраусыз сұлулық'],
+      CLEAN: ['Артық әуресіз күтімді келбет', 'Өзіңізге ыңғайлы уақытта сұлулық', 'Бір минутта жазылу, ұзаққа нәтиже'],
     },
     HOSPITALITY: {
-      LUXE: ['Сапардағы тыныш үйіңіз', 'Ерекше сапарларға арналған қонақүй', 'Қайта оралғың келетін орын'],
-      BOLD: ['Орналасып, алға', 'Шытырман сапарларға базаңыз', 'Жайлы, қарапайым, өзіңше'],
-      CLEAN: ['Сапардағы тыныш ұйқы', 'Қарапайым әрі жайлы', 'Артық әуресіз демалыс'],
+      LUXE: ['Қайта оралғың келетін нөмір', 'Сапарыңыз демалыстан басталады', 'Тыныштық, ұйқы және бәрі жақын'],
+      BOLD: ['Тікелей брондап, демалыңыз', 'Орналасып, сапармен өмір сүріңіз', 'Қаладағы базаңыз'],
+      CLEAN: ['Сапарда жақсылап ұйықтаңыз', 'Артық төлемсіз жайлы нөмір', 'Бір минутта тікелей брондау'],
     },
     FOOD_SERVICE: {
-      LUXE: ['Қайталағың келетін кеш', 'Қайта оралатын дәм', 'Оқиғадай кешкі ас'],
-      BOLD: ['Дәмді. Көңілді. Достармен', 'Қарныңыз ашты ма? Бізге келіңіз', 'Аш келіңіз'],
-      CLEAN: ['Мінезі бар қарапайым тағам', 'Күн сайын адал дәм', 'Асықпай түскі ас ішетін орын'],
+      LUXE: ['Қайталағың келетін кеш', 'Айтып жүретін кешкі ас', 'Есте қалатын кешке үстел'],
+      BOLD: ['Қарныңыз ашты ма? Үстел дайын', 'Дәмді, көңілді, достармен', 'Үстелді брондап, аш келіңіз'],
+      CLEAN: ['Күтусіз дәмді түскі ас', 'Бірнеше рет басып бос үстел', 'Қайта оралатын тағам'],
     },
   },
   en: {
     BEAUTY: {
-      LUXE: ['{focus}', 'Beauty in every detail', 'Your beauty ritual'],
-      BOLD: ['Time to shine', 'Beauty, never boring', 'Bright. Bold. All about you'],
-      CLEAN: ['Calm, mindful self-care', 'Clean beauty, no rush', 'Care you can feel'],
+      LUXE: ['{focus}', 'Leave more beautiful than you came', 'Beauty people notice at once'],
+      BOLD: ['Book today, shine tomorrow', 'A new look in one visit', 'Beauty without queues or calls'],
+      CLEAN: ['Well-groomed without the hassle', 'Beauty at a time that suits you', 'Book in a minute, results that last'],
     },
     HOSPITALITY: {
-      LUXE: ['Your quiet home away from home', 'A hotel for special trips', 'A place worth coming back to'],
-      BOLD: ['Check in and go', 'Your base for adventures', 'Cosy, simple, your way'],
-      CLEAN: ['Restful sleep on the road', 'Simple and cosy', 'A stay without the fuss'],
+      LUXE: ['A room you will want to return to', 'Your trip starts with rest', 'Quiet, sleep and everything nearby'],
+      BOLD: ['Book direct and relax', 'Check in and live your trip', 'Your base in the city'],
+      CLEAN: ['Sleep well on your trip', 'A cosy room without overpaying', 'Book direct in a minute'],
     },
     FOOD_SERVICE: {
-      LUXE: ['An evening worth repeating', 'Flavours worth returning for', 'Dinner as an occasion'],
-      BOLD: ['Tasty. Loud. With friends', 'Hungry? Come over', 'Come hungry'],
-      CLEAN: ['Simple food with character', 'Honest flavour every day', 'A place for an unhurried lunch'],
+      LUXE: ['An evening worth repeating', 'A dinner people talk about', 'A table for a night to remember'],
+      BOLD: ['Hungry? Your table is waiting', 'Tasty, loud, with friends', 'Book a table and come hungry'],
+      CLEAN: ['A tasty lunch without the wait', 'A free table in a few taps', 'Food worth coming back for'],
     },
   },
 };
@@ -92,12 +96,40 @@ const FOCUS_RE: ReadonlyArray<[BeautyFocus, RegExp]> = [
   ['HAIR', /волос|стрижк|окрашив|укладк|hair|шаш/i],
 ];
 
+/** Лёгкость (Хормози: меньше усилий): как клиент получает результат, без звонков и посредников */
 const TAIL: Record<HeroLocale, Record<SiteFactsVertical, string>> = {
-  ru: { BEAUTY: 'Запись онлайн в удобное время.', FOOD_SERVICE: 'Меню с ценами и бронь стола онлайн.', HOSPITALITY: 'Бронь напрямую на нашем сайте.' },
-  kk: { BEAUTY: 'Ыңғайлы уақытқа онлайн жазылу.', FOOD_SERVICE: 'Бағасы бар мәзір және онлайн үстел брондау.', HOSPITALITY: 'Тікелей біздің сайтта брондау.' },
-  en: { BEAUTY: 'Book online at a time that suits you.', FOOD_SERVICE: 'Menu with prices and online table booking.', HOSPITALITY: 'Book directly on our website.' },
+  ru: { BEAUTY: 'Запись онлайн за минуту, без звонков.', FOOD_SERVICE: 'Стол онлайн за минуту, без звонков.', HOSPITALITY: 'Бронь напрямую на сайте, без посредников.' },
+  kk: { BEAUTY: 'Бір минутта онлайн жазылу, қоңыраусыз.', FOOD_SERVICE: 'Бір минутта онлайн үстел, қоңыраусыз.', HOSPITALITY: 'Сайтта тікелей брондау, делдалсыз.' },
+  en: { BEAUTY: 'Book online in a minute, no calls.', FOOD_SERVICE: 'Book a table online in a minute, no calls.', HOSPITALITY: 'Book direct on our site, no middlemen.' },
 };
 const AND: Record<HeroLocale, string> = { ru: 'и', kk: 'және', en: 'and' };
+/** Стопка конкретики (Хормози: ценность видна в цифрах): цена «от», время, мастера, гости, оценка */
+const STACK = {
+  ru: { from: (p: string) => `от ${p}`, dishFrom: (p: string) => `блюда от ${p}`, minutes: (n: number) => `от ${n} минут`, masters: (n: number) => `${n} ${plural(n, ['мастер', 'мастера', 'мастеров'])}`, guests: (n: number) => `до ${n} ${plural(n, ['гостя', 'гостей', 'гостей'])} в номере`, rating: (a: number, n: number) => `${String(a).replace('.', ',')} из 5 по ${n} ${plural(n, ['оценке', 'оценкам', 'оценкам'])}` },
+  kk: { from: (p: string) => `${p} бастап`, dishFrom: (p: string) => `тағамдар ${p} бастап`, minutes: (n: number) => `${n} минуттан`, masters: (n: number) => `${n} шебер`, guests: (n: number) => `нөмірде ${n} қонаққа дейін`, rating: (a: number, n: number) => `${n} баға бойынша 5-тен ${String(a).replace('.', ',')}` },
+  en: { from: (p: string) => `from ${p}`, dishFrom: (p: string) => `dishes from ${p}`, minutes: (n: number) => `from ${n} min`, masters: (n: number) => `${n} ${n === 1 ? 'specialist' : 'specialists'}`, guests: (n: number) => `up to ${n} guests per room`, rating: (a: number, n: number) => `${a} out of 5 from ${n} ratings` },
+} satisfies Record<HeroLocale, unknown>;
+function plural(n: number, forms: [string, string, string]): string {
+  const a = n % 10, b = n % 100;
+  return forms[a === 1 && b !== 11 ? 0 : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 1 : 2];
+}
+/** Цена без копеек, если они нулевые: «80 QAR», «2 500 KZT» */
+function money(minor: bigint, currency: string): string {
+  const whole = minor / 100n, cents = minor % 100n;
+  const w = whole.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+  // сумма и валюта не разрываются переносом строки
+  return `${cents === 0n ? w : `${w},${cents.toString().padStart(2, '0')}`}\u00a0${currency}`;
+}
+function minPrice(facts: SiteFacts): string | null {
+  let best: { minor: bigint; currency: string } | null = null;
+  for (const i of facts.catalog.items) {
+    const p = i.price ?? i.priceFrom;
+    if (!p || !/^\d+$/.test(p.minor)) continue;
+    const m = BigInt(p.minor);
+    if (m > 0n && (!best || m < best.minor)) best = { minor: m, currency: p.currency };
+  }
+  return best ? money(best.minor, best.currency) : null;
+}
 
 function beautyFocus(facts: SiteFacts): BeautyFocus {
   const count = new Map<BeautyFocus, number>();
@@ -142,17 +174,34 @@ function subheading(facts: SiteFacts, locale: HeroLocale): string {
   const name = starterText(facts.location.name, 60) ?? '';
   const city = starterText(facts.location.city, 40);
   const tail = TAIL[locale][facts.vertical];
-  const build = (list: string[]) => {
-    const what = list.length ? `: ${joinList(list, locale)}` : '';
-    const where = city ? (locale === 'ru' ? ` в городе ${city}` : locale === 'kk' ? `, ${city} қаласы` : ` in ${city}`) : '';
-    const lead = `${name}${what}${where}`.trim();
-    return lead ? `${lead}. ${tail}` : tail;
+  const st = STACK[locale];
+  // конкретика из данных: что есть, то и пишем; чего нет, того нет
+  const facts2: string[] = [];
+  const price = minPrice(facts);
+  if (facts.vertical === 'BEAUTY') {
+    const mins = facts.catalog.items.map((i) => i.durationMin ?? 0).filter((n) => n > 0);
+    if (mins.length) facts2.push(st.minutes(Math.min(...mins)));
+    if (facts.staff.length) facts2.push(st.masters(facts.staff.length));
+  } else if (facts.vertical === 'HOSPITALITY') {
+    const cap = facts.catalog.items.map((i) => i.capacityAdults ?? 0).filter((n) => n > 0);
+    if (cap.length) facts2.push(st.guests(Math.max(...cap)));
+  }
+  if (facts.reviews && facts.reviews.count > 0) facts2.push(st.rating(facts.reviews.avg, facts.reviews.count));
+  const build = (list: string[], extra: string[]) => {
+    const head = city ? `${name}, ${city}` : name;
+    let what = list.length ? joinList(list, locale) : '';
+    if (price && facts.vertical === 'BEAUTY' && what) what = `${what} ${st.from(price)}`;
+    const parts = [what, ...(price && facts.vertical === 'FOOD_SERVICE' ? [st.dishFrom(price)] : []), ...(price && facts.vertical === 'BEAUTY' && !what ? [st.from(price)] : []), ...extra].filter(Boolean);
+    const lead = parts.length ? `${head}: ${parts.join(', ')}` : head;
+    return lead.trim() ? `${lead.trim()}. ${tail}` : tail;
   };
   let list = topics(facts);
-  let text = build(list);
-  while ([...text].length > 200 && list.length) {
-    list = list.slice(0, -1);
-    text = build(list);
+  let extra = facts2;
+  let text = build(list, extra);
+  while ([...text].length > 200 && (extra.length || list.length)) {
+    if (extra.length) extra = extra.slice(0, -1);
+    else list = list.slice(0, -1);
+    text = build(list, extra);
   }
   return text;
 }

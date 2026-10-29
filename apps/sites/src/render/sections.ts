@@ -29,7 +29,9 @@ export function ctaLink(cta: Cta | undefined, ctx: RenderContext, ghost = false)
   const target = actionHref(cta.action, ctx);
   if (!target) return '';
   const rel = target.external ? ' rel="noopener noreferrer"' : '';
-  return `<a class="btn${ghost ? ' btn--ghost' : ''}" href="${esc(target.href)}"${rel}>${t(cta.label, ctx)}</a>`;
+  // кнопка заявки (BOOK): на телефоне её заменяет одна закреплённая внизу (`mobile-bar`), эти скрывает стиль
+  const book = cta.action.kind === 'BOOK' ? ' data-book' : '';
+  return `<a class="btn${ghost ? ' btn--ghost' : ''}" href="${esc(target.href)}"${rel}${book}>${t(cta.label, ctx)}</a>`;
 }
 
 /** Картинка только с подписанным адресом из карты ассетов (MKT8); адреса нет, нет и картинки */
@@ -233,7 +235,8 @@ const services: Renderer = (s, ctx, { h1 }) => {
       s['showPrices'] === true ? priceTag(i['price'], i['priceFrom'] === true, ctx) : '',
     ].filter(Boolean);
     const desc = i['description'] ? `<p class="muted">${t(i['description'], ctx)}</p>` : '';
-    const body = `<div><h3>${t(i['title'], ctx)}</h3>${desc}</div><div class="item-side">${meta.length ? `<p class="item-meta">${meta.join('')}</p>` : ''}${action}</div>`;
+    // владелец 29.10.2026 «че так много кнопок записаться»: у строк услуг своей кнопки нет, одна под списком
+    const body = `<div><h3>${t(i['title'], ctx)}</h3>${desc}</div><div class="item-side">${meta.length ? `<p class="item-meta">${meta.join('')}</p>` : ''}</div>`;
     return s.variant === 'CARDS' ? `<li class="card catalog-item">${body}</li>` : `<li class="row catalog-item">${body}</li>`;
   };
   const cls = s.variant === 'CARDS' ? 'list grid' : 'list';
@@ -250,7 +253,8 @@ const services: Renderer = (s, ctx, { h1 }) => {
       .map((g) => `${g.title ? `<h3 class="group-title">${t(g.title, ctx)}</h3>` : ''}<ul class="${cls}">${g.items.map(item).join('')}</ul>`)
       .join('');
   } else body = `<ul class="${cls}">${items.map(item).join('')}</ul>`;
-  return `${open(s, ' class="catalog"')}${heading(s, ctx, h1)}${body}${close}`;
+  const after = items.length && action ? `<div class="actions">${action}</div>` : '';
+  return `${open(s, ' class="catalog"')}${heading(s, ctx, h1)}${body}${after}${close}`;
 };
 
 const staff: Renderer = (s, ctx, { h1 }) => {

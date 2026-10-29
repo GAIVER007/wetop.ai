@@ -179,6 +179,7 @@ main section.cta-band{background:var(--accent)}
 .mobile-bar .btn{flex:1}
 body.has-mobile-bar{padding-bottom:80px}
 @media (min-width:800px){.mobile-bar{display:none}body.has-mobile-bar{padding-bottom:0}}
+@media (max-width:799px){body.has-mobile-bar a[data-book]{display:none}}
 .hero--image_full{position:relative;isolation:isolate;min-height:min(88vh,760px);display:flex;align-items:flex-end;padding:calc(var(--section) * 2) 0 var(--section);color:#fff}
 .hero--image_full img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
 .hero--image_full::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.45) 55%,rgba(0,0,0,.25) 100%)}

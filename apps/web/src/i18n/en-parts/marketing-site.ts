@@ -683,6 +683,17 @@ export const marketingSite: Record<string, string> = {
   "Выключите, пока сайт не готов: Google его не покажет.": "Turn off until the website is ready: Google will not show it.",
   // заявки с сайта (аудит «Сайт и SEO» S3, 28.10.2026)
   "В работе": "In progress",
+  // окно подключения конструктора (29.10.2026)
+  "Продлите конструктор для «{name}», и сайт снова можно менять и публиковать.": "Renew the builder for “{name}” to edit and publish the site again.",
+  "Подключите конструктор для «{name}», и здесь сразу откроется создание сайта.": "Connect the builder for “{name}” and site creation opens right here.",
+  "Подключение конструктора сайта": "Connect the site builder",
+  "Как подключить": "How to connect",
+  "До выбранной даты": "Until the chosen date",
+  "Без срока или до даты": "No end date or until a date",
+  "Действует по (пусто: без срока)": "Valid through (empty: no end date)",
+  "Конструктор сайта подключает команда WETOP. Напишите нам, и мы включим его для «{name}».": "The WETOP team connects the site builder. Write to us and we will turn it on for “{name}”.",
+  "Написать в WETOP": "Write to WETOP",
+  "Не удалось подключить": "Could not connect",
   "Заявки по статусу": "Requests by status",
   "Заявки с сайта": "Website requests",
   "Заявок пока нет": "No requests yet",

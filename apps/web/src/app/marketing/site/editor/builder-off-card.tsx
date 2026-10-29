@@ -1,38 +1,33 @@
-import Link from 'next/link';
 import { supportContacts } from '../../../../lib/support-contacts';
-import { serverT } from '../../../../i18n/server';
+import { ConnectBuilder } from './connect-builder';
 
 /**
- * Конструктор не подключён у филиала без сайта (аудит 21.10.2026 п. 4): вместо формы с неактивными кнопками одна
- * карточка с объяснением и действием «Попросить подключить». Ссылка ведёт в WhatsApp поддержки, если он настроен,
- * иначе в «Помощь → Связаться с поддержкой».
+ * Конструктор не подключён у филиала без сайта. Было (аудит 21.10.2026 п. 4): карточка с «Попросить подключить» в
+ * поддержку. Стало (владелец 29.10.2026: «убери заглушку, открывай окно подключения и настройки»): кнопка
+ * «Подключить» открывает окно; главный администратор WETOP подключает прямо в нём, остальным окно даёт написать в WETOP.
  */
-export async function BuilderOffCard({ locationName, expired = false }: { locationName: string; expired?: boolean }) {
-  const t = await serverT();
+export function BuilderOffCard({
+  locationName,
+  expired = false,
+  canConnect,
+  organizationId,
+  locationId,
+}: {
+  locationName: string;
+  expired?: boolean;
+  canConnect: boolean;
+  organizationId: string | null;
+  locationId: string | null;
+}) {
   const contacts = supportContacts(process.env, locationName);
-  const href = contacts?.whatsapp ?? '/help#support';
   return (
-    <section className="panel site-off" data-testid="ed-license-off" aria-labelledby="site-off-title">
-      <h2 id="site-off-title" className="panel__title">
-        {expired ? t('Срок лицензии вышел.') : t('Конструктор сайта не активен для этого филиала.')}
-      </h2>
-      <p>
-        {t(
-          'Сайт для «{name}» можно будет создать здесь, когда конструктор подключат. Подключает его команда WETOP: напишите нам, и мы всё сделаем.',
-          { name: locationName },
-        )}
-      </p>
-      <div>
-        {href.startsWith('/') ? (
-          <Link className="btn" href={href} data-testid="site-off-ask">
-            {t('Попросить подключить')}
-          </Link>
-        ) : (
-          <a className="btn" href={href} target="_blank" rel="noreferrer" data-testid="site-off-ask">
-            {t('Попросить подключить')}
-          </a>
-        )}
-      </div>
-    </section>
+    <ConnectBuilder
+      locationName={locationName}
+      expired={expired}
+      canConnect={canConnect}
+      organizationId={organizationId}
+      locationId={locationId}
+      supportHref={contacts?.whatsapp ?? '/help#support'}
+    />
   );
 }

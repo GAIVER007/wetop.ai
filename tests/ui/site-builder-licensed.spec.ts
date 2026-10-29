@@ -55,8 +55,35 @@ test('срок лицензии вышел: та же закрытая прав�
   await page.goto('/marketing/site/editor?full=1');
   // аудит 21.10.2026 п. 4: без сайта и лицензии одна карточка с действием вместо формы с неактивными кнопками
   await expect(main(page).getByTestId('ed-license-off')).toBeVisible();
-  await expect(main(page).getByTestId('site-off-ask')).toBeVisible();
+  // владелец 29.10.2026: заглушки «Попросить подключить» нет, кнопка открывает окно подключения
+  await expect(main(page).getByText('Попросить подключить')).toHaveCount(0);
   await expect(main(page).getByTestId('create-site')).toHaveCount(0);
+  await main(page).getByTestId('site-connect-open').click();
+  const dialog = page.getByRole('dialog', { name: 'Подключение конструктора сайта' });
+  // не главный администратор: подключить сам не может, окно ведёт написать в WETOP
+  await expect(dialog.getByTestId('site-connect-ask')).toBeVisible();
+  await expect(dialog.getByTestId('site-connect-form')).toHaveCount(0);
+});
+
+test('окно подключения: главный администратор подключает пробный период, и сразу открывается создание сайта', async ({ page, request }) => {
+  await site(request, { license: 'OFF', noSite: true });
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
+  // отметка главного администратора приходит со входом (как в ai-agents.spec.ts)
+  await page.goto('/auth/fallback');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL(/\/(today|chessboard)(\?.*)?$/);
+  await page.goto('/marketing/site/editor');
+  await main(page).getByTestId('site-connect-open').click();
+  const dialog = page.getByRole('dialog', { name: 'Подключение конструктора сайта' });
+  await expect(dialog.getByRole('radio', { name: /Пробный период/ })).toHaveAttribute('aria-checked', 'true');
+  await expect(dialog.getByLabel('Действует по (включительно)')).not.toHaveValue('');
+  expect((await new AxeBuilder({ page }).include('dialog').withTags(['wcag2a', 'wcag2aa']).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: `${SHOTS}/connect-dialog-1440.png` });
+  await dialog.getByTestId('site-connect-save').click();
+  await expect(dialog).toBeHidden();
+  await expect(main(page).getByTestId('ed-license-off')).toHaveCount(0);
 });
 
 test('режим «Чат»: ответ словами без новой версии, «Перейти в сборку»; разговор на сервере переживает обновление', async ({ page }) => {

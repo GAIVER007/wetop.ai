@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { nextStatuses, parseAppointmentInput, planAppointment, statusChange } from './appointments';
+import { APPOINTMENT_DESK_SOURCES, nextStatuses, parseAppointmentInput, planAppointment, statusChange } from './appointments';
 
 const service = { active: true, priceMinor: 800000n, currency: 'KZT', durationMinutes: 60 };
 const week = [{ weekday: 1, timeFrom: '09:00', timeTo: '18:00' }];
@@ -171,6 +171,7 @@ describe('parseAppointmentInput', () => {
         notes: 'первый визит',
         atHome: false,
         homeAddress: null,
+        source: 'DESK',
       },
     });
   });
@@ -240,6 +241,7 @@ describe('parseAppointmentInput', () => {
         notes: null,
         atHome: false,
         homeAddress: null,
+        source: 'DESK',
       },
     });
   });
@@ -332,5 +334,28 @@ describe('parseAppointmentInput: выезд на дом', () => {
   });
   it('адрес длиннее 300 знаков отклоняется', () => {
     expect(parseAppointmentInput({ ...base, atHome: true, homeAddress: 'x'.repeat(301) })).toEqual({ ok: false, reason: 'Адрес выезда: не больше 300 символов' });
+  });
+});
+
+/**
+ * Откуда клиент (владелец 28.10.2026: «источник ещё типа инстаграм, ватсап»): администратор отмечает, откуда пришла
+ * запись. Сайт и голосовой агент ставит только своя дверь, стойка их выбрать не может.
+ */
+describe('источник записи со стойки', () => {
+  const base = { employeeId: 'e1', serviceId: 's1', startsAt: '2026-10-12T05:00:00.000Z', customerId: 'c1' };
+  it('по умолчанию администратор (DESK)', () => {
+    const r = parseAppointmentInput(base);
+    expect(r.ok && r.value.source).toBe('DESK');
+  });
+  it('Instagram, WhatsApp, звонок, пришёл сам', () => {
+    for (const source of APPOINTMENT_DESK_SOURCES) {
+      const r = parseAppointmentInput({ ...base, source });
+      expect(r.ok && r.value.source).toBe(source);
+    }
+    expect(APPOINTMENT_DESK_SOURCES).toEqual(['DESK', 'INSTAGRAM', 'WHATSAPP', 'PHONE', 'WALK_IN']);
+  });
+  it('сайт, голос и неизвестное значение со стойки: отказ', () => {
+    for (const source of ['WEBSITE', 'VOICE', 'TIKTOK'])
+      expect(parseAppointmentInput({ ...base, source })).toEqual({ ok: false, reason: 'Неизвестный источник записи' });
   });
 });

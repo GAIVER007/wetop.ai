@@ -12,7 +12,7 @@ for (const entry of ['calendar', 'appointments']) {
     await page.keyboard.press('Escape');
     await expect(panel).toBeHidden();
     await open();
-    await panel.getByLabel('Телефон или имя', { exact: true }).fill('Тест несохранённый');
+    await panel.getByLabel('Имя клиента', { exact: true }).fill('Тест несохранённый');
     await panel.getByLabel('Заметка', { exact: true }).fill('Только вымышленные данные');
     await panel.getByLabel('Услуга', { exact: true }).selectOption({ index: 1 });
     await panel.getByLabel('Время', { exact: true }).fill('11:00');
@@ -24,7 +24,7 @@ for (const entry of ['calendar', 'appointments']) {
       await expect(confirm).toBeVisible();
       if (way === 'escape') await page.keyboard.press('Escape');
       else await confirm.getByRole('button', { name: 'Продолжить заполнение' }).click();
-      await expect(panel.getByLabel('Телефон или имя', { exact: true })).toHaveValue('Тест несохранённый');
+      await expect(panel.getByLabel('Имя клиента', { exact: true })).toHaveValue('Тест несохранённый');
       await expect(panel.getByLabel('Время', { exact: true })).toHaveValue('11:00');
     }
     mkdirSync(evidence + '/screenshots', { recursive: true });
@@ -38,7 +38,7 @@ for (const entry of ['calendar', 'appointments']) {
     await panel.getByRole('button', { name: 'Закрыть: Новая запись', exact: true }).click();
     await confirm.getByRole('button', { name: 'Закрыть без сохранения', exact: true }).click();
     await expect(panel).toBeHidden(); await open();
-    await expect(panel.getByLabel('Телефон или имя', { exact: true })).toHaveValue('');
+    await expect(panel.getByLabel('Имя клиента', { exact: true })).toHaveValue('');
   });
   test(`F02 ${entry} validation conflict success and double click`, async ({ page, request }) => {
     const f = await seed(page, request); await f.book('10:00');
@@ -47,12 +47,12 @@ for (const entry of ['calendar', 'appointments']) {
     const p = page.getByRole('dialog', { name:'Новая запись',exact:true });
     await p.getByRole('button', {name:'Записать',exact:true}).click();
     await expect(p).toBeVisible();
-    await p.getByLabel('Телефон или имя',{exact:true}).fill('Тест новый');
+    await p.getByLabel('Имя клиента',{exact:true}).fill('Тест новый');
     await p.getByLabel('Услуга',{exact:true}).selectOption(f.services[0].id);
     await p.getByLabel('Время',{exact:true}).fill('10:00');
     await p.getByRole('button',{name:'Записать',exact:true}).click();
     await expect(p.getByRole('alert')).toBeVisible();
-    await expect(p.getByLabel('Телефон или имя',{exact:true})).toHaveValue('Тест новый');
+    await expect(p.getByLabel('Имя клиента',{exact:true})).toHaveValue('Тест новый');
     await p.getByLabel('Время',{exact:true}).fill('11:00');
     await p.getByRole('button',{name:'Записать',exact:true}).dblclick();
     await expect(p).toBeHidden();
@@ -63,13 +63,13 @@ for (const entry of ['calendar', 'appointments']) {
     const f=await seed(page,request);await page.goto(`/${entry}?date=${date}`);
     await page.getByRole('button',{name:'Новая запись',exact:true}).click();
     const p=page.getByRole('dialog',{name:'Новая запись',exact:true});
-    await p.getByLabel('Телефон или имя',{exact:true}).fill('Тест старый филиал');
+    await p.getByLabel('Имя клиента',{exact:true}).fill('Тест старый филиал');
     await p.getByLabel('Услуга',{exact:true}).selectOption(f.services[0].id);
     await page.context().addCookies([{name:'wetop_scope',value:encodeURIComponent(`business=${f.business};location=${f.locations[1]}`),domain:'127.0.0.1',path:'/'}]);
     const before=await (await request.get(api+'/__test/calls')).json();
     await p.getByRole('button',{name:'Записать',exact:true}).click();
     await expect(p.getByRole('alert')).toContainText('Контекст изменён');
-    await expect(p.getByLabel('Телефон или имя',{exact:true})).toHaveValue('Тест старый филиал');
+    await expect(p.getByLabel('Имя клиента',{exact:true})).toHaveValue('Тест старый филиал');
     const after=await (await request.get(api+'/__test/calls')).json();
     expect(after.slice(before.length).filter((path:string)=>path==='/beauty/appointments')).toHaveLength(0);
   });

@@ -44,7 +44,7 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     expect(html).toContain('Добавить услугу');
     expect(html).toContain('Часы услуги 1');
     expect(html).toContain('Минуты услуги 1');
-    expect(html).toContain('Телефон или имя');
+    expect(html).toContain('Имя клиента');
     expect(html).toContain('Итого');
   });
   it('аудит салона 22.10.2026: до выбора услуги нет «Стоимость: Проверьте сумму»', () => {
@@ -74,7 +74,7 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     // «Последний клиент» только когда он есть (владелец 26.10.2026: без серых пустых кнопок)
     expect(html).not.toContain('Последний клиент');
   });
-  it('клиент одним блоком (владелец 25.10.2026): поиск «Телефон или имя», быстрые кнопки и одна строка нового клиента, без второго выбора «Клиент»', () => {
+  it('клиент: имя и телефон отдельными полями, откуда клиент кнопками (владелец 28.10.2026)', () => {
     const html = renderToStaticMarkup(
       createElement(AppointmentForm, { day, customers: [], employeeId: 'master', onDone: vi.fn() }),
     );
@@ -82,14 +82,18 @@ describe('report A1 A2 A3 A5: appointment form contract', () => {
     expect(block.match(/>Клиент</g)).toHaveLength(1);
     expect(block).not.toContain('<select');
     expect(block).toContain('type="hidden" name="customerId" value=""');
-    // одно поле поиска; имя, фамилия и телефон нового клиента берутся из него скрытыми полями (владелец 26.10.2026)
-    expect(block.match(/<input[^>]*type="search"/g)).toHaveLength(1);
+    // два поля рядом, по обоим ищется клиент из базы; новый клиент уходит прежними полями firstName, lastName, phone
+    expect(block).toContain('>Имя клиента<');
+    expect(block).toContain('>Телефон<');
+    expect(block).toMatch(/<input[^>]*type="tel"/);
+    expect(block).not.toContain('Телефон или имя');
     expect(block).toContain('type="hidden" name="firstName"');
     expect(block).toContain('type="hidden" name="lastName"');
     expect(block).toContain('type="hidden" name="phone"');
-    expect(block).not.toContain('>Имя клиента<');
-    expect(block).not.toContain('>Фамилия<');
-    expect(block).not.toContain('Новый клиент<');
+    // откуда клиент: Instagram, WhatsApp, звонок, пришёл сам; по умолчанию администратор (DESK)
+    expect(block).toContain('aria-label="Откуда клиент"');
+    for (const label of ['Instagram', 'WhatsApp', 'Звонок', 'Пришёл сам']) expect(block).toContain(`>${label}</button>`);
+    expect(block).toContain('type="hidden" name="source" value="DESK"');
   });
   it('повтор записи: выбранный клиент чипом «имя, телефон ×», строки нового клиента нет, id уходит прежним полем', () => {
     const repeatFrom = {

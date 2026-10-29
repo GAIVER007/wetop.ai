@@ -161,7 +161,7 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
   await dialog
     .getByLabel('Услуга', { exact: true })
     .selectOption({ label: 'Тестовая стрижка, 30 мин' });
-  await dialog.getByLabel('Телефон или имя', { exact: true }).fill('Клиент Автотест');
+  await dialog.getByLabel('Имя клиента', { exact: true }).fill('Клиент Автотест');
   await dialog.getByRole('button', { name: 'Записать', exact: true }).click();
   await expect(main.getByTestId('beauty-day-summary')).toContainText('Записей: 1');
   await page.reload();

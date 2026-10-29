@@ -92,6 +92,7 @@ export async function createAppointment(
       notes: text(form, 'notes'),
       atHome: text(form, 'atHome'),
       homeAddress: text(form, 'homeAddress'),
+      source: text(form, 'source'),
     });
     if (!saved?.appointments?.some((row) => typeof row.id === 'string' && row.id))
       return {

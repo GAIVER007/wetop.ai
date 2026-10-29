@@ -144,7 +144,13 @@ export interface AppointmentInput {
   /** HOME-VISIT-20261027: мастер едет к клиенту; адрес только при выезде */
   atHome: boolean;
   homeAddress: string | null;
+  /** APPOINTMENT-SOURCE-20261028: откуда клиент; со стойки только эти значения, сайт и голос ставит своя дверь */
+  source: AppointmentDeskSource;
 }
+
+/** Источники, которые администратор выбирает в окне записи (владелец 28.10.2026: «инстаграм, ватсап и т.д.») */
+export const APPOINTMENT_DESK_SOURCES = ['DESK', 'INSTAGRAM', 'WHATSAPP', 'PHONE', 'WALK_IN'] as const;
+export type AppointmentDeskSource = (typeof APPOINTMENT_DESK_SOURCES)[number];
 
 export const HOME_ADDRESS_LIMIT = 300;
 
@@ -233,6 +239,9 @@ export function parseAppointmentInput(raw: unknown): ParseResult<AppointmentInpu
   if (notes.length > NOTES_LIMIT) return { ok: false, reason: 'Заметка слишком длинная' };
   const visit = parseHomeVisit(body['atHome'], body['homeAddress']);
   if (!visit.ok) return visit;
+  const rawSource = text(body['source']) || 'DESK';
+  if (!(APPOINTMENT_DESK_SOURCES as readonly string[]).includes(rawSource))
+    return { ok: false, reason: 'Неизвестный источник записи' };
 
   return {
     ok: true,
@@ -245,6 +254,7 @@ export function parseAppointmentInput(raw: unknown): ParseResult<AppointmentInpu
       notes: notes || null,
       atHome: visit.value.atHome,
       homeAddress: visit.value.homeAddress,
+      source: rawSource as AppointmentDeskSource,
     },
   };
 }

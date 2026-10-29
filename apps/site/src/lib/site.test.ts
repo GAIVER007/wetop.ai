@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   appPath,
   assistantScriptSrc,
+  counterScript,
   loginLink,
   registerLink,
   resetLink,
@@ -13,6 +14,7 @@ const config = (over: Partial<SiteConfig> = {}): SiteConfig => ({
   siteUrl: 'https://wetop.ai',
   appUrl: 'https://app.wetop.ai',
   assistantUrl: '',
+  counter: { siteKey: '', apiUrl: 'https://api.wetop.ai' },
   company: { name: '', city: '', email: '', phone: '', about: '' },
   ...over,
 });
@@ -124,5 +126,23 @@ describe('окно входа: адреса стойки', () => {
 describe('контактная почта сайта', () => {
   it('рабочая почта домена, а не личная (аудит 22.10.2026, P1-10)', () => {
     expect(siteConfig.company.email).toBe('hello@wetop.ai');
+  });
+});
+
+describe('counterScript: посетители wetop.ai для кабинета руководителя', () => {
+  it('без ключа счётчика на сайте нет', () => {
+    expect(counterScript(config())).toBeNull();
+  });
+  it('скрипт с API WETOP и ключом сайта компании', () => {
+    expect(counterScript(config({ counter: { siteKey: 'pms_0123456789ab', apiUrl: 'https://api.wetop.ai/' } }))).toEqual({
+      src: 'https://api.wetop.ai/a/pms.js',
+      siteKey: 'pms_0123456789ab',
+    });
+  });
+  it('ключ не по форме останавливает сборку', () => {
+    expect(() => counterScript(config({ counter: { siteKey: 'pms_XYZ', apiUrl: 'https://api.wetop.ai' } }))).toThrow(/counter\.siteKey/);
+  });
+  it('в настройках сайта ключ компании уже вписан', () => {
+    expect(siteConfig.counter.siteKey).toMatch(/^pms_[0-9a-f]{12}$/);
   });
 });

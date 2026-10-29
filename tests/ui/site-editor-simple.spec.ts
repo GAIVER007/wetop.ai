@@ -67,6 +67,8 @@ test('ИИ: подсказка-чип, правка блока, «Вернуть
 test('шаблон меняет оформление одним касанием, тексты остаются; «Расширенный режим» открывает полный редактор', async ({ page, request }) => {
   await request.post(`${FIXTURE_API}/__test/marketing-site`, { data: { noSite: true } });
   await page.goto('/marketing/site/editor');
+  // готовый стиль: запасной путь в свёрнутом блоке (главный путь теперь промт, владелец 29.10.2026)
+  await main(page).getByTestId('site-styles').locator('summary').click();
   await main(page).getByTestId('create-site-start').click();
   await expect(main(page).getByTestId('site-setup')).toBeVisible({ timeout: 15_000 });
   // чат с ИИ по отдельной ссылке

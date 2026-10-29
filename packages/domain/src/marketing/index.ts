@@ -12,6 +12,7 @@ export * from './edit';
 export * from './builder';
 export * from './design-presets';
 export * from './site-templates';
+export * from './prompt-design';
 export * from './live-sync';
 export * from './simple-edit';
 export * from './seo-auto';

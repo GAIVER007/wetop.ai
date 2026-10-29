@@ -16,6 +16,8 @@ import {
   siteSpecHash,
   siteTemplateById,
   templateSiteSpec,
+  promptSiteSpec,
+  SITE_PROMPT_MAX,
   validateSiteSpec,
 } from '@pms/domain';
 import type { DbTx, Prisma } from '@pms/database';
@@ -271,6 +273,86 @@ export class MarketingSiteService {
         });
       } catch (error) {
         // соседний филиал занял тот же адрес или вторая вкладка завела версию: ещё круг, там будет 409 по существу
+        if (isUniqueViolation(error) && attempt < 2) continue;
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Сайт по промту (владелец 29.10.2026, «Создать свой сайт»): одним действием сайт филиала и первая версия из данных
+   * филиала в своём дизайне по словам человека (`promptSiteSpec`: тема, порядок главной и виды секций по промту и id
+   * филиала, без ИИ). Тело `{ prompt }`; документ собирает сервер. Сразу с SEO, FAQ и картой (как у шаблона). Сайт с
+   * версией: 409 `SITE_HAS_VERSION`; права, лицензия и запись как у `fromTemplate`. Текст промта в журнал не пишется
+   */
+  async fromPrompt(pointerSent: boolean, body: unknown) {
+    const scope = siteScope(pointerSent);
+    const input = strictBody(body, ['prompt']);
+    const prompt = typeof input['prompt'] === 'string' ? input['prompt'].trim() : '';
+    if (!prompt) throw new BadRequestException('prompt: опишите, каким должен быть сайт');
+    if ([...prompt].length > SITE_PROMPT_MAX) throw new BadRequestException(`prompt: не длиннее ${SITE_PROMPT_MAX} символов`);
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        return await siteTransaction(this.prisma, scope, true, async (tx) => {
+          const vertical = await tx.business.findUniqueOrThrow({ where: { id: scope.businessId }, select: { vertical: true } });
+          const existing = await tx.marketingSite.findUnique({ where: { locationId: scope.locationId }, select: { state: true } });
+          if (existing?.state === 'ARCHIVED')
+            throw new ConflictException({ code: 'SITE_ARCHIVED', message: 'Сайт филиала в архиве: новый сайт для этого филиала не заводится' });
+          let site = existing ? await this.activeSite(tx, scope) : null;
+          if (site?.latestVersion)
+            throw new ConflictException({ code: 'SITE_HAS_VERSION', message: 'У сайта уже есть версия: правьте сайт в редакторе' });
+          const facts = buildSiteFacts(
+            await readSiteFactsSnapshot(tx, { ...scope, vertical: vertical.vertical as 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' }),
+          );
+          const checked = validateSiteSpec(promptSiteSpec(facts, prompt, scope.locationId));
+          if (!checked.ok) throw new Error(`Сайт по промту не прошёл проверку: ${checked.errors.join('; ')}`);
+          let created = false;
+          if (!site) {
+            const location = await tx.location.findUniqueOrThrow({ where: { id: scope.locationId }, select: { name: true } });
+            const name = [...location.name.trim()].slice(0, 120).join('') || 'Сайт';
+            const base = bootstrapSlug(name, new Set());
+            const taken = await tx.marketingSite.findMany({
+              where: { slug: { startsWith: base.slice(0, 30) }, state: { not: 'ARCHIVED' } },
+              select: { slug: true },
+            });
+            const slug = bootstrapSlug(name, new Set(taken.map((t) => t.slug)));
+            const fresh = await tx.marketingSite.create({
+              data: { locationId: scope.locationId, name, slug, createdById: currentUserId() },
+              select: { id: true },
+            });
+            await this.audit(tx, scope, fresh.id, 'marketing.site.created', { siteId: fresh.id, slug, via: 'prompt' });
+            site = (await this.activeSite(tx, scope))!;
+            created = true;
+          }
+          const specHash = siteSpecHash(checked.spec);
+          const version = await tx.marketingSiteVersion.create({
+            data: {
+              id: randomUUID(),
+              siteId: site.id,
+              revision: 1,
+              parentVersionId: null,
+              schemaVersion: checked.schemaVersion,
+              spec: checked.spec as Prisma.InputJsonObject,
+              specHash,
+              source: 'MANUAL',
+              createdById: currentUserId(),
+            },
+            select: { id: true },
+          });
+          await tx.marketingSite.update({ where: { id: site.id }, data: { latestVersionId: version.id } });
+          const theme = (checked.spec as Record<string, unknown>)['theme'] as Record<string, unknown> | undefined;
+          // журнал без текста промта (MKT9 §109): только итоговая тема и хэш версии
+          await this.audit(tx, scope, site.id, 'marketing.site.prompt_applied', {
+            siteId: site.id,
+            revision: 1,
+            specHash,
+            preset: String(theme?.['preset'] ?? ''),
+            accent: String(theme?.['accent'] ?? ''),
+            typography: String(theme?.['typography'] ?? ''),
+          });
+          return { created, site: siteView((await this.activeSite(tx, scope))!) };
+        });
+      } catch (error) {
         if (isUniqueViolation(error) && attempt < 2) continue;
         throw error;
       }

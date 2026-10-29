@@ -36,6 +36,19 @@ function useTemplateHtml(facts: SiteFacts, templateId: string, spec?: Record<str
   return html;
 }
 
+/**
+ * Живое превью сайта по промту (владелец 29.10.2026): тот же документ и тот же рендер, что у опубликованного сайта;
+ * перерисовывается, когда меняется текст промта
+ */
+export function PromptPreview({ facts, spec, label }: { facts: SiteFacts; spec: Record<string, unknown> | null; label: string }) {
+  const html = useTemplateHtml(facts, '', spec);
+  return html ? (
+    <iframe className="site-prompt__frame" title={label} srcDoc={html} sandbox="allow-same-origin" tabIndex={-1} data-testid="site-prompt-frame" />
+  ) : (
+    <span className="site-prompt__frame site-design__frame--empty skeleton" />
+  );
+}
+
 function Shot({ facts, template }: { facts: SiteFacts; template: SiteTemplate }) {
   const t = useT();
   const html = useTemplateHtml(facts, template.id);

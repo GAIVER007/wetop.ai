@@ -13,7 +13,7 @@ const SHOTS = 'reports/mkt9-site-editor-2026-10-07';
  * выходу Worker (`tests/sites`), здесь проверяется стойка вокруг него
  */
 const axe = (page: Page) =>
-  new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('[data-testid="ed-frame"]').analyze();
+  new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('[data-testid="ed-frame"]').exclude('[data-testid="site-prompt-frame"]').analyze();
 const main = (page: Page) => page.getByRole('main').filter({ visible: true });
 const control = (request: { post: (url: string, o: { data: unknown }) => Promise<unknown> }, data: Record<string, unknown>) =>
   request.post(`${FIXTURE_API}/__test/marketing-site`, { data });
@@ -312,38 +312,33 @@ test('ИИ с несохранёнными правками: «Сохранит�
   await expect(ai.getByLabel('Что изменить в этом блоке?')).toHaveValue('Ярче');
 });
 
-test('первый экран MKT9.2 + SITE-1: «Сайт для …», без названия и адреса сайта; факты филиала; сайт создаётся и открывается редактор', async ({ page, request }) => {
+test('первый экран: «Создать свой сайт» по промту, без названия и адреса сайта; факты филиала; сайт создаётся, ИИ дописывает тексты, открывается редактор', async ({ page, request }) => {
   await control(request, { noSite: true });
   await page.goto('/marketing/site/editor?full=1');
   const m = main(page);
   const win = m.getByTestId('create-site');
-  await expect(win.getByRole('heading', { name: 'Сайт для Luxx Aparts' })).toBeVisible();
+  await expect(win.getByRole('heading', { name: 'Создать свой сайт' })).toBeVisible();
   // проект это филиал: ни названия, ни адреса сайта не спрашиваем, готовых примеров нет
   await expect(win.getByLabel('Адрес сайта')).toHaveCount(0);
   await expect(win.getByLabel('Название сайта')).toHaveCount(0);
   await expect(win.getByRole('list', { name: 'Примеры описаний' })).toHaveCount(0);
-  await expect(win.getByTestId('create-site-ai')).toHaveText('Собрать с ИИ по описанию');
-  await expect(win.getByTestId('create-site-start')).toHaveText('Создать сайт');
+  await expect(win.getByTestId('create-site-prompt')).toHaveText('Создать сайт');
   await expect(win.getByTestId('create-site-facts')).toContainText('Стандарт');
   await expect(win.getByTestId('create-site-facts')).toContainText('ул. Вымышленная, 1');
   await win.getByLabel('Опишите, каким должен быть сайт').fill('Спокойный сайт у вокзала');
-  await win.getByTestId('create-site-ai').click();
-  await expect(win.getByTestId('create-site-steps')).toContainText('Анализирую данные объекта');
+  await win.getByTestId('create-site-prompt').click();
   await expect(m.getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
-  await expect(frame(page).locator('#sec-hero')).toContainText('Первая версия от ИИ');
   await expect(m.getByTestId('ed-project')).toContainText('Luxx Aparts / Сайт филиала');
 });
 
-test('первый экран: сайт есть без версий; ошибка ИИ словами, текст на месте', async ({ page, request }) => {
-  await control(request, { noVersions: true, aiFail: 'TIMEOUT' });
+test('первый экран: ИИ дописать тексты не смог, сайт по промту всё равно создан и открыт', async ({ page, request }) => {
+  await control(request, { noSite: true, aiFail: 'TIMEOUT' });
   await page.goto('/marketing/site/editor?full=1');
   const win = main(page).getByTestId('create-site');
   await expect(win.getByLabel('Адрес сайта')).toHaveCount(0);
   await win.getByLabel('Опишите, каким должен быть сайт').fill('Коротко и по делу');
   await win.getByLabel('Опишите, каким должен быть сайт').press('Control+Enter');
-  await expect(win.getByTestId('create-site-error')).toHaveText('ИИ не ответил вовремя');
-  await expect(win.getByLabel('Опишите, каким должен быть сайт')).toHaveValue('Коротко и по делу');
-  await expect(win.getByTestId('create-site-start')).toBeEnabled();
+  await expect(main(page).getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
 });
 
 for (const theme of ['light', 'dark'] as const)

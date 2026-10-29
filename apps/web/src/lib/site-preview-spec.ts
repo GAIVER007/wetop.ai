@@ -1,4 +1,4 @@
-import { templateSiteSpec } from '@pms/domain';
+import { promptSiteSpec, templateSiteSpec } from '@pms/domain';
 import type { SiteFacts } from './site-facts';
 
 /**
@@ -7,7 +7,15 @@ import type { SiteFacts } from './site-facts';
  * Что видно на карточке, то и получится после «Создать сайт». Документ живёт только в браузере и никуда не сохраняется
  */
 export function previewSpec(facts: SiteFacts, templateId: string): Record<string, unknown> | null {
-  const spec = templateSiteSpec(facts, templateId);
+  return inertSpec(templateSiteSpec(facts, templateId));
+}
+
+/** Превью сайта по промту (владелец 29.10.2026): тот же документ, что сохранит сервер, только без индексации */
+export function promptPreviewSpec(facts: SiteFacts, prompt: string): Record<string, unknown> | null {
+  return inertSpec(promptSiteSpec(facts, prompt, facts.location.id));
+}
+
+function inertSpec(spec: Record<string, unknown> | null): Record<string, unknown> | null {
   if (!spec) return null;
   // превью не индексируется и без аналитики: это только картинка карточки
   const site = spec['site'] as Record<string, unknown>;

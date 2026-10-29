@@ -11,7 +11,7 @@ import {
   siteSpecAssetRefs,
   siteSpecHash,
   siteTemplateById,
-  templateSiteSpec,
+  templateSiteSpec, promptSiteSpec,
   validateSiteSpec,
   type AssistantPayload,
   type SiteFacts,
@@ -380,6 +380,24 @@ export function marketingSiteFixture(
     return { status: 201, data: { created: true, site: view() } };
   }
   // SITE-1: сайт из шаблона своего сегмента одним действием, как `MarketingSiteService.fromTemplate`
+  // владелец 29.10.2026: «Создать свой сайт» по промту, как `marketing-site.service.ts` fromPrompt()
+  if (path === '/marketing/site/from-prompt' && method === 'POST') {
+    const extra = Object.keys(body).filter((k) => k !== 'prompt');
+    if (extra.length) return { status: 400, data: { message: `Лишние поля: ${extra.join(', ')}`, statusCode: 400 } };
+    const prompt = typeof body['prompt'] === 'string' ? body['prompt'].trim() : '';
+    if (!prompt) return { status: 400, data: { message: 'prompt: опишите, каким должен быть сайт', statusCode: 400 } };
+    if (archived) return conflict('SITE_ARCHIVED', 'Сайт филиала в архиве: новый сайт для этого филиала не заводится');
+    if (exists && latest()) return conflict('SITE_HAS_VERSION', 'У сайта уже есть версия: правьте сайт в редакторе');
+    const facts = ctx?.facts();
+    const spec = facts ? promptSiteSpec(facts, prompt, facts.location.id) : null;
+    if (!spec || !validateSiteSpec(spec).ok) return { status: 500, data: { message: 'Сайт по промту не прошёл проверку' } };
+    const created = !exists;
+    exists = true;
+    versions = [];
+    noVersions = true;
+    append(spec, 'MANUAL');
+    return { status: created ? 201 : 200, data: { created, site: view() } };
+  }
   if (path === '/marketing/site/from-template' && method === 'POST') {
     const extra = Object.keys(body).filter((k) => k !== 'templateId');
     if (extra.length) return { status: 400, data: { message: `Лишние поля: ${extra.join(', ')}`, statusCode: 400 } };

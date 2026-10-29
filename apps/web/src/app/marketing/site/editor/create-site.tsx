@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { PATCH_INSTRUCTION_MAX, siteTemplatesFor, type SiteFactsVertical } from '@pms/domain';
 import { Chip, ChipGroup } from '../../../../components/chip';
 import { Alert, Button, Select, cx } from '../../../../components/ui';
@@ -8,11 +8,12 @@ import type { Loaded, SiteFacts, SiteLocation } from '../../../../lib/site-facts
 import { DICTATION_LANGS, appendDictated, useDictation, type DictationLang } from '../../../../lib/use-dictation';
 import { verticalCopy } from '../../../../lib/vertical-copy';
 import type { WebVertical } from '../../../../lib/vertical-landing';
-import { createFromTemplateAction, createSiteAction, type SiteDesignChoice } from './actions';
+import { createFromPromptAction, createFromTemplateAction } from './actions';
 import { BuildProgress } from './ai-chat';
-import { TemplateGallery } from './template-gallery';
+import { PromptPreview, TemplateGallery } from './template-gallery';
+import { promptPreviewSpec } from '../../../../lib/site-preview-spec';
 import { LocationPicker } from './location-picker';
-import { runErrorText, useGenerationRun } from './run';
+import { useGenerationRun } from './run';
 import { SiteFactsCard } from './site-facts-card';
 import { createErrorText } from './vertical-status';
 import { msg } from '../../../../i18n';
@@ -26,11 +27,11 @@ const DESIGNS_HINT: Record<WebVertical, string> = {
 };
 
 /**
- * Первый экран «Сайт и SEO» (MKT9.2, SITE-1 по `plans/site-seo-flow-2026-10-15.md` §1 шаги 1–3), как у Lovable:
- * филиал, «Что WETOP знает о филиале», три готовых шаблона сайта своего сегмента (гостиница, салон, ресторан) с живым
- * превью и чат с подсказками и диктовкой. Главный путь без ИИ и без промптов: выбрать шаблон и «Создать сайт», сервер
- * сразу собирает сайт из данных филиала, и открывается редактор. Текст в чате необязателен: «Собрать с ИИ по
- * описанию» ставит первую сборку ИИ с выбранным шаблоном как оформлением.
+ * Первый экран «Сайт и SEO»: «Создать свой сайт» по промту (владелец 29.10.2026, «как в Lovable: человек пишет промт,
+ * по нему создаётся сайт, сразу с SEO и GEO»). Главный путь: описать сайт словами (подсказки, диктовка), справа живое
+ * превью ровно того сайта, что сохранит сервер (свой дизайн из промта и данных филиала, `promptSiteSpec`), «Создать
+ * сайт» сразу заводит сайт и открывает редактор. Если ИИ сайта на сервере включён, он следом переписывает тексты под
+ * пожелания (правка к первой версии). Готовые стили остаются запасным путём в свёрнутом блоке ниже.
  *
  * Проект это филиал: ни названия, ни адреса сайта не спрашиваем. Решает сервер: экран не запрещает направление сам, а
  * отказ API по направлению переводит в понятные слова (`vertical-status.ts`).
@@ -41,7 +42,6 @@ export function CreateSite({
   vertical,
   locationName,
   locationId,
-  briefHash,
   facts,
   locations,
   readOnly,
@@ -57,7 +57,6 @@ export function CreateSite({
   const t = useT();
   const router = useRouter();
   const copy = verticalCopy(vertical);
-  // подсказки из словаря направления: на экране и в тексте пожелания на языке человека
   const chips = copy.siteChips.map((chip) => t(chip));
   const [text, setText] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
@@ -74,7 +73,6 @@ export function CreateSite({
   });
 
   const template = templates.find((x) => x.id === chosen) ?? templates[0]!;
-  // превью рисуется из фактов; без них из имени филиала, без каталога
   const previewFacts: SiteFacts = useMemo(
     () =>
       facts.ok
@@ -91,20 +89,45 @@ export function CreateSite({
           },
     [facts, vertical, locationId, locationName],
   );
+  // превью идёт за текстом без задержки ввода: React дорисует, когда освободится
+  const prompt = useDeferredValue(text.trim());
+  const previewDoc = useMemo(() => (prompt ? promptPreviewSpec(previewFacts, prompt) : null), [previewFacts, prompt]);
 
-  const job = useGenerationRun((run) => {
-    if (run.status === 'SUCCEEDED') {
-      setPhase('done');
-      router.refresh();
-    } else {
-      setPhase('idle');
-      setError(runErrorText(run, t));
-    }
+  const job = useGenerationRun(() => {
+    // ИИ дописал тексты или отказал: сайт уже есть, открываем редактор в любом случае
+    setPhase('done');
+    router.refresh();
   });
   const busy = pending || phase === 'starting' || phase === 'building' || phase === 'done';
 
-  // Главный путь: шаблон без ИИ. Сайт и первая версия появляются сразу, страница перечитывается и открывает редактор
-  const create = async () => {
+  const createByPrompt = async () => {
+    if (readOnly || busy || !text.trim()) return;
+    dictation.stop();
+    setError(null);
+    setPhase('starting');
+    setPending(true);
+    try {
+      const reply = await createFromPromptAction(text.trim());
+      if (!reply.ok) {
+        setPhase('idle');
+        setError(createErrorText(vertical, reply, t));
+        return;
+      }
+      if (reply.data.run) {
+        setStartedAt(Date.now());
+        setPhase('building');
+        job.start(reply.data.run);
+        return;
+      }
+      setPhase('done');
+      router.refresh();
+    } finally {
+      setPending(false);
+    }
+  };
+
+  // Запасной путь: готовый стиль без промта
+  const createByStyle = async () => {
     if (readOnly || busy) return;
     dictation.stop();
     setError(null);
@@ -124,29 +147,6 @@ export function CreateSite({
     }
   };
 
-  // Необязательный путь: первая сборка ИИ по описанию человека, с выбранным шаблоном как оформлением
-  const selected = (): SiteDesignChoice => ({ presetId: template.id });
-
-  const build = async () => {
-    if (readOnly || busy) return;
-    dictation.stop();
-    setError(null);
-    setPhase('starting');
-    setPending(true);
-    try {
-      const reply = await createSiteAction({ briefHash, instruction: text, design: selected() });
-      if (!reply.ok) {
-        setPhase('idle');
-        setError(createErrorText(vertical, reply, t));
-        return;
-      }
-      setStartedAt(Date.now());
-      setPhase('building');
-      job.start(reply.run);
-    } finally {
-      setPending(false);
-    }
-  };
   const toggleChip = (chip: string) => {
     setText((previous) => {
       if (previous.includes(chip)) return previous.replace(chip, '').replace(/\s*\.\s*\./g, '.').replace(/^[\s.]+|[\s.]+$/g, '').trim();
@@ -159,36 +159,34 @@ export function CreateSite({
     <section className="site-start" aria-labelledby="create-site-title" data-testid="create-site">
       <header className="site-start__head">
         <h2 id="create-site-title" className="site-start__title">
-          {t('Сайт для {name}', { name: locationName })}
+          {t('Создать свой сайт')}
         </h2>
         <p className="muted">
-          {t('Выберите филиал и один из трёх готовых шаблонов: сайт соберётся сразу из данных филиала, без ИИ. Дальше всё правится в редакторе.')}
+          {t('Опишите словами, какой сайт нужен «{name}». Дизайн соберётся под ваши слова, услуги, цены, часы и контакты возьмутся из WETOP, SEO и карта подключатся сами. Потом всё можно поправить и опубликовать.', { name: locationName })}
         </p>
       </header>
 
-      <div className="site-start__grid">
-        <LocationPicker locations={locations} currentId={locationId} />
-
+      <div className="site-prompt">
         <form
-          className={cx('site-chat', busy && 'is-busy')}
+          className={cx('site-chat site-prompt__chat', busy && 'is-busy')}
           aria-labelledby="site-chat-title"
           onSubmit={(e) => {
             e.preventDefault();
-            void (text.trim() ? build() : create());
+            void createByPrompt();
           }}
         >
           <h3 id="site-chat-title" className="site-start__step">
-            {t('Пожелания для ИИ (необязательно)')}
+            {t('Какой сайт сделать?')}
           </h3>
           <label htmlFor="create-site-text" className="sr-only">
             {t('Опишите, каким должен быть сайт')}
           </label>
           <textarea
             id="create-site-text"
-            rows={5}
+            rows={6}
             maxLength={PATCH_INSTRUCTION_MAX}
             className="site-chat__text"
-            placeholder={t('Например: спокойный сайт, акцент на тишину и чистоту, дружелюбный тон')}
+            placeholder={t('Например: тёмный премиальный сайт с золотом, акцент на мастеров и быструю онлайн-запись')}
             value={text}
             disabled={busy || readOnly}
             aria-describedby="site-chat-hint"
@@ -196,7 +194,7 @@ export function CreateSite({
             onKeyDown={(e) => {
               if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
-                if (text.trim()) void build();
+                void createByPrompt();
               }
             }}
           />
@@ -238,33 +236,50 @@ export function CreateSite({
                 </span>
               </div>
             )}
-            <span id="site-chat-hint" className="muted">
-              {t('Без текста сайт создаётся по шаблону сразу. С текстом ИИ доработает выбранный шаблон под ваши пожелания (Ctrl+Enter).')}
-            </span>
+            <Button
+              type="submit"
+              className="site-prompt__go"
+              disabled={busy || readOnly || !text.trim()}
+              aria-busy={phase === 'starting' || undefined}
+              data-testid="create-site-prompt"
+            >
+              {phase === 'starting' || phase === 'done' ? t('Создаём…') : phase === 'building' ? t('ИИ дописывает тексты…') : t('Создать сайт')}
+            </Button>
           </div>
+          <span id="site-chat-hint" className="muted">
+            {t('Каждый промт даёт свой дизайн: цвета, шрифты, порядок и вид блоков. Ctrl+Enter тоже создаёт сайт.')}
+          </span>
         </form>
 
-        <SiteFactsCard vertical={vertical} facts={facts} />
-
-        <fieldset className="site-start__designs" aria-describedby="site-designs-hint">
-          <legend className="site-start__step">{t('Шаблон сайта')}</legend>
-          <p id="site-designs-hint" className="muted">
-            {t(DESIGNS_HINT[vertical])}
-          </p>
-          <TemplateGallery facts={previewFacts} templates={templates} chosen={template.id} onChoose={setChosen} disabled={busy} />
-          <div className="site-start__actions">
-            <Button type="button" tone="secondary" disabled={busy || readOnly || !text.trim()} onClick={() => void build()} data-testid="create-site-ai">
-              {phase === 'building' ? t('ИИ собирает…') : t('Собрать с ИИ по описанию')}
-            </Button>
-            <Button type="button" disabled={busy || readOnly} aria-busy={phase === 'starting' || undefined} onClick={() => void create()} data-testid="create-site-start">
-              {phase === 'starting' || phase === 'done' ? t('Создаём…') : t('Создать сайт')}
-            </Button>
-          </div>
-          <p className="muted" data-testid="site-design-chosen" aria-live="polite">
-            {t('Выбран шаблон «{name}».', { name: t(template.name) })}
-          </p>
-        </fieldset>
+        <div className="site-prompt__preview" aria-live="polite" data-testid="site-prompt-preview">
+          {previewDoc ? (
+            <PromptPreview facts={previewFacts} spec={previewDoc} label={t('Превью сайта по вашему описанию')} />
+          ) : (
+            <p className="site-prompt__empty muted">{t('Начните писать слева: здесь сразу появится ваш сайт.')}</p>
+          )}
+        </div>
       </div>
+
+      <div className="site-start__grid site-start__grid--after">
+        <LocationPicker locations={locations} currentId={locationId} />
+        <SiteFactsCard vertical={vertical} facts={facts} />
+      </div>
+
+      <details className="site-start__designs site-styles" data-testid="site-styles">
+        <summary className="site-start__step">{t('Или начните с готового стиля')}</summary>
+        <p id="site-designs-hint" className="muted">
+          {t(DESIGNS_HINT[vertical])}
+        </p>
+        <TemplateGallery facts={previewFacts} templates={templates} chosen={template.id} onChoose={setChosen} disabled={busy} />
+        <div className="site-start__actions">
+          <Button type="button" tone="secondary" disabled={busy || readOnly} onClick={() => void createByStyle()} data-testid="create-site-start">
+            {t('Создать по стилю')}
+          </Button>
+        </div>
+        <p className="muted" data-testid="site-design-chosen" aria-live="polite">
+          {t('Выбран шаблон «{name}».', { name: t(template.name) })}
+        </p>
+      </details>
 
       {readOnly && <p className="muted">{t('Только чтение: создать сайт нельзя.')}</p>}
       {error && (
@@ -275,6 +290,9 @@ export function CreateSite({
       {phase === 'building' && (
         <div role="status" aria-live="polite" data-testid="create-site-steps">
           <BuildProgress startedAt={startedAt} />
+          <Button type="button" tone="secondary" onClick={() => router.refresh()} data-testid="create-site-open">
+            {t('Открыть редактор сейчас')}
+          </Button>
         </div>
       )}
       {phase === 'done' && (

@@ -16,7 +16,7 @@ import {
   type AuthField,
   type AuthFieldErrors,
 } from '../lib/auth-validation';
-import { PHONE_COUNTRIES, PRIVACY_POLICY_PATH, defaultPhoneCountry } from '../lib/phone-countries';
+import { PRIVACY_POLICY_PATH, countryFromPhone, suggestedLocale } from '../lib/phone-countries';
 import { OtpInput, type OtpInputHandle, type OtpStatus } from './otp-input';
 import { PasswordStrengthMeter } from './password-strength';
 
@@ -84,7 +84,6 @@ const LANGUAGES = [
   { code: 'kk', label: 'Қазақша' },
   { code: 'en', label: 'English' },
 ] as const;
-const REGISTRATION_COUNTRIES = PHONE_COUNTRIES.filter((c) => ['KZ', 'AE', 'QA'].includes(c.code));
 
 /*
  * Окно входа и создания аккаунта поверх главной (ADR-100, plans/site-auth-dialog-tour-2026-09-27.md).
@@ -117,25 +116,26 @@ export function AuthDialog({ texts, urls }: Props) {
     password: '',
     name: '',
     hotelName: '',
-    phoneCountry: 'KZ',
     phone: '',
     language: 'ru',
   });
+  // язык, выбранный человеком руками, номер больше не перебивает (29.10.2026)
+  const languageTouched = useRef(false);
+  // страну и порядок языков узнаёт номер: «+7 747» Казахстан, «+7 916» Россия, «+974» Катар (29.10.2026)
+  const phoneMatch = countryFromPhone(form.phone);
+  const languages = phoneMatch
+    ? suggestedLocale(phoneMatch.code, 'choices').map((code) => LANGUAGES.find((l) => l.code === code)!)
+    : LANGUAGES;
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
-  // Страна кода телефона — по браузеру (29.09.2026), после появления на экране: статичная сборка браузера не знает
   useEffect(() => {
-    const country = defaultPhoneCountry(
-      navigator.languages ?? [],
-      Intl.DateTimeFormat().resolvedOptions().timeZone,
-    );
     const query = new URLSearchParams(window.location.search);
     setForm((f) => ({
       ...f,
-      phoneCountry: REGISTRATION_COUNTRIES.some((c) => c.code === country) ? country : 'KZ',
       email: query.get('email') ?? '',
       // с казахской страницы сайта (/kk/…) человек приходит за казахским кабинетом
       ...(window.location.pathname.startsWith('/kk/') ? { language: 'kk' } : {}),
     }));
+    if (window.location.pathname.startsWith('/kk/')) languageTouched.current = true;
     setVertical(parseBusinessVertical(query.get('vertical')) ?? 'HOSPITALITY');
     setPasswordJustSet(query.get('password') === 'set');
     setChoosable(window.location.pathname === '/');
@@ -264,7 +264,15 @@ export function AuthDialog({ texts, urls }: Props) {
   };
   const set = (key: keyof typeof form) => (event: { target: { value: string } }) => {
     const value = event.target.value;
-    setForm((f) => ({ ...f, [key]: value }));
+    if (key === 'language') languageTouched.current = true;
+    setForm((f) => {
+      // номер узнал страну: язык системы по ней, пока человек не выбрал язык сам
+      if (key === 'phone' && !languageTouched.current) {
+        const match = countryFromPhone(value);
+        if (match?.sure) return { ...f, phone: value, language: suggestedLocale(match.code) };
+      }
+      return { ...f, [key]: value };
+    });
     // исправленное поле больше не горит красным; остальные ошибки остаются до отправки
     const field = FIELD_OF[key];
     if (field && fieldErrors[field])
@@ -336,7 +344,7 @@ export function AuthDialog({ texts, urls }: Props) {
       vertical,
       businessName: form.hotelName.trim(),
       password: form.password,
-      phoneCountry: form.phoneCountry,
+      phoneCountry: phoneMatch?.code ?? '',
       phone: form.phone.trim(),
       privacyAccepted,
       locale: form.language,
@@ -753,77 +761,58 @@ export function AuthDialog({ texts, urls }: Props) {
                     />
                     {fieldError('businessName')}
                   </div>
-                  <div className="auth-row">
-                    <div className="auth-field">
-                      <label className="auth-field__label" htmlFor="auth-country">
-                        {texts.fields.country}
-                      </label>
-                      <select
-                        id="auth-country"
-                        className="auth-field__input"
-                        name="phoneCountry"
-                        autoComplete="country"
-                        value={form.phoneCountry}
-                        onChange={set('phoneCountry')}
-                        disabled={pending}
-                      >
-                        {REGISTRATION_COUNTRIES.map((c) => (
-                          <option key={c.code} value={c.code}>
-                            {c.code === 'AE' ? 'ОАЭ (Дубай)' : c.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="auth-field">
-                      <label className="auth-field__label" htmlFor="auth-language">
-                        {texts.fields.language}
-                      </label>
-                      <select
-                        id="auth-language"
-                        className="auth-field__input"
-                        name="language"
-                        value={form.language}
-                        onChange={set('language')}
-                        aria-describedby="auth-language-note"
-                        disabled={pending}
-                      >
-                        {LANGUAGES.map((l) => (
-                          <option key={l.code} value={l.code}>
-                            {l.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  <p className="auth-form__hint" id="auth-language-note">
-                    {texts.fields.languageNote}
-                  </p>
                   <div className="auth-field">
                     <label className="auth-field__label" htmlFor={fieldId('phone')}>
                       {texts.fields.phone}
                     </label>
                     <span className="auth-field__password auth-phone">
-                      <span className="auth-phone__code" aria-hidden="true">
-                        {PHONE_COUNTRIES.find((c) => c.code === form.phoneCountry)?.dial ?? '+7'}
-                      </span>
                       <input
                         id={fieldId('phone')}
                         className="auth-field__input"
                         type="tel"
                         inputMode="tel"
                         name="phone"
-                        autoComplete="tel-national"
+                        autoComplete="tel"
                         required
                         {...invalidProps('phone')}
                         maxLength={40}
-                        placeholder={form.phoneCountry === 'QA' ? '5550 1234' : form.phoneCountry === 'AE' ? '50 123 4567' : texts.fields.phonePlaceholder}
+                        placeholder={texts.fields.phonePlaceholder}
                         value={form.phone}
                         onChange={set('phone')}
                         disabled={pending}
                       />
+                      {/* страна по первым цифрам номера: выбирать из списка не нужно (владелец 29.10.2026) */}
+                      {phoneMatch && (
+                        <span className="auth-phone__country" data-testid="auth-phone-country" aria-live="polite">
+                          {phoneMatch.name}
+                        </span>
+                      )}
                     </span>
                     {fieldError('phone')}
                   </div>
+                  <div className="auth-field">
+                    <label className="auth-field__label" htmlFor="auth-language">
+                      {texts.fields.language}
+                    </label>
+                    <select
+                      id="auth-language"
+                      className="auth-field__input"
+                      name="language"
+                      value={form.language}
+                      onChange={set('language')}
+                      aria-describedby="auth-language-note"
+                      disabled={pending}
+                    >
+                      {languages.map((l) => (
+                        <option key={l.code} value={l.code}>
+                          {l.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <p className="auth-form__hint" id="auth-language-note">
+                    {texts.fields.languageNote}
+                  </p>
                   {emailField}
                   {passwordField('new-password')}
                   <label className="auth-consent">

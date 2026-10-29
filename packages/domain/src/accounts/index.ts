@@ -12,6 +12,7 @@ export * from './trial';
 export * from './session';
 export * from './registration';
 export * from './registration-contact';
+export * from './phone-country';
 export * from './invite';
 export * from './roles';
 export * from './permissions';

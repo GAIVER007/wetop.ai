@@ -47,7 +47,9 @@ describe('defaultPhoneCountry', () => {
   it('ни пояс, ни язык не подсказали — Казахстан', () => {
     expect(defaultPhoneCountry(['ru'], 'UTC')).toBe('KZ');
     expect(defaultPhoneCountry([], undefined)).toBe('KZ');
-    expect(defaultPhoneCountry(['fr-FR'], 'Europe/Paris')).toBe('KZ');
+    // с 29.10.2026 в списке весь мир: регион языка «fr-FR» это Франция (раньше её не было, и выходил Казахстан)
+    expect(defaultPhoneCountry(['fr-FR'], 'Europe/Paris')).toBe('FR');
+    expect(defaultPhoneCountry(['fr'], 'Europe/Paris')).toBe('KZ');
   });
 });
 

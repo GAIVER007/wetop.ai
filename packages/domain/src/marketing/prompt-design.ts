@@ -1,3 +1,4 @@
+import { heroCopy, heroTone, type HeroLocale } from './hero-copy';
 import { applyDesignDirection, type DesignDirection, type DesignTheme } from './builder';
 import type { SiteFacts, SiteFactsVertical } from './site-facts';
 import { starterSpecFromFacts } from './starter';
@@ -265,7 +266,27 @@ export function promptSiteSpec(facts: SiteFacts, prompt: string, seed = facts.lo
   const design = sitePromptDesign(prompt, facts.vertical, seed);
   const order = SIMPLE_HOME[facts.vertical].map((t) => (t === 'reviews' ? 'features' : t));
   const simple: SitePromptDesign = { ...design, direction: { ...design.direction, sectionOrder: order } };
-  return simpleHome(applySitePromptDesign(starterSpecFromFacts(facts), simple), facts);
+  return withOffer(simpleHome(applySitePromptDesign(starterSpecFromFacts(facts), simple), facts), facts, design.direction.theme.typography);
+}
+
+/**
+ * Оффер первого экрана (владелец 29.10.2026: «как у Брансона или Хормози: цепляющий заголовок, на первом экране всё
+ * чётко»): заголовок это результат для клиента, подзаголовок это стопка конкретики из данных (heroCopy), тон по
+ * шрифту дизайна. Название филиала остаётся в шапке и в подзаголовке (SEO и GEO).
+ */
+function withOffer(spec: Rec, facts: SiteFacts, typography: unknown): Rec {
+  const locales = (((spec['site'] as Rec | undefined)?.['locales'] as string[] | undefined) ?? ['ru']).filter((l): l is HeroLocale => l === 'ru' || l === 'kk' || l === 'en');
+  const tone = heroTone(typography);
+  for (const page of (spec['pages'] as Rec[] | undefined) ?? []) {
+    if (page['isHome'] !== true) continue;
+    for (const x of (page['sections'] as Rec[] | undefined) ?? []) {
+      if (x['type'] !== 'hero') continue;
+      const copies = (locales.length ? locales : (['ru'] as HeroLocale[])).map((l) => [l, heroCopy(facts, tone, 0, l)] as const);
+      x['heading'] = Object.fromEntries(copies.map(([l, c]) => [l, c.heading]));
+      x['subheading'] = Object.fromEntries(copies.map(([l, c]) => [l, c.subheading]));
+    }
+  }
+  return spec;
 }
 
 /**

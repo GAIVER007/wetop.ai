@@ -700,4 +700,5 @@ export const platformOrg: Record<string, string> = {
   "Действий пока нет.": "No actions yet.",
   "Подробно": "Details",
   "Карточка клиента: {name}": "Client card: {name}",
+  "Пробный {n} дней": "{n}-day trial",
 };

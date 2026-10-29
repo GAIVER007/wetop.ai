@@ -126,3 +126,16 @@ describe('сайт по промту: свой дизайн у каждого', 
     expect(promptMoods('табиғи жайлы')).toEqual(expect.arrayContaining(['natural', 'calm']));
   });
 });
+
+describe('сайт по промту: оффер первого экрана, а не просто название (владелец 29.10.2026)', () => {
+  it('салон, ресторан и гостиница: заголовок результат, подзаголовок с названием и конкретикой', () => {
+    for (const f of [facts('BEAUTY'), facts('FOOD_SERVICE'), facts('HOSPITALITY')]) {
+      const spec = promptSiteSpec(f, 'Тёмный премиальный, золото');
+      const hero = (spec['pages'] as Rec[])[0]!['sections'].find((x: Rec) => x['type'] === 'hero');
+      expect(hero['heading']['ru']).not.toBe(f.location.name);
+      expect(hero['subheading']['ru']).toContain(f.location.name);
+      expect(hero['subheading']['ru']).toMatch(/без звонков|без посредников/);
+      expect(validateSiteSpec(spec).ok).toBe(true);
+    }
+  });
+});

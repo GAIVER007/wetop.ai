@@ -1,4 +1,5 @@
 'use server';
+import { accessTrialUntil } from '../../lib/platform-trial';
 import { revalidatePath } from 'next/cache';
 import { ApiError, platformApi, type ExtensionChangeBody } from '../../lib/api';
 import { statusText } from './words';
@@ -127,6 +128,34 @@ export async function changeSiteBuilderAction(
       activeUntil: status === 'OFF' ? '' : String(form.get('activeUntil') ?? '').trim(),
       note: String(form.get('note') ?? '').trim(),
     });
+    revalidatePath('/platform');
+    const t = await serverT();
+    const word = saved.license.access === 'active' ? t('действует') : saved.license.access === 'expired' ? t('срок вышел') : t('выключен');
+    return { error: null, message: t('Сохранено: конструктор сайта филиала «{name}» {state}', { name: saved.name, state: word }), attempt };
+  } catch (e) {
+    const t = await serverT();
+    return { error: e instanceof ApiError || e instanceof Error ? e.message : t('Не удалось сохранить'), message: null, attempt };
+  }
+}
+
+/**
+ * Выдача доступа из «Подписки клиентов» (владелец 29.10.2026): пробный на 14 дней одной кнопкой (срок считает сервер
+ * стойки, последний день включительно), «Оплачен» бессрочно, «Выключить». Тот же API лицензии, что форма выше.
+ */
+export async function grantAccessAction(
+  organizationId: string,
+  locationId: string,
+  prev: SiteBuilderFormResult | null,
+  form: FormData,
+): Promise<SiteBuilderFormResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  const action = String(form.get('action') ?? '');
+  const status = action === 'trial' ? 'TRIAL' : action === 'off' ? 'OFF' : 'ACTIVE';
+  // срок по Алматы (пояс платформы): вечером UTC там уже завтра
+  const activeUntil = status === 'TRIAL' ? accessTrialUntil() : '';
+  try {
+    const saved = await platformApi.changeSiteBuilder(organizationId, locationId, { status, activeUntil, note: String(form.get('note') ?? '').trim() });
+    revalidatePath('/platform/cabinet', 'layout');
     revalidatePath('/platform');
     const t = await serverT();
     const word = saved.license.access === 'active' ? t('действует') : saved.license.access === 'expired' ? t('срок вышел') : t('выключен');

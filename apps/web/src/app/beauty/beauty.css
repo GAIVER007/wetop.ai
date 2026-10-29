@@ -1280,6 +1280,29 @@
   .beauty-list-bar > .beauty-list-new {
     margin-left: auto;
   }
+  /* планшет: фильтры строгой сеткой в две колонки одной ширины (на раскрытом Duo и на iPad одинаково), без
+     «лесенки» и без растянутого последнего ряда; «Сбросить фильтры» и «Новая запись» на всю ширину ряда */
+  @media (min-width: 601px) and (max-width: 960px) {
+    .beauty-page .beauty-list-bar {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+    }
+    .beauty-list-bar > * {
+      width: 100%;
+      margin-left: 0;
+    }
+    .beauty-list-bar > .date-range > summary {
+      width: 100%;
+    }
+    /* поиск, «Сбросить фильтры» и «Новая запись» на всю ширину: пустой половины ряда нет */
+    .beauty-list-bar > .beauty-list-search,
+    .beauty-list-bar > .beauty-list-reset,
+    .beauty-list-bar > .beauty-list-new {
+      grid-column: 1 / -1;
+      justify-content: center;
+    }
+  }
   .beauty-page .beauty-list-panel {
     padding: var(--space-4);
   }
@@ -1357,7 +1380,92 @@
   .beauty-appointments-table td .btn {
     text-align: left;
   }
-  @media (min-width: 601px) {
+  /* планшет и складной iPhone (владелец 29.10.2026: раскрытый Duo 626, iPad mini 744, iPad 820, Duo боком 890):
+     строка таблицы не влезает, поэтому записи карточками в две ровные колонки; подпись поля слева, значение справа,
+     «Открыть запись» на всю ширину карточки; строка таблицы с 961 px */
+  @media (min-width: 601px) and (max-width: 960px) {
+    /* планшет: записи карточками. Ровно: две колонки одной ширины, все карточки одной высоты, имя клиента
+       заголовком карточки, строки полей одной высоты, «Открыть запись» у всех карточек на одной линии внизу */
+    .beauty-page .beauty-appointments-table {
+      min-width: 0;
+    }
+    .beauty-appointments-table thead {
+      display: none;
+    }
+    .beauty-appointments-table tbody {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: 1fr;
+      gap: var(--space-4);
+    }
+    .beauty-appointments-table tr {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-width: 0;
+      padding: var(--space-4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+    .beauty-appointments-table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      min-width: 0;
+      min-height: var(--space-8);
+      border: 0;
+      padding: 0;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+    .beauty-appointments-table td::before {
+      content: attr(data-label);
+      flex: none;
+      color: var(--muted);
+      text-align: left;
+    }
+    /* имя клиента: заголовок карточки на всю ширину, переносится целыми словами внутри кнопки */
+    .beauty-appointments-table td[data-col='client'] {
+      order: -1;
+      justify-content: flex-start;
+      margin-bottom: var(--space-2);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .beauty-appointments-table td[data-col='client']::before {
+      content: none;
+    }
+    .beauty-appointments-table td[data-col='client'] .btn {
+      justify-content: flex-start;
+      height: auto;
+      min-width: 0;
+      max-width: 100%;
+      padding-inline: 0;
+      padding-block: var(--space-1);
+      border-color: transparent;
+      background: none;
+      font-size: var(--text-md);
+      font-weight: 600;
+      text-align: left;
+      white-space: normal;
+      overflow-wrap: normal;
+    }
+    .beauty-appointments-table td[data-col='actions'] {
+      margin-top: auto;
+      padding-top: var(--space-4);
+    }
+    .beauty-appointments-table td[data-col='actions']::before {
+      content: none;
+    }
+    .beauty-appointments-table td[data-col='actions'] .btn {
+      justify-content: center;
+      width: 100%;
+    }
+  }
+  @media (min-width: 961px) {
     /* записи в одну строку (владелец 29.10.2026, Kyial): строка 47 px вместо 83-121, на 1440 px без прокрутки вбок;
        длинные клиент, услуга, специалист, автор с многоточием, полный текст в подсказке; телефон целиком */
     .beauty-appointments-table th,
@@ -1391,7 +1499,7 @@
   }
   /* ноутбук до 1279 px: «Автор» прячется, клиент, специалист и услуга уже (полный текст в подсказке): записи
      помещаются в экран без прокрутки вбок (владелец 29.10.2026, Kyial 1210 px: 1144/1144) */
-  @media (min-width: 601px) and (max-width: 1279px) {
+  @media (min-width: 961px) and (max-width: 1279px) {
     .beauty-appointments-table th[data-col='author'],
     .beauty-appointments-table td[data-col='author'] {
       display: none;

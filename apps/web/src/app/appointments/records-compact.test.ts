@@ -7,8 +7,8 @@ import { describe, expect, it } from 'vitest';
 const css = readFileSync(new URL('../beauty/beauty.css', import.meta.url), 'utf8');
 const list = readFileSync(new URL('./list.tsx', import.meta.url), 'utf8');
 describe('записи: компактная строка с компьютера', () => {
-  it('строка в одну линию только шире 600 px', () => {
-    const at = css.indexOf('@media (min-width: 601px) {\n    /* записи в одну строку');
+  it('строка в одну линию с 961 px (на планшете 601–960 карточки, tablet-layout.test.ts)', () => {
+    const at = css.indexOf('@media (min-width: 961px) {\n    /* записи в одну строку');
     expect(at).toBeGreaterThan(-1);
     const block = css.slice(at, at + 1500);
     expect(block).toContain('white-space: nowrap');

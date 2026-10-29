@@ -342,7 +342,8 @@ export function JournalBoard({
               <span className="beauty-tile-time">
                 {clock(a.startMinutes)}–{clock(a.endMinutes)}
               </span>
-              <strong className="beauty-tile-name">{a.customer.name}</strong>
+              {/* перенос перед скобкой: «MAGDOLEEN(HOME)» переносится как «MAGDOLEEN / (HOME)», а не «HOM / E» */}
+              <strong className="beauty-tile-name">{a.customer.name.replace(/(\S)\(/g, '$1\u200b(')}</strong>
             </span>
             <span className="beauty-tile-service">
               {a.appointment.atHome && <Icon name="pin" aria-label={t('Выезд на дом')} />}

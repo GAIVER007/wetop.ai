@@ -16,3 +16,19 @@ export const sourceStatus: StatusRegistry<ReservationSource> = {
   WEBSITE: { label: 'Сайт', short: 'Сайт', tone: 'neutral' },
   VOICE: { label: 'Голосовой агент', short: 'Голос', tone: 'neutral' },
 };
+
+/**
+ * Источник записи салона (`AppointmentSource`, владелец 28.10.2026: «источник ещё типа инстаграм, ватсап»). Со
+ * стойки администратор выбирает Instagram, WhatsApp, звонок или «пришёл сам»; сайт и голос ставит своя дверь.
+ */
+export const appointmentSourceStatus: StatusRegistry<
+  'DESK' | 'INSTAGRAM' | 'WHATSAPP' | 'PHONE' | 'WALK_IN' | 'WEBSITE' | 'VOICE'
+> = {
+  DESK: { label: 'Администратор', tone: 'neutral' },
+  INSTAGRAM: { label: 'Instagram', tone: 'neutral', proper: true },
+  WHATSAPP: { label: 'WhatsApp', tone: 'neutral', proper: true },
+  PHONE: { label: 'Звонок', tone: 'neutral' },
+  WALK_IN: { label: 'Пришёл сам', tone: 'neutral' },
+  WEBSITE: { label: 'Сайт', tone: 'neutral' },
+  VOICE: { label: 'Голосовой агент', tone: 'neutral' },
+};

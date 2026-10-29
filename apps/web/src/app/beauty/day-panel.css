@@ -161,25 +161,45 @@
     outline-offset: -2px;
   }
   /* тон статуса из реестра (lib/status/beauty.ts), как на телефоне и неделе: «Записан» warning, «Подтверждена» info */
+  /* ярче (владелец 28.10.2026: «карточку цвета поярче, а то тускло»): заливка тоном статуса гуще, полоса шире,
+     завершённая тоже цветная (зелёная), а не серая; текст тёмный, контраст не падает */
+  .beauty-page .beauty-grid-day .beauty-tile {
+    border-left-width: 6px;
+  }
+  /* на яркой заливке цветные надписи плитки (оплата, статус, услуга) темнее своего тона: контраст от 5,5:1 (WCAG AA) */
+  .beauty-page .beauty-grid-day .beauty-tile .beauty-tile-pay--paid {
+    color: color-mix(in srgb, var(--success) 70%, var(--text));
+  }
+  .beauty-page .beauty-grid-day .beauty-tile .beauty-tile-pay--partial {
+    color: color-mix(in srgb, var(--info) 70%, var(--text));
+  }
+  .beauty-page .beauty-grid-day .beauty-tile .beauty-tile-pay--debt {
+    color: color-mix(in srgb, var(--warning) 70%, var(--text));
+  }
+  .beauty-page .beauty-grid-day .beauty-tile .beauty-tile-time,
+  .beauty-page .beauty-grid-day .beauty-tile .beauty-tile-status,
+  .beauty-page .beauty-grid-day .beauty-tile .beauty-tile-service {
+    color: color-mix(in srgb, var(--text-2) 70%, var(--text));
+  }
   .beauty-page .beauty-grid-day .beauty-tile--booked {
     border-left-color: var(--warning);
-    background: var(--warning-soft);
+    background: color-mix(in srgb, var(--warning) 22%, var(--surface));
   }
   .beauty-page .beauty-grid-day .beauty-tile--confirmed {
     border-left-color: var(--info);
-    background: var(--primary-soft);
+    background: color-mix(in srgb, var(--info) 18%, var(--surface));
   }
   .beauty-page .beauty-grid-day .beauty-tile--in_progress {
     border-left-color: var(--success);
-    background: var(--success-soft);
+    background: color-mix(in srgb, var(--success) 24%, var(--surface));
   }
   .beauty-page .beauty-grid-day .beauty-tile--done {
-    border-left-color: var(--text-2);
-    background: var(--surface-muted);
+    border-left-color: var(--success);
+    background: color-mix(in srgb, var(--success) 12%, var(--surface));
   }
   .beauty-page .beauty-grid-day .beauty-tile--no_show {
     border-left-color: var(--danger);
-    background: var(--danger-soft);
+    background: color-mix(in srgb, var(--danger) 16%, var(--surface));
   }
   /* плашка читается целиком (владелец 25.10.2026): время и клиент сверху (клиент переносится, а не режется),
      услуга своей строкой до двух строк, внизу цена, оплата точкой со словом и статус; ничего не обрезается троеточием */
@@ -195,11 +215,23 @@
     font-weight: var(--weight-semibold);
     white-space: nowrap;
   }
+  /* имя клиента целиком (владелец 28.10.2026: «название обрезано»): своей строкой, переносится по словам,
+     а «(HOME)» и скобки не рвутся посередине; карточка короткой записи растёт по содержимому поверх соседней сетки */
   .beauty-page .beauty-grid-day .beauty-tile-name {
+    flex-basis: 100%;
     min-width: 0;
     font-size: var(--text-sm);
     line-height: var(--leading-tight);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+  .beauty-page .beauty-grid-day .beauty-tile {
+    min-height: fit-content;
+  }
+  .beauty-page .beauty-grid-day .beauty-tile:hover,
+  .beauty-page .beauty-grid-day .beauty-tile:focus-visible {
+    height: auto;
+    min-height: max-content;
   }
   .beauty-page .beauty-grid-day .beauty-tile .beauty-tile-service {
     display: -webkit-box;

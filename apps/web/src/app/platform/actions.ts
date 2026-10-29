@@ -265,3 +265,29 @@ export async function sendOwnerLinkAction(
     return failed(e, attempt);
   }
 }
+
+/** Карточка клиента (срез 3 кабинета): продлить пробный на 7, 14 или 30 дней */
+export async function extendTrialAction(
+  organizationId: string,
+  prev: StatusFormResult | null,
+  form: FormData,
+): Promise<StatusFormResult> {
+  const attempt = (prev?.attempt ?? 0) + 1;
+  const days = Number(form.get('days'));
+  try {
+    const card = await platformApi.extendTrial(organizationId, days);
+    revalidatePath('/platform/cabinet', 'layout');
+    const t = await serverT();
+    return {
+      error: null,
+      message: t('Пробный продлён до {day}.', { day: (card.trialEndsAt ?? '').slice(0, 10).split('-').reverse().join('.') }),
+      attempt,
+    };
+  } catch (e) {
+    return {
+      error: e instanceof ApiError ? e.message : e instanceof Error ? e.message : String(e),
+      message: null,
+      attempt,
+    };
+  }
+}

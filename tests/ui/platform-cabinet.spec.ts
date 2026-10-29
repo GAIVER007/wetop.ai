@@ -58,8 +58,8 @@ test('главный администратор: 4 цифры, путь клие
   await expect(table).toContainText('Хостел «Пример»');
   await expect(table).toContainText('$49');
   await expect(table).not.toContainText('Luxx Aparts');
-  const access = table.getByRole('link', { name: 'Доступ: Хостел «Пример»' });
-  await expect(access).toHaveAttribute('href', /org=ui-org-2/);
+  const access = table.getByRole('link', { name: 'Карточка клиента: Хостел «Пример»' });
+  await expect(access).toHaveAttribute('href', '/platform/cabinet/clients/ui-org-2');
   await expect(access).toBeInViewport({ ratio: 1 });
   // таблица целиком в панели: без прокрутки вбок
   const overflow = await table.evaluate((el) => el.scrollWidth - el.clientWidth);
@@ -73,6 +73,45 @@ test('главный администратор: 4 цифры, путь клие
     await page.goto('/platform/cabinet/clients');
     await page.screenshot({ path: `${process.env.CABINET_SHOTS}/clients-1280.png`, fullPage: true });
   }
+});
+
+test('карточка клиента: доступ, люди, филиалы, журнал; «продлить пробный» пишет в журнал', async ({ page, request }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await signIn(page, request, true);
+  await page.goto('/platform/cabinet/clients');
+  await page.getByTestId('cabinet-clients-table').getByRole('link', { name: 'Карточка клиента: Хостел «Пример»' }).click();
+  await page.waitForURL('**/platform/cabinet/clients/ui-org-2');
+  const card = page.getByTestId('client-card');
+  await expect(card).toContainText('Хостел «Пример»');
+  await expect(card).toContainText('пробный до');
+  await expect(page.getByTestId('client-members')).toContainText('owner@example.com');
+  await expect(page.getByTestId('client-locations')).toContainText('Гостиница');
+  await expect(page.getByTestId('client-journal')).toContainText('Зарегистрирован');
+  if (process.env.CABINET_SHOTS)
+    await page.screenshot({ path: `${process.env.CABINET_SHOTS}/client-card-1280.png`, fullPage: true });
+  await page.getByTestId('client-trial-7').click();
+  await expect(page.getByTestId('client-access-result')).toContainText('Пробный продлён до');
+  await page.reload();
+  await expect(page.getByTestId('client-journal')).toContainText('Продлён пробный');
+  await expect(page.getByTestId('client-journal')).toContainText('admin@wetop.test');
+  const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(wide).toBeLessThanOrEqual(0);
+  // оплата получена: статус «платит», продлевать пробный больше нечего
+  await page.getByTestId('client-access-paid').click();
+  await expect(page.getByTestId('client-access-result')).toContainText('Оплата подтверждена');
+  await page.reload();
+  await expect(card).toContainText('платит');
+  await expect(page.getByTestId('client-trial-7')).toHaveCount(0);
+});
+
+test('главный администратор после входа сразу в кабинете WETOP, а не в стойке клиента', async ({ page, request }) => {
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
+  await page.goto('/auth/fallback');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL('**/platform/cabinet');
+  await expect(page.getByTestId('cabinet')).toBeVisible();
 });
 
 test('без отметки главного администратора кабинет закрыт', async ({ page, request }) => {

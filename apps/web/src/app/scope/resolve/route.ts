@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { ApiError, branchesApi } from '../../../lib/api';
+import { ApiError, authApi, branchesApi } from '../../../lib/api';
 import { publicAuthUrl } from '../../../lib/auth-entry';
 import {
   LAST_BRANCH_COOKIE,
@@ -37,6 +37,12 @@ export async function GET(request: Request): Promise<Response> {
   }
   // `redirect` вызывается вне `try`: он бросает служебное исключение Next
   if (items === null) redirect(publicAuthUrl());
+  // Главный администратор WETOP (владелец 29.10.2026): вход без своего адреса ведёт в кабинет компании, а не в стойку
+  const next = new URL(request.url).searchParams.get('next');
+  if (!next || next === '/today') {
+    const me = await authApi.me().catch(() => null);
+    if (me?.user?.platformAdmin === true) redirect('/platform/cabinet');
+  }
   const decision = decideScope(items, new URL(request.url).searchParams.get('next'), remembered, { personal });
   if (decision.kind === 'select') {
     jar.set(SCOPE_COOKIE, decision.pointer, scopeCookieOptions(process.env));

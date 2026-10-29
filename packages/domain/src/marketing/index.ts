@@ -30,3 +30,4 @@ export * from './ad-proposal';
 export * from './content-draft';
 export * from './ad-launch';
 export * from './ad-library';
+export * from './hero-copy';

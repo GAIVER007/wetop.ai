@@ -179,6 +179,107 @@
   .cabinet__plan[open] > summary {
     margin-bottom: var(--space-2);
   }
+  /* Кабинет руководителя (вариант «А», 29.10.2026): путь клиента с конверсиями, доход столбиками, фильтры клиентов */
+  .cabinet__funnel--flow .cabinet__step {
+    align-content: start;
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+  }
+  .cabinet__conv {
+    justify-self: start;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--text-xs);
+    font-weight: 700;
+  }
+  .cabinet__meter {
+    display: block;
+    block-size: var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--surface-muted);
+    overflow: hidden;
+  }
+  .cabinet__meter > span {
+    display: block;
+    block-size: 100%;
+    background: var(--primary);
+  }
+  .cabinet__bars {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: end;
+    block-size: calc(var(--space-16) * 3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cabinet__bars > li {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: var(--space-1);
+    block-size: 100%;
+    font-size: var(--text-xs);
+    text-align: center;
+  }
+  .cabinet__bars > li > .cabinet__bar {
+    align-self: end;
+    border-radius: var(--radius-control) var(--radius-control) 0 0;
+    background: var(--primary-soft);
+  }
+  .cabinet__bars > li[data-current] > .cabinet__bar {
+    background: var(--primary);
+  }
+  .cabinet__bar-value {
+    font-weight: 700;
+  }
+  .cabinet__bar-label {
+    color: var(--text-2);
+  }
+  .cabinet__more {
+    justify-self: start;
+    margin-top: var(--space-2);
+    font-weight: 600;
+  }
+  .cabinet__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  .cabinet__filters > a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-h);
+    padding: 0 var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .cabinet__filters > a[aria-current='page'] {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .cabinet__clients td {
+    white-space: nowrap;
+  }
+  .cabinet__clients td:first-child {
+    max-inline-size: calc(var(--space-16) * 4);
+    white-space: normal;
+  }
+  .cabinet__client-name,
+  .cabinet__client-owner {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 960px) {

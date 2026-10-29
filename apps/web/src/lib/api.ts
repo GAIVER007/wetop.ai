@@ -3207,6 +3207,35 @@ export type PlatformMoney =
     };
 
 /** Кабинет компании WETOP, срез 1: клиенты, путь клиента и сроки; денег до среза 2 нет */
+/** Путь клиента месяца, MRR и LTV руководителя WETOP (`GET /platform/growth`, 29.10.2026); центы строкой, проценты десятыми */
+export interface PlatformGrowth {
+  month: string;
+  kpi: { mrrCents: string; paying: number; trial: number; trialEndingSoon: number; unpaid: number; avgLtvCents: string; avgDaysWithUs: number };
+  funnel: {
+    visitors: number | null;
+    registrations: number;
+    trials: number;
+    firstPayments: number;
+    renewals: number;
+    conversion: { visitorToRegistration: number | null; registrationToTrial: number | null; trialToPaid: number | null; renewal: number | null };
+  };
+  previous: { registrations: number; trials: number; firstPayments: number; incomeCents: string };
+  income: Array<{ month: string; cents: string }>;
+  clients: Array<{
+    id: string;
+    name: string;
+    status: SignedInOrganization['status'];
+    since: string;
+    daysWithUs: number;
+    trialDaysLeft: number | null;
+    ltvCents: string;
+    payments: number;
+    lastPaidOn: string | null;
+    monthlyCents: string | null;
+    paidUntil: string | null;
+  }>;
+}
+
 export interface PlatformCabinet {
   totals: { clients: number; people: number; activePeople7d: number };
   funnel: { registered30d: number; working: number; trial: number; paying: number; left: number };
@@ -3273,6 +3302,7 @@ export interface PlatformSiteBuilderLocation {
 export const platformApi = {
   /** Кабинет компании WETOP (вариант «Г», 28.10.2026): только главному администратору */
   cabinet: () => getJson<PlatformCabinet>('/platform/cabinet'),
+  growth: (month: string) => getJson<PlatformGrowth>(`/platform/growth?month=${encodeURIComponent(month)}`),
   /** Деньги компании WETOP за месяц `ГГГГ-ММ` (DATA_MODEL §63): центы USD строкой; ready=false до миграции 166 */
   money: (month: string) => getJson<PlatformMoney>(`/platform/money?month=${encodeURIComponent(month)}`),
   savePlan: (id: string | null, body: { name: string; price: string; periodMonths: number; active: boolean }) =>

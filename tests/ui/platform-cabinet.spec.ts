@@ -19,29 +19,58 @@ async function signIn(page: Page, request: APIRequestContext, platformAdmin: boo
   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin } });
 }
 
-test('главный администратор: путь клиента, клиенты без своей организации, сроки; один экран на 1280', async ({
+test('главный администратор: 4 цифры, путь клиента с конверсиями, доход по месяцам, сроки; один экран на 1280', async ({
   page,
   request,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await signIn(page, request, true);
+  // клиент платит: подписка $49 оплачена на месяц вперёд и одна оплата
+  const ahead = new Date(Date.now() + 20 * 86_400_000).toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10);
+  // подставной API пускает в «Платформу» только с сессией: запросы с куками вошедшей страницы
+  const token = (await page.context().cookies()).find((c) => c.name === 'wetop_session')?.value;
+  expect(token).toBeTruthy();
+  const asAdmin = { headers: { 'x-wetop-test-client': '1', 'x-wetop-session': token! } };
+  expect((await request.put(`${FIXTURE_API}/platform/subscriptions/ui-org-2`, { ...asAdmin, data: { monthly: '49', paidUntil: ahead } })).ok()).toBe(true);
+  expect((await request.post(`${FIXTURE_API}/platform/payments`, { ...asAdmin, data: { organizationId: 'ui-org-2', amount: '49', paidOn: today } })).ok()).toBe(true);
   await page.goto('/platform/cabinet');
   const cabinet = page.getByTestId('cabinet');
   await expect(cabinet.getByRole('navigation', { name: 'Кабинет WETOP' })).toBeVisible();
   await expect(page.getByTestId('cabinet-clients')).toHaveText('1');
-  const funnel = page.getByTestId('cabinet-funnel');
-  await expect(funnel).toContainText('Пробный период');
-  await expect(funnel).toContainText('Платят');
-  const table = page.getByTestId('cabinet-clients-table');
-  await expect(table).toContainText('Хостел «Пример»');
-  await expect(table).toContainText('сегодня');
-  // своя организация главного администратора не клиент
-  await expect(table).not.toContainText('Luxx Aparts');
+  await expect(page.getByTestId('cabinet-mrr')).toHaveText('$49');
+  await expect(page.getByTestId('cabinet-ltv')).toHaveText('$49');
+  await expect(page.getByTestId('growth-visitors')).toContainText('счётчик не подключён');
+  await expect(page.getByTestId('growth-paid')).toContainText('Первая оплата');
+  await expect(page.getByTestId('growth-income')).toContainText('$49');
   await expect(page.getByTestId('cabinet-deadlines')).toContainText('Хостел «Пример»');
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(wide).toBeLessThanOrEqual(0);
   if (process.env.CABINET_SHOTS)
     await page.screenshot({ path: `${process.env.CABINET_SHOTS}/cabinet-1280.png`, fullPage: true });
+
+  // «Клиенты»: строка с LTV, «оплачено до» и кнопкой «Доступ»; своя организация не клиент
+  await cabinet.getByRole('navigation', { name: 'Кабинет WETOP' }).getByRole('link', { name: /Клиенты/ }).click();
+  await page.waitForURL('**/platform/cabinet/clients');
+  const table = page.getByTestId('cabinet-clients-table');
+  await expect(table).toContainText('Хостел «Пример»');
+  await expect(table).toContainText('$49');
+  await expect(table).not.toContainText('Luxx Aparts');
+  const access = table.getByRole('link', { name: 'Доступ: Хостел «Пример»' });
+  await expect(access).toHaveAttribute('href', /org=ui-org-2/);
+  await expect(access).toBeInViewport({ ratio: 1 });
+  // таблица целиком в панели: без прокрутки вбок
+  const overflow = await table.evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  await page.getByTestId('clients-filter-paying').click();
+  await page.waitForURL('**/clients?show=paying');
+  await expect(page.getByText('Здесь пока никого нет.')).toBeVisible();
+  const wide2 = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(wide2).toBeLessThanOrEqual(0);
+  if (process.env.CABINET_SHOTS) {
+    await page.goto('/platform/cabinet/clients');
+    await page.screenshot({ path: `${process.env.CABINET_SHOTS}/clients-1280.png`, fullPage: true });
+  }
 });
 
 test('без отметки главного администратора кабинет закрыт', async ({ page, request }) => {

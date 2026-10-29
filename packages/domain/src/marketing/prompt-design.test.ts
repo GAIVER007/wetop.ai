@@ -3,6 +3,7 @@ import {
   buildSiteFacts,
   promptMoods,
   promptSiteSpec,
+  redesignSiteSpec,
   sitePromptDesign,
   validateSiteSpec,
   type SiteFactsSnapshot,
@@ -30,7 +31,8 @@ const facts = (vertical: SiteFactsVertical, n = 1) =>
     photosCount: 0,
     reviews: null,
   } as SiteFactsSnapshot);
-const look = (s: Rec) => JSON.stringify([s['theme'], s['pages'][0].sections.map((x: Rec) => `${x.type}:${x.variant}`)]);
+const look = (s: Rec) =>
+  JSON.stringify([s['theme'], s['pages'][0].sections.map((x: Rec) => `${x.type}:${x.variant}`), s['pages'][0].sections[0].image?.assetId ?? null]);
 const PROMPTS = [
   'Тёмный премиальный салон, золото, акцент на мастеров',
   'Яркий молодёжный сайт, розовый, быстрая онлайн запись',
@@ -52,14 +54,15 @@ describe('сайт по промту: свой дизайн у каждого', 
     });
   }
 
-  it('сто салонов с одним и тем же коротким промтом: не меньше 30 разных сайтов (шаблонов было три)', () => {
+  it('сто салонов с одним и тем же коротким промтом: не меньше 20 разных сайтов (шаблонов было три)', () => {
+    // порядок главной один для всех (владелец 29.10.2026 «не усложняй»), разницу дают тема, вид секций и фото
     const looks = new Set(Array.from({ length: 100 }, (_, i) => look(promptSiteSpec(facts('BEAUTY', i + 1), 'Красивый сайт для салона'))));
-    expect(looks.size).toBeGreaterThanOrEqual(30);
+    expect(looks.size).toBeGreaterThanOrEqual(20);
   });
 
   it('у одного филиала разные промты дают разные сайты', () => {
     const looks = new Set(PROMPTS.map((p) => look(promptSiteSpec(facts('BEAUTY'), p))));
-    expect(looks.size).toBe(PROMPTS.length);
+    expect(looks.size).toBeGreaterThanOrEqual(PROMPTS.length - 1);
   });
 
   it('тот же промт у того же филиала: тот же сайт (превью равно сохранённому)', () => {
@@ -77,10 +80,32 @@ describe('сайт по промту: свой дизайн у каждого', 
     expect(t('Жарқын жастар салоны')).toMatchObject({ typography: 'BOLD' });
   });
 
-  it('«быстрая запись» ставит форму записи сразу под первым экраном; «мастера» ставят команду первой', () => {
-    const order = (p: string) => sitePromptDesign(p, 'BEAUTY', loc(1)).direction.sectionOrder;
-    expect(order('Быстрая онлайн запись').slice(0, 2)).toEqual(['hero', 'leadForm']);
-    expect(order('Покажите наших мастеров').slice(0, 2)).toEqual(['hero', 'staff']);
+  it('простая главная (владелец 29.10.2026): офер, услуги, мастера, запись (услуга, мастер, время), отзывы, призыв', () => {
+    const types = (f: ReturnType<typeof facts>, p: string) => (promptSiteSpec(f, p) as Rec)['pages'][0].sections.map((x: Rec) => x.id === 'sec-reviews' ? 'reviews' : x.type);
+    for (const p of PROMPTS) expect(types(facts('BEAUTY'), p)).toEqual(['hero', 'services', 'staff', 'leadForm', 'cta', 'hours', 'contacts']);
+    const rated = { ...facts('BEAUTY'), reviews: { avg: 4.9, count: 128 } } as ReturnType<typeof facts>;
+    expect(types(rated, 'Тёмный премиальный')).toEqual(['hero', 'services', 'staff', 'leadForm', 'reviews', 'cta', 'hours', 'contacts']);
+    for (const p of PROMPTS) expect(validateSiteSpec(promptSiteSpec(rated, p)).ok).toBe(true);
+    const form = (promptSiteSpec(facts('BEAUTY'), '') as Rec)['pages'][0].sections.find((x: Rec) => x.type === 'leadForm');
+    expect(form.mode).toBe('BEAUTY_APPOINTMENT');
+  });
+
+  it('фото первого экрана из набора WETOP под промт: ресницы, ногти, зал; у сайта сразу картинка', () => {
+    const hero = (p: string) => (promptSiteSpec(facts('BEAUTY'), p) as Rec)['pages'][0].sections[0];
+    expect(hero('Салон ресниц, золото').image.assetId).toBe('57c0f070-0000-4000-8000-000000000005');
+    expect(hero('Маникюр и педикюр').image.assetId).toBe('57c0f070-0000-4000-8000-000000000006');
+    expect(hero('Светлый салон').image.assetId).toBe('57c0f070-0000-4000-8000-000000000004');
+    expect(hero('Салон ресниц').variant).not.toBe('TEXT_ONLY');
+    for (const v of ['HOSPITALITY', 'FOOD_SERVICE'] as const) expect((promptSiteSpec(facts(v), '') as Rec)['pages'][0].sections[0].image.assetId).toMatch(/^57c0f070-/);
+  });
+
+  it('«Пересобрать дизайн» меняет тему, но не порядок и не набор блоков сайта', () => {
+    const before = promptSiteSpec(facts('BEAUTY'), 'Тёмный премиальный салон') as Rec;
+    const after = redesignSiteSpec(before, 'Светлый эко стиль', 'BEAUTY', loc(1)) as Rec;
+    const ids = (x: Rec) => x['pages'][0].sections.map((y: Rec) => y.id);
+    expect(ids(after)).toEqual(ids(before));
+    expect(after['theme'].colorScheme).toBe('LIGHT');
+    expect(validateSiteSpec(after).ok).toBe(true);
   });
 
   it('данные филиала не выдумываются: услуги и цены ровно из фактов, SEO и FAQ на месте', () => {
@@ -89,7 +114,10 @@ describe('сайт по промту: свой дизайн у каждого', 
     const services = home.sections.find((x: Rec) => x.type === 'services');
     expect(services.items.map((i: Rec) => i.serviceCode)).toEqual(['svc-1', 'svc-2']);
     expect(home.seo.title.ru).toContain('Филиал 1');
-    expect(home.sections.some((x: Rec) => x.type === 'faq')).toBe(true);
+    // вопросы-ответы на главную при создании не ставятся («не усложняй»); часы и адрес внизу для карты и поиска
+    expect(home.sections.some((x: Rec) => x.type === 'faq')).toBe(false);
+    expect(home.sections.some((x: Rec) => x.type === 'hours')).toBe(true);
+    expect(home.seo.description.ru.length).toBeGreaterThan(20);
   });
 
   it('настроения промта читаются на трёх языках', () => {

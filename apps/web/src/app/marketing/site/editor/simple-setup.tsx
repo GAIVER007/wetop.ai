@@ -5,7 +5,7 @@ import {
   SIMPLE_BLOCKS,
   SITE_COPY_COUNT,
   applySiteTemplate,
-  applySitePromptDesign,
+  redesignSiteSpec,
   canonicalJson,
   SEO_DESCRIPTION_MAX,
   SEO_TITLE_MAX,
@@ -21,7 +21,6 @@ import {
   simpleSiteSeo,
   simpleSiteState,
   siteCopySuggestion,
-  sitePromptDesign,
   SITE_PROMPT_MAX,
   siteTemplatesFor,
   templateSiteSpec,
@@ -169,12 +168,12 @@ export function SimpleSiteSetup({
   };
 
   // «Дизайн по описанию» (владелец 29.10.2026): тот же разбор промта, что при создании; тексты, фото и блоки остаются,
-  // меняются тема, порядок главной и вид секций. Семя: филиал + текст, как на сервере, поэтому дизайн тот же, что в превью
+  // меняются тема, вид секций и фото. Семя: филиал + текст, как на сервере, поэтому дизайн тот же, что в превью
   const seed = facts?.location.id || locationName;
   const redesign = () => {
     const text = prompt.trim();
     if (!text) return;
-    apply(applySitePromptDesign(specRef.current, sitePromptDesign(text, vertical as SiteFacts['vertical'], seed)) as Spec);
+    apply(redesignSiteSpec(specRef.current, text, vertical as SiteFacts['vertical'], seed) as Spec);
     setNotice(t('Дизайн пересобран по описанию. Тексты, фото и блоки на месте.'));
   };
 

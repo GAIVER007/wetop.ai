@@ -5,6 +5,7 @@ import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-f
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { buildGrowth } from '../../apps/api/src/platform/growth';
 import { buildSiteReport } from '../../apps/api/src/platform/site-report';
+import { buildCountries } from '../../apps/api/src/platform/countries';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { barFixture, resetBarFixture } from './bar-fixture';
 import {
@@ -8281,6 +8282,25 @@ createServer(async (req, res) => {
       // Кабинет компании WETOP (28.10.2026): своя организация ui-org не клиент, остальные как в таблице
       if (path === '/platform/cabinet' && req.method === 'GET') return send(200, platformCabinet());
       // Кабинет руководителя (29.10.2026): путь клиента, MRR, LTV тем же расчётом, что API (buildGrowth)
+      if (path.startsWith('/platform/countries') && req.method === 'GET') {
+        // «Страны» на стенде: Казахстан платит, Катар пробует, у старого клиента страны нет
+        const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
+        return send(200, buildCountries({
+          organizations: [
+            { id: 'f-kz', countryCode: 'KZ', status: 'ACTIVE', createdAt: new Date(`${month}-03T00:00:00Z`) },
+            { id: 'f-kz2', countryCode: 'KZ', status: 'TRIAL', createdAt: new Date(`${month}-05T00:00:00Z`) },
+            { id: 'f-qa', countryCode: 'QA', status: 'TRIAL', createdAt: new Date(`${month}-06T00:00:00Z`) },
+            { id: 'f-old', countryCode: null, status: 'ACTIVE', createdAt: new Date('2026-08-01T00:00:00Z') },
+          ],
+          payments: [
+            { organizationId: 'f-kz', amountCents: 4900n, paidOn: `${month}-04`, voided: false },
+            { organizationId: 'f-old', amountCents: 2900n, paidOn: `${month}-02`, voided: false },
+          ],
+          subscriptions: [{ organizationId: 'f-kz', monthlyCents: 4900n, paidUntil: '2099-01-01' }],
+          visitors: [{ country: 'KZ', visitors: 120 }, { country: 'QA', visitors: 30 }, { country: 'AE', visitors: 8 }, { country: null, visitors: 4 }],
+          ownOrganizationId: null,
+        }, month, new Date()));
+      }
       if (path.startsWith('/platform/site') && req.method === 'GET') {
         // «Сайт wetop.ai» на стенде: 3 посетителя месяца, один дошёл до подтверждения почты
         const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
@@ -8291,8 +8311,8 @@ createServer(async (req, res) => {
             month,
             timezone: 'Asia/Almaty',
             sessions: [
-              { visitorKey: 'v1', sessionKey: 's1', startedAt: at(2), sourceKind: 'SEARCH', source: 'google', device: 'MOBILE' },
-              { visitorKey: 'v2', sessionKey: 's2', startedAt: at(3), sourceKind: 'SOCIAL', source: 'instagram', device: 'MOBILE' },
+              { visitorKey: 'v1', sessionKey: 's1', startedAt: at(2), sourceKind: 'SEARCH', source: 'google', device: 'MOBILE', country: 'KZ' },
+              { visitorKey: 'v2', sessionKey: 's2', startedAt: at(3), sourceKind: 'SOCIAL', source: 'instagram', device: 'MOBILE', country: 'QA' },
               { visitorKey: 'v3', sessionKey: 's3', startedAt: at(3), sourceKind: 'DIRECT', source: null, device: 'DESKTOP' },
             ],
             events: [

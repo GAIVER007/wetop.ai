@@ -6,7 +6,8 @@ import { buildSiteReport } from './site-report';
  * Кабинет руководителя, «Сайт wetop.ai» (владелец 29.10.2026): посетители по дням, откуда пришли, страницы,
  * телефон или компьютер и путь «зашёл → открыл регистрацию → отправил форму → подтвердил почту». Только счёт.
  */
-const s = (visitorKey: string, sessionKey: string, startedAt: string, source: string | null, kind: SourceKind, device: DeviceKind = 'DESKTOP') => ({
+const s = (visitorKey: string, sessionKey: string, startedAt: string, source: string | null, kind: SourceKind, device: DeviceKind = 'DESKTOP', country: string | null = null) => ({
+  country,
   visitorKey,
   sessionKey,
   startedAt: new Date(startedAt),
@@ -19,9 +20,9 @@ const s = (visitorKey: string, sessionKey: string, startedAt: string, source: st
 
 describe('отчёт сайта wetop.ai в кабинете', () => {
   const sessions = [
-    s('v1', 's1', '2026-10-01T08:00:00Z', 'google', 'SEARCH', 'MOBILE'),
-    s('v1', 's2', '2026-10-02T08:00:00Z', null, 'DIRECT', 'MOBILE'),
-    s('v2', 's3', '2026-10-02T09:00:00Z', 'instagram', 'SOCIAL'),
+    s('v1', 's1', '2026-10-01T08:00:00Z', 'google', 'SEARCH', 'MOBILE', 'KZ'),
+    s('v1', 's2', '2026-10-02T08:00:00Z', null, 'DIRECT', 'MOBILE', 'KZ'),
+    s('v2', 's3', '2026-10-02T09:00:00Z', 'instagram', 'SOCIAL', 'DESKTOP', 'QA'),
     s('v3', 's4', '2026-10-02T10:00:00Z', 'google', 'PAID'),
   ];
   const events = [
@@ -58,5 +59,12 @@ describe('отчёт сайта wetop.ai в кабинете', () => {
 
   it('страницы: просмотры по адресу', () => {
     expect(r.pages[0]).toEqual({ path: '/', views: 2, share: 666 });
+  });
+  it('страны посетителей (миграция 169): посетители и дошедшие до подтверждения почты; без страны отдельно', () => {
+    expect(r.countries).toEqual([
+      { country: 'KZ', visitors: 1, signupDone: 1 },
+      { country: 'QA', visitors: 1, signupDone: 0 },
+      { country: null, visitors: 1, signupDone: 0 },
+    ]);
   });
 });

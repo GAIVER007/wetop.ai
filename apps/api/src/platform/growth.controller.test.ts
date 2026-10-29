@@ -40,6 +40,18 @@ const repo = {
       pageviews: [{ path: '/' }],
     };
   },
+  async countries(hosts: readonly string[], from: Date, to: Date) {
+    asked.push({ hosts, from: from.toISOString(), to: to.toISOString() });
+    return {
+      organizations: [
+        { id: 'c1', countryCode: 'KZ', status: 'ACTIVE' as const, createdAt: new Date('2026-10-03T00:00:00Z') },
+        { id: OWN, countryCode: 'KZ', status: 'ACTIVE' as const, createdAt: new Date('2026-01-01T00:00:00Z') },
+      ],
+      payments: [{ organizationId: 'c1', amountCents: 4900n, paidOn: '2026-10-05', voided: false }],
+      subscriptions: [],
+      visitors: visitors === null ? null : [{ country: 'KZ', visitors: 20 }, { country: 'QA', visitors: 5 }],
+    };
+  },
 };
 
 let app: INestApplication;
@@ -123,5 +135,18 @@ describe('сайт wetop.ai в кабинете (GET /platform/site)', () => {
   it('не главному администратору закрыто', async () => {
     const res = await api().get('/platform/site').set(as('session-owner'));
     expect(res.status).toBe(403);
+  });
+});
+
+describe('страны (GET /platform/countries)', () => {
+  it('по стране: посетители, новые клиенты, доход; своя организация не клиент', async () => {
+    const res = await api().get('/platform/countries?month=2026-10').set(as('session-admin')).expect(200);
+    expect(asked[0]).toEqual({ hosts: WETOP_SITE_HOSTS, from: '2026-10-01T00:00:00.000Z', to: '2026-11-01T00:00:00.000Z' });
+    expect(res.body.rows[0]).toMatchObject({ country: 'KZ', visitors: 20, newClients: 1, incomeCents: '4900', visitorToClient: 50 });
+    expect(res.body.rows[1]).toMatchObject({ country: 'QA', visitors: 5, newClients: 0 });
+    expect(res.body.total).toMatchObject({ visitors: 25, newClients: 1, incomeCents: '4900' });
+  });
+  it('не главному администратору закрыто', async () => {
+    await api().get('/platform/countries').set(as('session-owner')).expect(403);
   });
 });

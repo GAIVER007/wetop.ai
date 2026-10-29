@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseHit, HIT_LIMITS } from './hit';
+import { countryFromHeader, parseHit, HIT_LIMITS } from './hit';
 
 const good = {
   k: 'pms_5f3c9a1b2d4e',
@@ -106,5 +106,18 @@ describe('разбор события счётчика', () => {
     if (!r.ok) return;
     expect(r.hit.type).toBe('ping');
     expect(r.hit.referrer).toBeNull();
+  });
+});
+
+describe('страна посетителя (CF-IPCountry)', () => {
+  it('двухбуквенный код в верхнем регистре; неизвестная (XX), Tor (T1) и мусор: null', () => {
+    expect(countryFromHeader('kz')).toBe('KZ');
+    expect(countryFromHeader('QA')).toBe('QA');
+    expect(countryFromHeader('XX')).toBeNull();
+    expect(countryFromHeader('T1')).toBeNull();
+    expect(countryFromHeader('KAZ')).toBeNull();
+    expect(countryFromHeader('')).toBeNull();
+    expect(countryFromHeader(undefined)).toBeNull();
+    expect(countryFromHeader(['KZ', 'QA'])).toBeNull();
   });
 });

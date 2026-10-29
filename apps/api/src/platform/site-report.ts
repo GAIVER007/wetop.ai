@@ -8,7 +8,7 @@ import { datesBetween, localDate, monthPeriod, type DeviceKind, type SourceKind 
 export interface SiteReportInput {
   month: string;
   timezone: string;
-  sessions: ReadonlyArray<{ visitorKey: string; sessionKey?: string; startedAt: Date; sourceKind: SourceKind; source: string | null; device: DeviceKind }>;
+  sessions: ReadonlyArray<{ visitorKey: string; sessionKey?: string; startedAt: Date; sourceKind: SourceKind; source: string | null; device: DeviceKind; country?: string | null }>;
   events: ReadonlyArray<{ name: string; sessionKey: string }>;
   pageviews: ReadonlyArray<{ path: string }>;
 }
@@ -24,6 +24,8 @@ export interface SiteReport {
   path: { visitors: number; signupOpen: number; signupSent: number; signupDone: number; loginOpen: number };
   sources: Array<{ kind: SourceKind; source: string | null; visitors: number; share: number }>;
   pages: Array<{ path: string; views: number; share: number }>;
+  /** Страны посетителей (CF-IPCountry, миграция 169): посетитель в стране первого визита месяца; не определена: null */
+  countries: Array<{ country: string | null; visitors: number; signupDone: number }>;
 }
 
 const tenths = (part: number, whole: number) => (whole ? Math.floor((part * 1000) / whole) : 0);
@@ -45,6 +47,17 @@ export function buildSiteReport(input: SiteReportInput): SiteReport {
     const g = groups.get(key) ?? { kind: s.sourceKind, source: s.source, v: new Set<string>() };
     g.v.add(s.visitorKey);
     groups.set(key, g);
+  }
+  const firstCountry = new Map<string, string | null>();
+  for (const s of [...input.sessions].sort((a, b) => a.startedAt.getTime() - b.startedAt.getTime()))
+    if (!firstCountry.has(s.visitorKey)) firstCountry.set(s.visitorKey, s.country ?? null);
+  const done = new Set(input.events.filter((e) => e.name === 'signup_done').flatMap((e) => (visitorOf.has(e.sessionKey) ? [visitorOf.get(e.sessionKey)!] : [])));
+  const byCountry = new Map<string | null, { visitors: number; signupDone: number }>();
+  for (const [v, c] of firstCountry) {
+    const g = byCountry.get(c) ?? { visitors: 0, signupDone: 0 };
+    g.visitors += 1;
+    if (done.has(v)) g.signupDone += 1;
+    byCountry.set(c, g);
   }
   const views = new Map<string, number>();
   for (const p of input.pageviews) views.set(p.path, (views.get(p.path) ?? 0) + 1);
@@ -69,5 +82,8 @@ export function buildSiteReport(input: SiteReportInput): SiteReport {
       .map(([path, n]) => ({ path, views: n, share: tenths(n, input.pageviews.length) }))
       .sort((a, b) => b.views - a.views || a.path.localeCompare(b.path))
       .slice(0, 10),
+    countries: [...byCountry.entries()]
+      .map(([country, g]) => ({ country, ...g }))
+      .sort((a, b) => b.visitors - a.visitors || b.signupDone - a.signupDone || (a.country === null ? 1 : b.country === null ? -1 : a.country.localeCompare(b.country))),
   };
 }

@@ -13,6 +13,7 @@ import type { Translate } from '../../../../i18n';
 import { CabinetShell } from '../shell';
 import { MonthPicker } from '../money/month-picker';
 import { percentText } from '../growth-parts';
+import { countryName, flag } from '../country';
 import { currentLocale } from '../../../../i18n/server';
 
 /**
@@ -122,6 +123,30 @@ async function Site({ month }: { month: string }) {
             </li>
           ))}
         </ol>
+      </Panel>
+
+      <Panel title={t('Страны посетителей')}>
+        <Table aria-label={t('Страны посетителей')} data-testid="site-countries">
+          <thead>
+            <tr>
+              <th>{t('Страна')}</th>
+              <th className="num">{t('Посетители')}</th>
+              <th className="num">{t('Зарегистрировались')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {r.countries.slice(0, 8).map((c) => (
+              <tr key={c.country ?? 'none'}>
+                <td>
+                  {c.country && <span aria-hidden="true">{flag(c.country)} </span>}
+                  {c.country ? countryName(c.country, locale, t) : t('Не определена')}
+                </td>
+                <td className="num">{formatInt(c.visitors)}</td>
+                <td className="num">{formatInt(c.signupDone)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </Panel>
 
       <div className="cabinet__pair">

@@ -25,7 +25,7 @@ async function fillRegister(page: Page, email = 'new@example.invalid') {
   await expect(form.getByLabel('Почта')).toHaveValue(email);
   await expect(form.getByLabel('Имя', { exact: true })).toHaveValue('Тестовый Пользователь');
   await expect(form.getByLabel('Название бизнеса')).toHaveValue('Тестовый объект');
-  await expect(form.getByRole('textbox', { name: 'Телефон', exact: true })).toHaveValue('7015554433');
+  await expect(form.getByRole('textbox', { name: 'Телефон', exact: true })).toHaveValue('+77015554433');
   await expect(form.getByLabel('Пароль', { exact: true })).toHaveValue('synthetic-password');
 }
 test('главная просит почту и пароль, без второго рекламного экрана', async ({ page }) => {

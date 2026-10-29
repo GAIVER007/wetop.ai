@@ -166,7 +166,7 @@ describe.skipIf(!url)('site from prompt', () => {
 
   const PROMPT = 'Тёмный премиальный салон, золото, акцент на мастеров';
 
-  it('салон: сайт по промту из услуг, мастеров и часов филиала; тёмная тема по словам; SEO и FAQ; журнал без промта', async () => {
+  it('салон: сайт по промту из услуг, мастеров и часов филиала; тёмная тема по словам; простая главная и SEO; журнал без промта', async () => {
     const r = await post(salon, { prompt: PROMPT });
     expect(r.status, r.text).toBe(201);
     expect(r.body.site.latest.revision).toBe(1);
@@ -177,9 +177,11 @@ describe.skipIf(!url)('site from prompt', () => {
     expect(v.spec['site'].vertical).toBe('BEAUTY');
     expect(v.spec['theme']).toMatchObject({ preset: 'NOIR', colorScheme: 'DARK', accent: 'CHAMPAGNE' });
     const sections = v.spec['pages'][0].sections.map((s: { type: string }) => s.type);
-    expect(sections).toEqual(expect.arrayContaining(['hero', 'services', 'staff', 'leadForm', 'hours', 'faq']));
-    // «акцент на мастеров»: команда сразу под первым экраном
-    expect(sections.slice(0, 2)).toEqual(['hero', 'staff']);
+    // простая главная (владелец 29.10.2026 «не усложняй»): офер, услуги, мастера, запись, призыв, часы и контакты;
+    // вопросы-ответы при создании не ставятся (включаются в редакторе), SEO страницы на месте
+    expect(sections).toEqual(['hero', 'services', 'staff', 'leadForm', 'cta', 'hours', 'contacts']);
+    // фото первого экрана из набора WETOP: у сайта сразу картинка
+    expect(v.spec['pages'][0].sections[0].image.assetId).toMatch(/^57c0f070-/);
     expect(JSON.stringify(v.spec)).toContain('Маникюр');
     expect(v.spec['pages'][0].seo.title.ru).toContain('Салон «Шаблон»');
     const audit = await db.auditLog.findFirstOrThrow({ where: { organizationId: org, action: 'marketing.site.prompt_applied', entityId: v.site.id } });

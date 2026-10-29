@@ -32,27 +32,27 @@ describe('Разделы роста по направлению бизнеса',
     // соседей по дням, а не на гостиничный /market. «Голосовой агент» (22.10.2026) тоже у всех: модулей шесть, сетка обычная
     expect(html.match(/data-module=""/g)).toHaveLength(7);
     expect(html).toContain('data-testid="marketing-competitors"');
-    expect(html).toMatch(/data-testid="marketing-competitors-status"[^>]*>Доступно</);
+    expect(html).toMatch(/data-testid="marketing-competitors-status"[^>]*>В работе</);
     expect(html).toContain('href="/market/business"');
     expect(html).not.toContain('href="/market"');
     // вариант В: строка пульта коротко, полный текст на экране конкурентов
     expect(html).toContain('Загрузка соседей по дням');
     // ИИ-колл-центр: карточка живая, ведёт на свой экран (есть у всех направлений)
-    expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
+    expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>В работе</);
     expect(html).toContain('href="/marketing/voice"');
     expect(html).toContain('Голосовой агент');
     // единая система: бюджет ведётся по филиалу любого направления
-    expect(html).toMatch(/data-testid="marketing-budget-status"[^>]*>Доступно</);
+    expect(html).toMatch(/data-testid="marketing-budget-status"[^>]*>В работе</);
     expect(html).toContain('href="/marketing/budget"');
     // SITE-1: первый экран сайта открыт всем направлениям; публикация и изображения пока гостиничные, меню «⋯» нет
-    expect(html).toMatch(/data-testid="marketing-site-status"[^>]*>Доступно</);
+    expect(html).toMatch(/data-testid="marketing-site-status"[^>]*>В работе</);
     expect(html).toContain('href="/marketing/site/editor"');
     expect(html).not.toContain('href="/marketing/site/assets"');
     expect(html).toContain('бренд салона');
     expect(html).toContain('онлайн-запись');
     expect(html).not.toMatch(/гостиниц/);
-    // п. 5: у рабочей «Рекламы» значок «Доступно», а не «Скоро» рядом с живой кнопкой
-    expect(html).toMatch(/data-testid="marketing-ads-status"[^>]*>Доступно</);
+    // п. 5: у «Рекламы» не «Скоро» рядом с живой кнопкой; статус «В работе» (владелец 29.10.2026)
+    expect(html).toMatch(/data-testid="marketing-ads-status"[^>]*>В работе</);
     // п. 18: результаты ведут в аналитику маркетинга, дубля «Начать с сайта» нет
     expect(html).toContain('href="/marketing/analytics"');
     expect(html).not.toContain('href="/management/analytics"');
@@ -122,7 +122,7 @@ describe('Разделы роста по направлению бизнеса',
       expect(html).not.toContain('href="/website');
       // голосовой агент: все направления (решение владельца 22.10.2026, второе: не только салон)
       expect(html).toContain('href="/marketing/voice"');
-      expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>Доступно</);
+      expect(html).toMatch(/data-testid="marketing-voice-status"[^>]*>В работе</);
     });
   }
   it('для салона каталог ведёт к услугам, для ресторана к блюдам', () => {
@@ -164,22 +164,22 @@ afterAll(() => {
 
 // Живой аудит 21.10.2026 P0-4: конструктор выключен у новых бизнесов, а карточка писала «Доступно»
 describe('«Сайт и SEO» говорит правду о конструкторе', () => {
-  it('конструктор выключен: значок «Подключает WETOP», текст про подключение', async () => {
+  it('конструктор выключен: статус «В работе» (владелец 29.10.2026), кнопка «Подключить»', async () => {
     const { MarketingHub } = await import('../marketing/hub');
     const html = renderToStaticMarkup(
       createElement(MarketingHub, { vertical: 'BEAUTY', builder: { access: 'off', status: null, activeUntil: null } }),
     );
-    expect(html).toMatch(/data-testid="marketing-site-status"[^>]*>Подключает WETOP</);
+    expect(html).toMatch(/data-testid="marketing-site-status"[^>]*>В работе</);
     expect(html).toContain('aria-label="Подключить: Сайт и SEO"');
   });
-  it('лицензия кончилась: «Срок вышел»; активна или неизвестна: «Доступно»', async () => {
+  it('статус «В работе» при любой лицензии (владелец 29.10.2026)', async () => {
     const { MarketingHub } = await import('../marketing/hub');
     const off = (access: 'expired' | 'active') =>
       renderToStaticMarkup(createElement(MarketingHub, { vertical: 'FOOD_SERVICE', builder: { access, status: null, activeUntil: null } }));
-    expect(off('expired')).toMatch(/data-testid="marketing-site-status"[^>]*>Срок вышел</);
-    expect(off('active')).toMatch(/data-testid="marketing-site-status"[^>]*>Доступно</);
+    expect(off('expired')).toMatch(/data-testid="marketing-site-status"[^>]*>В работе</);
+    expect(off('active')).toMatch(/data-testid="marketing-site-status"[^>]*>В работе</);
     expect(renderToStaticMarkup(createElement(MarketingHub, { vertical: 'HOSPITALITY' }))).toMatch(
-      /data-testid="marketing-site-status"[^>]*>Доступно</,
+      /data-testid="marketing-site-status"[^>]*>В работе</,
     );
   });
 });

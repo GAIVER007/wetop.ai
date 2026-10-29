@@ -79,3 +79,12 @@ export const PLATFORM_STATUS_LABEL: Record<string, string> = {
   READ_ONLY: 'только чтение',
   SUSPENDED: 'в архиве',
 };
+
+/**
+ * Последний день пробного доступа из «Подписки клиентов» (ГГГГ-ММ-ДД, включительно): сегодня по Алматы плюс 14 дней.
+ * API читает этот день по поясу платформы (`parseExtensionChange`), поэтому и считать его надо там же, а не по UTC сервера.
+ */
+export const ACCESS_TRIAL_DAYS = 14;
+export function accessTrialLastDay(now: Date = new Date()): string {
+  return propertyClock(PLATFORM_TIMEZONE).today(new Date(now.getTime() + ACCESS_TRIAL_DAYS * 86_400_000));
+}

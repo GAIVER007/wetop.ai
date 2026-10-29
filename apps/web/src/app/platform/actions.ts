@@ -1,8 +1,8 @@
 'use server';
-import { accessTrialUntil } from '../../lib/platform-trial';
 import { revalidatePath } from 'next/cache';
 import { ApiError, platformApi, type ExtensionChangeBody } from '../../lib/api';
 import { statusText } from './words';
+import { accessTrialLastDay } from '../../lib/platform';
 import { serverT } from '../../i18n/server';
 
 /**
@@ -151,8 +151,7 @@ export async function grantAccessAction(
   const attempt = (prev?.attempt ?? 0) + 1;
   const action = String(form.get('action') ?? '');
   const status = action === 'trial' ? 'TRIAL' : action === 'off' ? 'OFF' : 'ACTIVE';
-  // срок по Алматы (пояс платформы): вечером UTC там уже завтра
-  const activeUntil = status === 'TRIAL' ? accessTrialUntil() : '';
+  const activeUntil = status === 'TRIAL' ? accessTrialLastDay() : '';
   try {
     const saved = await platformApi.changeSiteBuilder(organizationId, locationId, { status, activeUntil, note: String(form.get('note') ?? '').trim() });
     revalidatePath('/platform/cabinet', 'layout');

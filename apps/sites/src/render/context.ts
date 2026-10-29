@@ -1,4 +1,5 @@
 import type { Action, Locale, Page, PublicFacts, Section, SiteSpec, Target } from '../types';
+import { stockPhotoUrl } from '@pms/domain';
 import { mailHref, phoneHref, safeHttps, whatsappHref } from './text';
 
 /** Всё, что нужно рендеру: документ, живые факты и то, что решил рантайм (бронь, счётчик, ассеты) */
@@ -91,7 +92,8 @@ export function resolvedImages(images: unknown, assets: Record<string, string>):
     .map((img) => {
       // id в документе может быть в любом регистре, карта API в нижнем (UUID)
       const id = String((img as { assetId?: string })?.assetId ?? '');
-      return { src: assets[id] ?? assets[id.toLowerCase()], alt: (img as { alt?: unknown })?.alt };
+      // фото набора WETOP (stock-photos.ts): адрес известен и без карты ассетов (превью, галерея шаблонов)
+      return { src: assets[id] ?? assets[id.toLowerCase()] ?? stockPhotoUrl(id), alt: (img as { alt?: unknown })?.alt };
     })
     .filter((img): img is { src: string; alt: unknown } => typeof img.src === 'string');
 }

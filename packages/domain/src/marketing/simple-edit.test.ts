@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { buildSiteFacts, type SiteFacts } from './site-facts';
 import { siteTemplatesFor, templateSiteSpec } from './site-templates';
 import { validateSiteSpec } from './site-spec';
+import { stockPhotoFor } from './stock-photos';
 import {
   SIMPLE_BLOCKS,
   setAboutText,
@@ -39,7 +40,8 @@ describe('простой экран сайта: пять действий кли
   it('состояние: тексты первого экрана, «О нас», фото и блоки', () => {
     const st = simpleSiteState(base());
     expect(st.heroHeading).toBe('Студия Айна');
-    expect(st.heroPhoto).toBeNull();
+    // шаблон даёт фото набора WETOP (владелец 29.10.2026), клиент может заменить или убрать его
+    expect(st.heroPhoto?.assetId).toBe(stockPhotoFor(siteTemplatesFor('BEAUTY')[0]!.id)!.assetId);
     expect(st.about).toBe('');
     expect(st.gallery).toEqual([]);
     expect(st.blocks['staff']).toBe(true);
@@ -59,7 +61,8 @@ describe('простой экран сайта: пять действий кли
   });
 
   it('фото первого экрана: с фото экран на всю ширину, без фото только текст', () => {
-    let s = setHeroPhoto(base(), PHOTO(1));
+    // от первого экрана без фото: своё фото ставит экран на всю ширину
+    let s = setHeroPhoto(setHeroPhoto(base(), null), PHOTO(1));
     ok(s);
     expect(home(s)[0]).toMatchObject({ variant: 'IMAGE_FULL', image: PHOTO(1) });
     expect(simpleSiteState(s).heroPhoto).toEqual(PHOTO(1));

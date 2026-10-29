@@ -6,6 +6,7 @@ export * from './runtime';
 export * from './brief';
 export * from './generation';
 export * from './assets';
+export * from './stock-photos';
 export * from './editor';
 export * from './diff';
 export * from './edit';

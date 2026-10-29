@@ -78,7 +78,7 @@ test('шаблон меняет оформление одним касанием
   await expect(frame(page).locator('#sec-hero')).toContainText('Luxx Aparts');
   await m.getByRole('radio', { name: /Бутик-отель/ }).click();
   await expect(m.getByTestId('ed-template-open')).toContainText('Бутик-отель');
-  await expect(frame(page).locator('body')).toHaveClass(/p-night/);
+  await expect(frame(page).locator('body')).toHaveClass(/p-noir/);
   await expect(frame(page).locator('#sec-hero')).toContainText('Luxx Aparts');
   await expect(m.getByTestId('ed-dirty')).toContainText('Сохранено', { timeout: 10_000 });
 

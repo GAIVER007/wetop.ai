@@ -712,4 +712,11 @@ export const marketingSite: Record<string, string> = {
   "Тёмная роскошь: чёрный фон, шампань, антиква, услуги строками с ценой, мастера крупно": "Dark luxury: black background, champagne, serif type, services in rows with prices, large staff portraits",
   // SEO и GEO при создании сайта (S7, 28.10.2026)
   "Для Google и ИИ-поиска, из данных WETOP": "For Google and AI search, from WETOP data",
+  // стили шаблонов гостиницы и ресторана, 28.10.2026
+  "Эко-минимал: шалфей и беж, строгий шрифт, номера карточками, цены «от» и бронь сразу под ними": "Eco minimal: sage and beige, a strict font, rooms as cards, prices «from» and booking right below",
+  "Тёмная роскошь: чёрный фон, шампань, антиква, номера крупными строками": "Dark luxury: black background, champagne, serif type, rooms in large rows",
+  "Яркий поп: персик и фуксия, крупный шрифт, бронь первой, сразу за ней номера и цены": "Bright pop: peach and fuchsia, a large font, booking first, then rooms and prices",
+  "Эко-минимал: шалфей и беж, строгий шрифт, меню списком с ценами, бронь стола и часы работы": "Eco minimal: sage and beige, a strict font, menu as a list with prices, table booking and opening hours",
+  "Вечерний премиальный стиль: тёмный фон, шампань, антиква, меню карточками и бронь стола карточкой": "Evening premium style: dark background, champagne, serif type, menu as cards and table booking in a card",
+  "Яркий поп: персик и фуксия, крупный шрифт, бронь стола первой, меню компактно, часы рядом": "Bright pop: peach and fuchsia, a large font, table booking first, compact menu, hours nearby",
 };

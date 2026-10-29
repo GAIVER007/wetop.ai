@@ -1,5 +1,6 @@
 import { applyDesignDirection, type DesignDirection } from './builder';
 import type { SiteFacts, SiteFactsVertical } from './site-facts';
+import { heroCopy, heroTone, type HeroLocale } from './hero-copy';
 import { starterSpecFromFacts } from './starter';
 import { isStockAssetId, stockImage, stockPhotoFor } from './stock-photos';
 
@@ -196,5 +197,15 @@ export function currentSiteTemplate(spec: unknown, vertical: string | null | und
 export function templateSiteSpec(facts: SiteFacts, templateId: unknown): Rec | null {
   const tpl = siteTemplateById(templateId);
   if (!tpl || tpl.vertical !== facts.vertical) return null;
-  return applySiteTemplate(starterSpecFromFacts(facts), tpl.id);
+  const spec = applySiteTemplate(starterSpecFromFacts(facts), tpl.id);
+  // новый сайт сразу с фразой первого экрана под стиль шаблона (28.10.2026); смена шаблона у готового сайта тексты не трогает
+  const locale = String(((spec?.['site'] as Rec | undefined)?.['defaultLocale'] as string | undefined) ?? 'ru') as HeroLocale;
+  const copy = heroCopy(facts, heroTone(tpl.direction.theme.typography), 0, locale);
+  const home = ((spec?.['pages'] as Rec[] | undefined) ?? []).find((p) => p['isHome'] === true);
+  const hero = ((home?.['sections'] as Rec[] | undefined) ?? []).find((x) => x['type'] === 'hero');
+  if (hero) {
+    hero['heading'] = { [locale]: copy.heading };
+    hero['subheading'] = { [locale]: copy.subheading };
+  }
+  return spec;
 }

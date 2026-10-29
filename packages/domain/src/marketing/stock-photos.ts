@@ -22,7 +22,6 @@ export interface StockPhoto {
 }
 
 export const STOCK_ORIGIN = 'https://images.pexels.com';
-const STOCK_PREFIX = '57c0f070-0000-4000-8000-';
 
 export const STOCK_PHOTOS: readonly StockPhoto[] = Object.freeze([
   { templateId: 'hotel-classic', heroVariant: 'IMAGE_SIDE', assetId: '57c0f070-0000-4000-8000-000000000001', url: 'https://images.pexels.com/photos/2725675/pexels-photo-2725675.jpeg?auto=compress&cs=tinysrgb&w=1920', alt: { ru: 'Уютный номер с большой кроватью', kk: 'Үлкен төсегі бар жайлы нөмір', en: 'Cozy room with a large bed' }, photographer: "Engin Akyurt", source: 'https://www.pexels.com/photo/modern-style-bedroom-2725675/' },

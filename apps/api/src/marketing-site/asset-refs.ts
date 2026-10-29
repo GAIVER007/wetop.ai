@@ -1,5 +1,5 @@
 import { ConflictException, ServiceUnavailableException } from '@nestjs/common';
-import { siteSpecAssetRefs, stockAssetMap, withoutStockRefs, type SiteAssetKind, type SiteSpecAssetRef } from '@pms/domain';
+import { siteSpecAssetRefs, withoutStockRefs, type SiteAssetKind, type SiteSpecAssetRef } from '@pms/domain';
 import { Prisma, type DbTx } from '@pms/database';
 import type { SiteAssetStorage } from './asset-storage';
 

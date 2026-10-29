@@ -11,6 +11,7 @@ import { CabinetController } from './cabinet.controller';
 import { CABINET_REPOSITORY, PrismaCabinetRepository } from './cabinet.repository';
 import { MoneyController } from './money.controller';
 import { GROWTH_REPOSITORY, GrowthController, PrismaGrowthRepository } from './growth.controller';
+import { CLIENT_CARD_REPOSITORY, ClientCardController, PrismaClientCardRepository } from './client-card.controller';
 import { MONEY_REPOSITORY, PrismaMoneyRepository } from './money.repository';
 import { PrismaSupportAudit, SUPPORT_AUDIT } from './support.audit';
 import { EnvSupportConnection, SUPPORT_CONNECTION } from './support.connection';
@@ -26,7 +27,7 @@ import {
 
 /** Раздел «Платформа»: организации и их расширения, техподдержка — панель ИИ-помощника (DATA_MODEL §16, ADR-083) */
 @Module({
-  controllers: [PlatformController, SupportController, CabinetController, MoneyController, GrowthController],
+  controllers: [PlatformController, SupportController, CabinetController, MoneyController, GrowthController, ClientCardController],
   providers: [
     PrismaService,
     // кабинет компании WETOP (владелец 28.10.2026)
@@ -34,6 +35,7 @@ import {
     // деньги компании WETOP (DATA_MODEL §63)
     { provide: MONEY_REPOSITORY, useClass: PrismaMoneyRepository },
     { provide: GROWTH_REPOSITORY, useClass: PrismaGrowthRepository },
+    { provide: CLIENT_CARD_REPOSITORY, useClass: PrismaClientCardRepository },
     { provide: EXTENSIONS_REPOSITORY, useClass: PrismaExtensionsRepository },
     ExtensionsService,
     { provide: SUPPORT_CONNECTION, useClass: EnvSupportConnection },

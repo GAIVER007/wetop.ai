@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { branchesApi } from '../../../lib/api';
+import { authApi, branchesApi } from '../../../lib/api';
 import { ApiError } from '../../../lib/api-error';
 
 const jar = vi.hoisted(() => ({
@@ -91,4 +91,27 @@ it('«Личный кабинет» (personal): несколько филиал�
   } as never);
   expect(await run('/today')).toBe('/my-work');
   expect(jar.set).toHaveBeenCalledWith('wetop_scope', `business=${B};location=${L}`, expect.any(Object));
+});
+
+/**
+ * Главный администратор WETOP (владелец 29.10.2026: «чтобы я под почтой вошёл и видел всё, что должно быть у админа»):
+ * вход без своего адреса ведёт в кабинет компании, а не в стойку клиента. Свой адрес (`next`) остаётся как был.
+ */
+it('главный администратор: вход по умолчанию в кабинет WETOP, филиал при этом выбран, стойка откроется сразу', async () => {
+  vi.spyOn(branchesApi, 'list').mockResolvedValue({ items: [item('HOSPITALITY')] } as never);
+  vi.spyOn(authApi, 'me').mockResolvedValue({ user: { platformAdmin: true } } as never);
+  expect(await run('/today')).toBe('/platform/cabinet');
+  expect(jar.set).toHaveBeenCalledWith('wetop_scope', `business=${B};location=${L}`, expect.anything());
+});
+
+it('главный администратор со своим адресом: идёт туда, как все', async () => {
+  vi.spyOn(branchesApi, 'list').mockResolvedValue({ items: [item('HOSPITALITY')] } as never);
+  vi.spyOn(authApi, 'me').mockResolvedValue({ user: { platformAdmin: true } } as never);
+  expect(await run('/reservations')).toBe('/reservations');
+});
+
+it('владелец организации: вход по умолчанию в свою стойку, как раньше', async () => {
+  vi.spyOn(branchesApi, 'list').mockResolvedValue({ items: [item('HOSPITALITY')] } as never);
+  vi.spyOn(authApi, 'me').mockResolvedValue({ user: { platformAdmin: false } } as never);
+  expect(await run('/today')).not.toBe('/platform/cabinet');
 });

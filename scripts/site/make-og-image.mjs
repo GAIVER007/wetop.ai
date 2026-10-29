@@ -1,5 +1,7 @@
 /**
- * Картинка ссылки (og:image) для wetop.ai: 1200×630, `apps/site/public/og.png`.
+ * Картинка ссылки (og:image) для wetop.ai: 1200×630, `apps/site/public/og.png`. Вариант «А» владельца 29.10.2026:
+ * гостиницы, салоны красоты и рестораны (раньше «хостел и мини-отель»). После перерисовки поднять `?v=` в
+ * `apps/site/src/lib/metadata.ts` (OG_IMAGE): мессенджеры кэшируют картинку по адресу.
  * Её показывают WhatsApp, Telegram и соцсети, когда кто-то делится адресом сайта. Без неё ссылка приходит
  * голой строкой — для рынка, где ссылками делятся в мессенджерах, это потеря.
  *
@@ -33,22 +35,20 @@ const html = `<!doctype html>
 <head><meta charset="utf-8">${styles.map((href) => `<link rel="stylesheet" href="${href}">`).join('')}
 <style>
   html, body { margin: 0; padding: 0; background: var(--bg); }
-  .card { width: 1200px; height: 630px; box-sizing: border-box; padding: 72px 88px;
+  .card { width: 1200px; height: 630px; box-sizing: border-box; padding: 64px 80px;
           display: flex; flex-direction: column; justify-content: space-between;
-          font-family: var(--font-head); background: var(--surface);
-          background-image: radial-gradient(1100px 520px at 88% -12%, var(--primary-soft), transparent 70%); }
-  .brand { display: flex; align-items: center; gap: 20px; }
-  .brand svg { width: 68px; height: 68px; }
+          font-family: var(--font-head); background: var(--surface); }
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .brand svg { width: 60px; height: 60px; }
   .brand rect { fill: var(--primary); }
   .brand path { fill: var(--on-primary); }
-  .brand span { font-size: 46px; font-weight: 800; letter-spacing: 0.02em; color: var(--text); }
-  h1 { margin: 0; font-size: 58px; line-height: 1.12; font-weight: 700; color: var(--text); max-width: 21ch; }
-  p { margin: 18px 0 0; font-size: 29px; line-height: 1.45; color: var(--text-2); max-width: 44ch;
-      font-family: var(--font-plex-sans); }
+  .brand span { font-size: 42px; font-weight: 800; letter-spacing: 0.02em; color: var(--text); }
+  h1 { margin: 0; font-size: 62px; line-height: 1.1; font-weight: 800; color: var(--text); max-width: 20ch; }
+  p { margin: 18px 0 0; font-size: 28px; color: var(--text-2); font-family: var(--font-plex-sans); }
   .foot { display: flex; align-items: center; justify-content: space-between; }
-  .addr { font-size: 30px; color: var(--muted); font-family: var(--font-plex-mono); }
-  .cells { display: flex; gap: 10px; }
-  .cells i { width: 58px; height: 34px; border-radius: 9px; display: block; }
+  .chips { display: flex; gap: 14px; }
+  .chips b { font-size: 28px; font-weight: 700; padding: 14px 26px; border-radius: 16px; color: var(--text); }
+  .addr { font-size: 28px; color: var(--muted); font-family: var(--font-plex-mono); }
 </style></head>
 <body><div class="card">
   <div class="brand">
@@ -57,16 +57,16 @@ const html = `<!doctype html>
     <span>WETOP</span>
   </div>
   <div>
-    <h1>Система управления хостелом и мини-отелем</h1>
-    <p>Брони, каналы продаж, счета и стойка — в одном окне.</p>
+    <h1>Одна система для сервисного бизнеса</h1>
+    <p>Брони, записи, заказы, команда и деньги в одном окне.</p>
   </div>
   <div class="foot">
-    <span class="addr">wetop.ai</span>
-    <span class="cells">
-      <i style="background: var(--st-confirmed)"></i><i style="background: var(--st-checked-in)"></i>
-      <i style="background: var(--st-tentative)"></i><i style="background: var(--surface-muted); border: 1px solid var(--border)"></i>
-      <i style="background: var(--st-confirmed)"></i>
+    <span class="chips">
+      <b style="background: var(--st-confirmed)">Гостиницы</b>
+      <b style="background: var(--st-tentative)">Салоны красоты</b>
+      <b style="background: var(--st-checked-in)">Рестораны</b>
     </span>
+    <span class="addr">wetop.ai</span>
   </div>
 </div></body></html>`;
 

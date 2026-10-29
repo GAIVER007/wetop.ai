@@ -33,8 +33,11 @@ for (const width of [1440,390]) for (const theme of ['light','dark'] as const) {
   await page.goBack();await page.getByRole('button',{name:'Тест Искомый',exact:true}).click();
   await page.reload();await expect(page.getByRole('dialog',{name:'Запись',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Закрыть: Запись',exact:true}).click();
-  await page.getByTestId('beauty-day-date').fill(nextDate);
-  await expect(page.getByTestId('beauty-day-date')).toHaveValue(nextDate);
+  // период окном как в журнале (владелец 29.10.2026): поля дат внутри окна, фильтры в адресе сохраняются
+  await page.getByTestId('appointments-period').click();
+  await page.getByLabel('Период: с',{exact:true}).fill(nextDate);
+  await expect(page.getByLabel('Период: с',{exact:true})).toHaveValue(nextDate);
+  await page.keyboard.press('Escape');
   await expect(page.getByRole('combobox',{name:'Специалист',exact:true})).toHaveValue(f.employees[0].id);
   await page.goto(`/appointments?date=${date}&master=foreign&service=${f.services[0].id}&appointment=foreign`);
   await expect(page.getByRole('main').getByRole('alert')).toContainText('Фильтр или запись недоступны');

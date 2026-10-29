@@ -147,6 +147,7 @@ export function DateRangePopover({
   compact = false,
   onDay,
   dayPresets,
+  keep,
 }: {
   from: string;
   to: string;
@@ -164,6 +165,8 @@ export function DateRangePopover({
   onDay?: (date: string) => void;
   /** быстрые дни слева в режиме дня («Сегодня», «Вчера», «Эта неделя», «Этот месяц») */
   dayPresets?: Array<{ label: string; date?: string; onSelect?: () => void }>;
+  /** параметры адреса, которые «Применить» сохраняет (фильтры записей: статус, специалист, услуга) */
+  keep?: Record<string, string>;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -323,6 +326,10 @@ export function DateRangePopover({
             }
           }}
         >
+          {keep &&
+            Object.entries(keep)
+              .filter(([, value]) => value)
+              .map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
           <div className="date-range__body">
             <div className="date-range__presets" role="group" aria-label={t('Готовые периоды')}>
               <strong>{onDay ? t('Выберите день') : t('Выберите период')}</strong>

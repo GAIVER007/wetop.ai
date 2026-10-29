@@ -99,9 +99,8 @@ export default async function AppointmentsPage({
       : periodDay;
     return (
       <Page
-        className="beauty-page"
+        className="beauty-page appointments-page"
         title={t('Записи')}
-        subtitle={t('Все записи филиала за выбранный период: поиск, фильтры и оплата.')}
       >
         <CustomerSectionTabs access={shell.access} vertical={shell.vertical} current="/appointments" t={t} />
         <AppointmentsList

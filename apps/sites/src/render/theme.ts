@@ -114,7 +114,7 @@ img{max-width:100%;height:auto}
 .btn--ghost{background:transparent;color:var(--accent)}
 main section{padding:var(--section) 0}
 main section:nth-of-type(even){background:var(--surface)}
-h1,h2,h3{line-height:1.2;margin:0 0 16px;font-family:var(--font-heading,var(--font))}
+h1,h2,h3{line-height:1.2;margin:0 0 16px;font-family:var(--font-heading,var(--font));overflow-wrap:break-word;text-wrap:balance}
 h1{font-size:clamp(32px,6vw,52px)}
 h2{font-size:clamp(26px,4vw,36px)}
 h3{font-size:20px}
@@ -219,6 +219,7 @@ main section:nth-of-type(even) .contact-list li{background:var(--bg)}
 .card>img{display:block;width:calc(100% + 48px);max-width:none;margin:-24px -24px 16px;aspect-ratio:3/2;object-fit:cover;border-radius:var(--radius) var(--radius) 0 0}
 .card>img+img{display:none}
 .lead--card .lead-form{max-width:720px}
+@media (min-width:800px){.t-bold .hero--image_side h1{font-size:clamp(40px,4.6vw,64px)}}
 p:has(> button[data-beauty-refresh]:empty),p[data-beauty-details]:empty{display:none}
 button.btn{font:inherit;font-weight:600;cursor:pointer}
 .lead-form .btn[type=submit]{min-width:200px;margin-top:4px}
@@ -248,7 +249,7 @@ button.btn{font:inherit;font-weight:600;cursor:pointer}
 .t-luxe .person h3{font-size:28px;margin:4px 0 0}
 .t-luxe .person .muted{letter-spacing:.16em;text-transform:uppercase;font-size:13px}
 .t-luxe .faq summary{font-family:var(--font-heading);font-size:22px;font-weight:500}
-.t-bold h1{font-size:clamp(44px,7vw,84px);font-weight:800;line-height:.98;letter-spacing:-.035em}
+.t-bold h1{font-size:clamp(36px,6vw,76px);font-weight:800;line-height:.98;letter-spacing:-.035em}
 .t-bold h2{font-size:clamp(32px,4.6vw,54px);font-weight:800;letter-spacing:-.03em}
 .t-bold h3{font-weight:800;letter-spacing:-.01em}
 .t-bold .brand{font-family:var(--font-heading);font-weight:800;letter-spacing:-.03em}

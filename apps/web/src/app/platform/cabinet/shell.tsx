@@ -6,16 +6,16 @@ import { msg, type Translate } from '../../../i18n';
 import './cabinet.css';
 
 /** Разделы кабинета компании WETOP (вариант «Г»): меню слева у всех страниц кабинета */
-export type CabinetSection = 'home' | 'money' | 'subscriptions' | 'team';
+export type CabinetSection = 'home' | 'clients' | 'money' | 'subscriptions' | 'team';
 
 const LINKS: Array<{
-  key: CabinetSection | 'clients' | 'support';
+  key: CabinetSection | 'support';
   href: string;
   icon: IconName;
   label: string;
 }> = [
   { key: 'home', href: '/platform/cabinet', icon: 'today', label: msg('Главная') },
-  { key: 'clients', href: '/platform', icon: 'guests', label: msg('Клиенты') },
+  { key: 'clients', href: '/platform/cabinet/clients', icon: 'guests', label: msg('Клиенты') },
   { key: 'money', href: '/platform/cabinet/money', icon: 'chart', label: msg('Деньги') },
   {
     key: 'subscriptions',

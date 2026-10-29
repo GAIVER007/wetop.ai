@@ -3,6 +3,7 @@ import { customerImportFixture, resetCustomerImportFixture } from './customer-im
 import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-fixture';
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
+import { buildGrowth } from '../../apps/api/src/platform/growth';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { barFixture, resetBarFixture } from './bar-fixture';
 import {
@@ -8275,6 +8276,32 @@ createServer(async (req, res) => {
         return send(200, platformOverview());
       // Кабинет компании WETOP (28.10.2026): своя организация ui-org не клиент, остальные как в таблице
       if (path === '/platform/cabinet' && req.method === 'GET') return send(200, platformCabinet());
+      // Кабинет руководителя (29.10.2026): путь клиента, MRR, LTV тем же расчётом, что API (buildGrowth)
+      if (path.startsWith('/platform/growth') && req.method === 'GET') {
+        const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
+        const orgs = platformOrganizations();
+        return send(
+          200,
+          buildGrowth(
+            {
+              organizations: orgs.map((o) => ({
+                id: o.id,
+                name: o.name,
+                status: o.status as 'TRIAL',
+                createdAt: new Date(o.createdAt),
+                trialEndsAt: o.trialEndsAt ? new Date(o.trialEndsAt) : null,
+              })),
+              registrations: orgs.filter((o) => o.id !== 'ui-org').map((o) => new Date(o.createdAt)),
+              payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), paidOn: p.paidOn, voided: p.voided })),
+              subscriptions: [...platformMoney.subs].map(([organizationId, s]) => ({ organizationId, monthlyCents: BigInt(s.monthlyCents), paidUntil: s.paidUntil })),
+              visitors: null,
+              ownOrganizationId: 'ui-org',
+            },
+            month,
+            new Date(),
+          ),
+        );
+      }
       // Деньги компании WETOP (DATA_MODEL §63): центы USD строкой, записи живут до reset
       const money = platformMoneyFixture(path, req.method ?? 'GET', body);
       if (money) return send(money.status, money.data);

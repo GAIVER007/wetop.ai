@@ -197,7 +197,15 @@ export function AppointmentsList({
             action="/appointments"
             triggerTestId="appointments-period"
             compact
-            keep={{ status, master: employee, service }}
+            onApply={(range) => {
+              // фильтры статуса, специалиста и услуги остаются в адресе; запись и день сбрасываются
+              const url = new URL(location.href);
+              url.searchParams.set('from', range.from);
+              url.searchParams.set('to', range.to);
+              url.searchParams.delete('date');
+              url.searchParams.delete('appointment');
+              router.push(`${url.pathname}${url.search}`);
+            }}
           />
           <Select
             aria-label={t('Статус')}

@@ -1290,12 +1290,22 @@
   .beauty-page.appointments-page .tabs {
     margin-bottom: var(--space-4);
   }
+  .beauty-page .beauty-list-panel,
+  .beauty-list-bar,
+  .beauty-list-bar > * {
+    min-width: 0;
+    max-width: 100%;
+  }
   @media (max-width: 600px) {
+    /* узко и при крупном шрифте (WCAG 1.4.10): каждый элемент строкой на всю ширину, подписи переносятся */
     .beauty-list-bar > .inp,
     .beauty-list-bar > .beauty-list-search,
     .beauty-list-bar > .btn,
     .beauty-list-bar > .date-range {
       flex: 1 1 100%;
+    }
+    .beauty-list-bar > .btn {
+      white-space: normal;
     }
     .beauty-list-bar > .date-range > summary {
       width: 100%;

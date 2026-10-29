@@ -213,19 +213,19 @@ export function liveModules(): Set<Module['key']> {
  */
 type RowState = { text: string; tone: 'ok' | 'info' | 'warn'; on: boolean };
 
+/**
+ * Статус инструмента в пульте (владелец 29.10.2026): «везде напиши статус “В работе”; когда будет готово, поменяем на
+ * статус “Готово к подключению”». Готовый инструмент добавляется сюда; ссылка «Подключить» ведёт туда же, что раньше.
+ */
+export const READY_MODULES: ReadonlySet<Module['key']> = new Set<Module['key']>([]);
+
 function rowState(key: Module['key'], seller: ExtensionAccessView | null, builder: SiteBuilderState | null): RowState {
-  if (key === 'seller') {
-    if (seller?.access === 'active')
-      return { text: seller.status === 'TRIAL' ? msg('Пробный') : msg('Работает'), tone: 'ok', on: true };
-    if (seller?.access === 'expired') return { text: msg('Срок вышел'), tone: 'warn', on: false };
-    return { text: msg('Не подключён'), tone: 'info', on: false };
-  }
-  if (key === 'site') {
-    if (builder?.access === 'off') return { text: msg('Подключает WETOP'), tone: 'warn', on: false };
-    if (builder?.access === 'expired') return { text: msg('Срок вышел'), tone: 'warn', on: false };
-    return { text: msg('Доступно'), tone: 'ok', on: true };
-  }
-  return { text: msg('Доступно'), tone: 'ok', on: true };
+  const ready = READY_MODULES.has(key);
+  const text = ready ? msg('Готово к подключению') : msg('В работе');
+  const tone = ready ? 'ok' : 'info';
+  if (key === 'seller') return { text, tone, on: seller?.access === 'active' };
+  if (key === 'site') return { text, tone, on: builder?.access !== 'off' && builder?.access !== 'expired' };
+  return { text, tone, on: true };
 }
 
 function PultRow({
@@ -260,7 +260,7 @@ function PultRow({
           </div>
         </div>
       </td>
-      <td data-label={t('Состояние')}>
+      <td data-label={t('Статус')}>
         <Badge tone={state.tone} data-testid={`${module.testId}-status`}>
           {t(state.text)}
         </Badge>
@@ -378,7 +378,7 @@ export function MarketingHub({
             <thead>
               <tr>
                 <th scope="col">{t('Инструмент')}</th>
-                <th scope="col">{t('Состояние')}</th>
+                <th scope="col">{t('Статус')}</th>
                 <th scope="col">{t('Стоимость')}</th>
                 <th scope="col">
                   <span className="sr-only">{t('Действие')}</span>

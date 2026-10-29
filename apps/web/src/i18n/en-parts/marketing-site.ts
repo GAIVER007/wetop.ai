@@ -683,6 +683,7 @@ export const marketingSite: Record<string, string> = {
   "Выключите, пока сайт не готов: Google его не покажет.": "Turn off until the website is ready: Google will not show it.",
   // заявки с сайта (аудит «Сайт и SEO» S3, 28.10.2026)
   "В работе": "In progress",
+  "Готово к подключению": "Ready to connect",
   "Заявки по статусу": "Requests by status",
   "Заявки с сайта": "Website requests",
   "Заявок пока нет": "No requests yet",

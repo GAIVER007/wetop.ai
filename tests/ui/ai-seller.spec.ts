@@ -69,7 +69,7 @@ test('раздел в меню «Продажи», четыре вкладки, 
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL(/\/(today|platform\/cabinet)$/);
   await page.goto('/ai-seller');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('ИИ-продавец');
   // текущий раздел на кнопке левого меню, пункт помечен текущим (ADR-161)
@@ -522,7 +522,8 @@ test('закрытое расширение: администратор види
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  // главный администратор после входа попадает в кабинет WETOP (владелец 29.10.2026), не в стойку
+  await page.waitForURL('**/platform/cabinet');
   await page.goto('/ai-seller');
   await expect(
     page.getByTestId('seller-extension-off').getByRole('link', { name: 'Управлять доступом' }),

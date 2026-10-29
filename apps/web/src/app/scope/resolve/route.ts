@@ -37,17 +37,19 @@ export async function GET(request: Request): Promise<Response> {
   }
   // `redirect` вызывается вне `try`: он бросает служебное исключение Next
   if (items === null) redirect(publicAuthUrl());
-  // Главный администратор WETOP (владелец 29.10.2026): вход без своего адреса ведёт в кабинет компании, а не в стойку
-  const next = new URL(request.url).searchParams.get('next');
-  if (!next || next === '/today') {
-    const me = await authApi.me().catch(() => null);
-    if (me?.user?.platformAdmin === true) redirect('/platform/cabinet');
-  }
   const decision = decideScope(items, new URL(request.url).searchParams.get('next'), remembered, { personal });
   if (decision.kind === 'select') {
     jar.set(SCOPE_COOKIE, decision.pointer, scopeCookieOptions(process.env));
     const location = pointerLocation(decision.pointer);
     if (location) jar.set(LAST_BRANCH_COOKIE, location, lastBranchCookieOptions(process.env));
+  }
+  // Главный администратор WETOP (владелец 29.10.2026): вход без своего адреса ведёт в кабинет компании, а не в стойку.
+  // Филиал выбран как у всех выше (один или последний на этом устройстве), чтобы стойка из кабинета открывалась сразу;
+  // несколько филиалов без выбранного: стойка сама предложит выбрать.
+  const next = new URL(request.url).searchParams.get('next');
+  if (!next || next === '/today') {
+    const me = await authApi.me().catch(() => null);
+    if (me?.user?.platformAdmin === true) redirect('/platform/cabinet');
   }
   redirect(decision.target);
 }

@@ -8,7 +8,7 @@ async function open(
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL(/\/(today|platform\/cabinet)$/);
   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true } });
   await page.goto('/platform/support/base?status=DRAFT');
   await page
@@ -80,7 +80,7 @@ test('C-P1-2 initial create B keeps typed C, then PATCHes the same document', as
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await page.waitForURL('**/today');
+  await page.waitForURL(/\/(today|platform\/cabinet)$/);
   await request.post(`${FIXTURE_API}/__test/control`, {
     data: { platformAdmin: true, delayPath: '/platform/support/kb', delayMs: 2500 },
   });

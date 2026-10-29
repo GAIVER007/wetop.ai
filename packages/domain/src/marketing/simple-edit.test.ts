@@ -38,7 +38,9 @@ const ok = (s: unknown) => {
 describe('простой экран сайта: пять действий клиента', () => {
   it('состояние: тексты первого экрана, «О нас», фото и блоки', () => {
     const st = simpleSiteState(base());
-    expect(st.heroHeading).toBe('Студия Айна');
+    // 28.10.2026: новый сайт сразу с фразой первого экрана, название в подзаголовке
+    expect(st.heroHeading).toBe('Спокойный уход за собой');
+    expect(st.heroSubheading).toContain('Студия Айна');
     expect(st.heroPhoto).toBeNull();
     expect(st.about).toBe('');
     expect(st.gallery).toEqual([]);

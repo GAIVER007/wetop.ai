@@ -74,3 +74,31 @@ test('тариф, подписка клиента и команда', async ({ p
   await expect(page.getByTestId('team-payroll')).toHaveText('$800');
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/team-1280.png`, fullPage: true });
 });
+
+/**
+ * Владелец 29.10.2026 (скрин «Подписки клиентов»): «давай сделаем тут выдачу доступов к тарифу». У каждого клиента в
+ * подписках видны его филиалы и доступ к конструктору сайта: пробный на 14 дней одной кнопкой, оплачен, выключить.
+ * Пишет тот же API, что «Платформа → Организации» (лицензия филиала), журнал на сервере.
+ */
+test('подписки клиентов: выдать доступ к конструктору сайта по филиалу одной кнопкой', async ({ page, request }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await signIn(page, request);
+  await page.goto('/platform/cabinet/subscriptions');
+  const access = page.getByTestId('subscription-access').filter({ hasText: 'Хостел «Пример» (центр)' });
+  await expect(access).toBeVisible();
+  await expect(access).toContainText('Конструктор сайта');
+  await expect(access).toContainText('не подключён');
+  await access.getByTestId('access-trial').click();
+  await expect(access).toContainText('пробный');
+  await expect(access).toContainText('действует');
+  // последний день пробного: сегодня плюс 14 дней по Алматы (пояс платформы)
+  const until = new Date(Date.now() + 14 * 86_400_000 + 5 * 3_600_000).toISOString().slice(0, 10).split('-').reverse().join('.');
+  await expect(access).toContainText(until);
+  await access.getByTestId('access-activate').click();
+  await expect(access).toContainText('оплачен');
+  await access.getByTestId('access-off').click();
+  await expect(access).toContainText('не подключён');
+  const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(wide).toBeLessThanOrEqual(0);
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/subscriptions-access-1440.png`, fullPage: true });
+});

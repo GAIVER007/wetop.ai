@@ -676,4 +676,5 @@ export const platformOrg: Record<string, string> = {
   "платят {paying}, не оплатили {unpaid}, ушли за месяц {churn}": "paying {paying}, unpaid {unpaid}, left this month {churn}",
   "ушли за месяц: {n}, в прошлом: {p}": "left this month: {n}, last month: {p}",
   "Доступ: {name}": "Access: {name}",
+  "Пробный {n} дней": "{n}-day trial",
 };

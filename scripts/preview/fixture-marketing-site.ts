@@ -847,6 +847,8 @@ const FIXTURE_LOCATIONS = [
   { id: SECOND_LOCATION_ID, name: 'Marina', businessName: 'Luxx', status: 'ACTIVE' },
 ];
 
+const CLIENT_LOCATION = { id: 'lc000003-0000-4000-8000-000000000003', name: 'Хостел «Пример» (центр)', businessName: 'Пример', status: 'ACTIVE' };
+
 function licenseView(l: (typeof FIXTURE_LOCATIONS)[number]) {
   const row = licenses.get(l.id) ?? null;
   return {
@@ -865,13 +867,18 @@ function licenseView(l: (typeof FIXTURE_LOCATIONS)[number]) {
 /** Только для вошедшего главного администратора: проверку делает подставной API платформы до вызова */
 export function platformSiteBuilderFixture(path: string, method: string, body: Record<string, unknown>): { status: number; data: unknown } | null {
   const list = /^\/platform\/organizations\/([^/]+)\/site-builder$/.exec(path);
-  if (list && method === 'GET') return { status: 200, data: { items: list[1] === 'ui-org' ? FIXTURE_LOCATIONS.map(licenseView) : [] } };
+  if (list && method === 'GET') {
+    // клиент стенда «Хостел «Пример»» (ui-org-2): свой филиал, чтобы выдать доступ из «Подписки клиентов»
+    if (list[1] === 'ui-org-2') return { status: 200, data: { items: [licenseView(CLIENT_LOCATION)] } };
+    return { status: 200, data: { items: list[1] === 'ui-org' ? FIXTURE_LOCATIONS.map(licenseView) : [] } };
+  }
   const one = /^\/platform\/organizations\/([^/]+)\/site-builder\/([^/]+)$/.exec(path);
   if (one && method === 'PUT') {
     // гостиница стенда по умолчанию (филиал 2222…) ведёт сайт стенда `FIXTURE_LOCATION_ID`: окно подключения в «Сайт и
     // SEO» шлёт id филиала, как настоящий API, у которого это один и тот же id
     const wanted = one[2] === DEFAULT_BRANCH_LOCATION_ID ? FIXTURE_LOCATION_ID : one[2];
-    const location = one[1] === 'ui-org' ? FIXTURE_LOCATIONS.find((l) => l.id === wanted) : undefined;
+    const location =
+      one[1] === 'ui-org' ? FIXTURE_LOCATIONS.find((l) => l.id === wanted) : one[1] === 'ui-org-2' && wanted === CLIENT_LOCATION.id ? CLIENT_LOCATION : undefined;
     if (!location) return { status: 404, data: { message: 'Такого гостиничного филиала у организации нет' } };
     const parsed = parseExtensionChange(body, new Date());
     if (!parsed.ok) return { status: 400, data: { message: parsed.errors.join('; ') } };

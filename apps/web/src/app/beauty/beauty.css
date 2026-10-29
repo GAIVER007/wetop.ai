@@ -1262,6 +1262,55 @@
     color: var(--text);
     cursor: default;
   }
+  /* записи одной строкой (владелец 29.10.2026): период окном журнала, фильтры, поиск, «Новая запись» справа */
+  .beauty-list-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .beauty-list-bar > .inp {
+    width: auto;
+    min-width: 0;
+    flex: 0 1 12rem;
+  }
+  .beauty-list-bar > .beauty-list-search {
+    flex: 1 1 14rem;
+  }
+  .beauty-list-bar > .beauty-list-new {
+    margin-left: auto;
+  }
+  .beauty-page .beauty-list-panel {
+    padding: var(--space-4);
+  }
+  /* шапка «Записи» плотнее: без подзаголовка, вкладки ближе */
+  .beauty-page.appointments-page > .page__head {
+    margin-bottom: var(--space-2);
+  }
+  .beauty-page.appointments-page .tabs {
+    margin-bottom: var(--space-4);
+  }
+  .beauty-page .beauty-list-panel,
+  .beauty-list-bar,
+  .beauty-list-bar > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+  @media (max-width: 600px) {
+    /* узко и при крупном шрифте (WCAG 1.4.10): каждый элемент строкой на всю ширину, подписи переносятся */
+    .beauty-list-bar > .inp,
+    .beauty-list-bar > .beauty-list-search,
+    .beauty-list-bar > .btn,
+    .beauty-list-bar > .date-range {
+      flex: 1 1 100%;
+    }
+    .beauty-list-bar > .btn {
+      white-space: normal;
+    }
+    .beauty-list-bar > .date-range > summary {
+      width: 100%;
+    }
+  }
   .beauty-page .beauty-list-filters {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 2fr);
@@ -1338,6 +1387,21 @@
       text-overflow: ellipsis;
       min-height: var(--space-8);
       padding-block: var(--space-1);
+    }
+  }
+  /* ноутбук до 1279 px: «Автор» прячется, клиент, специалист и услуга уже (полный текст в подсказке): записи
+     помещаются в экран без прокрутки вбок (владелец 29.10.2026, Kyial 1210 px: 1144/1144) */
+  @media (min-width: 601px) and (max-width: 1279px) {
+    .beauty-appointments-table th[data-col='author'],
+    .beauty-appointments-table td[data-col='author'] {
+      display: none;
+    }
+    .beauty-appointments-table td[data-col='client'],
+    .beauty-appointments-table td[data-col='staff'] {
+      max-width: 9ch;
+    }
+    .beauty-appointments-table td[data-col='service'] {
+      max-width: 14ch;
     }
   }
   .beauty-contact a {

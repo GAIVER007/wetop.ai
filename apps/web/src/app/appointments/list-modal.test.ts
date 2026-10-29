@@ -53,10 +53,17 @@ it('offers a period and shows the local date alongside appointments', () => {
   const html = renderToStaticMarkup(createElement(AppointmentsList, {
     day, customers: [], readOnly: false,
   }));
-  expect(html).toContain('Период с');
-  expect(html).toContain('Период по');
-  expect(html).toContain('Показать период');
+  // владелец 29.10.2026: период окном как в журнале (готовые периоды слева, календарь, «Применить»),
+  // без двух полей дат и «Показать период»; фильтры и «Новая запись» одной строкой
+  expect(html).toContain('data-testid="appointments-period"');
+  expect(html).toContain('Выберите период');
+  expect(html).toContain('Применить');
+  expect(html).not.toContain('Показать период');
+  expect(html).not.toContain('Период с');
   expect(html).not.toContain('Поиск только по выбранному дню');
+  const bar = html.slice(html.indexOf('beauty-list-bar'), html.indexOf('</section>'));
+  for (const part of ['appointments-period', 'Все статусы', 'Все специалисты', 'Все услуги', 'Имя или телефон', 'Новая запись'])
+    expect(bar).toContain(part);
 });
 
 describe('C2 (паритет с zapis.kz): автор и источник в реестре', () => {
@@ -100,7 +107,8 @@ describe('аудит 21.10.2026 п.3 и п.19: список записей', () 
     expect(html).not.toContain('После перезагрузки поиск клиента очищается.');
     expect(html).not.toContain('Для новой записи нужны');
     const panel = html.slice(html.indexOf('beauty-list-panel'));
-    expect(panel.indexOf('Показать период')).toBeLessThan(panel.indexOf('Сбросить фильтры'));
-    expect(panel.indexOf('Сбросить фильтры')).toBeLessThan(panel.indexOf('</section>'));
+    // «Сбросить фильтры» появляется, только когда фильтр выбран (владелец 29.10.2026: без лишних кнопок)
+    expect(panel).not.toContain('Сбросить фильтры');
+    expect(panel.indexOf('appointments-period')).toBeLessThan(panel.indexOf('</section>'));
   });
 });

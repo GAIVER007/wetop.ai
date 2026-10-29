@@ -147,6 +147,7 @@ export function DateRangePopover({
   compact = false,
   onDay,
   dayPresets,
+  onApply,
 }: {
   from: string;
   to: string;
@@ -164,6 +165,11 @@ export function DateRangePopover({
   onDay?: (date: string) => void;
   /** быстрые дни слева в режиме дня («Сегодня», «Вчера», «Эта неделя», «Этот месяц») */
   dayPresets?: Array<{ label: string; date?: string; onSelect?: () => void }>;
+  /**
+   * «Применить» переходом внутри приложения (записи салона, владелец 29.10.2026): экран сам строит адрес и сохраняет
+   * свои фильтры, история браузера остаётся у приложения (выход из несохранённой записи спрашивает подтверждение)
+   */
+  onApply?: (range: { from: string; to: string }) => void;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -320,6 +326,12 @@ export function DateRangePopover({
             if (!valid || (maxDays && count > maxDays)) {
               event.preventDefault();
               setError(!valid ? t('Выберите корректный период') : t('Не более {n} дней', { n: String(maxDays) }));
+              return;
+            }
+            if (onApply) {
+              event.preventDefault();
+              if (ref.current) ref.current.open = false;
+              onApply({ from: start, to: end });
             }
           }}
         >

@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { Icon } from '../../components/icon';
+import { DateRangePopover } from '../../components/date-range-popover';
 import {
   Alert,
   Button,
   EmptyState,
-  Field,
   Input,
   Select,
   StatusBadge,
@@ -148,15 +148,6 @@ export function AppointmentsList({
     history[push ? 'pushState' : 'replaceState']({ ...history.state }, '', url);
     window.dispatchEvent(new Event('appointments-address'));
   };
-  const changeDate = (next?: string) => {
-    const url = new URL(location.href);
-    if (next) url.searchParams.set('date', next);
-    else url.searchParams.delete('date');
-    url.searchParams.delete('appointment');
-    url.searchParams.delete('from');
-    url.searchParams.delete('to');
-    router.push(`${url.pathname}${url.search}`);
-  };
   const missingSetup = !day.columns.length || !day.services.length;
   // Форма умеет начинать с клиента только через «повторить запись»: даём ей пустую запись с этим клиентом,
   // без услуги и заметок, поэтому строки услуг остаются пустыми
@@ -197,42 +188,83 @@ export function AppointmentsList({
   return (
     <>
       <section className="panel beauty-list-panel" aria-label={t('Период и фильтры записей')}>
-        <div className="beauty-bar beauty-operational-toolbar">
-          <form
-            className="beauty-period-filter"
-            key={`${period.from}:${period.to}`}
-            onSubmit={(event) => {
-              event.preventDefault();
-              const values = new FormData(event.currentTarget);
+        {/* владелец 29.10.2026: период окном как в журнале, фильтры и «Новая запись» одной строкой */}
+        <div className="beauty-list-bar">
+          <DateRangePopover
+            from={period.from || day.date}
+            to={period.to || day.date}
+            today={localInput(new Date().toISOString(), day.location.timezone).slice(0, 10)}
+            action="/appointments"
+            triggerTestId="appointments-period"
+            compact
+            onApply={(range) => {
+              // фильтры статуса, специалиста и услуги остаются в адресе; запись и день сбрасываются
               const url = new URL(location.href);
-              url.searchParams.set('from', String(values.get('from') ?? ''));
-              url.searchParams.set('to', String(values.get('to') ?? ''));
+              url.searchParams.set('from', range.from);
+              url.searchParams.set('to', range.to);
               url.searchParams.delete('date');
               url.searchParams.delete('appointment');
               router.push(`${url.pathname}${url.search}`);
             }}
+          />
+          <Select
+            aria-label={t('Статус')}
+            value={status}
+            onChange={(e) => address({ status: e.target.value, appointment: '' })}
           >
-            <Field label={t('Период с')}>
-              <Input
-                name="from"
-                type="date"
-                lang="ru"
-                required
-                defaultValue={period.from}
-                data-testid="beauty-day-date"
-              />
-            </Field>
-            <Field label={t('Период по')}>
-              <Input name="to" type="date" lang="ru" required defaultValue={period.to} />
-            </Field>
-            <Button type="submit" tone="secondary">
-              {t('Показать период')}
+            <option value="">{t('Все статусы')}</option>
+            {Object.entries(beautyStatus).map(([key, { label }]) => (
+              <option key={key} value={key}>
+                {t(label)}
+              </option>
+            ))}
+          </Select>
+          <Select
+            aria-label={t('Специалист')}
+            value={employee}
+            onChange={(e) => address({ master: e.target.value, appointment: '' })}
+          >
+            <option value="">{t('Все специалисты')}</option>
+            {day.columns.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.name}
+              </option>
+            ))}
+          </Select>
+          <Select
+            aria-label={t('Услуга')}
+            value={service}
+            onChange={(e) => address({ service: e.target.value, appointment: '' })}
+          >
+            <option value="">{t('Все услуги')}</option>
+            {services.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </Select>
+          <Input
+            type="search"
+            className="beauty-list-search"
+            aria-label={t('Поиск клиента')}
+            data-page-search
+            placeholder={t('Имя или телефон')}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {(status || employee || service || query) && (
+            <Button
+              tone="ghost"
+              className="beauty-list-reset"
+              onClick={() => {
+                setQuery('');
+                address({ master: '', service: '', status: '', appointment: '' });
+              }}
+            >
+              {t('Сбросить фильтры')}
             </Button>
-            <Button type="button" tone="ghost" onClick={() => changeDate()}>
-              {t('Сегодня')}
-            </Button>
-          </form>
-          <Button disabled={!canStart} onClick={() => setCreating(true)}>
+          )}
+          <Button className="beauty-list-new" disabled={!canStart} onClick={() => setCreating(true)}>
             <Icon name="plus" aria-hidden="true" />
             {t('Новая запись')}
           </Button>
@@ -246,68 +278,6 @@ export function AppointmentsList({
             {!day.columns.length && <Link href="/employees">{t('Добавить специалиста')}</Link>}
           </p>
         )}
-        <div className="beauty-filters beauty-list-filters">
-          <Field label={t('Статус')}>
-            <Select
-              value={status}
-              onChange={(e) => address({ status: e.target.value, appointment: '' })}
-            >
-              <option value="">{t('Все статусы')}</option>
-              {Object.entries(beautyStatus).map(([key, { label }]) => (
-                <option key={key} value={key}>
-                  {t(label)}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label={t('Специалист')}>
-            <Select
-              value={employee}
-              onChange={(e) => address({ master: e.target.value, appointment: '' })}
-            >
-              <option value="">{t('Все специалисты')}</option>
-              {day.columns.map((e) => (
-                <option key={e.id} value={e.id}>
-                  {e.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label={t('Услуга')}>
-            <Select
-              value={service}
-              onChange={(e) => address({ service: e.target.value, appointment: '' })}
-            >
-              <option value="">{t('Все услуги')}</option>
-              {services.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <div className="beauty-list-search">
-            <Field label={t('Поиск клиента')}>
-              <Input
-                type="search"
-                data-page-search
-                placeholder={t('Имя или телефон')}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </Field>
-          </div>
-          <Button
-            tone="secondary"
-            className="beauty-list-reset"
-            onClick={() => {
-              setQuery('');
-              address({ master: '', service: '', status: '', appointment: '' });
-            }}
-          >
-            {t('Сбросить фильтры')}
-          </Button>
-        </div>
         {invalid && (
           <Alert>
             {t(
@@ -332,7 +302,7 @@ export function AppointmentsList({
               <th>{t('Специалист')}</th>
               <th>{t('Статус')}</th>
               <th>{t('Источник')}</th>
-              <th>{t('Автор')}</th>
+              <th data-col="author">{t('Автор')}</th>
               <th className="beauty-amount">{t('Стоимость')}</th>
               <th>{t('Действия')}</th>
             </tr>

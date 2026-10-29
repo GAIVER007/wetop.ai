@@ -140,9 +140,11 @@ test('report: centered multi-service appointment, per-master occupancy and exact
     firstName: 'Тестовый клиент периода',
   });
   await page.goto(`/appointments?date=${date}`);
-  await page.getByLabel('Период с', { exact: true }).fill(date);
-  await page.getByLabel('Период по', { exact: true }).fill(nextDate);
-  await page.getByRole('button', { name: 'Показать период', exact: true }).click();
+  // период окном как в журнале (владелец 29.10.2026)
+  await page.getByTestId('appointments-period').click();
+  await page.getByLabel('Период: с',{exact:true}).fill(date);
+  await page.getByLabel('Период: по',{exact:true}).fill(nextDate);
+  await page.getByRole('button',{name:'Применить',exact:true}).click();
   await expect(
     page.getByRole('button', { name: 'Тестовый клиент отчёта', exact: true }),
   ).toBeVisible();

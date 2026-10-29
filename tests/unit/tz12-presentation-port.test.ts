@@ -23,7 +23,8 @@ describe('approved TZ12 presentation compatibility port', () => {
   });
   it('provides period list search, callable contact and an explicit record action', () => {
     const text = source('appointments/list.tsx');
-    expect(text).toContain('className="beauty-period-filter"');
+    // период окном как в журнале (владелец 29.10.2026) вместо формы «Период с / по»
+    expect(text).toContain('triggerTestId="appointments-period"');
     // подсказка теперь в самом поле поиска (аудит 21.10.2026 п.19)
     expect(text).toContain("placeholder={t('Имя или телефон')}"); // KK2: текст через перевод
     expect(text).toContain('tel:${r.customer.phone}');

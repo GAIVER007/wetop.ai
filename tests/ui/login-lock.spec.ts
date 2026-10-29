@@ -62,8 +62,8 @@ test('ссылка из письма подтверждает почту при 
   await dialog.getByLabel('Почта').fill('new-login-lock@example.invalid');
   await dialog.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
   await dialog.getByLabel('Название бизнеса').fill('Тестовый объект');
-  await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
-  await dialog.getByRole('textbox', { name: 'Телефон', exact: true }).fill('7015554433');
+  // страну не выбирают: её узнаёт номер с кодом (29.10.2026)
+  await dialog.getByRole('textbox', { name: 'Телефон', exact: true }).fill('+77015554433');
   await dialog.getByLabel('Пароль', { exact: true }).fill('synthetic-password');
   await dialog.getByRole('checkbox').check();
   await dialog.getByRole('button', { name: /Создать/ }).click();

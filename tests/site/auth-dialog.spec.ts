@@ -194,9 +194,8 @@ test('«Регистрация» при открытой регистрации 
 
   await dialog.getByLabel('Имя').fill('Дана Тестова');
   await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
-  // страна кода — явно: иначе она зависит от пояса и языка браузера, на котором гоняют тест
-  await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
-  await dialog.getByLabel('Телефон').fill('701 555 44 33');
+  // страну узнаёт номер (29.10.2026): «+7 701» это Казахстан, от браузера не зависит
+  await dialog.getByLabel('Телефон').fill('+7 701 555 44 33');
   await dialog.getByLabel('Почта').fill('dana@example.invalid');
   await dialog.getByLabel('Пароль', { exact: true }).fill('parol-dlya-testa');
   await expect(dialog.getByRole('link', { name: 'политикой конфиденциальности' })).toHaveAttribute(
@@ -220,7 +219,7 @@ test('«Регистрация» при открытой регистрации 
     vertical: 'HOSPITALITY',
     password: 'parol-dlya-testa',
     phoneCountry: 'KZ',
-    phone: '701 555 44 33',
+    phone: '+7 701 555 44 33',
     privacyAccepted: true,
     locale: 'ru',
   });
@@ -288,8 +287,7 @@ test('снимки окна регистрации: светлая и тёмна
       await expect(dialog.getByRole('heading', { name: 'Новый аккаунт' })).toBeVisible();
       await dialog.getByLabel('Имя').fill('Дана Тестова');
       await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
-      await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
-      await dialog.getByLabel('Телефон').fill('701 555 44 33');
+      await dialog.getByLabel('Телефон').fill('+7 701 555 44 33');
       await page.waitForTimeout(300);
       const axe = await new AxeBuilder({ page }).include('.auth-dialog').analyze();
       expect(axe.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
@@ -350,7 +348,8 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
     await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
     await dialog.getByLabel('Почта', { exact: true }).fill('maria@example.invalid');
     await dialog.getByLabel('Пароль', { exact: true }).fill('synthetic-password-2026');
-    await dialog.getByLabel('Телефон').fill('7015554433');
+    // номер с кодом: страну узнаёт он (29.10.2026)
+    await dialog.getByLabel('Телефон').fill('+77015554433');
     await dialog.getByRole('checkbox').check();
     await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
     await expect(dialog.getByRole('heading', { name: 'Проверьте почту' })).toBeVisible();
@@ -361,43 +360,66 @@ for (const vertical of ['BEAUTY', 'FOOD_SERVICE']) {
   });
 }
 
-test('registration: three countries, correct dial codes and Kazakh preference', async ({
+test('регистрация: страну не выбирают, её и язык узнаёт номер (+7 747 Казахстан, +7 916 Россия, +974 Катар, +91 Индия)', async ({
   page,
 }) => {
+  // владелец 29.10.2026: «стран было всего три, с других стран не зарегистрироваться; пусть по первым цифрам
+  // номера подтягивается страна, а по стране сразу предлагается язык системы»
   const calls = await mockDesk(page, {
     options: () => ({ status: 200, body: { registrationEnabled: true } }),
     register: () => ({ status: 200, body: { email: 'owner@example.invalid', sent: true } }),
   });
   await page.goto('/#register');
   const dialog = page.getByRole('dialog');
-  const country = dialog.getByLabel('Страна', { exact: true });
-  await expect(country.locator('option')).toHaveText(['Казахстан', 'ОАЭ (Дубай)', 'Катар']);
-  for (const [code, dial] of [
-    ['KZ', '+7'],
-    ['AE', '+971'],
-    ['QA', '+974'],
-  ]) {
-    await country.selectOption(code!);
-    await expect(dialog.locator('.auth-phone__code')).toHaveText(dial!);
-  }
+  await expect(dialog.getByLabel('Страна', { exact: true })).toHaveCount(0);
+  const phone = dialog.getByLabel('Телефон');
+  const found = dialog.getByTestId('auth-phone-country');
   const language = dialog.getByLabel('Язык системы');
-  // KK2: стойка салона на казахском целиком, казахский выбирается при регистрации (решение владельца 23.10.2026)
-  await expect(language.locator('option')).toHaveText(['Русский', 'Қазақша', 'English']);
-  await expect(dialog.locator('#auth-language-note')).toContainText('казахском и английском');
-  await language.selectOption('kk');
+  await phone.fill('+7 747 123 45 67');
+  await expect(found).toHaveText('Казахстан');
+  await expect(language.locator('option')).toHaveText(['Қазақша', 'Русский', 'English']);
+  await expect(language).toHaveValue('ru');
+  await phone.fill('+7 916 123 45 67');
+  await expect(found).toHaveText('Россия');
+  await phone.fill('+974 5550 1234');
+  await expect(found).toHaveText('Катар');
+  await expect(language).toHaveValue('en');
+  await phone.fill('+91 98765 43210');
+  await expect(found).toHaveText('Индия');
+  await expect(language).toHaveValue('en');
+  // язык, выбранный человеком, номер больше не перебивает
+  await language.selectOption('ru');
+  await phone.fill('+33 6 12 34 56 78');
+  await expect(found).toHaveText('Франция');
+  await expect(language).toHaveValue('ru');
   await dialog.getByLabel('Имя').fill('Тестовый владелец');
   await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
-  await dialog.getByLabel('Телефон').fill('5550 1234');
   await dialog.getByLabel('Почта').fill('owner@example.invalid');
   await dialog.getByLabel('Пароль', { exact: true }).fill('test-password-123');
   await dialog.getByRole('checkbox').check();
   await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
   await expect(dialog.getByTestId('auth-sent')).toBeVisible();
   expect(calls.find((call) => call.path === 'register')?.body).toMatchObject({
-    phoneCountry: 'QA',
-    phone: '5550 1234',
-    locale: 'kk',
+    phoneCountry: 'FR',
+    phone: '+33 6 12 34 56 78',
+    locale: 'ru',
   });
+});
+
+test('регистрация: номер без кода страны просит «+» и код, письмо не уходит', async ({ page }) => {
+  const calls = await mockDesk(page, { options: () => ({ status: 200, body: { registrationEnabled: true } }) });
+  await page.goto('/#register');
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Имя').fill('Тестовый владелец');
+  await dialog.getByLabel('Название бизнеса').fill('Тестовый бизнес');
+  await dialog.getByLabel('Телефон').fill('5550 1234');
+  await expect(dialog.getByTestId('auth-phone-country')).toHaveCount(0);
+  await dialog.getByLabel('Почта').fill('owner@example.invalid');
+  await dialog.getByLabel('Пароль', { exact: true }).fill('test-password-123');
+  await dialog.getByRole('checkbox').check();
+  await dialog.getByRole('button', { name: 'Создать аккаунт', exact: true }).click();
+  await expect(dialog).toContainText('с кодом страны');
+  expect(calls.find((call) => call.path === 'register')).toBeUndefined();
 });
 
 test('путь посетителя: главная → салоны → спа → «Начать работу»; ошибка без ложного успеха, повтор проходит', async ({
@@ -427,8 +449,7 @@ test('путь посетителя: главная → салоны → спа 
   await expect(dialog.locator('input[name="vertical"]:checked')).toHaveValue('BEAUTY');
   await dialog.getByLabel('Имя').fill('Дана Тестова');
   await dialog.getByLabel('Название бизнеса').fill('Тестовое спа');
-  await dialog.getByLabel('Страна', { exact: true }).selectOption('KZ');
-  await dialog.getByLabel('Телефон').fill('701 555 44 33');
+  await dialog.getByLabel('Телефон').fill('+7 701 555 44 33');
   await dialog.getByLabel('Почта').fill('spa@example.invalid');
   await dialog.getByLabel('Пароль', { exact: true }).fill('parol-dlya-testa');
   await dialog.getByRole('checkbox', { name: /политикой конфиденциальности/ }).check();

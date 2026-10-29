@@ -28,13 +28,21 @@ describe('authFieldErrors', () => {
   it('почта без @ и короткий новый пароль названы словами', () => {
     const errors = authFieldErrors(
       'register',
-      { email: 'dana', password: '123', name: 'Дана', businessName: 'Бизнес', phone: '7015554433' },
+      { email: 'dana', password: '123', name: 'Дана', businessName: 'Бизнес', phone: '+7 701 555 44 33' },
       texts,
     );
     expect(errors).toEqual({
       email: 'Почта должна быть вида name@business.com',
       password: 'Пароль не короче 10 знаков',
     });
+  });
+  it('номер без «+» и кода страны: просим код (страну узнаёт номер, 29.10.2026); вход номер не проверяет', () => {
+    const filled = { email: 'a@b.kz', password: 'parol-dlya-testa', name: 'Дана', businessName: 'Бизнес' };
+    expect(authFieldErrors('register', { ...filled, phone: '701 555 44 33' }, texts)).toEqual({
+      phone: 'Номер с кодом страны, например +7 701 123 45 67 или +974 5550 1234',
+    });
+    expect(authFieldErrors('register', { ...filled, phone: '8 701 555 44 33' }, texts)).toEqual({});
+    expect(authFieldErrors('register', { ...filled, phone: '+91 98765 43210' }, texts)).toEqual({});
   });
   it('пробелы не считаются заполненным полем; заполненная форма без ошибок', () => {
     expect(authFieldErrors('login', { ...empty, email: '   ', password: 'x' }, texts)).toEqual({

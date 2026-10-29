@@ -533,6 +533,8 @@ export type Dictionary = {
         name: string;
         businessName: string;
         phone: string;
+        /** Номер без «+» и кода: страну по нему не узнать (29.10.2026) */
+        phoneCode: string;
       };
       privacy: string;
       network: string;

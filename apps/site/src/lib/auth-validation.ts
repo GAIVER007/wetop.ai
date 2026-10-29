@@ -4,6 +4,8 @@
  * то, что можно сказать до запроса: поле пустое, у почты нет «@», новый пароль короче 10 знаков. Остальное
  * (почта занята, слабый пароль) говорит стойка.
  */
+import { countryFromPhone } from './phone-countries';
+
 export type AuthMode = 'login' | 'register';
 export type AuthField = 'name' | 'businessName' | 'phone' | 'email' | 'password';
 export type AuthFieldErrors = Partial<Record<AuthField, string>>;
@@ -15,6 +17,7 @@ export type AuthFieldTexts = {
   name: string;
   businessName: string;
   phone: string;
+  phoneCode: string;
 };
 
 /** Порядок полей на экране: фокус уходит в первое ошибочное сверху. */
@@ -38,6 +41,8 @@ export function authFieldErrors(
       continue;
     }
     if (field === 'email' && !/^[^\s@]+@[^\s@]+$/.test(value)) errors.email = texts.emailFormat;
+    // страну узнаёт номер (29.10.2026): без «+» и кода её не узнать, просим код
+    if (field === 'phone' && mode === 'register' && !countryFromPhone(value)) errors.phone = texts.phoneCode;
     if (field === 'password' && mode === 'register' && value.length < NEW_PASSWORD_MIN)
       errors.password = texts.passwordShort;
   }

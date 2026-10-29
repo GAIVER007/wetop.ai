@@ -289,7 +289,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-2);
   }
   .cabinet__client-title h2 {
     margin: 0;

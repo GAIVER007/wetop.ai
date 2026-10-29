@@ -1,0 +1,62 @@
+import { describe, expect, it } from 'vitest';
+import type { DeviceKind, SourceKind } from '@pms/domain';
+import { buildSiteReport } from './site-report';
+
+/**
+ * Кабинет руководителя, «Сайт wetop.ai» (владелец 29.10.2026): посетители по дням, откуда пришли, страницы,
+ * телефон или компьютер и путь «зашёл → открыл регистрацию → отправил форму → подтвердил почту». Только счёт.
+ */
+const s = (visitorKey: string, sessionKey: string, startedAt: string, source: string | null, kind: SourceKind, device: DeviceKind = 'DESKTOP') => ({
+  visitorKey,
+  sessionKey,
+  startedAt: new Date(startedAt),
+  pageviews: 1,
+  durationSeconds: 30,
+  sourceKind: kind,
+  source,
+  device,
+});
+
+describe('отчёт сайта wetop.ai в кабинете', () => {
+  const sessions = [
+    s('v1', 's1', '2026-10-01T08:00:00Z', 'google', 'SEARCH', 'MOBILE'),
+    s('v1', 's2', '2026-10-02T08:00:00Z', null, 'DIRECT', 'MOBILE'),
+    s('v2', 's3', '2026-10-02T09:00:00Z', 'instagram', 'SOCIAL'),
+    s('v3', 's4', '2026-10-02T10:00:00Z', 'google', 'PAID'),
+  ];
+  const events = [
+    { name: 'signup_open', sessionKey: 's2' },
+    { name: 'signup_open', sessionKey: 's2' },
+    { name: 'signup_sent', sessionKey: 's2' },
+    { name: 'signup_done', sessionKey: 's2' },
+    { name: 'signup_open', sessionKey: 's3' },
+    { name: 'login_open', sessionKey: 's4' },
+  ];
+  const pageviews = [{ path: '/' }, { path: '/' }, { path: '/pricing/' }];
+  const r = buildSiteReport({ month: '2026-10', timezone: 'Asia/Almaty', sessions, events, pageviews });
+
+  it('итоги месяца и дни месяца без пропусков', () => {
+    expect(r.visitors).toBe(3);
+    expect(r.sessions).toBe(4);
+    expect(r.mobileShare).toBe(500);
+    expect(r.daily).toHaveLength(31);
+    expect(r.daily[1]).toMatchObject({ date: '2026-10-02', visitors: 3 });
+  });
+
+  it('путь по посетителям: каждый шаг один раз, проценты десятыми', () => {
+    expect(r.path).toEqual({ visitors: 3, signupOpen: 2, signupSent: 1, signupDone: 1, loginOpen: 1 });
+  });
+
+  it('откуда пришли: по посетителям, крупные сверху, при равенстве по виду; реклама отдельно от поиска', () => {
+    expect(r.sources.map((x) => [x.kind, x.source, x.visitors])).toEqual([
+      ['DIRECT', null, 1],
+      ['PAID', 'google', 1],
+      ['SEARCH', 'google', 1],
+      ['SOCIAL', 'instagram', 1],
+    ]);
+  });
+
+  it('страницы: просмотры по адресу', () => {
+    expect(r.pages[0]).toEqual({ path: '/', views: 2, share: 666 });
+  });
+});

@@ -3238,6 +3238,21 @@ export interface PlatformGrowth {
   }>;
 }
 
+/** «Сайт wetop.ai» в кабинете руководителя (29.10.2026): доли десятыми процента; счётчика нет: report null */
+export interface PlatformSite {
+  month: string;
+  report: {
+    month: string;
+    visitors: number;
+    sessions: number;
+    mobileShare: number;
+    daily: Array<{ date: string; visitors: number }>;
+    path: { visitors: number; signupOpen: number; signupSent: number; signupDone: number; loginOpen: number };
+    sources: Array<{ kind: 'DIRECT' | 'SEARCH' | 'SOCIAL' | 'PAID' | 'EMAIL' | 'REFERRAL'; source: string | null; visitors: number; share: number }>;
+    pages: Array<{ path: string; views: number; share: number }>;
+  } | null;
+}
+
 export interface PlatformCabinet {
   totals: { clients: number; people: number; activePeople7d: number };
   funnel: { registered30d: number; working: number; trial: number; paying: number; left: number };
@@ -3305,6 +3320,7 @@ export const platformApi = {
   /** Кабинет компании WETOP (вариант «Г», 28.10.2026): только главному администратору */
   cabinet: () => getJson<PlatformCabinet>('/platform/cabinet'),
   growth: (month: string) => getJson<PlatformGrowth>(`/platform/growth?month=${encodeURIComponent(month)}`),
+  site: (month: string) => getJson<PlatformSite>(`/platform/site?month=${encodeURIComponent(month)}`),
   /** Деньги компании WETOP за месяц `ГГГГ-ММ` (DATA_MODEL §63): центы USD строкой; ready=false до миграции 166 */
   money: (month: string) => getJson<PlatformMoney>(`/platform/money?month=${encodeURIComponent(month)}`),
   savePlan: (id: string | null, body: { name: string; price: string; periodMonths: number; active: boolean }) =>

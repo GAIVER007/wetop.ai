@@ -30,6 +30,16 @@ const repo = {
     asked.push({ hosts, from: from.toISOString(), to: to.toISOString() });
     return visitors;
   },
+  async siteActivity(hosts: readonly string[], from: Date, to: Date) {
+    asked.push({ hosts, from: from.toISOString(), to: to.toISOString() });
+    if (visitors === null) return null;
+    return {
+      timezone: 'Asia/Almaty',
+      sessions: [{ visitorKey: 'v1', sessionKey: 's1', startedAt: new Date('2026-10-05T08:00:00Z'), sourceKind: 'SEARCH' as const, source: 'google', device: 'MOBILE' as const }],
+      events: [{ name: 'signup_open', sessionKey: 's1' }],
+      pageviews: [{ path: '/' }],
+    };
+  },
 };
 
 let app: INestApplication;
@@ -94,5 +104,24 @@ describe('GET /platform/growth: посетители wetop.ai', () => {
     const res = await api().get('/platform/growth').set(as('session-admin')).expect(200);
     expect(res.body.funnel.visitors).toBeNull();
     expect(res.body.funnel.conversion.visitorToRegistration).toBeNull();
+  });
+});
+
+describe('сайт wetop.ai в кабинете (GET /platform/site)', () => {
+  it('месяц по адресам wetop.ai: посетители, путь к регистрации, источники', async () => {
+    const res = await api().get('/platform/site?month=2026-10').set(as('session-admin'));
+    expect(res.status).toBe(200);
+    expect(asked[0]).toEqual({ hosts: WETOP_SITE_HOSTS, from: '2026-10-01T00:00:00.000Z', to: '2026-11-01T00:00:00.000Z' });
+    expect(res.body.report).toMatchObject({ visitors: 1, path: { signupOpen: 1 }, sources: [{ kind: 'SEARCH', source: 'google' }] });
+    expect(res.body.report.daily).toHaveLength(31);
+  });
+  it('счётчик не заведён: report null', async () => {
+    visitors = null;
+    const res = await api().get('/platform/site?month=2026-10').set(as('session-admin'));
+    expect(res.body).toEqual({ month: '2026-10', report: null });
+  });
+  it('не главному администратору закрыто', async () => {
+    const res = await api().get('/platform/site').set(as('session-owner'));
+    expect(res.status).toBe(403);
   });
 });

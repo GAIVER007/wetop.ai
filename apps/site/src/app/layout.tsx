@@ -11,7 +11,7 @@ import { SiteHeader } from '../components/site-header';
 import { ByLocale } from '../components/by-locale';
 import { getDictionary, localeInfo } from '../i18n';
 import { TITLE_SEPARATOR, websiteOpenGraph } from '../lib/metadata';
-import { assistantScriptSrc, resetLink, siteAuthEndpoint, siteUrl } from '../lib/site';
+import { assistantScriptSrc, counterScript, resetLink, siteAuthEndpoint, siteUrl } from '../lib/site';
 import { JsonLd } from '../components/json-ld';
 import { absoluteUrl } from '../lib/site';
 import { siteConfig } from '../site.config';
@@ -44,6 +44,7 @@ const t = getDictionary();
 const ru = t;
 const kk = getDictionary('kk');
 const assistantSrc = assistantScriptSrc();
+const counter = counterScript();
 // Окно входа и создания аккаунта (ADR-100): адреса стойки считаются при сборке, клиенту настройки не передаются
 const authUrls = {
   login: `${siteConfig.appUrl}/auth/fallback`,
@@ -128,6 +129,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </noscript>
         {/* Чат ИИ-помощника (ТЗ П2): анонимный, адрес — assistantUrl в site.config.ts */}
         {assistantSrc && <Script src={assistantSrc} />}
+        {/* Счётчик посетителей WETOP (кабинет руководителя): без cookies, ключ — counter в site.config.ts */}
+        {counter && <script async src={counter.src} data-site={counter.siteKey} />}
         <SiteMotion />
         <DevAgentation />
       </body>

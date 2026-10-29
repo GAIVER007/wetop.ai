@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import type { CabinetSource } from './cabinet';
+import { companyOrganizationIds } from './growth.controller';
 
 export const CABINET_REPOSITORY = Symbol('CABINET_REPOSITORY');
 
@@ -20,7 +21,7 @@ export class PrismaCabinetRepository implements CabinetRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async source(input: { since30d: Date; ownOrganizationId: string | null }): Promise<CabinetSource> {
-    const [rows, records] = await Promise.all([
+    const [all, company, records] = await Promise.all([
       this.prisma.db.organization.findMany({
         orderBy: { createdAt: 'asc' },
         select: {
@@ -39,6 +40,7 @@ export class PrismaCabinetRepository implements CabinetRepository {
           },
         },
       }),
+      companyOrganizationIds(this.prisma.db),
       // брони гостиниц, записи салонов, брони столов ресторанов за 30 дней: только счёт по организации
       this.prisma.db.$queryRaw<Array<{ organization_id: string; count: number }>>(Prisma.sql`
         SELECT org_id::text AS organization_id, COUNT(*)::int AS count FROM (
@@ -54,6 +56,8 @@ export class PrismaCabinetRepository implements CabinetRepository {
             WHERE t.created_at >= ${input.since30d}
         ) x GROUP BY org_id`),
     ]);
+    // запись компании WETOP (владелец сайта wetop.ai) не клиент
+    const rows = all.filter((o) => !company.has(o.id));
     return {
       organizations: rows.map((o) => ({
         id: o.id,

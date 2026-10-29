@@ -8294,7 +8294,8 @@ createServer(async (req, res) => {
               registrations: orgs.filter((o) => o.id !== 'ui-org').map((o) => new Date(o.createdAt)),
               payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), paidOn: p.paidOn, voided: p.voided })),
               subscriptions: [...platformMoney.subs].map(([organizationId, s]) => ({ organizationId, monthlyCents: BigInt(s.monthlyCents), paidUntil: s.paidUntil })),
-              visitors: null,
+              // посетители wetop.ai на стенде: счётчик компании заведён, 400 за месяц
+              visitors: 400,
               ownOrganizationId: 'ui-org',
             },
             month,

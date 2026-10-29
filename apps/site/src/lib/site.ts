@@ -88,6 +88,17 @@ export function assistantScriptSrc(config: SiteConfig = siteConfig): string | nu
   return `${checkHttpUrl('assistantUrl', value)}/widget/widget.js`;
 }
 
+/**
+ * Счётчик посещений WETOP на своём сайте: адрес скрипта и ключ сайта. Ключ не по форме `pms_` + 12 знаков
+ * останавливает сборку; пустой ключ — счётчика нет.
+ */
+export function counterScript(config: SiteConfig = siteConfig): { src: string; siteKey: string } | null {
+  const key = config.counter.siteKey.trim();
+  if (!key) return null;
+  if (!/^pms_[0-9a-f]{12}$/.test(key)) fail('counter.siteKey', `ожидается ключ вида pms_0123456789ab, сейчас «${key}»`);
+  return { src: `${checkHttpUrl('counter.apiUrl', config.counter.apiUrl)}/a/pms.js`, siteKey: key };
+}
+
 /** Почта и телефон из настроек — только заполненные. */
 export function contactLinks(config: SiteConfig = siteConfig): ContactLink[] {
   const links: ContactLink[] = [];

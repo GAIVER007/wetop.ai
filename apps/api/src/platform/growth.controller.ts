@@ -12,6 +12,23 @@ export const GROWTH_REPOSITORY = Symbol('GROWTH_REPOSITORY');
 
 export interface GrowthRepository {
   source(ownOrganizationId: string | null, since: Date): Promise<Omit<GrowthSource, 'visitors' | 'ownOrganizationId'>>;
+  /** Уникальные посетители сайта с этими адресами за [from, to); сайта со счётчиком нет: `null` */
+  visitors(hosts: readonly string[], from: Date, to: Date): Promise<number | null>;
+}
+
+/**
+ * Свой сайт компании: счётчик WETOP (`/a/pms.js`) стоит на wetop.ai с ключом сайта, у которого эти адреса
+ * (запись в `tracked_sites` своей организации, скрипт `workspace-cleanup-control/wetop-site-counter.sql`).
+ */
+export const WETOP_SITE_HOSTS: readonly string[] = ['wetop.ai', 'www.wetop.ai'];
+
+/** Организации, которым принадлежит сайт wetop.ai: это сама компания WETOP, а не клиент */
+export async function companyOrganizationIds(db: PrismaService['db']): Promise<Set<string>> {
+  const rows = await db.trackedSite.findMany({
+    where: { hosts: { hasSome: [...WETOP_SITE_HOSTS] } },
+    select: { location: { select: { business: { select: { organizationId: true } } } } },
+  });
+  return new Set(rows.flatMap((r) => (r.location ? [r.location.business.organizationId] : [])));
 }
 
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
@@ -28,18 +45,32 @@ export class PrismaGrowthRepository implements GrowthRepository {
   async source(_own: string | null, since: Date) {
     const db = this.prisma.db;
     const money = (await db.$queryRaw<Array<{ ok: boolean }>>(Prisma.sql`SELECT to_regclass('platform_payments') IS NOT NULL AS ok`))[0]?.ok === true;
-    const [organizations, users, payments, subscriptions] = await Promise.all([
+    const [all, company, users, payments, subscriptions] = await Promise.all([
       db.organization.findMany({ select: { id: true, name: true, status: true, createdAt: true, trialEndsAt: true } }),
+      companyOrganizationIds(db),
       db.user.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true, memberships: { select: { role: true } } } }),
       money ? db.platformPayment.findMany() : Promise.resolve([]),
       money ? db.platformSubscription.findMany() : Promise.resolve([]),
     ]);
+    // запись компании WETOP (владелец сайта wetop.ai) не клиент: ни в пути, ни в деньгах
+    const organizations = all.filter((o) => !company.has(o.id));
     return {
       organizations,
       registrations: users.filter((u) => u.memberships.length === 0 || u.memberships.some((m) => m.role === 'OWNER')).map((u) => u.createdAt),
       payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn)!, voided: p.voidedAt !== null })),
       subscriptions: subscriptions.map((s) => ({ organizationId: s.organizationId, monthlyCents: s.monthlyCents, paidUntil: day(s.paidUntil) })),
     };
+  }
+
+  async visitors(hosts: readonly string[], from: Date, to: Date): Promise<number | null> {
+    const db = this.prisma.db;
+    const sites = await db.trackedSite.findMany({ where: { hosts: { hasSome: [...hosts] } }, select: { id: true } });
+    if (!sites.length) return null;
+    const rows = await db.$queryRaw<Array<{ n: number }>>(Prisma.sql`
+      SELECT COUNT(DISTINCT visitor_key)::int AS n FROM web_sessions
+      WHERE site_id IN (${Prisma.join(sites.map((s) => Prisma.sql`${s.id}::uuid`))})
+        AND started_at >= ${from} AND started_at < ${to}`);
+    return Number(rows[0]?.n ?? 0);
   }
 }
 
@@ -61,8 +92,10 @@ export class GrowthController {
     // регистрации за график: семь месяцев до выбранного
     const since = new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)) - 8, 1));
     const own = currentOrganizationId();
-    const src = await this.repo.source(own, since);
-    // счётчика посетителей на wetop.ai ещё нет (план, срез 2): null, экран пишет «счётчик не подключён»
-    return buildGrowth({ ...src, visitors: null, ownOrganizationId: own }, month, now);
+    const from = new Date(`${month}-01T00:00:00.000Z`);
+    const to = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1));
+    // посетители wetop.ai: счётчик WETOP на своём сайте; пока сайт не заведён, null и «счётчик не подключён»
+    const [src, visitors] = await Promise.all([this.repo.source(own, since), this.repo.visitors(WETOP_SITE_HOSTS, from, to)]);
+    return buildGrowth({ ...src, visitors, ownOrganizationId: own }, month, now);
   }
 }

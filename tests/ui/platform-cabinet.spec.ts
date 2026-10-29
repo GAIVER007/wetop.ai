@@ -40,7 +40,9 @@ test('главный администратор: 4 цифры, путь клие
   await expect(page.getByTestId('cabinet-clients')).toHaveText('1');
   await expect(page.getByTestId('cabinet-mrr')).toHaveText('$49');
   await expect(page.getByTestId('cabinet-ltv')).toHaveText('$49');
-  await expect(page.getByTestId('growth-visitors')).toContainText('счётчик не подключён');
+  // посетители wetop.ai от счётчика компании и процент перехода в регистрацию
+  await expect(page.getByTestId('growth-visitors')).toContainText('400');
+  await expect(page.getByTestId('growth-registrations')).toContainText('%');
   await expect(page.getByTestId('growth-paid')).toContainText('Первая оплата');
   await expect(page.getByTestId('growth-income')).toContainText('$49');
   await expect(page.getByTestId('cabinet-deadlines')).toContainText('Хостел «Пример»');

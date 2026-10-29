@@ -65,6 +65,9 @@ test('блоки: включить блок из шаблона и выключ�
   await expect(m.getByTestId('setup-status')).toContainText('Сохранено', { timeout: 10_000 });
   await cta.uncheck();
   await expect(frame(page).locator('section[id^="sec-cta"]')).toHaveCount(0);
+  // готовые стили под описанием дизайна: свёрнуты, пока сайт не в одном из них (владелец 29.10.2026, дизайн по промту)
+  const styles = m.getByTestId('setup-template').locator('details.setup__styles');
+  if (!(await styles.evaluate((d) => (d as HTMLDetailsElement).open))) await styles.locator('summary').click();
   const cards = m.getByTestId('setup-template').getByTestId('site-design-card');
   await expect(cards).toHaveCount(3);
   await expect(m.getByTestId('setup-template').getByTestId('site-design-frame')).toHaveCount(3);

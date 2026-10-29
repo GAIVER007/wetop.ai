@@ -5,6 +5,7 @@ import {
   SIMPLE_BLOCKS,
   SITE_COPY_COUNT,
   applySiteTemplate,
+  redesignSiteSpec,
   canonicalJson,
   SEO_DESCRIPTION_MAX,
   SEO_TITLE_MAX,
@@ -20,6 +21,7 @@ import {
   simpleSiteSeo,
   simpleSiteState,
   siteCopySuggestion,
+  SITE_PROMPT_MAX,
   siteTemplatesFor,
   templateSiteSpec,
   toggleSiteBlock,
@@ -82,6 +84,7 @@ export function SimpleSiteSetup({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [copyIndex, setCopyIndex] = useState(0);
+  const [prompt, setPrompt] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [url, setUrl] = useState<string | null>(siteUrl);
   const [publishedId, setPublishedId] = useState<string | null>(published?.id ?? null);
@@ -164,6 +167,16 @@ export function SimpleSiteSetup({
     return done;
   };
 
+  // «Дизайн по описанию» (владелец 29.10.2026): тот же разбор промта, что при создании; тексты, фото и блоки остаются,
+  // меняются тема, вид секций и фото. Семя: филиал + текст, как на сервере, поэтому дизайн тот же, что в превью
+  const seed = facts?.location.id || locationName;
+  const redesign = () => {
+    const text = prompt.trim();
+    if (!text) return;
+    apply(redesignSiteSpec(specRef.current, text, vertical as SiteFacts['vertical'], seed) as Spec);
+    setNotice(t('Дизайн пересобран по описанию. Тексты, фото и блоки на месте.'));
+  };
+
   const suggest = () => {
     // с фактами филиала фраза первого экрана под стиль сайта (тон по шрифту темы), без выдумок
     const typography = ((specRef.current as Record<string, unknown>)['theme'] as Record<string, unknown> | undefined)?.['typography'];
@@ -243,8 +256,34 @@ export function SimpleSiteSetup({
         <fieldset className="setup__step" disabled={readOnly || !!busy} data-testid="setup-template">
           <legend>
             <span className="setup__n">1</span>
-            {t('Шаблон')}
+            {t('Дизайн')}
           </legend>
+          <form
+            className="setup__prompt"
+            data-testid="setup-prompt"
+            onSubmit={(e) => {
+              e.preventDefault();
+              redesign();
+            }}
+          >
+            <label htmlFor="setup-prompt-text">
+              <b>{t('Опишите новый дизайн')}</b>
+              <span className="muted">{t('Например: светлый и спокойный, зелёный, акцент на отзывы')}</span>
+            </label>
+            <Textarea
+              id="setup-prompt-text"
+              rows={2}
+              maxLength={SITE_PROMPT_MAX}
+              value={prompt}
+              onChange={(e) => setPrompt(e.currentTarget.value)}
+            />
+            <Button type="submit" tone="secondary" disabled={!prompt.trim()} data-testid="setup-redesign">
+              {t('Пересобрать дизайн')}
+            </Button>
+          </form>
+          {/* открыт, когда сайт в одном из готовых стилей (выбранный виден, как раньше); сайт по промту: свёрнут */}
+          <details className="setup__styles" open={!!current || undefined}>
+            <summary>{t('Готовые стили')}</summary>
           {facts ? (
             <TemplateGallery
               facts={facts}
@@ -279,6 +318,7 @@ export function SimpleSiteSetup({
               ))}
             </div>
           )}
+          </details>
         </fieldset>
 
         <fieldset className="setup__step" disabled={readOnly || !!busy} data-testid="setup-photos">

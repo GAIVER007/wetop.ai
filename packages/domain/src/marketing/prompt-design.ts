@@ -2,6 +2,7 @@ import { applyDesignDirection, type DesignDirection, type DesignTheme } from './
 import type { SiteFacts, SiteFactsVertical } from './site-facts';
 import { starterSpecFromFacts } from './starter';
 import { SITE_SPEC_DARK_ACCENTS, SITE_SPEC_DARK_PRESETS } from './site-spec';
+import { isStockAssetId, stockImage, stockPhotoFor, type StockPhoto } from './stock-photos';
 
 /**
  * Свой дизайн сайта по промту (владелец 29.10.2026: «сто клиентов, а всего три шаблона: у всех одинаковые сайты;
@@ -86,6 +87,24 @@ export interface SitePromptDesign {
   direction: DesignDirection;
   variants: Record<string, string>;
   moods: SitePromptMood[];
+  /** Фото первого экрана из набора WETOP по промту и направлению (своё фото клиента главнее) */
+  photo: StockPhoto | null;
+}
+
+/**
+ * Фото набора под промт (владелец 29.10.2026: «стрёмные сайты, почему не используешь фото»): ресницы и брови, ногти
+ * или зал салона; бутик, хостел или классика у гостиницы; ресторан, доставка или кафе у общепита
+ */
+function promptPhoto(text: string, vertical: SiteFactsVertical, has: (m: SitePromptMood) => boolean): StockPhoto | null {
+  const low = text.toLocaleLowerCase('ru');
+  if (vertical === 'BEAUTY') {
+    if (/ресниц|бров|lash|brow|кірпік|қас/.test(low)) return stockPhotoFor('beauty-boutique');
+    if (/ногт|маникюр|педикюр|nail|mani|тырнақ/.test(low)) return stockPhotoFor('beauty-express');
+    return stockPhotoFor(has('luxury') || has('dark') ? 'beauty-boutique' : 'beauty-studio');
+  }
+  if (vertical === 'HOSPITALITY')
+    return stockPhotoFor(has('luxury') || has('dark') ? 'hotel-boutique' : has('bright') || has('fast') ? 'hotel-hostel' : 'hotel-classic');
+  return stockPhotoFor(has('luxury') || has('dark') ? 'food-restaurant' : has('fast') ? 'food-delivery' : 'food-cafe');
 }
 
 /**
@@ -147,16 +166,33 @@ export function sitePromptDesign(prompt: string, vertical: SiteFactsVertical, se
 
   const id = `prompt-${s.toString(36)}`;
   const name = 'Свой дизайн';
+  const photo = promptPhoto(text, vertical, has);
   return {
-    direction: { id, name, shortDescription: text.slice(0, 160), theme, heroVariant: 'TEXT_ONLY', sectionOrder },
+    direction: { id, name, shortDescription: text.slice(0, 160), theme, heroVariant: photo?.heroVariant ?? 'TEXT_ONLY', sectionOrder },
     variants,
     moods,
+    photo,
   };
 }
 
 /** Применить дизайн к документу: тема, порядок главной и виды секций без обязательной картинки */
 export function applySitePromptDesign(spec: unknown, design: SitePromptDesign): Rec {
-  const next = applyDesignDirection(spec, design.direction) as Rec;
+  const pages = ((spec as Rec | null)?.['pages'] as Rec[] | undefined) ?? [];
+  const home = pages.find((p) => p['isHome'] === true) ?? pages[0];
+  const hero = ((home?.['sections'] as Rec[] | undefined) ?? []).find((x) => x['type'] === 'hero');
+  const heroImage = hero?.['image'] as Rec | undefined;
+  // своё фото клиента главнее: остаётся вместе с его раскладкой первого экрана (как у готовых стилей)
+  const ownPhoto = heroImage !== undefined && !isStockAssetId(heroImage['assetId']) && typeof hero?.['variant'] === 'string';
+  const withPhoto = structuredClone(spec) as Rec;
+  let direction = design.direction;
+  if (ownPhoto) direction = { ...direction, heroVariant: hero!['variant'] as DesignDirection['heroVariant'] };
+  else if (design.photo) {
+    const locales = ((withPhoto['site'] as Rec | undefined)?.['locales'] as string[] | undefined) ?? ['ru'];
+    for (const page of (withPhoto['pages'] as Rec[] | undefined) ?? [])
+      for (const x of (page['sections'] as Rec[] | undefined) ?? [])
+        if (x['type'] === 'hero' && (page['isHome'] === true || page['id'] === home?.['id'])) x['image'] = stockImage(design.photo, locales);
+  }
+  const next = applyDesignDirection(withPhoto, direction) as Rec;
   for (const page of (next['pages'] as Rec[] | undefined) ?? [])
     page['sections'] = ((page['sections'] as Rec[] | undefined) ?? []).map((section) => {
       const variant = design.variants[String(section['type'])];
@@ -165,7 +201,81 @@ export function applySitePromptDesign(spec: unknown, design: SitePromptDesign): 
   return next;
 }
 
-/** Готовый сайт по промту из фактов филиала: блоки и тексты из данных, свой дизайн по промту */
+/**
+ * Простая главная (владелец 29.10.2026: «не усложняй: главная с офером, список услуг, выбор услуги, мастера и времени,
+ * отзывы, призыв»). Порядок один для всех; разные сайты дают тема, вид секций и фото. Внизу адрес и часы одной
+ * строкой: по ним карта и поиск (GEO, schema.org часов работы). «Почему мы» и вопросы-ответы при создании не ставятся,
+ * их можно включить в редакторе
+ */
+const SIMPLE_HOME: Record<SiteFactsVertical, string[]> = {
+  BEAUTY: ['hero', 'services', 'staff', 'leadForm', 'reviews', 'cta', 'hours', 'contacts'],
+  HOSPITALITY: ['hero', 'accommodations', 'pricing', 'booking', 'reviews', 'cta', 'hours', 'contacts'],
+  FOOD_SERVICE: ['hero', 'menu', 'leadForm', 'reviews', 'cta', 'hours', 'contacts'],
+};
+const REVIEWS_TEXT: Record<string, { heading: string; count: (n: number) => string; title: (avg: number) => string; many: (n: number) => string; clients: string }> = {
+  ru: { heading: 'Отзывы', title: (a) => `${String(a).replace('.', ',')} из 5`, count: (n) => `Средняя оценка по ${n} отзывам`, many: (n) => `${n} отзывов`, clients: 'Оценки наших клиентов' },
+  kk: { heading: 'Пікірлер', title: (a) => `5-тен ${String(a).replace('.', ',')}`, count: (n) => `${n} пікір бойынша орташа баға`, many: (n) => `${n} пікір`, clients: 'Клиенттеріміздің бағасы' },
+  en: { heading: 'Reviews', title: (a) => `${a} out of 5`, count: (n) => `Average rating from ${n} reviews`, many: (n) => `${n} reviews`, clients: 'Ratings from our clients' },
+};
+
+function simpleHome(spec: Rec, facts: SiteFacts): Rec {
+  const order = SIMPLE_HOME[facts.vertical];
+  const locales = (((spec['site'] as Rec | undefined)?.['locales'] as string[] | undefined) ?? ['ru']).filter((l) => l in REVIEWS_TEXT);
+  const tx = (f: (r: (typeof REVIEWS_TEXT)['ru']) => string) => Object.fromEntries((locales.length ? locales : ['ru']).map((l) => [l, f(REVIEWS_TEXT[l]!)]));
+  for (const page of (spec['pages'] as Rec[] | undefined) ?? []) {
+    if (page['isHome'] !== true) continue;
+    let sections = ((page['sections'] as Rec[] | undefined) ?? []).filter((x) => order.includes(String(x['type'])));
+    // отзывы только из настоящей оценки филиала (Google и др.): нет оценки, нет блока, ничего не выдумываем
+    const reviews = facts.reviews;
+    if (reviews && reviews.count > 0 && Number.isFinite(reviews.avg)) {
+      const block = {
+        id: 'sec-reviews',
+        type: 'features',
+        variant: 'GRID',
+        heading: tx((r) => r.heading),
+        items: [
+          { icon: 'STAR', title: tx((r) => r.title(reviews.avg)), text: tx((r) => r.count(reviews.count)) },
+          { icon: 'FAMILY', title: tx((r) => r.many(reviews.count)), text: tx((r) => r.clients) },
+        ],
+      };
+      sections = [...sections, block];
+    }
+    const rank = (x: Rec) => {
+      const type = x['id'] === 'sec-reviews' ? 'reviews' : String(x['type']);
+      const i = order.indexOf(type);
+      return i < 0 ? order.length : i;
+    };
+    page['sections'] = sections.map((x, i) => ({ x, i })).sort((a, b) => rank(a.x) - rank(b.x) || a.i - b.i).map(({ x }) => x);
+    // часы одной строкой внизу, рядом с адресом
+    for (const x of page['sections'] as Rec[]) if (x['type'] === 'hours') x['variant'] = 'COMPACT';
+  }
+  // меню шапки только на оставшиеся блоки
+  const ids = new Set(((spec['pages'] as Rec[] | undefined) ?? []).flatMap((p) => ((p['sections'] as Rec[] | undefined) ?? []).map((x) => x['id'])));
+  const nav = spec['navigation'] as Rec | undefined;
+  if (nav && Array.isArray(nav['header']))
+    nav['header'] = (nav['header'] as Rec[]).filter((item) => {
+      const target = item['target'] as Rec | undefined;
+      return target?.['kind'] !== 'SECTION' || ids.has(target['sectionId']);
+    });
+  return spec;
+}
+
+/** Готовый сайт по промту из фактов филиала: простая главная из данных, свой дизайн и фото по промту */
 export function promptSiteSpec(facts: SiteFacts, prompt: string, seed = facts.location.id): Rec {
-  return applySitePromptDesign(starterSpecFromFacts(facts), sitePromptDesign(prompt, facts.vertical, seed));
+  const design = sitePromptDesign(prompt, facts.vertical, seed);
+  const order = SIMPLE_HOME[facts.vertical].map((t) => (t === 'reviews' ? 'features' : t));
+  const simple: SitePromptDesign = { ...design, direction: { ...design.direction, sectionOrder: order } };
+  return simpleHome(applySitePromptDesign(starterSpecFromFacts(facts), simple), facts);
+}
+
+/**
+ * «Пересобрать дизайн» в редакторе: тема, вид секций и фото по новому промту, а порядок и набор блоков сайта остаются
+ * как сейчас (их клиент мог поменять сам)
+ */
+export function redesignSiteSpec(spec: unknown, prompt: string, vertical: SiteFactsVertical, seed: string): Rec {
+  const design = sitePromptDesign(prompt, vertical, seed);
+  const pages = ((spec as Rec | null)?.['pages'] as Rec[] | undefined) ?? [];
+  const home = pages.find((p) => p['isHome'] === true) ?? pages[0];
+  const order = [...new Set(((home?.['sections'] as Rec[] | undefined) ?? []).map((x) => String(x['type'])))];
+  return applySitePromptDesign(spec, { ...design, direction: { ...design.direction, sectionOrder: order } });
 }

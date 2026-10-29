@@ -212,6 +212,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   // MKT9.2: заведение сайта с пустым телом вместо прежнего POST с названием и адресом
   'POST /marketing/site/bootstrap': 'marketing',
   'POST /marketing/site/from-template': 'marketing',
+  'POST /marketing/site/from-prompt': 'marketing',
   'GET /marketing/site/context': 'marketing',
   'PATCH /marketing/site/context': 'marketing',
   'GET /marketing/site/conversation': 'marketing',

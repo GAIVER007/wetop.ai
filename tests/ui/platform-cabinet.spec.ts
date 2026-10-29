@@ -44,6 +44,31 @@ test('главный администратор: путь клиента, кли
     await page.screenshot({ path: `${process.env.CABINET_SHOTS}/cabinet-1280.png`, fullPage: true });
 });
 
+test('кабинет главного администратора без строки разделов стойки: только знак, тема и профиль', async ({
+  page,
+  request,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await signIn(page, request, true);
+  await page.goto('/platform/cabinet');
+  await expect(page.getByTestId('cabinet')).toBeVisible();
+  const header = page.locator('.workspace-header');
+  // владелец 29.10.2026: «Главный админ, я не должен это видеть… убери верхнюю строку»
+  await expect(header.getByRole('link', { name: 'Журнал', exact: true })).toHaveCount(0);
+  await expect(header.locator('.tabnav, .header-clock')).toHaveCount(0);
+  await expect(header.locator('.workspace-header__property')).toHaveCount(0);
+  await expect(header.getByRole('button', { name: /Найти/ })).toHaveCount(0);
+  await expect(header.getByRole('button', { name: 'Открыть меню' })).toHaveCount(0);
+  // остаются знак (ведёт в кабинет), тема и профиль с «Выйти»
+  await expect(header.getByRole('link', { name: 'WETOP, стартовый экран' })).toHaveAttribute('href', '/platform/cabinet');
+  await expect(header.getByRole('button', { name: 'Меню администратора' })).toBeVisible();
+  if (process.env.CABINET_SHOTS)
+    await page.screenshot({ path: `${process.env.CABINET_SHOTS}/cabinet-1440.png` });
+  // в стойке клиента строка разделов на месте
+  await page.goto('/today');
+  await expect(page.locator('.workspace-header__property')).toHaveCount(1);
+});
+
 test('без отметки главного администратора кабинет закрыт', async ({ page, request }) => {
   await signIn(page, request, false);
   await page.goto('/platform/cabinet');

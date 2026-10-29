@@ -57,6 +57,9 @@ describe('Beauty route action metadata', () => {
       setStatus: { section: 'appointments', action: 'update' },
       pay: { section: 'finance', action: 'create' },
       refund: { section: 'finance', action: 'refund' },
+      // 28.10.2026: итоговая цена записи и сверка зависшей оплаты
+      adjustPrice: { section: 'appointments', action: 'update' },
+      paymentKeyStatus: { section: 'finance', action: 'create' },
     });
     expectRoutes(BeautyAppointmentHistoryController, {
       history: { section: 'appointments', action: 'view' },

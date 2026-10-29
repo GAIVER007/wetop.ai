@@ -407,6 +407,9 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /beauty/appointments/:id/payments': 'desk',
   // возврат по выполненной записи (§54): выделенное право возвратов
   'POST /beauty/appointments/:id/refunds': 'refunds',
+  // 28.10.2026: итоговая цена записи (смена, как перенос) и сверка ключа оплаты (смена, как оплата)
+  'POST /beauty/appointments/:id/price': 'desk',
+  'GET /beauty/appointments/:id/payment-keys/:key': 'desk',
   'GET /beauty/positions': 'staff',
   'POST /beauty/positions': 'staff',
   'PATCH /beauty/positions/:id': 'staff',

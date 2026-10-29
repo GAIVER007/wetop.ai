@@ -130,6 +130,15 @@ def test_design_shape_lists_only_existing_theme_values() -> None:
         assert value in system["content"]
 
 
+def test_design_knows_rich_styles_and_asks_for_contrast() -> None:
+    """28.10.2026: тёмная схема, новые фоны, акценты и шрифты; три направления должны быть разными по характеру"""
+    system, _ = build_assistant_messages(body(mode="DESIGN"))
+    for value in ("NOIR", "PEACH", "SAGE", "CHAMPAGNE", "FUCHSIA", "MOSS", "LUXE", "BOLD", "CLEAN", "DARK"):
+        assert value in system["content"]
+    assert "только с colorScheme DARK" in system["content"]
+    assert "разными по характеру" in system["content"]
+
+
 def test_site_may_have_no_version_yet() -> None:
     _, user = build_assistant_messages(body(currentSpec=None, projectInstructions=None))
     assert "сайта ещё нет" in user["content"]

@@ -251,6 +251,31 @@ export async function refundAppointment(
   }
 }
 
+/**
+ * Сверка зависшей метки оплаты (админ салона 28.10.2026): прошла ли операция с этим ключом у этой записи.
+ * null: касса не ответила или филиал сменился, метку не трогаем.
+ */
+export async function appointmentPaymentKeyFound(id: string, key: string, scope: string): Promise<boolean | null> {
+  if (!(await moneyScopeMatches(scope))) return null;
+  try {
+    return (await beautyApi.appointmentPaymentKey(id, key)).found === true;
+  } catch {
+    return null;
+  }
+}
+
+/** Итоговая цена записи с причиной (28.10.2026): клиент заплатил больше или меньше. Сумма в минимальных единицах */
+export async function adjustAppointmentPrice(id: string, priceMinor: string, reason: string): Promise<JournalResult> {
+  const t = await serverT();
+  try {
+    await beautyApi.adjustAppointmentPrice(id, { priceMinor, reason });
+    moneyRevalidate();
+    return { message: t('Цена записи изменена') };
+  } catch (e) {
+    return { error: e instanceof ApiError ? e.message : t('Не удалось изменить цену записи.') };
+  }
+}
+
 export async function setAppointmentStatus(id: string, status: string): Promise<JournalResult> {
   const t = await serverT();
   try {

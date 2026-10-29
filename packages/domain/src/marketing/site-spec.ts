@@ -75,13 +75,21 @@ export const SITE_SPEC_ICONS: readonly string[] = Object.freeze([
 const ICONS = SITE_SPEC_ICONS;
 /** Тема сайта (§6): только перечисления, без своих цветов и CSS */
 export const SITE_SPEC_THEME = Object.freeze({
-  preset: ['CALM', 'WARM', 'NIGHT', 'COAST'],
-  accent: ['TEAL', 'INDIGO', 'TERRACOTTA', 'FOREST', 'GRAPHITE', 'GOLD'],
-  typography: ['MODERN', 'CLASSIC', 'ROUNDED'],
+  // NOIR: тёмный фон (пилот «Тёмная роскошь», 28.10.2026), только со схемой DARK
+  // PEACH и SAGE: светлые фоны стилей «яркий поп» и «эко-минимал» (28.10.2026)
+  preset: ['CALM', 'WARM', 'NIGHT', 'COAST', 'NOIR', 'PEACH', 'SAGE'],
+  // CHAMPAGNE и ROSE: светлые акценты, читаются только на тёмном фоне
+  accent: ['TEAL', 'INDIGO', 'TERRACOTTA', 'FOREST', 'GRAPHITE', 'GOLD', 'FUCHSIA', 'MOSS', 'CHAMPAGNE', 'ROSE'],
+  // LUXE: антиква заголовков и тонкий гротеск текста со своего хоста
+  // BOLD: широкий гротеск заголовков и мягкий текст; CLEAN: строгий гротеск
+  typography: ['MODERN', 'CLASSIC', 'ROUNDED', 'LUXE', 'BOLD', 'CLEAN'],
   radius: ['SHARP', 'SOFT', 'ROUND'],
   density: ['COMPACT', 'COMFORTABLE'],
-  colorScheme: ['LIGHT'],
+  colorScheme: ['LIGHT', 'DARK'],
 } as const);
+/** Пресеты тёмной схемы и акценты для тёмного фона: остальные пресеты светлые, остальные акценты тёмные */
+export const SITE_SPEC_DARK_PRESETS: readonly string[] = Object.freeze(['NOIR']);
+export const SITE_SPEC_DARK_ACCENTS: readonly string[] = Object.freeze(['CHAMPAGNE', 'ROSE']);
 export const SITE_SPEC_LOCALES = LOCALES;
 export const SITE_SPEC_SOCIAL_HOSTS: Readonly<Record<string, readonly string[]>> = {
   INSTAGRAM: ['instagram.com'],
@@ -460,6 +468,16 @@ export function validateSiteSpec(input: unknown): SiteSpecResult {
     },
     ['schemaVersion', 'site', 'theme', 'navigation', 'pages', 'integrations'],
   );
+
+  // схема, фон и акцент согласованы: тёмный фон только со схемой DARK, светлый акцент только на тёмном фоне
+  const theme = root['theme'] as Rec | null;
+  if (theme && typeof theme === 'object' && typeof theme['preset'] === 'string' && typeof theme['colorScheme'] === 'string') {
+    const dark = SITE_SPEC_DARK_PRESETS.includes(theme['preset']);
+    if (dark !== (theme['colorScheme'] === 'DARK'))
+      c.fail('theme.colorScheme', 'theme_scheme', dark ? 'Тёмный фон требует тёмной схемы' : 'Тёмная схема требует тёмного фона');
+    else if (typeof theme['accent'] === 'string' && SITE_SPEC_DARK_ACCENTS.includes(theme['accent']) !== dark)
+      c.fail('theme.accent', 'theme_accent', dark ? 'На тёмном фоне нужен светлый акцент' : 'Светлый акцент нечитаем на светлом фоне');
+  }
 
   if (Array.isArray(root['pages'])) {
     const homes = (root['pages'] as unknown[]).filter((p) => (p as Rec | null)?.['isHome'] === true).length;

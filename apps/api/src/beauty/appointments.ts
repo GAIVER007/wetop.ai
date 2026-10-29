@@ -731,6 +731,89 @@ export class BeautyAppointmentsService {
     return this.day(localDate(savedStartsAt, scope.locationTimezone ?? 'UTC'));
   }
 
+  /**
+   * Итоговая цена записи (админ салона 28.10.2026: «клиент заплатил больше или меньше, а цену не поменять»).
+   * Любая запись, кроме отменённой и незаезда, в том числе выполненная. Не ниже уже оплаченного (как перенос),
+   * причина обязательна, в истории записи «было → стало» с причиной. Разница ложится надбавкой или скидкой
+   * на строки услуг, сумма строк всегда равна цене записи.
+   */
+  async adjustPrice(id: string, raw: unknown) {
+    await mayBeautyWrite(this.prisma, 'desk');
+    const { scope, row } = await this.own(id);
+    if (row.status === 'CANCELLED' || row.status === 'NO_SHOW')
+      throw new ConflictException('Цену отменённой записи и незаезда не меняют');
+    const body = (raw ?? {}) as Record<string, unknown>;
+    const text = String(body['priceMinor'] ?? '');
+    if (!/^\d{1,15}$/.test(text)) throw new BadRequestException('Цена: целое число в минимальных единицах');
+    const price = BigInt(text);
+    const reason = String(body['reason'] ?? '').trim();
+    if (!reason) throw new BadRequestException('Укажите причину изменения цены');
+    if (reason.length > 300) throw new BadRequestException('Причина до 300 знаков');
+    if (!row.lines.length) throw new ConflictException('У записи нет услуг');
+    await beautyTransaction(this.prisma, scope, async (tx) => {
+      const paid = await this.paidLocked(tx, row.id);
+      if (price < paid) throw new ConflictException('Цена меньше уже оплаченного: сначала оформите возврат');
+      // разница: сначала надбавка/скидка последней строки, потом скидка на остальные (не больше их цены)
+      const lines = row.lines.map((l) => ({ ...l }));
+      let delta = price - row.price;
+      for (let i = lines.length - 1; i >= 0 && delta !== 0n; i--) {
+        const l = lines[i]!;
+        if (delta > 0n) {
+          // надбавка: сначала убираем скидку строки, остаток надбавкой
+          const back = l.discountMinor < delta ? l.discountMinor : delta;
+          l.discountMinor -= back; delta -= back;
+          if (i === lines.length - 1) { l.surchargeMinor += delta; delta = 0n; }
+        } else {
+          const cut = -delta;
+          const fromSurcharge = l.surchargeMinor < cut ? l.surchargeMinor : cut;
+          l.surchargeMinor -= fromSurcharge;
+          let rest = cut - fromSurcharge;
+          const room = l.basePriceMinor - l.discountMinor;
+          const fromDiscount = room < rest ? room : rest;
+          l.discountMinor += fromDiscount; rest -= fromDiscount;
+          delta = -rest;
+        }
+        l.discountPercent = null;
+        l.priceMinor = l.basePriceMinor - l.discountMinor + l.surchargeMinor;
+      }
+      if (delta !== 0n) throw new ConflictException('Цена меньше нуля по строкам услуг');
+      await tx.$queryRaw`SELECT set_config('wetop.appointment_lines_write','on',true)`;
+      for (const l of lines)
+        await tx.appointmentLine.updateMany({
+          where: { appointmentId: row.id, position: l.position },
+          data: { discountMinor: l.discountMinor, surchargeMinor: l.surchargeMinor, discountPercent: null, priceMinor: l.priceMinor },
+        });
+      const changed = await tx.appointment.updateMany({
+        where: { id: row.id, status: row.status, updatedAt: row.updatedAt },
+        data: { price },
+      });
+      if (changed.count !== 1) throw new ConflictException('Запись уже изменена, обновите данные');
+      await tx.auditLog.create({
+        data: {
+          organizationId: scope.organizationId, userId: currentUserId(), entityType: 'appointment', entityId: row.id,
+          action: 'beauty.appointment.price_adjusted',
+          before: { priceMinor: row.price.toString(), currency: row.currency },
+          after: { priceMinor: price.toString(), currency: row.currency, reason, paidMinor: paid.toString() },
+        },
+      });
+    });
+    return this.day(localDate(row.startsAt, scope.locationTimezone ?? 'UTC'));
+  }
+
+  /**
+   * Сверка ключа оплаты (админ салона 28.10.2026): вкладка закрылась без ответа, и экран не знал, прошли ли деньги.
+   * Отвечает только «есть/нет» про эту запись своего филиала; суммы и чужие записи не раскрываются.
+   */
+  async paymentKeyStatus(id: string, key: string): Promise<{ found: boolean }> {
+    if (!UUID.test(String(key ?? ''))) throw new BadRequestException('Ключ операции не разобрать');
+    const { scope, row } = await this.own(id);
+    const op = await this.prisma.db.restaurantCashOperation.findFirst({
+      where: { locationId: scope.locationId as string, idempotencyKey: key, appointmentId: row.id },
+      select: { id: true },
+    });
+    return { found: Boolean(op) };
+  }
+
   /** Состояние записи: подтвердили, выполнили, незаезд, отменили */
   async setStatus(id: string, raw: unknown) {
     await mayBeautyWrite(this.prisma, 'desk');
@@ -1403,6 +1486,16 @@ export class BeautyAppointmentsController {
   @BeautyAccess('finance', 'create')
   @Post('appointments/:id/payments') pay(@Param('id') id: string, @Body() body: unknown) {
     return this.service.pay(id, body);
+  }
+  /** Итоговая цена записи с причиной (28.10.2026), в том числе выполненной */
+  @BeautyAccess('appointments', 'update')
+  @Post('appointments/:id/price') adjustPrice(@Param('id') id: string, @Body() body: unknown) {
+    return this.service.adjustPrice(id, body);
+  }
+  /** Прошла ли оплата с этим ключом: снимает зависшую блокировку экрана оплаты (28.10.2026) */
+  @BeautyAccess('finance', 'create')
+  @Get('appointments/:id/payment-keys/:key') paymentKeyStatus(@Param('id') id: string, @Param('key') key: string) {
+    return this.service.paymentKeyStatus(id, key);
   }
   /** Возврат по выполненной записи (§54): право возвратов, как аннулирование в кассе */
   @BeautyAccess('finance', 'refund')

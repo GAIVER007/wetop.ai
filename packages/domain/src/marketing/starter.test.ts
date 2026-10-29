@@ -84,11 +84,12 @@ const valid = (spec: unknown) => {
 const home = (spec: Record<string, any>) => spec['pages'][0];
 const types = (spec: Record<string, any>) => home(spec).sections.map((s: any) => s.type);
 
+// с 28.10.2026 (S7) у каждого сайта блок «Вопросы и ответы» из фактов перед контактами: GEO и разметка FAQ
 describe('starterSpecFromFacts: сайт для заявок по направлению проходит валидатор', () => {
   it('салон: первый экран, почему мы, услуги, мастера, запись, часы, контакты, призыв', () => {
     const spec = starterSpecFromFacts(beauty()) as Record<string, any>;
     valid(spec);
-    expect(types(spec)).toEqual(['hero', 'features', 'services', 'staff', 'leadForm', 'hours', 'contacts', 'cta']);
+    expect(types(spec)).toEqual(['hero', 'features', 'services', 'staff', 'leadForm', 'hours', 'faq', 'contacts', 'cta']);
     expect(spec['site'].vertical).toBe('BEAUTY');
     expect(spec['site'].seo.structuredData.type).toBe('BEAUTY_SALON');
     expect(spec['integrations'].booking.mode).toBe('NONE');
@@ -107,7 +108,7 @@ describe('starterSpecFromFacts: сайт для заявок по направл
   it('ресторан: меню по разделам, бронь стола, часы после полуночи, оценка из данных', () => {
     const spec = starterSpecFromFacts(food()) as Record<string, any>;
     valid(spec);
-    expect(types(spec)).toEqual(['hero', 'features', 'menu', 'leadForm', 'hours', 'cta']);
+    expect(types(spec)).toEqual(['hero', 'features', 'menu', 'leadForm', 'hours', 'faq', 'cta']);
     expect(spec['site'].seo.structuredData).toEqual({ type: 'RESTAURANT', includeAddress: false, includeGeo: false });
     const menu = home(spec).sections.find((s: any) => s.type === 'menu');
     expect(menu.categories.map((c: any) => c.title.ru)).toEqual(['Супы', 'Горячее']);
@@ -122,7 +123,7 @@ describe('starterSpecFromFacts: сайт для заявок по направл
   it('гостиница: номера, цены «от» живые, виджет брони, без часов работы', () => {
     const spec = starterSpecFromFacts(hotel()) as Record<string, any>;
     valid(spec);
-    expect(types(spec)).toEqual(['hero', 'accommodations', 'pricing', 'booking', 'contacts', 'cta']);
+    expect(types(spec)).toEqual(['hero', 'accommodations', 'pricing', 'booking', 'faq', 'contacts', 'cta']);
     expect(spec['integrations'].booking.mode).toBe('WETOP_WIDGET');
     expect(JSON.stringify(spec)).not.toMatch(/minor/);
   });

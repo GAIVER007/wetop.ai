@@ -41,6 +41,7 @@ export function contentSecurityPolicy(input: PolicyInput): string {
     "default-src 'none'",
     `script-src ${scripts.length ? scripts.join(' ') : "'none'"}`,
     "style-src 'self' 'unsafe-inline'",
+    "font-src 'self'",
     ["img-src 'self' data:", ...(input.imageOrigins ?? [])].join(' '),
     `connect-src ${connect.length ? connect.join(' ') : "'none'"}`,
     `frame-src ${turnstile ? TURNSTILE_ORIGIN : "'none'"}`,

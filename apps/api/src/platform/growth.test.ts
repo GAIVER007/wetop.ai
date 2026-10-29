@@ -86,3 +86,29 @@ describe('путь клиента и деньги руководителя', () 
     expect(buildGrowth(s, '2026-10', NOW).funnel.conversion.visitorToRegistration).toBe(20);
   });
 });
+
+describe('отток месяца (план §1: ушли в «только чтение» или приостановку за месяц)', () => {
+  it('считает клиентов по журналу статусов месяца, один клиент один раз; вернувшиеся тоже считаются; своя организация нет', () => {
+    const g = buildGrowth(
+      {
+        ...src(),
+        statusChanges: [
+          { organizationId: 'd', to: 'READ_ONLY', at: new Date('2026-10-05T00:00:00Z') },
+          { organizationId: 'd', to: 'SUSPENDED', at: new Date('2026-10-06T00:00:00Z') },
+          { organizationId: 'a', to: 'READ_ONLY', at: new Date('2026-10-07T00:00:00Z') },
+          { organizationId: 'a', to: 'ACTIVE', at: new Date('2026-10-08T00:00:00Z') },
+          { organizationId: 'b', to: 'READ_ONLY', at: new Date('2026-09-30T23:00:00Z') },
+          { organizationId: 'own', to: 'SUSPENDED', at: new Date('2026-10-09T00:00:00Z') },
+        ],
+      },
+      '2026-10',
+      NOW,
+    );
+    expect(g.churn).toEqual({ count: 2, previous: 1 });
+  });
+
+  it('журнала нет (старый источник): ноль', () => {
+    expect(buildGrowth(src(), '2026-10', NOW).churn).toEqual({ count: 0, previous: 0 });
+  });
+});
+

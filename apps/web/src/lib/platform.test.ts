@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { PlatformOrganization } from './api';
-import { extensionFormDefaults, extensionLine, organizationStatusLine } from './platform';
+import { accessTrialLastDay, extensionFormDefaults, extensionLine, organizationStatusLine } from './platform';
 import { extensionReminder } from './ai-seller';
 
 // срок хранится моментом начала следующего дня по Алматы: «по 02.10.2026» — это 2 октября 19:00 UTC
@@ -77,5 +77,13 @@ describe('напоминание владельцу о сроке расшире
       extensionReminder(seller({ access: 'expired', activeUntil: UNTIL, daysLeft: 0 })),
     ).toBeNull();
     expect(extensionReminder(null)).toBeNull();
+  });
+});
+
+describe('accessTrialLastDay', () => {
+  it('последний день пробного 14 дней считается по Алматы, а не по UTC сервера', () => {
+    // 29.10 19:56 UTC = 30.10 00:56 по Алматы: последний день 13.11, не 12.11 (гейт 40939229919)
+    expect(accessTrialLastDay(new Date('2026-10-29T19:56:00Z'))).toBe('2026-11-13');
+    expect(accessTrialLastDay(new Date('2026-10-29T10:00:00Z'))).toBe('2026-11-12');
   });
 });

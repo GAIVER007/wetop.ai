@@ -126,3 +126,5 @@
 @media (max-width: 600px) {
   .owner-period__form { position: static; width: 100%; }
 }
+/* узкий экран (внешний экран складного iPhone 466 px): «Расходов за период пока нет» переносится, а не вылезает */
+@media (max-width: 600px) { .owner-home .owner-expense-panel { flex-wrap: wrap; } .owner-home .owner-expense-empty { flex: 1 1 100%; min-width: 0; } }

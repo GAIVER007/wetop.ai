@@ -673,6 +673,8 @@ export const platformOrg: Record<string, string> = {
   "с нами в среднем {n}": "with us on average {n}",
   "Путь клиента за месяц": "Customer journey this month",
   "Доход, расходы и прибыль": "Income, expenses and profit",
+  "платят {paying}, не оплатили {unpaid}, ушли за месяц {churn}": "paying {paying}, unpaid {unpaid}, left this month {churn}",
+  "ушли за месяц: {n}, в прошлом: {p}": "left this month: {n}, last month: {p}",
   "Доступ: {name}": "Access: {name}",
   "Пробный продлён до {day}.": "Trial extended until {day}.",
   "Заметка к оплате": "Payment note",

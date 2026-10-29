@@ -193,6 +193,7 @@ export const activityOps: Record<string, string> = {
   'Организация восстановлена': 'Organization restored',
   'Статус организации изменён': 'Organization status changed',
   'Пробный период продлён': 'Trial period extended',
+  'Владельцу отправлено письмо о сроке': 'Deadline reminder sent to the owner',
   'Промокод создан': 'Promo code created',
   'Промокод изменён': 'Promo code changed',
   'Филиал гостиницы создан': 'Hotel branch created',

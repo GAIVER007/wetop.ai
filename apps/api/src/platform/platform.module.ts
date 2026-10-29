@@ -19,6 +19,11 @@ import { SupportController } from './support.controller';
 import { SupportKnowledgeService } from './support-kb.service';
 import { SupportService } from './support.service';
 import { SiteBuilderLicenses } from './site-builder-licenses';
+import {
+  PrismaSubscriptionNightlyRepository,
+  SUBSCRIPTION_NIGHTLY_REPOSITORY,
+  SubscriptionNightlyService,
+} from './subscription-nightly';
 
 /** Раздел «Платформа»: организации и их расширения, техподдержка — панель ИИ-помощника (DATA_MODEL §16, ADR-083) */
 @Module({
@@ -38,6 +43,9 @@ import { SiteBuilderLicenses } from './site-builder-licenses';
     SupportService,
     SupportKnowledgeService,
     SiteBuilderLicenses,
+    // ночная проверка подписок (срез 4 кабинета руководителя, 29.10.2026)
+    { provide: SUBSCRIPTION_NIGHTLY_REPOSITORY, useClass: PrismaSubscriptionNightlyRepository },
+    SubscriptionNightlyService,
     // создание организации (ORG2): письмо владельцу уходит тем же отправителем и на тот же адрес стойки, что сброс пароля
     OrganizationCreation,
     {

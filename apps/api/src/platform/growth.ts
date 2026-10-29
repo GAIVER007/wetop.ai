@@ -16,6 +16,8 @@ export interface GrowthSource {
   /** Посетители wetop.ai за месяц; счётчика на сайте ещё нет: `null` */
   visitors: number | null;
   ownOrganizationId: string | null;
+  /** Смены статуса из журнала (`organization.status_changed`); старый источник без них: отток 0 */
+  statusChanges?: Array<{ organizationId: string; to: OrganizationStatus; at: Date }>;
 }
 
 export interface GrowthClient {
@@ -61,6 +63,8 @@ export interface GrowthView {
   };
   previous: { registrations: number; trials: number; firstPayments: number; incomeCents: string };
   income: Array<{ month: string; cents: string }>;
+  /** Отток: клиенты, ушедшие за месяц в «только чтение» или приостановку (каждый один раз), и то же за прошлый месяц */
+  churn: { count: number; previous: number };
   clients: GrowthClient[];
 }
 
@@ -96,6 +100,12 @@ export function buildGrowth(src: GrowthSource, month: string, now: Date): Growth
       paidIn,
     };
   };
+  const churnOf = (m: string) =>
+    new Set(
+      (src.statusChanges ?? [])
+        .filter((c) => ids.has(c.organizationId) && (c.to === 'READ_ONLY' || c.to === 'SUSPENDED') && monthOfDate(c.at) === m)
+        .map((c) => c.organizationId),
+    ).size;
   const cur = monthStats(month);
   const prev = monthStats(shiftMonth(month, -1));
   // срок оплаты в этом месяце прошёл, а оплаты в месяце не было: не продлили
@@ -162,6 +172,7 @@ export function buildGrowth(src: GrowthSource, month: string, now: Date): Growth
       const m = shiftMonth(month, d);
       return { month: m, cents: String(monthStats(m).incomeCents) };
     }),
+    churn: { count: churnOf(month), previous: churnOf(shiftMonth(month, -1)) },
     // кто больше принёс, выше; дальше новые
     clients: clients.sort((a, b) => {
       const d = BigInt(b.ltvCents) - BigInt(a.ltvCents);

@@ -1,3 +1,4 @@
+import { SITE_CSS } from './theme';
 import { describe, expect, it } from 'vitest';
 import { contentSecurityPolicy } from '../headers';
 import { renderDraftPreview } from '../draft-preview';
@@ -45,7 +46,13 @@ describe('салон', () => {
     expect(html).toContain('<h3>Маникюр</h3>');
     expect(html).toContain('<span>60 мин</span><strong class="price">8 000 ₸</strong>');
     expect(html).toContain('<strong class="price">5 500,50 ₸</strong>');
-    expect(html).toContain('<a class="btn btn--ghost" href="#sec-form">Записаться</a>');
+    expect(html).toContain('<a class="btn btn--ghost" href="#sec-form" data-book>Записаться</a>');
+    // одна кнопка на весь список услуг, не у каждой строки (владелец 29.10.2026)
+    const catalog = html.slice(html.indexOf('class="catalog"'));
+    const list = catalog.slice(0, catalog.indexOf('</section>'));
+    expect(list.match(/>Записаться</g)?.length).toBe(1);
+    expect(list).not.toMatch(/<div class="item-side">(?:(?!<\/div>).)*<a class="btn/s);
+    expect(list).toMatch(/<\/ul><div class="actions"><a class="btn btn--ghost" href="#sec-form" data-book>Записаться<\/a><\/div>/);
   });
 
   it('мастера карточками', () => {
@@ -89,6 +96,15 @@ describe('салон', () => {
     expect(page).not.toContain('/w/widget.js');
     expect(page).toContain('class="p-calm a-graphite');
     expect(page).toContain('has-mobile-bar');
+  });
+
+  it('владелец 29.10.2026 «че так много кнопок записаться»: на телефоне одна закреплённая внизу, остальные помечены и скрыты', () => {
+    const page = renderPage(salonCtx(), SEO, '/x.css');
+    const marked = page.match(/<a class="btn[^"]*" href="[^"]*" data-book>/g) ?? [];
+    // шапка, первый экран, услуги, полоса призыва: все ведут к той же форме и на телефоне дублируют нижнюю кнопку
+    expect(marked.length).toBeGreaterThanOrEqual(2);
+    expect(page).toContain('<nav class="mobile-bar" aria-label="Быстрые действия"><a class="btn" href="#sec-form">Записаться</a>');
+    expect(SITE_CSS).toContain('@media (max-width:799px){body.has-mobile-bar a[data-book]{display:none}}');
   });
 
   it('без ключа сайта (превью, черновик): формы-скрипта нет, поля выключены, форма видна', () => {

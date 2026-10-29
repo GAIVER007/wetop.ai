@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Controller, Get, Header, Inject, Injectable, Query, UseInterceptors } from '@nestjs/common';
-import { Prisma } from '@pms/database';
+import { Prisma, type OrganizationStatus } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import { ServiceDatabaseInterceptor } from '../database/service-database.interceptor';
 import { currentOrganizationId } from '../auth/request-context';
@@ -45,12 +45,17 @@ export class PrismaGrowthRepository implements GrowthRepository {
   async source(_own: string | null, since: Date) {
     const db = this.prisma.db;
     const money = (await db.$queryRaw<Array<{ ok: boolean }>>(Prisma.sql`SELECT to_regclass('platform_payments') IS NOT NULL AS ok`))[0]?.ok === true;
-    const [all, company, users, payments, subscriptions] = await Promise.all([
+    const [all, company, users, payments, subscriptions, statusLog] = await Promise.all([
       db.organization.findMany({ select: { id: true, name: true, status: true, createdAt: true, trialEndsAt: true } }),
       companyOrganizationIds(db),
       db.user.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true, memberships: { select: { role: true } } } }),
       money ? db.platformPayment.findMany() : Promise.resolve([]),
       money ? db.platformSubscription.findMany() : Promise.resolve([]),
+      // отток месяца: смены статуса из журнала с начала окна
+      db.auditLog.findMany({
+        where: { entityType: 'organization', action: 'organization.status_changed', createdAt: { gte: since } },
+        select: { entityId: true, after: true, createdAt: true },
+      }),
     ]);
     // запись компании WETOP (владелец сайта wetop.ai) не клиент: ни в пути, ни в деньгах
     const organizations = all.filter((o) => !company.has(o.id));
@@ -59,6 +64,10 @@ export class PrismaGrowthRepository implements GrowthRepository {
       registrations: users.filter((u) => u.memberships.length === 0 || u.memberships.some((m) => m.role === 'OWNER')).map((u) => u.createdAt),
       payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn)!, voided: p.voidedAt !== null })),
       subscriptions: subscriptions.map((s) => ({ organizationId: s.organizationId, monthlyCents: s.monthlyCents, paidUntil: day(s.paidUntil) })),
+      statusChanges: statusLog.flatMap((r) => {
+        const to = (r.after && typeof r.after === 'object' ? (r.after as Record<string, unknown>)['status'] : null) as OrganizationStatus | null;
+        return to ? [{ organizationId: r.entityId, to, at: r.createdAt }] : [];
+      }),
     };
   }
 

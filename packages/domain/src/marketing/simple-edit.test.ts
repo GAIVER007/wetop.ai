@@ -40,7 +40,7 @@ describe('простой экран сайта: пять действий кли
   it('состояние: тексты первого экрана, «О нас», фото и блоки', () => {
     const st = simpleSiteState(base());
     // 28.10.2026: новый сайт сразу с фразой первого экрана, название в подзаголовке
-    expect(st.heroHeading).toBe('Спокойный уход за собой');
+    expect(st.heroHeading).toBe('Ухоженный вид без лишних хлопот');
     expect(st.heroSubheading).toContain('Студия Айна');
     // шаблон даёт фото набора WETOP (владелец 29.10.2026), клиент может заменить или убрать его
     expect(st.heroPhoto?.assetId).toBe(stockPhotoFor(siteTemplatesFor('BEAUTY')[0]!.id)!.assetId);

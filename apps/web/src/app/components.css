@@ -2140,10 +2140,8 @@
     .chip--sm,
     .seg__item,
     details.date-range > summary {
-      min-height: var(--touch-target);
-    }
-    .btn {
       height: auto;
+      min-height: var(--touch-target);
     }
   }
 

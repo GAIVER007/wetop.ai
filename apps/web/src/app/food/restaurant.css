@@ -1976,6 +1976,7 @@
   .tbl.payroll-table th,
   .tbl.payroll-table td {
     padding-block: var(--space-2);
+    padding-inline: var(--space-2);
   }
   .tbl.payroll-table tbody th {
     color: var(--text);
@@ -2000,8 +2001,14 @@
   .payroll-done {
     color: var(--success);
   }
+  /* компактная строка (владелец 29.10.2026): условия одной строкой, «Выплатить» и «…» рядом */
+  .tbl.payroll-table .rest-pay-model {
+    white-space: nowrap;
+  }
   .tbl.payroll-table td:last-child .food-inline-actions {
     justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: var(--space-2);
   }
   /* окно «Оплата», вариант B владельца 26.10.2026: способы строками на всю ширину, иконка, пояснение, кружок выбора */
   .pay-choices {

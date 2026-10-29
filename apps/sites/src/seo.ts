@@ -199,9 +199,66 @@ export function renderHead(ctx: RenderContext, seo: SeoSettings, cssHref: string
   return meta.filter(Boolean).join('');
 }
 
+/**
+ * ИИ-поисковики (GEO, поручение владельца 28.10.2026): поиск ChatGPT, Perplexity, Gemini и Claude приходит своими
+ * ботами. `User-agent: *` их уже пускает, но названные явно не путаются с запретами хостинга и видят `llms.txt`.
+ */
+export const AI_SEARCH_BOTS = ['OAI-SearchBot', 'ChatGPT-User', 'GPTBot', 'PerplexityBot', 'Google-Extended', 'ClaudeBot', 'Applebot-Extended'];
+
 export function robotsTxt(spec: SiteSpec, seo: SeoSettings): string {
   if (!seo.indexable || spec.site.seo.robots !== 'INDEX') return 'User-agent: *\nDisallow: /\n';
-  return `User-agent: *\nAllow: /\n\nSitemap: ${seo.sitemapOrigin}/sitemap.xml\n`;
+  const bots = AI_SEARCH_BOTS.map((b) => `User-agent: ${b}\nAllow: /\n`).join('\n');
+  return `User-agent: *\nAllow: /\n\n${bots}\nSitemap: ${seo.sitemapOrigin}/sitemap.xml\n# llms: ${seo.sitemapOrigin}/llms.txt\n`;
+}
+
+/** Строка без переводов строк и разметки заголовков: в llms.txt ничего не ломает структуру */
+const line = (s: string) => s.replace(/\s+/g, ' ').replace(/^#+\s*/, '').trim();
+
+/**
+ * `/llms.txt` (GEO): короткая сводка сайта для ИИ-поисковиков по llmstxt.org. Только индексируемый сайт на основном
+ * хосте; иначе пусто. Всё из опубликованного документа: имя, описание главной, адрес и телефон (если их показывают
+ * поисковикам), услуги, меню или номера с ценами, часы, вопросы и ответы, ссылки на страницы из карты сайта.
+ */
+export function llmsTxt(spec: SiteSpec, seo: SeoSettings): string {
+  if (!seo.indexable || spec.site.seo.robots !== 'INDEX' || !seo.canonicalOrigin) return '';
+  const locale = spec.site.defaultLocale as Parameters<typeof tx>[1];
+  const home = spec.pages.find((p) => p.isHome);
+  if (!home) return '';
+  const out: string[] = [`# ${line(tx(spec.site.displayName, locale))}`, ''];
+  const description = line(tx(home.seo.description, locale));
+  if (description) out.push(`> ${description}`, '');
+  const contacts = spec.site.contacts ?? {};
+  const facts: string[] = [];
+  if (spec.site.seo.structuredData.includeAddress) {
+    const address = line(tx(contacts.address, locale));
+    if (address) facts.push(`- Address: ${address}`);
+    if (contacts.phone) facts.push(`- Phone: ${contacts.phone}`);
+  }
+  const all = spec.pages.flatMap((p) => p.sections);
+  const hours = openingHours(spec) as Array<{ dayOfWeek: string; opens: string; closes: string }>;
+  if (hours.length) facts.push(`- Hours: ${hours.map((h) => `${h.dayOfWeek.replace('https://schema.org/', '').slice(0, 3)} ${h.opens}-${h.closes}`).join(', ')}`);
+  facts.push(`- Website: ${seo.canonicalOrigin}/`);
+  out.push(...facts, '');
+  const priced = (title: unknown, price: unknown) => {
+    const name = line(tx(title as LocalizedText, locale));
+    const m = moneyDecimal(price);
+    return name ? `- ${name}${m ? `: ${m.price} ${m.currency}` : ''}` : '';
+  };
+  const services = all.filter((s) => s.type === 'services').flatMap((s) => items(s['items'])).map((i) => priced(i['title'], i['price'])).filter(Boolean);
+  if (services.length) out.push('## Services', ...services.slice(0, 60), '');
+  const menu = all.filter((s) => s.type === 'menu').flatMap((s) => items(s['categories'])).flatMap((c) => items(c['items'])).map((i) => priced(i['title'], i['price'])).filter(Boolean);
+  if (menu.length) out.push('## Menu', ...menu.slice(0, 80), '');
+  const rooms = all.filter((s) => s.type === 'accommodations').flatMap((s) => items(s['items'])).map((i) => priced(i['title'], undefined)).filter(Boolean);
+  if (rooms.length) out.push('## Rooms', ...rooms.slice(0, 20), '');
+  const qa = all
+    .filter((s) => s.type === 'faq')
+    .flatMap((s) => items(s['items']))
+    .map((i) => [line(tx(i['question'] as LocalizedText, locale)), line(tx(i['answer'] as LocalizedText, locale))])
+    .filter(([q, a]) => q && a);
+  if (qa.length) out.push('## FAQ', '', ...qa.flatMap(([q, a]) => [`### ${q}`, a!, '']));
+  const pages = spec.pages.filter((p) => p.seo.includeInSitemap === true && pageIndexed(p, spec, seo));
+  out.push('## Pages', ...pages.map((p) => `- [${line(tx(p.title, locale)) || line(tx(spec.site.displayName, locale))}](${seo.canonicalOrigin}${pagePath(p)})`), '');
+  return out.join('\n');
 }
 
 /** Только индексируемые страницы с `includeInSitemap`; в dev и staging индексации нет, карта пустая */

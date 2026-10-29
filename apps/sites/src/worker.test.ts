@@ -106,6 +106,13 @@ describe('страница сайта', () => {
     expect(await sitemap.text()).toContain('<urlset');
   });
 
+  it('llms.txt: сайт вне production и без основного хоста не отдаёт сводку ИИ-поисковикам (404)', async () => {
+    const { get } = runtime({ 'stepnoy.localhost': ok() });
+    const llms = await get('http://stepnoy.localhost/llms.txt');
+    expect(llms.status).toBe(404);
+    expect(llms.headers.get('content-type')).toBe('text/plain; charset=utf-8');
+  });
+
   it('стили: файл с хэшем, долгий неизменяемый кэш, без запроса к API', async () => {
     const { get, calls } = runtime({});
     const res = await get(`http://any.localhost${CSS_PATH}`);

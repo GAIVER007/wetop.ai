@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-const h = vi.hoisted(() => ({ slots: [] as unknown[], cursor: 0, effects: [] as (() => void)[], cleanups: [] as (() => void)[], tasks: [] as Promise<unknown>[], pay: vi.fn(), refund: vi.fn() }));
+const h = vi.hoisted(() => ({ slots: [] as unknown[], cursor: 0, effects: [] as (() => void)[], cleanups: [] as (() => void)[], tasks: [] as Promise<unknown>[], pay: vi.fn(), refund: vi.fn(), keyFound: vi.fn(async () => null as boolean | null), price: vi.fn(async () => ({ message: 'ok' })) }));
 vi.mock('react', async (original) => {
   const actual = await original<typeof import('react')>();
   return { ...actual,
@@ -10,7 +10,8 @@ vi.mock('react', async (original) => {
     useTransition: () => [false, (callback: () => unknown) => { h.tasks.push(Promise.resolve(callback())); }],
   };
 });
-vi.mock('./journal-actions', () => ({ moveAppointment: vi.fn(), payAppointment: h.pay, refundAppointment: h.refund, setAppointmentStatus: vi.fn() }));
+// сверка метки с кассой (28.10.2026): здесь касса «не ответила» (null), метка обязана остаться и держать блок
+vi.mock('./journal-actions', () => ({ moveAppointment: vi.fn(), payAppointment: h.pay, refundAppointment: h.refund, setAppointmentStatus: vi.fn(), appointmentPaymentKeyFound: h.keyFound, adjustAppointmentPrice: h.price }));
 // язык стойки (KK2): у рендера-обвязки нет React-контекста, тексты русские
 vi.mock('../../i18n/locale-provider', async (importOriginal) => {
   const { translator } = await import('../../i18n');
@@ -78,6 +79,26 @@ describe('real AppointmentCard handlers with deterministic hook harness (not bro
     h.cleanups.forEach((cleanup) => cleanup()); h.cleanups = []; h.slots = [];
     render(); tree = render(); expect(button(tree, 'Принять оплату').disabled).toBe(true);
     expect(text(tree)).toContain('Сверьте историю и кассу'); expect(h.pay).toHaveBeenCalledTimes(1);
+  });
+  // админ салона 28.10.2026: после потерянного ответа запись висела «Безопасная отправка недоступна» навсегда
+  it('зависшая метка: касса подтвердила операцию по ключу, оплата снова доступна без новой отправки', async () => {
+    h.pay.mockResolvedValue({ error: 'Unknown' }); render(); let tree = render();
+    (button(tree, 'Принять оплату').onClick as () => void)(); await settle();
+    h.cleanups.forEach((cleanup) => cleanup()); h.cleanups = []; h.slots = [];
+    h.keyFound.mockResolvedValueOnce(true);
+    render(); await settle(); tree = render();
+    expect(h.keyFound).toHaveBeenCalledTimes(1);
+    expect(button(tree, 'Принять оплату').disabled).toBe(false);
+    expect(text(tree)).not.toContain('Сверьте историю и кассу'); expect(h.pay).toHaveBeenCalledTimes(1);
+  });
+  // админ салона 28.10.2026: «клиент заплатил больше или меньше, а цену не поменять»; запись здесь «Выполнено»
+  it('выполненная запись: «Изменить цену» отправляет итоговую сумму и причину', async () => {
+    render(); let tree = render();
+    (button(tree, 'Изменить цену').onClick as () => void)(); tree = render();
+    (input(tree, 'Новая цена, ₸').onChange as (e: unknown) => void)({ target: { value: '4500' } });
+    (input(tree, 'Причина').onChange as (e: unknown) => void)({ target: { value: 'Клиент доплатил за укладку' } }); tree = render();
+    (button(tree, 'Сохранить цену').onClick as () => void)(); await new Promise((r) => setTimeout(r, 0));
+    expect(h.price).toHaveBeenCalledWith('appointment', '450000', 'Клиент доплатил за укладку');
   });
   it('rejects oversized whole-tenge payment before any dispatch', async () => {
     render(); let tree = render();

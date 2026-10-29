@@ -7,6 +7,8 @@ import { formatMoney, inputToMinor, minorToInput } from '../../lib/money';
 import { METHOD_RU } from '../../lib/dashboard-format';
 import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from '../../lib/food-types';
 import {
+  adjustAppointmentPrice,
+  appointmentPaymentKeyFound,
   customerBonusQuote,
   lookupCertificate,
   moveAppointment,
@@ -76,8 +78,17 @@ function AppointmentCardBody({
   const [moneyKind, setMoneyKind] = useState<'pay' | 'refund' | null>(null);
   useEffect(() => {
     mounted.current = true;
-    money.current = new AppointmentMoneyOperation(scopeKey, row.id);
-    setMoneyStatus(money.current.status);
+    const operation = new AppointmentMoneyOperation(scopeKey, row.id);
+    money.current = operation;
+    setMoneyStatus(operation.status);
+    // метка без ответа от прошлого открытия: спросить кассу, прошла ли та операция (админ салона 28.10.2026)
+    const marker = operation.pendingMarker();
+    if (marker && /^[0-9a-f-]{36}$/i.test(marker.idempotencyKey)) {
+      void appointmentPaymentKeyFound(row.id, marker.idempotencyKey, scopeKey).then((found) => {
+        if (found === null || !mounted.current || money.current !== operation) return;
+        if (operation.reconcile(found, Date.now(), marker)) setMoneyStatus(operation.status);
+      });
+    }
     return () => { mounted.current = false; };
   }, [scopeKey, row.id]);
   const moneyLocked = busy || moneyStatus !== 'idle';
@@ -142,6 +153,25 @@ function AppointmentCardBody({
   };
   const payable =
     canPay && row.status !== 'CANCELLED' && row.status !== 'NO_SHOW' && remaining > 0n;
+  // итоговая цена (28.10.2026): клиент заплатил больше или меньше; и у выполненной записи, не ниже оплаченного
+  const priceEditable = canUpdate && row.status !== 'CANCELLED' && row.status !== 'NO_SHOW';
+  const [priceOpen, setPriceOpen] = useState(false);
+  const [newPrice, setNewPrice] = useState(() => minorToInput(row.priceMinor));
+  const [priceReason, setPriceReason] = useState('');
+  const [priceBusy, setPriceBusy] = useState(false);
+  const savePrice = async () => {
+    const minorText = inputToMinor(newPrice);
+    if (minorText === null || minorText === '') return setError(t('Введите сумму, не больше двух знаков после запятой'));
+    if (BigInt(minorText) < net) return setError(t('Цена не может быть меньше уже оплаченного: {paid}', { paid: formatMoney(net.toString(), row.currency) }));
+    if (!priceReason.trim()) return setError(t('Укажите причину изменения цены'));
+    setError(null);
+    setPriceBusy(true);
+    const result = await adjustAppointmentPrice(row.id, minorText, priceReason.trim());
+    setPriceBusy(false);
+    if (result.error) return setError(result.error);
+    setPriceOpen(false);
+    onDone();
+  };
   const [method, setMethod] = useState<PayMethod>('CASH');
   // §21.7: оплата записи деньгами только включёнными в филиале способами; бонусы и сертификат отдельно, возврат всеми
   const accepted = useBranchPaymentMethods(scopeKey);
@@ -427,6 +457,40 @@ function AppointmentCardBody({
           )}
         </div>
         <div className="appointment-card-side">
+          {priceEditable && (
+            <section className="beauty-form" aria-label={t('Цена записи')} data-testid="appointment-price">
+              {!priceOpen ? (
+                <Button type="button" tone="secondary" onClick={() => setPriceOpen(true)} data-testid="appointment-price-open">
+                  {t('Изменить цену')}
+                </Button>
+              ) : (
+                <>
+                  <h3>{t('Цена записи')}</h3>
+                  <p className="muted">
+                    {t('Сейчас {price}, оплачено {paid}. Если клиент заплатил больше или меньше, поставьте итоговую сумму.', {
+                      price: formatMoney(row.priceMinor, row.currency),
+                      paid: formatMoney(net.toString(), row.currency),
+                    })}
+                  </p>
+                  <Field label={t('Новая цена, {currency}', { currency: currencyLabel })}>
+                    <Input inputMode="decimal" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} data-testid="appointment-price-input" />
+                  </Field>
+                  <Field label={t('Причина')}>
+                    <Input value={priceReason} maxLength={300} onChange={(e) => setPriceReason(e.target.value)} data-testid="appointment-price-reason" />
+                  </Field>
+                  <div className="appointment-price-actions">
+                    <Button type="button" disabled={priceBusy} onClick={() => void savePrice()} data-testid="appointment-price-save">
+                      {priceBusy ? t('Сохраняем…') : t('Сохранить цену')}
+                    </Button>
+                    <Button type="button" tone="secondary" disabled={priceBusy} onClick={() => setPriceOpen(false)}>
+                      {t('Отмена')}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </section>
+          )}
+
           {payable && (
             <section className="beauty-form" aria-label={t('Оплата записи')}>
               <h3>{t('Оплата')}</h3>

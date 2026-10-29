@@ -283,11 +283,16 @@ function PultRow({
         >
           {t('Подключить')}
         </Link>
-        {hospitality && state.on && (module.key === 'site' || module.key === 'budget') && (
-          <ActionMenu
-            label={t('Ещё действия: {title}', { title: t(module.title) })}
-            items={(module.key === 'budget' ? BUDGET_MENU : SITE_MENU).map((i) => ({ ...i, label: t(i.label) }))}
-          />
+        {/* владелец 29.10.2026: «Подключить» у всех строк в один столбец; место под «⋯» есть в каждой строке гостиницы */}
+        {hospitality && (
+          <span className="marketing-pult__more" data-testid={`${module.testId}-more`}>
+            {state.on && (module.key === 'site' || module.key === 'budget') && (
+              <ActionMenu
+                label={t('Ещё действия: {title}', { title: t(module.title) })}
+                items={(module.key === 'budget' ? BUDGET_MENU : SITE_MENU).map((i) => ({ ...i, label: t(i.label) }))}
+              />
+            )}
+          </span>
         )}
       </td>
     </tr>

@@ -82,6 +82,8 @@ interface AiRun {
 const SLUG = 'luxx-aparts';
 /** MKT9.2: филиалы организации стенда для «Платформа → Организации → Конструктор сайта» */
 export const FIXTURE_LOCATION_ID = 'lc000001-0000-4000-8000-000000000001';
+/** Филиал стенда по умолчанию (`DEFAULT_FIXTURE_BRANCH.locationId` в fixture-api) */
+const DEFAULT_BRANCH_LOCATION_ID = '22222222-2222-4222-8222-222222222222';
 const SECOND_LOCATION_ID = 'lc000002-0000-4000-8000-000000000002';
 const BASE = 'sites.test';
 const IMG1 = '00000001-0000-4000-8000-000000000001';
@@ -846,7 +848,10 @@ export function platformSiteBuilderFixture(path: string, method: string, body: R
   if (list && method === 'GET') return { status: 200, data: { items: list[1] === 'ui-org' ? FIXTURE_LOCATIONS.map(licenseView) : [] } };
   const one = /^\/platform\/organizations\/([^/]+)\/site-builder\/([^/]+)$/.exec(path);
   if (one && method === 'PUT') {
-    const location = one[1] === 'ui-org' ? FIXTURE_LOCATIONS.find((l) => l.id === one[2]) : undefined;
+    // гостиница стенда по умолчанию (филиал 2222…) ведёт сайт стенда `FIXTURE_LOCATION_ID`: окно подключения в «Сайт и
+    // SEO» шлёт id филиала, как настоящий API, у которого это один и тот же id
+    const wanted = one[2] === DEFAULT_BRANCH_LOCATION_ID ? FIXTURE_LOCATION_ID : one[2];
+    const location = one[1] === 'ui-org' ? FIXTURE_LOCATIONS.find((l) => l.id === wanted) : undefined;
     if (!location) return { status: 404, data: { message: 'Такого гостиничного филиала у организации нет' } };
     const parsed = parseExtensionChange(body, new Date());
     if (!parsed.ok) return { status: 400, data: { message: parsed.errors.join('; ') } };

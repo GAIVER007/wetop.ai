@@ -143,7 +143,13 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
       <Page crumbs={<BackToModules />} title={t('Сайт и SEO')} width="full">
         {!pending && !licensed ? (
           // аудит 21.10.2026 п. 4: при неактивном конструкторе одна карточка с действием вместо формы с неактивными кнопками
-          <BuilderOffCard locationName={name} expired={current.builder.access === 'expired'} />
+          <BuilderOffCard
+            locationName={name}
+            expired={current.builder.access === 'expired'}
+            canConnect={me.user?.platformAdmin === true}
+            organizationId={me.user?.organizationId ?? null}
+            locationId={locationId ?? (facts.ok ? facts.data.location.id : null)}
+          />
         ) : (
           <CreateSite
             vertical={vertical}

@@ -26,7 +26,8 @@ export const TITLE_SEPARATOR = ' | ';
  * стилей сайта. Она перечисляется здесь, а не файлом-соглашением `opengraph-image.png`: страницы задают
  * `openGraph` целиком, и тогда Next подставляет картинку соглашения не везде — у `/blog/` её не оказалось.
  */
-const OG_IMAGE = { url: '/og.png', width: 1200, height: 630 };
+// `?v=` меняется при перерисовке: Telegram и WhatsApp иначе показывают старую картинку из кэша
+const OG_IMAGE = { url: '/og.png?v=2', width: 1200, height: 630 };
 
 /*
  * OpenGraph и canonical для страницы. Next сливает metadata слоёв неглубоко: `openGraph` страницы целиком

@@ -683,6 +683,7 @@ export const marketingSite: Record<string, string> = {
   "Выключите, пока сайт не готов: Google его не покажет.": "Turn off until the website is ready: Google will not show it.",
   // заявки с сайта (аудит «Сайт и SEO» S3, 28.10.2026)
   "В работе": "In progress",
+  "Готово к подключению": "Ready to connect",
   // окно подключения конструктора (29.10.2026)
   "Продлите конструктор для «{name}», и сайт снова можно менять и публиковать.": "Renew the builder for “{name}” to edit and publish the site again.",
   "Подключите конструктор для «{name}», и здесь сразу откроется создание сайта.": "Connect the builder for “{name}” and site creation opens right here.",

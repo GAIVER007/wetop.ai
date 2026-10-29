@@ -40,25 +40,25 @@ describe('пульт «Продвижения»', () => {
     expect(row(html, 'marketing-content')).toContain('Цена скоро');
   });
 
-  it('ИИ-продавец не подключён: «Не подключён», кнопка ведёт к подключению', () => {
+  it('ИИ-продавец не подключён: «В работе», кнопка ведёт к подключению', () => {
     const html = renderToStaticMarkup(createElement(MarketingHub, { vertical: 'BEAUTY', seller: null }));
     const seller = row(html, 'marketing-seller');
-    expect(seller).toContain('Не подключён');
+    expect(seller).toContain('В работе');
     expect(seller).toContain('href="/ai-agents"');
     expect(seller).toContain('aria-label="Подключить: ИИ-продавец"');
   });
 
-  it('ИИ-продавец пробный: «Пробный»', () => {
+  it('ИИ-продавец пробный: «В работе» (владелец 29.10.2026)', () => {
     const html = renderToStaticMarkup(
       createElement(MarketingHub, {
         vertical: 'FOOD_SERVICE',
         seller: { access: 'active', status: 'TRIAL', activeUntil: '2026-11-10T00:00:00Z', daysLeft: 12 },
       }),
     );
-    expect(row(html, 'marketing-seller')).toContain('Пробный');
+    expect(row(html, 'marketing-seller')).toContain('В работе');
   });
 
-  it('сайт без конструктора: «Подключает WETOP», кнопка в конструктор', () => {
+  it('сайт без конструктора: «В работе», кнопка в конструктор', () => {
     const html = renderToStaticMarkup(
       createElement(MarketingHub, {
         vertical: 'HOSPITALITY',
@@ -66,7 +66,7 @@ describe('пульт «Продвижения»', () => {
       }),
     );
     const site = row(html, 'marketing-site');
-    expect(site).toContain('Подключает WETOP');
+    expect(site).toContain('В работе');
     expect(site).toContain('href="/marketing/site/editor"');
   });
 });

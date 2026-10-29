@@ -18,8 +18,8 @@ async function fillRegister(page: Page, email = 'new@example.invalid') {
   await form.getByLabel('Почта').fill(email);
   await form.getByLabel('Имя', { exact: true }).fill('Тестовый Пользователь');
   await form.getByLabel('Название бизнеса').fill('Тестовый объект');
-  await form.getByLabel('Страна', { exact: true }).selectOption('KZ');
-  await form.getByRole('textbox', { name: 'Телефон', exact: true }).fill('7015554433');
+  // страну не выбирают: её узнаёт номер с кодом (29.10.2026)
+  await form.getByRole('textbox', { name: 'Телефон', exact: true }).fill('+77015554433');
   await form.getByLabel('Пароль', { exact: true }).fill('synthetic-password');
   await form.getByRole('checkbox').check();
   await expect(form.getByLabel('Почта')).toHaveValue(email);
@@ -182,7 +182,8 @@ test('без согласия регистрация не отправляетс
   await dialog(page).getByRole('button', { name: 'Создать аккаунт' }).click();
   await expect(dialog(page).getByRole('alert')).toContainText('согласие');
   await dialog(page).getByRole('checkbox').check();
-  await dialog(page).getByLabel('Телефон').fill('70155');
+  // код есть, страна узнана, но номер короткий: его отклоняет сервер (29.10.2026)
+  await dialog(page).getByLabel('Телефон').fill('+770155');
   await dialog(page).getByRole('button', { name: 'Создать аккаунт' }).click();
   await expect(dialog(page).getByRole('alert')).toContainText('Проверьте телефон');
 });

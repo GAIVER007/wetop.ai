@@ -24,7 +24,8 @@ async function register(page: Page, suffix: string, entry: 'hash' | 'cta' = 'has
   // С кнопки страницы салонов направление закреплено ссылкой, выбора нет; с главной выбирают сами
   if (entry === 'cta') await expect(dialog.getByTestId('auth-vertical-fixed')).toContainText('Салон');
   else await dialog.locator('input[value="BEAUTY"]').check();
-  await dialog.locator('input[name="phone"]').fill('7000000000');
+  // номер с кодом: страну узнаёт он (29.10.2026)
+  await dialog.locator('input[name="phone"]').fill('+77000000000');
   await dialog.locator('input[name="email"]').fill(email);
   await dialog.locator('input[name="password"]').fill('Onboarding-Test-2026!a');
   await dialog.locator('input[name="privacyAccepted"]').check();

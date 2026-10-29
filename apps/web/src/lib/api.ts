@@ -2574,6 +2574,9 @@ export const siteEditorApi = {
   /** SITE-1: сайт из шаблона своего сегмента одним действием (сайт и первая версия из данных филиала, без ИИ) */
   fromTemplate: (templateId: string) =>
     editorCall<{ created: boolean; site: MarketingSiteSummary }>('POST', '/marketing/site/from-template', { templateId }),
+  /** Владелец 29.10.2026: «Создать свой сайт» по промту */
+  fromPrompt: (prompt: string) =>
+    editorCall<{ created: boolean; site: MarketingSiteSummary }>('POST', '/marketing/site/from-prompt', { prompt }),
   bootstrap: () =>
     editorCall<{ created: boolean; site: MarketingSiteSummary }>(
       'POST',

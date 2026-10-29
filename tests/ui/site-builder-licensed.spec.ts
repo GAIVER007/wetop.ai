@@ -10,7 +10,7 @@ import { FIXTURE_API, expect, test, type Page } from './fixtures';
  */
 const SHOTS = 'reports/mkt9-2-licensed-lovable-builder-2026-10-08';
 const axe = (page: Page) =>
-  new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('[data-testid="ed-frame"]').analyze();
+  new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('[data-testid="ed-frame"]').exclude('[data-testid="site-prompt-frame"]').analyze();
 const main = (page: Page) => page.getByRole('main').filter({ visible: true });
 const site = (request: { post: (url: string, o: { data: unknown }) => Promise<unknown> }, data: Record<string, unknown>) =>
   request.post(`${FIXTURE_API}/__test/marketing-site`, { data });
@@ -130,21 +130,17 @@ test('режим «План»: вопросы с вариантами, план 
   await expect(ai(page).getByTestId('ed-plan-done')).toBeVisible();
 });
 
-test('«Собрать с ИИ по описанию» на первом экране: первая сборка ИИ с выбранным шаблоном как оформлением', async ({ page, request }) => {
+test('«Создать свой сайт» по промту: тёмный премиальный промт даёт тёмную тему в редакторе', async ({ page, request }) => {
   await site(request, { noSite: true });
   await page.goto('/marketing/site/editor?full=1');
   const win = main(page).getByTestId('create-site');
-  // без текста ИИ не нужен: кнопка ИИ закрыта, «Создать сайт» соберёт шаблон сам
-  await expect(win.getByTestId('create-site-ai')).toBeDisabled();
-  await win.getByLabel('Опишите, каким должен быть сайт').fill('Строго и по делу');
-  const cards = win.getByTestId('site-designs');
-  await expect(cards.getByRole('radio')).toHaveCount(3);
-  await cards.getByTestId('site-design-card').filter({ hasText: 'Бутик-отель' }).getByTestId('site-design-choose').click();
-  await expect(cards.getByRole('radio', { name: /Бутик-отель/ })).toHaveAttribute('aria-checked', 'true');
+  // без текста создавать нечего: кнопка закрыта, готовые стили в свёрнутом блоке ниже
+  await expect(win.getByTestId('create-site-prompt')).toBeDisabled();
+  await win.getByLabel('Опишите, каким должен быть сайт').fill('Тёмный премиальный сайт с золотом');
+  await expect(win.getByTestId('site-prompt-frame')).toHaveAttribute('srcdoc', /Luxx Aparts/);
   await clean(page);
-  await shot(page, 'design-cards-light-1440');
-  await win.getByTestId('create-site-ai').click();
-  await expect(win.getByTestId('create-site-steps')).toContainText('Анализирую данные объекта');
+  await shot(page, 'prompt-dark-light-1440');
+  await win.getByTestId('create-site-prompt').click();
   await expect(main(page).getByTestId('site-editor')).toBeVisible({ timeout: 15_000 });
   await tab(page, 'Дизайн').click();
   await expect(main(page).getByTestId('ed-theme').getByLabel('Настроение')).toHaveValue('NOIR');

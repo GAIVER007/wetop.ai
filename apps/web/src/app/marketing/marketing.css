@@ -1776,6 +1776,75 @@
     margin: 0;
     font-size: var(--text-3xl);
   }
+  /* «Создать свой сайт» по промту (владелец 29.10.2026): слева промт, справа живое превью, как в Lovable */
+  .site-prompt {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+  .site-prompt > .site-prompt__chat,
+  .site-prompt > .site-prompt__preview {
+    grid-area: auto;
+    min-width: 0;
+  }
+  .site-prompt__chat {
+    align-content: start;
+  }
+  .site-prompt__chat .site-chat__text {
+    min-height: calc(var(--space-8) * 4);
+    font-size: var(--text-md);
+  }
+  .site-prompt__go {
+    margin-left: auto;
+  }
+  .site-prompt__preview {
+    position: relative;
+    min-height: calc(var(--space-12) * 8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--surface-muted);
+  }
+  .site-prompt__frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: calc(var(--space-12) * 8);
+    border: 0;
+  }
+  .site-prompt__empty {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    min-height: calc(var(--space-12) * 8);
+    margin: 0;
+    padding: var(--space-6);
+    text-align: center;
+  }
+  .site-start__grid.site-start__grid--after {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    grid-template-rows: auto;
+    grid-template-areas: 'locations facts';
+  }
+  /* свёрнутый блок готовых стилей стоит прямо в .site-start: своя область `designs` дала бы лишнюю колонку */
+  .site-start > .site-styles {
+    grid-area: auto;
+    min-width: 0;
+  }
+  .site-styles > summary {
+    cursor: pointer;
+  }
+  @media (max-width: 960px) {
+    .site-prompt {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .site-prompt__preview,
+    .site-prompt__frame,
+    .site-prompt__empty {
+      min-height: calc(var(--space-12) * 6);
+    }
+  }
   .site-start__grid {
     display: grid;
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
@@ -2147,6 +2216,12 @@
         'chat'
         'facts'
         'designs';
+    }
+    .site-start__grid.site-start__grid--after {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'locations'
+        'facts';
     }
     .site-design__cards {
       grid-template-columns: minmax(0, 1fr);

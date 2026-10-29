@@ -13,7 +13,7 @@ const main = (page: Page) => page.getByRole('main').filter({ visible: true });
 const site = (request: { post: (url: string, o: { data: unknown }) => Promise<unknown> }, data: Record<string, unknown>) =>
   request.post(`${FIXTURE_API}/__test/marketing-site`, { data });
 const axe = (page: Page) =>
-  new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('[data-testid="site-design-frame"]').analyze();
+  new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('[data-testid="site-design-frame"]').exclude('[data-testid="site-prompt-frame"]').analyze();
 const wide = (page: Page) =>
   page.evaluate(() =>
     [...document.querySelectorAll('main *')]
@@ -49,7 +49,7 @@ test('гостиница: филиал → факты → чип → три ша
   await site(request, { noSite: true });
   await page.goto('/marketing/site/editor');
   const win = main(page).getByTestId('create-site');
-  await expect(win.getByRole('heading', { name: 'Сайт для Luxx Aparts' })).toBeVisible();
+  await expect(win.getByRole('heading', { name: 'Создать свой сайт' })).toBeVisible();
 
   // шаг 1: филиал со статусом сайта, текущий отмечен
   const current = win.getByTestId('site-location').filter({ hasText: 'выбран' });
@@ -77,6 +77,8 @@ test('гостиница: филиал → факты → чип → три ша
   await expect(chip).toHaveAttribute('aria-pressed', 'true');
   await expect(win.getByLabel('Опишите, каким должен быть сайт')).toHaveValue('Спокойный сайт у вокзала. Акцент на семейном отдыхе');
 
+  // готовые стили: запасной путь в свёрнутом блоке «Или начните с готового стиля»
+  await win.getByTestId('site-styles').locator('summary').click();
   // шаг 3: три шаблона гостиницы с живым превью сайта из данных филиала; стрелками выбирается следующий
   const cards = win.getByTestId('site-design-card');
   await expect(cards).toHaveCount(3);
@@ -100,8 +102,8 @@ test('гостиница: филиал → факты → чип → три ша
   await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран шаблон «Хостел и апарт».');
   await win.getByTestId('site-design-card').filter({ hasText: 'Бутик-отель' }).getByTestId('site-design-choose').click();
   await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран шаблон «Бутик-отель».');
-  // «Собрать с ИИ» доступна только с текстом; текст уже есть
-  await expect(win.getByTestId('create-site-ai')).toBeEnabled();
+  // «Создать сайт» по промту доступна только с текстом; текст уже есть
+  await expect(win.getByTestId('create-site-prompt')).toBeEnabled();
   await expect.poll(async () => (await axe(page)).violations).toEqual([]);
   await paintPreviews(page);
   await page.screenshot({ path: `${SHOTS}/hotel-flow-1440.png`, fullPage: true });
@@ -176,7 +178,7 @@ test('салон: выбор филиала переключает стойку,
   const target = win.getByTestId('site-location').filter({ hasText: 'Студия Айна' });
   await expect(target).toContainText('Салон');
   await target.click();
-  await expect(win.getByRole('heading', { name: 'Сайт для Студия Айна' })).toBeVisible({ timeout: 30_000 });
+  await expect(win.getByRole('heading', { name: 'Создать свой сайт' })).toBeVisible({ timeout: 30_000 });
   await expect(page).toHaveURL(/\/marketing\/site\/editor$/);
   await expect(win.getByTestId('site-location').filter({ hasText: 'выбран' })).toContainText('Студия Айна');
   await expect(win.getByTestId('site-chip')).toHaveText(['Сайт для записи на услуги', 'Акцент на мастерах', 'Акция на первое посещение']);
@@ -188,6 +190,7 @@ test('салон: выбор филиала переключает стойку,
   await paintPreviews(page);
   await page.screenshot({ path: `${SHOTS}/salon-light-1440.png`, fullPage: true });
   // три своих шаблона салона; выбранный создаётся сразу, без ИИ, и открывается редактор с услугами и мастерами
+  await win.getByTestId('site-styles').locator('summary').click();
   expect(await designIds(page)).toEqual(['beauty-studio', 'beauty-boutique', 'beauty-express']);
   await win.getByTestId('site-design-card').filter({ hasText: 'Яркий поп' }).getByTestId('site-design-choose').click();
   await expect(win.getByTestId('site-design-chosen')).toHaveText('Выбран шаблон «Яркий поп».');
@@ -223,7 +226,7 @@ test('ресторан: меню с ценами, чипы и три шабло�
   await page.goto('/marketing/site/editor');
   const win = main(page).getByTestId('create-site');
   await win.getByTestId('site-location').filter({ hasText: 'Ресторан Дастархан' }).click();
-  await expect(win.getByRole('heading', { name: 'Сайт для Ресторан Дастархан' })).toBeVisible({ timeout: 30_000 });
+  await expect(win.getByRole('heading', { name: 'Создать свой сайт' })).toBeVisible({ timeout: 30_000 });
   await expect(win.getByTestId('site-chip')).toHaveText(['Сайт с меню и бронью столов', 'Акцент на банкетах', 'Покажи бизнес-ланч']);
   await expect(win.getByTestId('site-facts-catalog')).toContainText('Бешбармак');
   await expect(win.getByTestId('site-facts-catalog')).toContainText('4 500 ₸');
@@ -231,6 +234,7 @@ test('ресторан: меню с ценами, чипы и три шабло�
   await expect.poll(async () => (await axe(page)).violations).toEqual([]);
   await paintPreviews(page);
   await page.screenshot({ path: `${SHOTS}/restaurant-light-1440.png`, fullPage: true });
+  await win.getByTestId('site-styles').locator('summary').click();
   expect(await designIds(page)).toEqual(['food-cafe', 'food-restaurant', 'food-delivery']);
   await win.getByTestId('site-design-card').filter({ hasText: 'Ресторан' }).filter({ hasText: 'Вечерний' }).getByTestId('site-design-choose').click();
   await win.getByTestId('create-site-start').click();
@@ -269,3 +273,27 @@ for (const theme of ['light', 'dark'] as const)
       await page.screenshot({ path: `${SHOTS}/hotel-${theme}-${width}.png`, fullPage: true });
     }
   });
+
+// владелец 29.10.2026: «захожу, нажимаю Создать свой сайт, ввожу промт и по промту получаю готовый дизайн сайта,
+// который могу редактировать и опубликовать». Превью справа меняется вместе с промтом; два разных промта дают
+// два разных сайта; «Создать сайт» открывает редактор с этим дизайном
+test('сайт по промту: живое превью, свой дизайн по словам, «Создать сайт» открывает редактор', async ({ page, request }) => {
+  await site(request, { noSite: true });
+  await page.goto('/marketing/site/editor');
+  const win = main(page).getByTestId('create-site');
+  await expect(win.getByRole('heading', { name: 'Создать свой сайт' })).toBeVisible();
+  await expect(win.getByTestId('create-site-prompt')).toBeDisabled();
+  await expect(win.getByTestId('site-prompt-preview')).toContainText('Начните писать слева');
+  const box = win.getByLabel('Опишите, каким должен быть сайт');
+  await box.fill('Тёмный премиальный сайт с золотом');
+  const frame = win.getByTestId('site-prompt-frame');
+  await expect(frame).toHaveAttribute('srcdoc', /Luxx Aparts/);
+  const dark = await frame.getAttribute('srcdoc');
+  await box.fill('Яркий молодёжный сайт, быстрая онлайн бронь');
+  await expect.poll(async () => (await frame.getAttribute('srcdoc')) !== dark).toBe(true);
+  await expect.poll(async () => (await axe(page)).violations).toEqual([]);
+  await page.screenshot({ path: `${SHOTS}/prompt-flow-1440.png`, fullPage: true });
+  await win.getByTestId('create-site-prompt').click();
+  await expect(editor(page)).toBeVisible({ timeout: 15_000 });
+});
+

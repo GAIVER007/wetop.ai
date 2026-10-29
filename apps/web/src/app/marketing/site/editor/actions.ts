@@ -2,6 +2,7 @@
 import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { ApiError, branchesApi, marketingSiteApi, siteAssetsApi, siteEditorApi, type EditorReply, type SiteAssetView } from '../../../../lib/api';
+import { PATCH_INSTRUCTION_MAX } from '@pms/domain';
 import { selectBranch } from '../../../branches/actions';
 import { msg } from '../../../../i18n';
 import { serverT } from '../../../../i18n/server';
@@ -128,6 +129,30 @@ export async function createSiteAction(input: { briefHash: string | null; instru
  * SITE-1, «Шаблоны готовых сайтов»: сайт и первая версия одним действием из данных филиала в оформлении шаблона его
  * сегмента, без ИИ и без промптов. Документ собирает сервер; стойка передаёт только id шаблона
  */
+/**
+ * «Создать свой сайт» по промту (владелец 29.10.2026): сайт сразу в своём дизайне из промта и данных филиала (сервер,
+ * без ИИ), затем, если ИИ сайта на сервере включён, правка ИИ по тому же промту переписывает тексты под пожелания
+ * (задача PATCH к первой версии). ИИ не подключён или отказал: сайт уже готов и открывается редактор, `ai` это причина
+ */
+export async function createFromPromptAction(prompt: string) {
+  const reply = await safe(() => siteEditorApi.fromPrompt(prompt));
+  revalidatePath('/marketing/site');
+  revalidatePath('/marketing/site/editor');
+  if (!reply.ok) return reply;
+  const latest = reply.data.site.latest;
+  if (!latest) return { ok: true as const, data: { ...reply.data, run: null, aiOff: null as number | null } };
+  const ai = await safe(() =>
+    siteEditorApi.generate({
+      requestKey: randomUUID(),
+      type: 'PATCH',
+      baseVersionId: latest.id,
+      // промт как есть: бот получает его блоком «пожелания владельца» (данные, факты меняет только платформа)
+      instruction: prompt.slice(0, PATCH_INSTRUCTION_MAX),
+    }),
+  );
+  return { ok: true as const, data: { ...reply.data, run: ai.ok ? ai.data.run : null, aiOff: ai.ok ? null : ai.status } };
+}
+
 export async function createFromTemplateAction(templateId: string) {
   const reply = await safe(() => siteEditorApi.fromTemplate(templateId));
   revalidatePath('/marketing/site');

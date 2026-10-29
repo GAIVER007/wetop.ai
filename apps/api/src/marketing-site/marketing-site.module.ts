@@ -108,6 +108,18 @@ export class MarketingSiteController {
     return result;
   }
 
+  /** Владелец 29.10.2026: сайт по промту одним действием (свой дизайн из слов человека и данных филиала) */
+  @Post('from-prompt')
+  async fromPrompt(
+    @Headers(SCOPE_HEADER) pointer: string | undefined,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: { status(code: number): unknown },
+  ) {
+    const result = await this.service.fromPrompt(!!pointer, body);
+    res.status(result.created ? 201 : 200);
+    return result;
+  }
+
   /** MKT9.2: знания проекта (постоянные указания ИИ этого сайта) */
   @Get('context')
   context(@Headers(SCOPE_HEADER) pointer?: string) {

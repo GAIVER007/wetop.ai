@@ -1,4 +1,5 @@
 'use server';
+import { accessTrialUntil } from '../../lib/platform-trial';
 import { revalidatePath } from 'next/cache';
 import { ApiError, platformApi, type ExtensionChangeBody } from '../../lib/api';
 import { statusText } from './words';
@@ -141,7 +142,6 @@ export async function changeSiteBuilderAction(
  * Выдача доступа из «Подписки клиентов» (владелец 29.10.2026): пробный на 14 дней одной кнопкой (срок считает сервер
  * стойки, последний день включительно), «Оплачен» бессрочно, «Выключить». Тот же API лицензии, что форма выше.
  */
-const ACCESS_TRIAL_DAYS = 14;
 export async function grantAccessAction(
   organizationId: string,
   locationId: string,
@@ -151,7 +151,8 @@ export async function grantAccessAction(
   const attempt = (prev?.attempt ?? 0) + 1;
   const action = String(form.get('action') ?? '');
   const status = action === 'trial' ? 'TRIAL' : action === 'off' ? 'OFF' : 'ACTIVE';
-  const activeUntil = status === 'TRIAL' ? new Date(Date.now() + ACCESS_TRIAL_DAYS * 86_400_000).toISOString().slice(0, 10) : '';
+  // срок по Алматы (пояс платформы): вечером UTC там уже завтра
+  const activeUntil = status === 'TRIAL' ? accessTrialUntil() : '';
   try {
     const saved = await platformApi.changeSiteBuilder(organizationId, locationId, { status, activeUntil, note: String(form.get('note') ?? '').trim() });
     revalidatePath('/platform/cabinet', 'layout');

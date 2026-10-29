@@ -167,9 +167,16 @@
     font-size: var(--text-lg);
     font-weight: var(--weight-bold);
   }
+  /* кнопки строки справа одним столбцом: «Подключить» одной ширины, рядом слот «⋯» одной ширины у всех строк
+     (владелец 29.10.2026: «кнопка ушла в сторону, выставь в один ряд») */
+  .marketing-pult__go {
+    white-space: nowrap;
+  }
+  .marketing-pult__go > * {
+    vertical-align: middle;
+  }
   .marketing-pult__go {
     text-align: right;
-    white-space: nowrap;
   }
   .marketing-pult__go > * + * {
     margin-left: var(--space-2);
@@ -177,6 +184,15 @@
   .marketing-pult__go .btn {
     min-width: 128px;
     justify-content: center;
+  }
+  .marketing-pult__more {
+    display: inline-block;
+    width: var(--space-12);
+  }
+  .marketing-pult__more .action-menu,
+  .marketing-pult__more .btn {
+    width: 100%;
+    min-width: 0;
   }
   @media (max-width: 960px) {
     .marketing-results__list {
@@ -192,6 +208,9 @@
     }
     .marketing-pult__go .btn {
       width: 100%;
+    }
+    .marketing-pult__more:empty {
+      display: none;
     }
   }
   /* Экраны модулей «Реклама» и «Контент» (макет Marketing 2.0, экраны 2 и 3): плашка «Скоро», вкладки, пустые
@@ -2326,5 +2345,38 @@
   }
   .ad-library .tbl--stack td.budget-td-num::before {
     text-align: left;
+  }
+}
+
+/* окно подключения конструктора сайта (владелец 29.10.2026): два крупных варианта карточками, дата и заметка */
+@layer sections {
+  .site-connect__modes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .site-connect__mode {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .site-connect__mode span {
+    color: var(--text-2);
+    font-size: var(--text-sm);
+  }
+  .site-connect__mode[aria-checked='true'] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  .site-connect__mode:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
   }
 }

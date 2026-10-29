@@ -127,13 +127,13 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   await expect(modules).toHaveCount(7);
   await expect(modules.getByRole('heading', { level: 2 })).toHaveText(['Сайт и SEO', 'Бюджет и аналитика', 'Реклама', 'Конкуренты', 'Голосовой агент', 'ИИ-продавец', 'Контент']);
   const competitors = hub.getByTestId('marketing-competitors');
-  await expect(competitors.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
+  await expect(competitors.getByTestId('marketing-competitors-status')).toHaveText('В работе');
   await expect(competitors.getByRole('link', { name: 'Подключить: Конкуренты', exact: true })).toHaveAttribute('href', '/market');
 
   // «Сайт и SEO»: рабочий модуль, главная кнопка ведёт в конструктор, остальное в меню «⋯»
   const site = hub.getByTestId('marketing-site');
   // аудит 21.10.2026 P0-4: «Доступно» только при включённом конструкторе (на стенде он включён; выключенный в unit-тесте hub)
-  await expect(site.getByTestId('marketing-site-status')).toHaveText('Доступно');
+  await expect(site.getByTestId('marketing-site-status')).toHaveText('В работе');
   await expect(site).toContainText('Сайт гостиницы с онлайн-бронированием');
   const builder = site.getByRole('link', { name: 'Подключить: Сайт и SEO', exact: true });
   await expect(builder).toHaveAttribute('href', '/marketing/site/editor');
@@ -151,7 +151,7 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
 
   // «Бюджет»: живой модуль учёта расходов, главная кнопка в раздел, в меню «⋯» журнал и аналитика
   const budget = hub.getByTestId('marketing-budget');
-  await expect(budget.getByTestId('marketing-budget-status')).toHaveText('Доступно');
+  await expect(budget.getByTestId('marketing-budget-status')).toHaveText('В работе');
   await expect(budget.getByRole('link', { name: 'Подключить: Бюджет и аналитика', exact: true })).toHaveAttribute(
     'href',
     '/marketing/budget',
@@ -165,8 +165,8 @@ test('хаб Marketing 2.0: четыре модуля с кнопкой «Отк
   // реклама (кампании, кабинет Meta) и контент (черновики постов) живые: одна кнопка «Открыть» на свой экран, без меню
   // (аудит 21.10.2026 п. 5: «Скоро» рядом с живой кнопкой у рекламы сбивал с толку)
   for (const [testId, title, href, status] of [
-    ['marketing-ads', 'Реклама', '/marketing/ads', 'Доступно'],
-    ['marketing-content', 'Контент', '/marketing/content', 'Доступно'],
+    ['marketing-ads', 'Реклама', '/marketing/ads', 'В работе'],
+    ['marketing-content', 'Контент', '/marketing/content', 'В работе'],
   ] as const) {
     const card = hub.getByTestId(testId);
     const line = card;
@@ -418,17 +418,17 @@ test('MKT3: салон видит маркетинг, гостиничный к�
   // «Конкуренты» у всех (решение 23.10.2026, п. 5): у салона свой экран загрузки соседей по дням (§60), не гостиничный /market;
   // «Голосовой агент» (22.10.2026) тоже у всех направлений
   await expect(hub.locator('[data-module]')).toHaveCount(7);
-  await expect(hub.getByTestId('marketing-competitors-status')).toHaveText('Доступно');
+  await expect(hub.getByTestId('marketing-competitors-status')).toHaveText('В работе');
   await expect(
     hub.getByTestId('marketing-competitors').getByRole('link', { name: 'Подключить: Конкуренты', exact: true }),
   ).toHaveAttribute('href', '/market/business');
-  await expect(hub.getByTestId('marketing-voice-status')).toHaveText('Доступно');
+  await expect(hub.getByTestId('marketing-voice-status')).toHaveText('В работе');
   await expect(
     hub.getByTestId('marketing-voice').getByRole('link', { name: 'Подключить: Голосовой агент', exact: true }),
   ).toHaveAttribute('href', '/marketing/voice');
   // аудит 21.10.2026 P0-4: «Доступно» только при включённом конструкторе (на стенде он включён)
-  await expect(hub.getByTestId('marketing-site-status')).toHaveText('Доступно');
-  await expect(hub.getByTestId('marketing-budget-status')).toHaveText('Доступно');
+  await expect(hub.getByTestId('marketing-site-status')).toHaveText('В работе');
+  await expect(hub.getByTestId('marketing-budget-status')).toHaveText('В работе');
   await expect(
     hub.getByTestId('marketing-site').getByRole('link', { name: 'Подключить: Сайт и SEO', exact: true }),
   ).toHaveAttribute('href', '/marketing/site/editor');

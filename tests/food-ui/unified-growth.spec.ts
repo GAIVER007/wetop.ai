@@ -85,7 +85,8 @@ test('ресторан: продажи и маркетинг на данных �
   const marketing = page.getByTestId('business-marketing');
   await expect(marketing).toContainText('ресторана');
   await expect(marketing).not.toContainText('гостиниц');
-  await expect(page.getByTestId('marketing-budget-status')).toHaveText('Доступно');
+  // владелец 29.10.2026: у всех инструментов «Продвижения» статус «В работе»
+  await expect(page.getByTestId('marketing-budget-status')).toHaveText('В работе');
   await page.screenshot({ path: `${shots}/food-marketing.png`, fullPage: true });
 
   await page.goto('/marketing/content');

@@ -12,6 +12,8 @@ import {
   normalizeSiteHost,
   SITE_SPEC_SCHEMA_VERSION,
   siteSpecAssetRefs,
+  stockAssetMap,
+  withoutStockRefs,
   siteSpecCategoryCodes,
   siteSpecHash,
   validateSiteSpec,
@@ -198,14 +200,17 @@ export class SitesRuntimeService {
    * ассета по id у рантайма нет. Хранилище не настроено или сбой: пусто, картинки просто не выводятся
    */
   private async assets(row: PublishedSiteRow, historical: boolean): Promise<Record<string, string>> {
-    const refs = siteSpecAssetRefs(row.spec);
-    if (!refs.length || !this.storage) return {};
+    const all = siteSpecAssetRefs(row.spec);
+    // фото набора WETOP отдаются своим адресом images.pexels.com и без хранилища
+    const stock = stockAssetMap(all);
+    const refs = withoutStockRefs(all);
+    if (!refs.length || !this.storage) return stock;
     try {
       const rows = await withServiceDatabase(() => this.repo.assets(row.locationId, refs.map((r) => r.assetId)));
-      return await signedAssetMap(this.storage, refs, rows, historical, signedUrlTtl());
+      return { ...stock, ...(await signedAssetMap(this.storage, refs, rows, historical, signedUrlTtl())) };
     } catch (error) {
       console.error(JSON.stringify({ event: 'sites_runtime.assets_failed', siteId: row.siteId, error: (error as Error).name }));
-      return {};
+      return stock;
     }
   }
 

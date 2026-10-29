@@ -70,6 +70,9 @@ export function TopNav({
   const beauty = shell?.vertical === 'BEAUTY';
   const food = shell?.vertical === 'FOOD_SERVICE';
   const hospitality = !scopeSwitching && !beauty && !food && !shell?.access.unknown;
+  // Кабинет компании WETOP (владелец 29.10.2026: «Главный админ, я не должен это видеть… убери верхнюю строку»):
+  // на /platform шапка без разделов стойки, часов, кассы, поиска и филиала; знак ведёт в кабинет
+  const platform = path === '/platform' || path.startsWith('/platform/');
   const [search, setSearch] = useState(false);
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState(false);
@@ -186,6 +189,7 @@ export function TopNav({
             {t('К содержимому')}
           </a>
           <div className="workspace-header__row">
+            {!platform && (
             <button
               className="icon-button mobile-menu"
               onClick={() => {
@@ -199,14 +203,17 @@ export function TopNav({
             >
               <Icon name="menu" />
             </button>
+            )}
+            {!platform && (
             <SideNav
               path={path}
               desk={desk}
               dismissKey={`${scopeKey}:${scopeSwitching}:${search}:${profile}:${menu}`}
             />
+            )}
             <Link
               className="workspace-brand"
-              href={landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
+              href={platform ? '/platform/cabinet' : landingForVertical(shell?.vertical ?? 'HOSPITALITY')}
               aria-label={t('WETOP, стартовый экран')}
             >
               <span className="workspace-mark">W</span>
@@ -216,16 +223,16 @@ export function TopNav({
             </Link>
 
             {/* строка разделов (решение владельца 17.10.2026): от 1280 px, уже выдвижное меню слева */}
-            <TabNav path={path} desk={desk} />
+            {!platform && <TabNav path={path} desk={desk} />}
             {/* дата и время филиала у знака (владелец 24.10.2026, вариант A): второго поля поиска в шапке нет, ищут
                 в строке отборов журнала; поиск по системе открывает Ctrl K или значок лупы на телефоне */}
-            <HeaderClock />
-            {!scopeSwitching && shell?.scopeKey && !shell.access.unknown && (
+            {!platform && <HeaderClock />}
+            {!platform && !scopeSwitching && shell?.scopeKey && !shell.access.unknown && (
               <CashHeader key={scopeKey} scopeKey={scopeKey} readOnly={shell.readOnly} />
             )}
             {/* в журналах у экрана свой поиск в строке отборов (ADR шапки), значка там нет, Ctrl K ставит курсор в поиск
                 журнала; владелец 24.10.2026: «сделай всё так же, как в гостиницах» */}
-            {!JOURNAL_PATHS.has(path) && (
+            {!platform && !JOURNAL_PATHS.has(path) && (
             <button
               className="workspace-search workspace-search--icon"
               data-tour="search"
@@ -237,6 +244,7 @@ export function TopNav({
             </button>
             )}
             {/* филиал справа, рядом с профилем (верхнее меню 17.10.2026); до 960 px он вверху меню телефона */}
+            {!platform && (
             <div className="workspace-header__property">
               <Suspense
                 fallback={<PropertyBlock property={property} settings={false} close={undefined} />}
@@ -244,6 +252,7 @@ export function TopNav({
                 <GrantedProperty desk={desk} property={property} close={undefined} path={path} />
               </Suspense>
             </div>
+            )}
             <div className="header-tools">
               {demo && (
                 <span

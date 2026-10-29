@@ -31,7 +31,8 @@ export function securityHeaders(env: SecurityHeaderEnv): Record<string, string> 
     "default-src 'self'",
     withAssistant("script-src 'self' 'unsafe-inline'"),
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    // фото набора WETOP для сайтов без своих фото (stock-photos.ts): превью сайта в редакторе
+    "img-src 'self' data: blob: https://images.pexels.com",
     "font-src 'self' data:",
     withAssistant("connect-src 'self'"),
     // окно Channex раздела «Каналы» (ADR-140, channel-iframe.md): подключение канала внутри стойки

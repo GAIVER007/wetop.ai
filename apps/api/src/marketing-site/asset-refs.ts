@@ -1,5 +1,5 @@
 import { ConflictException, ServiceUnavailableException } from '@nestjs/common';
-import { siteSpecAssetRefs, type SiteAssetKind, type SiteSpecAssetRef } from '@pms/domain';
+import { siteSpecAssetRefs, withoutStockRefs, type SiteAssetKind, type SiteSpecAssetRef } from '@pms/domain';
 import { Prisma, type DbTx } from '@pms/database';
 import type { SiteAssetStorage } from './asset-storage';
 
@@ -92,7 +92,8 @@ export async function checkSpecAssets(
   spec: unknown,
   opts: { historical: boolean; lock: boolean },
 ): Promise<SpecAssetCheck> {
-  const refs = siteSpecAssetRefs(spec);
+  // фото набора WETOP (stock-photos.ts) не из библиотеки филиала: их не проверяем и не подписываем
+  const refs = withoutStockRefs(siteSpecAssetRefs(spec));
   const rows = await assetRows(tx, locationId, refs.map((r) => r.assetId), opts.lock);
   const byId = new Map(rows.map((r) => [r.id, r]));
   const problems: AssetProblem[] = [];

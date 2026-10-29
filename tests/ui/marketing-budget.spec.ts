@@ -62,7 +62,7 @@ async function openBudget(page: Page) {
 test('хаб: карточка «Бюджет и аналитика» живая и ведёт в сводку; пустой месяц честный', async ({ page }) => {
   await page.goto('/marketing');
   const card = page.getByTestId('marketing-budget');
-  await expect(card.getByTestId('marketing-budget-status')).toHaveText('Доступно');
+  await expect(card.getByTestId('marketing-budget-status')).toHaveText('В работе');
   await card.getByTestId('marketing-budget-page').click();
   await page.waitForURL('**/marketing/budget');
   const main = page.getByRole('main');

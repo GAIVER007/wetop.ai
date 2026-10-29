@@ -69,7 +69,16 @@ async function Clients({ filter }: { filter: Filter }) {
   return (
     <CabinetShell active="clients" t={t} clients={view.totals.clients}>
       <Stats min={180}>
-        <Stat label={t('Клиенты')} value={formatInt(view.totals.clients)} icon={<Icon name="guests" />} testId="clients-total" />
+        <Stat
+          label={t('Клиенты')}
+          value={formatInt(view.totals.clients)}
+          hint={t('ушли за месяц: {n}, в прошлом: {p}', {
+            n: formatInt(growth.churn?.count ?? 0),
+            p: formatInt(growth.churn?.previous ?? 0),
+          })}
+          icon={<Icon name="guests" />}
+          testId="clients-total"
+        />
         <Stat
           label={t('Люди у клиентов')}
           value={formatInt(view.totals.people)}

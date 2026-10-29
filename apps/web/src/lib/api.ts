@@ -3221,6 +3221,8 @@ export interface PlatformGrowth {
   };
   previous: { registrations: number; trials: number; firstPayments: number; incomeCents: string };
   income: Array<{ month: string; cents: string }>;
+  /** Отток месяца: ушли в «только чтение» или приостановку; старый API без поля */
+  churn?: { count: number; previous: number };
   clients: Array<{
     id: string;
     name: string;

@@ -2382,6 +2382,8 @@ function setSellerExtension(state: unknown, days: unknown, trial: boolean) {
 /** Пробный период своей организации (ТЗ ux-retention п. 2.7): число — осталось дней, 'ended' — срок вышел, иначе оплачена */
 // Подписка, подтверждённая руками главного администратора (ADR-102): статус поверх начального
 const platformStatuses = new Map<string, string>();
+/** Смены статуса на стенде (отток месяца в кабинете) */
+const platformStatusLog: Array<{ organizationId: string; to: string; at: Date }> = [];
 // ORG1 (ADR-ORG1): название, правленное главным администратором, и организации в архиве (прежний статус для возврата)
 const platformNames = new Map<string, string>();
 const platformArchived = new Map<string, string>();
@@ -2419,6 +2421,7 @@ function resetAccess() {
   uiPlatformAdmin = false;
   platformExtensions.clear();
   platformStatuses.clear();
+  platformStatusLog.length = 0;
   platformNames.clear();
   platformArchived.clear();
   platformCreated.length = 0;
@@ -8297,6 +8300,7 @@ createServer(async (req, res) => {
               // посетители wetop.ai на стенде: счётчик компании заведён, 400 за месяц
               visitors: 400,
               ownOrganizationId: 'ui-org',
+              statusChanges: platformStatusLog.map((c) => ({ ...c, to: c.to as 'READ_ONLY' })),
             },
             month,
             new Date(),
@@ -8329,6 +8333,7 @@ createServer(async (req, res) => {
             message: 'Статус: «ACTIVE» (оплата получена) или «READ_ONLY» (только чтение)',
           });
         platformStatuses.set(org.id, next);
+        platformStatusLog.push({ organizationId: org.id, to: next, at: new Date() });
         return send(
           200,
           platformOrganizationJson(platformOrganizations().find((o) => o.id === org.id)!),

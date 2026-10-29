@@ -107,7 +107,11 @@ async function Cabinet({ month }: { month: string }) {
         <Stat
           label={t('Клиенты')}
           value={formatInt(view.totals.clients)}
-          hint={t('платят {paying}, не оплатили {unpaid}', { paying: formatInt(k.paying), unpaid: formatInt(k.unpaid) })}
+          hint={t('платят {paying}, не оплатили {unpaid}, ушли за месяц {churn}', {
+            paying: formatInt(k.paying),
+            unpaid: formatInt(k.unpaid),
+            churn: formatInt(growth.churn?.count ?? 0),
+          })}
           icon={<Icon name="guests" />}
           testId="cabinet-clients"
           href="/platform/cabinet/clients"

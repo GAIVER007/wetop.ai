@@ -100,6 +100,20 @@ test('кабинет главного администратора без стр
   await expect(page.locator('.workspace-header__property')).toHaveCount(1);
 });
 
+test('отток месяца: клиент ушёл в «только чтение», под «Клиентами» «ушли за месяц 1»', async ({ page, request }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await signIn(page, request, true);
+  const token = (await page.context().cookies()).find((c) => c.name === 'wetop_session')?.value;
+  const asAdmin = { headers: { 'x-wetop-test-client': '1', 'x-wetop-session': token! } };
+  await page.goto('/platform/cabinet');
+  await expect(page.getByTestId('cabinet')).toContainText('ушли за месяц 0');
+  expect((await request.put(`${FIXTURE_API}/platform/organizations/ui-org-2/status`, { ...asAdmin, data: { status: 'READ_ONLY' } })).ok()).toBe(true);
+  await page.reload();
+  await expect(page.getByTestId('cabinet')).toContainText('ушли за месяц 1');
+  await page.goto('/platform/cabinet/clients');
+  await expect(page.getByTestId('cabinet')).toContainText('ушли за месяц: 1, в прошлом: 0');
+});
+
 test('без отметки главного администратора кабинет закрыт', async ({ page, request }) => {
   await signIn(page, request, false);
   await page.goto('/platform/cabinet');

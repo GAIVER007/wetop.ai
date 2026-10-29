@@ -211,6 +211,7 @@ export const ACTION_RU: Record<string, string> = {
   'organization.renamed': msg('Организация переименована'),
   'organization.restored': msg('Организация восстановлена'),
   'organization.status_changed': msg('Статус организации изменён'),
+  'platform.subscription.reminder': msg('Владельцу отправлено письмо о сроке'),
   'promo_code.created': msg('Промокод создан'),
   'promo_code.updated': msg('Промокод изменён'),
   'property.branch_created': msg('Филиал гостиницы создан'),

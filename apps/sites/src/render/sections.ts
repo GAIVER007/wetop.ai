@@ -79,8 +79,10 @@ const accommodations: Renderer = (s, ctx, { h1 }) => {
       const price =
         s['showFromPrice'] === true && ctx.bookingLive ? fromPricePlace(String(item['categoryCode'])) : '';
       const action = ctaLink((s['itemAction'] as Cta | undefined) ?? { label: { [ctx.locale]: ui(ctx.locale).book }, action: { kind: 'BOOK' } }, ctx);
-      const body = `${pics}<h3>${t(item['title'], ctx)}</h3><p>${t(item['description'], ctx)}</p>${capacity}${price}${chips}${action ? `<div class="actions">${action}</div>` : ''}`;
-      return s.variant === 'ROWS' ? `<li class="row"><div>${body}</div></li>` : `<li class="card">${body}</li>`;
+      const text = `<h3>${t(item['title'], ctx)}</h3><p>${t(item['description'], ctx)}</p>${capacity}${price}${chips}${action ? `<div class="actions">${action}</div>` : ''}`;
+      // строкой: фото слева крупно, текст справа; без фото строка остаётся одной колонкой
+      if (s.variant === 'ROWS') return pics ? `<li class="row room-row"><div class="room-row__pics">${pics}</div><div>${text}</div></li>` : `<li class="row"><div>${text}</div></li>`;
+      return `<li class="card">${pics}${text}</li>`;
     })
     .join('');
   const cls = s.variant === 'ROWS' ? 'list' : 'list grid';

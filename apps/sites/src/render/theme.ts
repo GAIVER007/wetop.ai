@@ -211,8 +211,14 @@ main section:nth-of-type(even) .contact-list li{background:var(--bg)}
 .site-footer p{margin:0}
 .lead--card .lead-form{max-width:640px}
 .lead-form .field{margin:0 0 14px}
-@media (min-width:800px){.lead-form fieldset{grid-template-columns:1fr 1fr;column-gap:16px}.lead-form fieldset>*{grid-column:1/-1}.lead-form fieldset>.field:has(input[type=date]),.lead-form fieldset>.field:has(select[name=startsAt]),.lead-form fieldset>.field:has(input[name=name]),.lead-form fieldset>.field:has(input[type=tel]){grid-column:auto}}
+@media (min-width:800px){.lead-form fieldset{grid-template-columns:1fr 1fr;column-gap:16px}.lead-form fieldset>*{grid-column:1/-1}.lead-form fieldset>.field:has(input[type=date]),.lead-form fieldset>.field:has(select[name=startsAt]),.lead-form fieldset>.field:has(input[type=time]),.lead-form fieldset>.field:has(input[name=name]),.lead-form fieldset>.field:has(input[type=tel]){grid-column:auto}}
 @media (min-width:800px){.grid:has(> .person){grid-template-columns:repeat(auto-fill,minmax(260px,320px))}}
+.room-row__pics img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:var(--radius)}
+.room-row__pics img+img{display:none}
+@media (min-width:800px){.row.room-row{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px 56px;align-items:center;padding:40px 0}.row.room-row:nth-child(even) .room-row__pics{order:2}}
+.card>img{display:block;width:calc(100% + 48px);max-width:none;margin:-24px -24px 16px;aspect-ratio:3/2;object-fit:cover;border-radius:var(--radius) var(--radius) 0 0}
+.card>img+img{display:none}
+.lead--card .lead-form{max-width:720px}
 p:has(> button[data-beauty-refresh]:empty),p[data-beauty-details]:empty{display:none}
 button.btn{font:inherit;font-weight:600;cursor:pointer}
 .lead-form .btn[type=submit]{min-width:200px;margin-top:4px}
@@ -226,6 +232,7 @@ button.btn{font:inherit;font-weight:600;cursor:pointer}
 .t-luxe h1{font-size:clamp(44px,7.5vw,92px);font-weight:500;line-height:1.02;letter-spacing:-.01em}
 .t-luxe h2{font-size:clamp(34px,5vw,56px);font-weight:500;letter-spacing:-.005em}
 .t-luxe h3{font-size:24px;font-weight:500}
+.t-luxe .room-row h3{font-size:clamp(28px,3vw,38px)}
 .t-luxe body,.t-luxe{font-weight:300}
 .t-luxe .btn{font-weight:500;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
 .t-luxe .nav a{letter-spacing:.12em;text-transform:uppercase;font-size:14px}

@@ -1,5 +1,5 @@
 'use client';
-import { useActionState } from 'react';
+import { startTransition, useActionState, type FormEvent } from 'react';
 import { DateInput } from '../../../components/date-field';
 import { Alert, Button, Field, Input, Notice, Select } from '../../../components/ui';
 import type { PlatformExpenseCategory, PlatformPlan } from '../../../lib/api';
@@ -11,6 +11,9 @@ import {
   saveSubscriptionAction,
   savePlanAction,
   saveTeamMemberAction,
+  savePartnerAction,
+  payPartnerAction,
+  setClientPartnerAction,
   voidExpenseAction,
   voidPaymentAction,
   type MoneyFormResult,
@@ -18,6 +21,23 @@ import {
 
 /** Формы кабинета WETOP (DATA_MODEL §63): одна кнопка, поля в окне, отказ словами API */
 
+
+/** Форма очищается только после успешной записи: при ошибке введённое остаётся, человек правит одно поле */
+function formKey(state: MoneyFormResult | null): number {
+  return state?.saved ?? 0;
+}
+
+/**
+ * Отправка без сброса полей: `action` формы React после ответа очищает поля даже при ошибке; здесь отправляем сами,
+ * а очищает форму только новый `key` после успешной записи
+ */
+function keepOnError(action: (form: FormData) => void) {
+  return (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    startTransition(() => action(data));
+  };
+}
 
 function Result({ state, testId }: { state: MoneyFormResult | null; testId: string }) {
   if (state?.error) return <Alert data-testid={`${testId}-error`}>{state.error}</Alert>;
@@ -45,8 +65,8 @@ export function PaymentForm({
   );
   return (
     <form
-      key={state?.attempt ?? 0}
-      action={action}
+      key={formKey(state)}
+      onSubmit={keepOnError(action)}
       className="cabinet__form"
       data-testid="money-payment-form"
     >
@@ -105,8 +125,8 @@ export function ExpenseForm({
   );
   return (
     <form
-      key={state?.attempt ?? 0}
-      action={action}
+      key={formKey(state)}
+      onSubmit={keepOnError(action)}
       className="cabinet__form cabinet__form--wide"
       data-testid="money-expense-form"
     >
@@ -143,7 +163,7 @@ export function VoidButton({ id, kind }: { id: string; kind: 'payment' | 'expens
     null,
   );
   return (
-    <form action={action}>
+    <form onSubmit={keepOnError(action)}>
       <Button
         type="submit"
         tone="ghost"
@@ -166,8 +186,8 @@ export function PlanForm({ plan }: { plan: (PlatformPlan & { priceInput: string 
   );
   return (
     <form
-      key={state?.attempt ?? 0}
-      action={action}
+      key={formKey(state)}
+      onSubmit={keepOnError(action)}
       className="cabinet__form"
       data-testid="money-plan-form"
     >
@@ -220,8 +240,8 @@ export function SubscriptionForm({
   );
   return (
     <form
-      key={state?.attempt ?? 0}
-      action={action}
+      key={formKey(state)}
+      onSubmit={keepOnError(action)}
       className="cabinet__form cabinet__form--row"
       aria-label={t('Подписка: {name}', { name: client.name })}
       data-testid="money-subscription-form"
@@ -262,37 +282,51 @@ export function SubscriptionForm({
 
 export function TeamForm({
   member,
+  kind,
 }: {
   member: {
     id: string;
     name: string;
-    role: string;
+    role: string | null;
     email: string | null;
+    phone?: string | null | undefined;
+    kind?: 'PERSON' | 'DIGITAL' | undefined;
     salaryInput: string;
     active: boolean;
   } | null;
+  /** Новый: человек или цифровой сотрудник (ИИ-агент: имя и зарплата) */
+  kind?: 'PERSON' | 'DIGITAL' | undefined;
 }) {
   const t = useT();
+  const digital = (member?.kind ?? kind) === 'DIGITAL';
   const [state, action, pending] = useActionState<MoneyFormResult | null, FormData>(
     saveTeamMemberAction.bind(null, member?.id ?? null),
     null,
   );
   return (
     <form
-      key={state?.attempt ?? 0}
-      action={action}
+      key={formKey(state)}
+      onSubmit={keepOnError(action)}
       className="cabinet__form"
       data-testid="money-team-form"
     >
-      <Field label={t('Имя')} required>
+      <input type="hidden" name="kind" value={digital ? 'DIGITAL' : 'PERSON'} />
+      <Field label={digital ? t('Имя') : t('ФИО')} required>
         <Input name="name" maxLength={200} defaultValue={member?.name ?? ''} />
       </Field>
-      <Field label={t('Должность')} required>
-        <Input name="role" maxLength={100} defaultValue={member?.role ?? ''} />
-      </Field>
-      <Field label={t('Почта')}>
-        <Input name="email" type="email" maxLength={320} defaultValue={member?.email ?? ''} />
-      </Field>
+      {!digital && (
+        <>
+          <Field label={t('Должность')}>
+            <Input name="role" maxLength={100} defaultValue={member?.role ?? ''} />
+          </Field>
+          <Field label={t('Телефон')}>
+            <Input name="phone" type="tel" maxLength={40} defaultValue={member?.phone ?? ''} />
+          </Field>
+          <Field label={t('Почта')}>
+            <Input name="email" type="email" maxLength={320} defaultValue={member?.email ?? ''} />
+          </Field>
+        </>
+      )}
       <Field label={t('Зарплата в месяц, $')}>
         <Input name="salary" inputMode="decimal" defaultValue={member?.salaryInput ?? ''} />
       </Field>
@@ -305,9 +339,111 @@ export function TeamForm({
         </Field>
       )}
       <Button type="submit" disabled={pending} aria-busy={pending} data-testid="money-team-save">
-        {pending ? t('Сохраняю…') : member ? t('Сохранить') : t('Добавить сотрудника')}
+        {pending ? t('Сохраняю…') : member ? t('Сохранить') : t('Добавить')}
       </Button>
       <Result state={state} testId="money-team" />
+    </form>
+  );
+}
+
+/** Партнёр WETOP (DATA_MODEL §63.1): имя, телефон, почта, процент от оплат его клиентов */
+export function PartnerForm({
+  partner,
+}: {
+  partner: { id: string; name: string; phone: string | null; email: string | null; percentInput: string; active: boolean } | null;
+}) {
+  const t = useT();
+  const [state, action, pending] = useActionState<MoneyFormResult | null, FormData>(
+    savePartnerAction.bind(null, partner?.id ?? null),
+    null,
+  );
+  return (
+    <form key={formKey(state)} onSubmit={keepOnError(action)} className="cabinet__form" data-testid="partner-form">
+      <Field label={t('Имя или компания')} required>
+        <Input name="name" maxLength={200} defaultValue={partner?.name ?? ''} />
+      </Field>
+      <Field label={t('Телефон')}>
+        <Input name="phone" type="tel" maxLength={40} defaultValue={partner?.phone ?? ''} />
+      </Field>
+      <Field label={t('Почта')}>
+        <Input name="email" type="email" maxLength={320} defaultValue={partner?.email ?? ''} />
+      </Field>
+      <Field label={t('Процент от оплат клиентов')} required>
+        <Input name="percent" inputMode="decimal" placeholder="20" defaultValue={partner?.percentInput ?? ''} />
+      </Field>
+      {partner && (
+        <Field label={t('Состояние')}>
+          <Select name="active" defaultValue={partner.active ? 'true' : 'false'}>
+            <option value="true">{t('работает')}</option>
+            <option value="false">{t('не работает')}</option>
+          </Select>
+        </Field>
+      )}
+      <Button type="submit" disabled={pending} aria-busy={pending} data-testid="partner-save">
+        {pending ? t('Сохраняю…') : partner ? t('Сохранить') : t('Добавить партнёра')}
+      </Button>
+      <Result state={state} testId="partner" />
+    </form>
+  );
+}
+
+/** Выплата партнёру: сумма к выплате подставлена, пишется расходом «Партнёрам» */
+export function PartnerPayoutForm({ partnerId, amount, today }: { partnerId: string; amount: string; today: string }) {
+  const t = useT();
+  const [state, action, pending] = useActionState<MoneyFormResult | null, FormData>(
+    payPartnerAction.bind(null, partnerId),
+    null,
+  );
+  return (
+    <form key={formKey(state)} onSubmit={keepOnError(action)} className="cabinet__form" data-testid="partner-payout-form">
+      <Field label={t('Сумма, $')} required>
+        <Input name="amount" inputMode="decimal" defaultValue={amount} />
+      </Field>
+      <Field label={t('Дата')} required>
+        <DateInput name="spentOn" defaultValue={today} />
+      </Field>
+      <Field label={t('Заметка')}>
+        <Input name="note" maxLength={300} />
+      </Field>
+      <Button type="submit" disabled={pending} aria-busy={pending} data-testid="partner-payout-save">
+        {pending ? t('Сохраняю…') : t('Выплатить')}
+      </Button>
+      <Result state={state} testId="partner-payout" />
+    </form>
+  );
+}
+
+/** Чей клиент: партнёр, который привёл клиента (карточка клиента) */
+export function ClientPartnerForm({
+  organizationId,
+  partners,
+  current,
+}: {
+  organizationId: string;
+  partners: Array<{ id: string; name: string }>;
+  current: string | null;
+}) {
+  const t = useT();
+  const [state, action, pending] = useActionState<MoneyFormResult | null, FormData>(
+    setClientPartnerAction.bind(null, organizationId),
+    null,
+  );
+  return (
+    <form key={formKey(state)} onSubmit={keepOnError(action)} className="cabinet__form cabinet__form--row" data-testid="client-partner-form">
+      <Field label={t('Партнёр')}>
+        <Select name="partnerId" defaultValue={current ?? ''}>
+          <option value="">{t('без партнёра')}</option>
+          {partners.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </Select>
+      </Field>
+      <Button type="submit" tone="secondary" disabled={pending} aria-busy={pending} data-testid="client-partner-save">
+        {pending ? t('Сохраняю…') : t('Сохранить')}
+      </Button>
+      <Result state={state} testId="client-partner" />
     </form>
   );
 }

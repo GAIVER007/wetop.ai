@@ -3,7 +3,7 @@
  * месяц по подпискам, должники. Суммы целыми центами USD в bigint, без чисел с плавающей точкой (AGENTS §12).
  * Месяц календарный по UTC, «сегодня» тоже по UTC: компания считает в одном поясе.
  */
-export const EXPENSE_CATEGORIES = ['SERVER', 'DOMAINS', 'ADS', 'AI', 'SALARIES', 'SERVICES', 'OTHER'] as const;
+export const EXPENSE_CATEGORIES = ['SERVER', 'DOMAINS', 'ADS', 'AI', 'SALARIES', 'SERVICES', 'PARTNERS', 'OTHER'] as const;
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number];
 
 export interface MoneySource {

@@ -124,6 +124,7 @@ test('главный администратор после входа сразу
   await page.goto('/');
   await page.waitForURL('**/platform/cabinet');
   await expect(page.getByTestId('cabinet')).toBeVisible();
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/login-cabinet-home.png` });
 });
 
 test('главный администратор без отметки «Кабинет WETOP по умолчанию» (как Вячеслав): входит в свою стойку, кабинет в «Настройках»', async ({
@@ -139,6 +140,7 @@ test('главный администратор без отметки «Каби
   await page.goto('/');
   await page.waitForURL(/\/today$/);
   expect(new URL(page.url()).pathname).toBe('/today');
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/login-own-hotel.png` });
 });
 
 test('кабинет главного администратора без строки разделов стойки: только знак, тема и профиль', async ({

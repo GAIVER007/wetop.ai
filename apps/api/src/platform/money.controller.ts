@@ -21,6 +21,7 @@ import { requirePlatformAdmin } from './admin';
 import { CABINET_REPOSITORY, type CabinetRepository } from './cabinet.repository';
 import { EXPENSE_CATEGORIES, buildMoney, parseIsoDate, parseUsdCents, type ExpenseCategory } from './money';
 import { MONEY_REPOSITORY, type MoneyRepository } from './money.repository';
+import { buildPartners, parsePercentBp } from './partners';
 
 export const MONEY_NOT_READY = 'Деньги компании ещё не подключены: нужна миграция 166';
 export const MONEY_AMOUNT = 'Сумма в долларах: например 49 или 49.50';
@@ -32,6 +33,11 @@ export const MONEY_CATEGORY = 'Выберите статью расхода';
 export const MONEY_TEAM_NAME = 'Имя: от 1 до 200 знаков';
 export const MONEY_TEAM_ROLE = 'Должность: от 1 до 100 знаков';
 export const MONEY_NOT_FOUND = 'Запись не найдена или уже отменена';
+export const PARTNERS_NOT_READY = 'Партнёры ещё не подключены: нужна миграция 172';
+export const PARTNER_NAME = 'Имя партнёра: от 1 до 200 знаков';
+export const PARTNER_PERCENT = 'Процент: число от 0 до 100, например 20 или 12.5';
+export const PARTNER_NOT_FOUND = 'Такого партнёра нет';
+export const MONEY_PARTNERS_CATEGORY = 'Выплата партнёру записывается в разделе «Партнёры»';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const cents = (v: bigint | null) => (v === null ? null : String(v));
@@ -198,6 +204,8 @@ export class MoneyController {
     if (amount === null || amount === 0n) throw new BadRequestException(MONEY_AMOUNT);
     const spentOn = parseIsoDate(b['spentOn']);
     if (!spentOn) throw new BadRequestException(MONEY_DATE);
+    // выплата партнёру несёт отметку партнёра: только из «Партнёров»
+    if (category === 'PARTNERS') throw new BadRequestException(MONEY_PARTNERS_CATEGORY);
     const saved = await this.money.addExpense({
       category: category as ExpenseCategory,
       amountCents: amount,
@@ -232,8 +240,10 @@ export class MoneyController {
     const b = (body ?? {}) as Record<string, unknown>;
     const name = text(b['name'], 201);
     if (!name || name.length > 200) throw new BadRequestException(MONEY_TEAM_NAME);
-    const role = text(b['role'], 101);
-    if (!role || role.length > 100) throw new BadRequestException(MONEY_TEAM_ROLE);
+    // цифровой сотрудник (ИИ-агент): имя и зарплата, без должности, телефона и почты (владелец 30.10.2026)
+    const kind = b['kind'] === 'DIGITAL' ? ('DIGITAL' as const) : ('PERSON' as const);
+    const role = kind === 'DIGITAL' ? null : text(b['role'], 101);
+    if (role !== null && role.length > 100) throw new BadRequestException(MONEY_TEAM_ROLE);
     const rawSalary = b['salary'];
     const salary = rawSalary === null || rawSalary === undefined || rawSalary === '' ? null : parseUsdCents(rawSalary);
     if (rawSalary && salary === null) throw new BadRequestException(MONEY_AMOUNT);
@@ -241,11 +251,92 @@ export class MoneyController {
       id,
       name,
       role,
-      email: text(b['email'], 320),
+      email: kind === 'DIGITAL' ? null : text(b['email'], 320),
+      phone: kind === 'DIGITAL' ? null : text(b['phone'], 40),
+      kind,
       monthlySalaryCents: salary,
       active: b['active'] !== false && b['active'] !== 'false',
     });
     if (!saved) throw new NotFoundException(MONEY_NOT_FOUND);
     return { ...saved, monthlySalaryCents: cents(saved.monthlySalaryCents) };
+  }
+
+  /** Партнёры WETOP (DATA_MODEL §63.1): список с клиентами и деньгами, клиенты для выбора «чей клиент» */
+  @Get('partners')
+  @Header('Cache-Control', 'no-store')
+  async partners() {
+    requirePlatformAdmin();
+    if (!(await this.money.ready()) || !(await this.money.partnersReady())) return { ready: false };
+    const own = currentOrganizationId();
+    const [src, orgs] = await Promise.all([this.money.partnersSource(), this.cabinet.source({ since30d: new Date(), ownOrganizationId: own })]);
+    const view = buildPartners(src);
+    const names = new Map(orgs.organizations.map((o) => [o.id, o.name]));
+    return {
+      ready: true,
+      ...view,
+      clients: src.links.map((l) => ({ organizationId: l.organizationId, partnerId: l.partnerId, name: names.get(l.organizationId) ?? '' })),
+    };
+  }
+
+  @Post('partners')
+  async addPartner(@Body() body: unknown) {
+    await this.partnersOk();
+    return this.savePartner(null, body);
+  }
+
+  @Put('partners/:id')
+  async updatePartner(@Param('id') id: string, @Body() body: unknown) {
+    await this.partnersOk();
+    if (!UUID.test(id)) throw new NotFoundException(PARTNER_NOT_FOUND);
+    return this.savePartner(id, body);
+  }
+
+  /** Выплата партнёру: расход статьи «Партнёрам» с отметкой партнёра, сразу в «Деньгах» */
+  @Post('partners/:id/payouts')
+  async payPartner(@Param('id') id: string, @Body() body: unknown) {
+    await this.partnersOk();
+    if (!UUID.test(id) || !(await this.money.partnerExists(id))) throw new NotFoundException(PARTNER_NOT_FOUND);
+    const b = (body ?? {}) as Record<string, unknown>;
+    const amount = parseUsdCents(b['amount']);
+    if (amount === null || amount === 0n) throw new BadRequestException(MONEY_AMOUNT);
+    const spentOn = parseIsoDate(b['spentOn']);
+    if (!spentOn) throw new BadRequestException(MONEY_DATE);
+    const saved = await this.money.payPartner({ partnerId: id, amountCents: amount, spentOn, note: text(b['note'], 300), by: currentUserId() });
+    return { ...saved, amountCents: cents(saved.amountCents) };
+  }
+
+  /** Чей клиент: партнёр организации-клиента; пустой `partnerId` снимает отметку */
+  @Put('clients/:organizationId/partner')
+  async setClientPartner(@Param('organizationId') organizationId: string, @Body() body: unknown) {
+    await this.partnersOk();
+    if (!UUID.test(organizationId) || !(await this.money.organizationExists(organizationId))) throw new NotFoundException(MONEY_NO_CLIENT);
+    const raw = ((body ?? {}) as Record<string, unknown>)['partnerId'];
+    const partnerId = typeof raw === 'string' && raw !== '' ? raw : null;
+    if (partnerId !== null && (!UUID.test(partnerId) || !(await this.money.partnerExists(partnerId)))) throw new BadRequestException(PARTNER_NOT_FOUND);
+    await this.money.setClientPartner({ organizationId, partnerId, by: currentUserId() });
+    return { organizationId, partnerId };
+  }
+
+  private async partnersOk() {
+    requirePlatformAdmin();
+    if (!(await this.money.ready()) || !(await this.money.partnersReady())) throw new ServiceUnavailableException(PARTNERS_NOT_READY);
+  }
+
+  private async savePartner(id: string | null, body: unknown) {
+    const b = (body ?? {}) as Record<string, unknown>;
+    const name = text(b['name'], 201);
+    if (!name || name.length > 200) throw new BadRequestException(PARTNER_NAME);
+    const percentBp = parsePercentBp(b['percent']);
+    if (percentBp === null) throw new BadRequestException(PARTNER_PERCENT);
+    const saved = await this.money.savePartner({
+      id,
+      name,
+      phone: text(b['phone'], 40),
+      email: text(b['email'], 320),
+      percentBp,
+      active: b['active'] !== false && b['active'] !== 'false',
+    });
+    if (!saved) throw new NotFoundException(PARTNER_NOT_FOUND);
+    return saved;
   }
 }

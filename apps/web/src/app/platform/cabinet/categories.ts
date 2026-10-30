@@ -12,5 +12,6 @@ export const CATEGORY_LABEL: Record<PlatformExpenseCategory, string> = {
   AI: msg('ИИ'),
   SALARIES: msg('Зарплаты'),
   SERVICES: msg('Сервисы'),
+  PARTNERS: msg('Партнёрам'),
   OTHER: msg('Другое'),
 };

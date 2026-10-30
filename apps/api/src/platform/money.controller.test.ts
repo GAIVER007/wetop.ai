@@ -16,6 +16,10 @@ import {
   MONEY_NO_CLIENT,
   MONEY_NOT_READY,
   MoneyController,
+  MONEY_PARTNERS_CATEGORY,
+  PARTNER_NAME,
+  PARTNER_PERCENT,
+  PARTNERS_NOT_READY,
 } from './money.controller';
 import { MONEY_REPOSITORY, extendPaidUntil, type MoneyRepository } from './money.repository';
 
@@ -48,7 +52,32 @@ const money: Partial<MoneyRepository> = {
     added.push(input);
     return { id: 'e1', category: input.category, amountCents: input.amountCents, spentOn: input.spentOn, note: input.note, voided: false };
   },
+  saveTeamMember: async (input) => {
+    added.push(input);
+    return { ...input, id: input.id ?? 't1' };
+  },
+  partnersReady: async () => partnersReady,
+  partnersSource: async () => ({
+    partners: [{ id: PARTNER, name: 'Айдар', phone: null, email: null, percentBp: 2000, active: true }],
+    links: [{ organizationId: LUXX, partnerId: PARTNER }],
+    payments: [{ organizationId: LUXX, amountCents: 9900n, voided: false }],
+    payouts: [],
+  }),
+  savePartner: async (input) => {
+    added.push(input);
+    return { ...input, id: input.id ?? PARTNER };
+  },
+  partnerExists: async (id: string) => id === PARTNER,
+  setClientPartner: async (input) => {
+    added.push(input);
+  },
+  payPartner: async (input) => {
+    added.push(input);
+    return { id: 'e2', category: 'PARTNERS', amountCents: input.amountCents, spentOn: input.spentOn, note: input.note, voided: false };
+  },
 };
+const PARTNER = '7f4b3c1a-0e9d-4a5c-b3b2-8d1e4f6a0b22';
+let partnersReady = true;
 /** null: запись компании WETOP есть (миграция 170), репозиторий уже убрал её; смотрящий не исключается */
 let cabinetOwn: string | null = OWN;
 const cabinet = {
@@ -97,6 +126,7 @@ beforeEach(() => {
   ready = true;
   added.length = 0;
   cabinetOwn = OWN;
+  partnersReady = true;
 });
 
 const api = () => request(app.getHttpServer());
@@ -144,6 +174,52 @@ describe('деньги компании WETOP: API', () => {
     expect((await api().post('/platform/expenses').set(admin).send({ category: 'CAR', amount: '5', spentOn: '2026-10-28' }).expect(400)).body.message).toBe(MONEY_CATEGORY);
     const ok = await api().post('/platform/expenses').set(admin).send({ category: 'SERVER', amount: '20', spentOn: '2026-10-28' }).expect(201);
     expect(ok.body).toMatchObject({ category: 'SERVER', amountCents: '2000' });
+  });
+});
+
+/** Команда и партнёры WETOP (владелец 30.10.2026, миграция 172) */
+describe('команда: цифровой сотрудник; партнёры', () => {
+  const api = () => request(app.getHttpServer());
+  const admin = { 'x-wetop-session': 'session-admin' };
+
+  it('цифровой сотрудник: имя и зарплата, должность, почта и телефон не пишутся; человек с телефоном', async () => {
+    await api().post('/platform/team').set(admin).send({ kind: 'DIGITAL', name: 'ИИ-продавец', role: 'x', email: 'a@b.c', phone: '1', salary: '30' }).expect(201);
+    expect(added[0]).toMatchObject({ kind: 'DIGITAL', name: 'ИИ-продавец', role: null, email: null, phone: null, monthlySalaryCents: 3000n });
+    await api().post('/platform/team').set(admin).send({ name: 'Айгуль Тестова', role: 'Поддержка', phone: '+974 5500 0002', salary: '800' }).expect(201);
+    expect(added[1]).toMatchObject({ kind: 'PERSON', role: 'Поддержка', phone: '+974 5500 0002', monthlySalaryCents: 80000n });
+  });
+
+  it('партнёры: список с начисленным и к выплате; без миграции 172 «не подключено»; только главному администратору', async () => {
+    await api().get('/platform/partners').set({ 'x-wetop-session': 'session-owner' }).expect(403);
+    const res = await api().get('/platform/partners').set(admin).expect(200);
+    expect(res.body.partners[0]).toMatchObject({ name: 'Айдар', trials: 1, connected: 1, incomeCents: '9900', accruedCents: '1980', dueCents: '1980' });
+    expect(res.body.clients).toEqual([{ organizationId: LUXX, partnerId: PARTNER, name: 'Luxx' }]);
+    partnersReady = false;
+    expect((await api().get('/platform/partners').set(admin).expect(200)).body).toEqual({ ready: false });
+    expect((await api().post('/platform/partners').set(admin).send({ name: 'X', percent: '10' }).expect(503)).body.message).toBe(PARTNERS_NOT_READY);
+  });
+
+  it('партнёр: имя и процент 0..100; выплата пишет расход «Партнёрам»; чей клиент ставится и снимается', async () => {
+    expect((await api().post('/platform/partners').set(admin).send({ name: 'X', percent: '120' }).expect(400)).body.message).toBe(PARTNER_PERCENT);
+    expect((await api().post('/platform/partners').set(admin).send({ percent: '10' }).expect(400)).body.message).toBe(PARTNER_NAME);
+    await api().post('/platform/partners').set(admin).send({ name: 'Студия Маркет', percent: '12,5', phone: '+974 5500 0003' }).expect(201);
+    expect(added[0]).toMatchObject({ name: 'Студия Маркет', percentBp: 1250, phone: '+974 5500 0003', active: true });
+    const pay = await api().post(`/platform/partners/${PARTNER}/payouts`).set(admin).send({ amount: '19.80', spentOn: '2026-10-30' }).expect(201);
+    expect(pay.body).toMatchObject({ category: 'PARTNERS', amountCents: '1980' });
+    expect(added[1]).toMatchObject({ partnerId: PARTNER, amountCents: 1980n, by: ADMIN });
+    await api().post('/platform/partners/7f4b3c1a-0e9d-4a5c-b3b2-000000000000/payouts').set(admin).send({ amount: '1', spentOn: '2026-10-30' }).expect(404);
+    await api().put(`/platform/clients/${LUXX}/partner`).set(admin).send({ partnerId: PARTNER }).expect(200);
+    await api().put(`/platform/clients/${LUXX}/partner`).set(admin).send({ partnerId: '' }).expect(200);
+    expect(added.slice(2)).toEqual([
+      { organizationId: LUXX, partnerId: PARTNER, by: ADMIN },
+      { organizationId: LUXX, partnerId: null, by: ADMIN },
+    ]);
+    await api().put(`/platform/clients/${LUXX}/partner`).set(admin).send({ partnerId: OWNER }).expect(400);
+  });
+
+  it('выплату партнёру через обычный расход записать нельзя: у неё нет отметки партнёра', async () => {
+    const res = await api().post('/platform/expenses').set(admin).send({ category: 'PARTNERS', amount: '5', spentOn: '2026-10-30' }).expect(400);
+    expect(res.body.message).toBe(MONEY_PARTNERS_CATEGORY);
   });
 });
 

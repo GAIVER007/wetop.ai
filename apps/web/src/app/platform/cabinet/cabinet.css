@@ -499,6 +499,92 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
+  /* «Команда» и «Партнёры»: таблица по ширине панели, имя переносится, кнопки строки в одну линию справа */
+  .cabinet-people .tbl {
+    min-width: 0;
+  }
+  .cabinet-people .tbl th,
+  .cabinet-people .tbl td {
+    padding-inline: var(--space-2);
+  }
+  .cabinet-people .tbl th {
+    white-space: normal;
+  }
+  .cabinet-people td:first-child {
+    min-width: calc(var(--space-16) * 2);
+    white-space: normal;
+  }
+  .cabinet-people .num {
+    text-align: end;
+    white-space: nowrap;
+  }
+  .cabinet-people td:last-child {
+    inline-size: 1%;
+  }
+  .cabinet-people td:last-child .cabinet-money__actions {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+  }
+  /* «Расходы»: статьи полосами слева, все расходы месяца справа */
+  .cabinet-expenses {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .cabinet-expenses__bars {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cabinet-expenses__bars a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-2);
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .cabinet-expenses__bars a:hover,
+  .cabinet-expenses__bars li[data-active] a {
+    background: var(--row-hover);
+  }
+  .cabinet-expenses__name {
+    font-weight: 600;
+  }
+  .cabinet-expenses__sum {
+    white-space: nowrap;
+  }
+  .cabinet-expenses__bar {
+    grid-column: 1 / -1;
+    block-size: var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--primary-soft);
+    overflow: hidden;
+  }
+  .cabinet-expenses__bar > span {
+    display: block;
+    block-size: 100%;
+    background: var(--primary);
+  }
+  .cabinet-expenses .tbl {
+    min-width: 0;
+  }
+  .cabinet-expenses .num {
+    text-align: end;
+    white-space: nowrap;
+  }
+  .cabinet-expenses td:last-child {
+    inline-size: 1%;
+  }
+  @media (max-width: 960px) {
+    .cabinet-expenses {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
   .cabinet-dialog__head {
     display: flex;
     justify-content: space-between;

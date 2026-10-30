@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import type { PartnerRow, PartnersSource } from './partners';
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@pms/database';
@@ -40,8 +41,12 @@ export interface ExpenseRow {
 export interface TeamRow {
   id: string;
   name: string;
-  role: string;
+  /** Должность; у цифрового сотрудника пусто */
+  role: string | null;
   email: string | null;
+  phone: string | null;
+  /** PERSON человек, DIGITAL цифровой сотрудник (имя и зарплата), миграция 172 */
+  kind: 'PERSON' | 'DIGITAL';
   monthlySalaryCents: bigint | null;
   active: boolean;
 }
@@ -64,6 +69,14 @@ export interface MoneyRepository {
   addExpense(input: { category: ExpenseCategory; amountCents: bigint; spentOn: string; note: string | null; by: string | null }): Promise<ExpenseRow>;
   voidExpense(input: { id: string; by: string | null }): Promise<boolean>;
   saveTeamMember(input: Omit<TeamRow, 'id'> & { id: string | null }): Promise<TeamRow | null>;
+  /** Партнёры (миграция 172): таблицы ещё нет, раздел говорит «не подключено» */
+  partnersReady(): Promise<boolean>;
+  partnersSource(): Promise<PartnersSource>;
+  savePartner(input: Omit<PartnerRow, 'id'> & { id: string | null }): Promise<PartnerRow | null>;
+  partnerExists(id: string): Promise<boolean>;
+  /** Чей клиент: `partnerId` null снимает отметку */
+  setClientPartner(input: { organizationId: string; partnerId: string | null; by: string | null }): Promise<void>;
+  payPartner(input: { partnerId: string; amountCents: bigint; spentOn: string; note: string | null; by: string | null }): Promise<ExpenseRow>;
 }
 
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
@@ -176,6 +189,8 @@ export class PrismaMoneyRepository implements MoneyRepository {
       name: m.name,
       role: m.role,
       email: m.email,
+      phone: m.phone,
+      kind: m.kind === 'DIGITAL' ? ('DIGITAL' as const) : ('PERSON' as const),
       monthlySalaryCents: m.monthlySalaryCents,
       active: m.active,
     }));
@@ -306,6 +321,8 @@ export class PrismaMoneyRepository implements MoneyRepository {
       name: input.name,
       role: input.role,
       email: input.email,
+      phone: input.phone,
+      kind: input.kind,
       monthlySalaryCents: input.monthlySalaryCents,
       active: input.active,
       updatedAt: new Date(),
@@ -317,5 +334,78 @@ export class PrismaMoneyRepository implements MoneyRepository {
     }
     const row = await this.prisma.db.platformTeamMember.create({ data: { id: randomUUID(), ...data } });
     return { ...input, id: row.id };
+  }
+
+  async partnersReady(): Promise<boolean> {
+    const rows = await this.prisma.db.$queryRaw<Array<{ ok: boolean }>>(
+      Prisma.sql`SELECT to_regclass('platform_partners') IS NOT NULL AS ok`,
+    );
+    return rows[0]?.ok === true;
+  }
+
+  async partnersSource(): Promise<PartnersSource> {
+    const db = this.prisma.db;
+    const [partners, links, payments, payouts] = await Promise.all([
+      db.platformPartner.findMany({ orderBy: { createdAt: 'asc' } }),
+      db.platformClientPartner.findMany({ select: { organizationId: true, partnerId: true } }),
+      db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, voidedAt: true } }),
+      db.platformExpense.findMany({ where: { category: 'PARTNERS' }, select: { partnerId: true, amountCents: true, voidedAt: true } }),
+    ]);
+    return {
+      partners: partners.map((p) => ({ id: p.id, name: p.name, phone: p.phone, email: p.email, percentBp: p.percentBp, active: p.active })),
+      links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId }] : [])),
+      payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, voided: p.voidedAt !== null })),
+      payouts: payouts.flatMap((p) => (p.partnerId ? [{ partnerId: p.partnerId, amountCents: p.amountCents, voided: p.voidedAt !== null }] : [])),
+    };
+  }
+
+  async savePartner(input: Omit<PartnerRow, 'id'> & { id: string | null }): Promise<PartnerRow | null> {
+    const data = { name: input.name, phone: input.phone, email: input.email, percentBp: input.percentBp, active: input.active, updatedAt: new Date() };
+    if (input.id) {
+      const { count } = await this.prisma.db.platformPartner.updateMany({ where: { id: input.id }, data });
+      return count === 1 ? { ...input, id: input.id } : null;
+    }
+    const row = await this.prisma.db.platformPartner.create({ data: { id: randomUUID(), ...data } });
+    return { ...input, id: row.id };
+  }
+
+  async partnerExists(id: string): Promise<boolean> {
+    return (await this.prisma.db.platformPartner.count({ where: { id } })) === 1;
+  }
+
+  async setClientPartner(input: { organizationId: string; partnerId: string | null; by: string | null }): Promise<void> {
+    const db = this.prisma.db;
+    await db.$transaction(async (tx) => {
+      // снятая отметка: partner_id NULL, строки не удаляются (DELETE нет ни у одной роли)
+      await tx.platformClientPartner.upsert({
+        where: { organizationId: input.organizationId },
+        create: { organizationId: input.organizationId, partnerId: input.partnerId, updatedBy: input.by },
+        update: { partnerId: input.partnerId, updatedBy: input.by, updatedAt: new Date() },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: input.by,
+          entityType: 'organization',
+          entityId: input.organizationId,
+          action: 'platform.client.partner_set',
+          after: { partnerId: input.partnerId },
+        },
+      });
+    });
+  }
+
+  async payPartner(input: { partnerId: string; amountCents: bigint; spentOn: string; note: string | null; by: string | null }) {
+    const row = await this.prisma.db.platformExpense.create({
+      data: {
+        id: randomUUID(),
+        category: 'PARTNERS',
+        partnerId: input.partnerId,
+        amountCents: input.amountCents,
+        spentOn: dateOf(input.spentOn),
+        note: input.note,
+        createdBy: input.by,
+      },
+    });
+    return { id: row.id, category: 'PARTNERS' as const, amountCents: row.amountCents, spentOn: input.spentOn, note: row.note, voided: false };
   }
 }

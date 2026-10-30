@@ -6,7 +6,7 @@ import { msg, type Translate } from '../../../i18n';
 import './cabinet.css';
 
 /** Разделы кабинета компании WETOP (вариант «Г»): меню слева у всех страниц кабинета */
-export type CabinetSection = 'home' | 'clients' | 'site' | 'countries' | 'money' | 'subscriptions' | 'team';
+export type CabinetSection = 'home' | 'clients' | 'site' | 'countries' | 'money' | 'subscriptions' | 'team' | 'partners' | 'expenses';
 
 const LINKS: Array<{
   key: CabinetSection | 'support';
@@ -19,13 +19,15 @@ const LINKS: Array<{
   { key: 'site', href: '/platform/cabinet/site', icon: 'globe', label: msg('Сайт wetop.ai') },
   { key: 'countries', href: '/platform/cabinet/countries', icon: 'pin', label: msg('Страны') },
   { key: 'money', href: '/platform/cabinet/money', icon: 'chart', label: msg('Деньги') },
+  { key: 'expenses', href: '/platform/cabinet/expenses', icon: 'receipt', label: msg('Расходы') },
   {
     key: 'subscriptions',
     href: '/platform/cabinet/subscriptions',
     icon: 'booking',
     label: msg('Подписки'),
   },
-  { key: 'team', href: '/platform/cabinet/team', icon: 'person', label: msg('Сотрудники') },
+  { key: 'team', href: '/platform/cabinet/team', icon: 'person', label: msg('Команда WETOP') },
+  { key: 'partners', href: '/platform/cabinet/partners', icon: 'link', label: msg('Партнёры WETOP') },
   { key: 'support', href: '/platform/support', icon: 'chat', label: msg('Поддержка') },
 ];
 

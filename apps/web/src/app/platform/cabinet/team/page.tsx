@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Page } from '../../../../components/page';
-import { EmptyState, LoadingState, Panel, Stat, Stats, Table } from '../../../../components/ui';
+import { Badge, EmptyState, LoadingState, Panel, Stat, Stats, Table } from '../../../../components/ui';
 import { Icon } from '../../../../components/icon';
 import { formatInt } from '../../../../lib/dashboard-format';
 import { serverT } from '../../../../i18n/server';
@@ -10,15 +10,14 @@ import { FormDialog } from '../form-dialog';
 import { NotReady, loadMoney } from '../load-money';
 
 /**
- * Сотрудники компании WETOP (DATA_MODEL §63; владелец 30.10.2026: «раздел сотрудники, там будем добавлять расходы на
- * сотрудников»): кто работает, должность, оклад; «Выплатить» пишет расход по статье «Зарплаты» с именем в заметке,
- * и он сразу в «Деньгах». Выплаты месяца показаны по статье «Зарплаты».
+ * Команда WETOP (DATA_MODEL §63; владелец 30.10.2026): люди (ФИО, телефон, почта, зарплата) и цифровые сотрудники
+ * (имя и зарплата). «Выплатить» пишет расход по статье «Зарплаты» с именем в заметке, он сразу в «Деньгах».
  */
 export default async function TeamPage() {
   const t = await serverT();
   return (
-    <Page width="full" title={t('Сотрудники WETOP')}>
-      <Suspense fallback={<LoadingState label={t('Загружаем сотрудников…')} />}>
+    <Page width="full" title={t('Команда WETOP')}>
+      <Suspense fallback={<LoadingState label={t('Загружаем команду…')} />}>
         <Team />
       </Suspense>
     </Page>
@@ -54,12 +53,29 @@ async function Team() {
         <span />
         <div className="cabinet-money__actions">
           <FormDialog label={t('Добавить сотрудника')} title={t('Новый сотрудник')} testId="team-add-dialog">
-            <TeamForm member={null} />
+            <TeamForm member={null} kind="PERSON" />
+          </FormDialog>
+          <FormDialog
+            label={t('Добавить цифрового сотрудника')}
+            title={t('Цифровой сотрудник')}
+            tone="secondary"
+            testId="team-add-digital-dialog"
+          >
+            <TeamForm member={null} kind="DIGITAL" />
           </FormDialog>
         </div>
       </div>
       <Stats min={200}>
-        <Stat label={t('Сотрудников')} value={formatInt(active.length)} icon={<Icon name="person" />} testId="team-count" />
+        <Stat
+          label={t('В команде')}
+          value={formatInt(active.length)}
+          hint={t('людей {p}, цифровых {d}', {
+            p: formatInt(active.filter((m) => m.kind !== 'DIGITAL').length),
+            d: formatInt(active.filter((m) => m.kind === 'DIGITAL').length),
+          })}
+          icon={<Icon name="person" />}
+          testId="team-count"
+        />
         <Stat
           label={t('Оклады в месяц')}
           value={usd(String(payroll))}
@@ -81,17 +97,18 @@ async function Team() {
           testId="team-left"
         />
       </Stats>
-      <Panel title={t('Сотрудники')} data-testid="team-list">
+      <Panel title={t('Команда WETOP')} data-testid="team-list" className="cabinet-people">
         {view.team.length === 0 ? (
-          <EmptyState title={t('Сотрудников пока нет. Нажмите «Добавить сотрудника».')} />
+          <EmptyState title={t('В команде пока никого. Нажмите «Добавить сотрудника».')} />
         ) : (
-          <Table aria-label={t('Сотрудники')}>
+          <Table aria-label={t('Команда WETOP')}>
             <thead>
               <tr>
-                <th>{t('Имя')}</th>
+                <th>{t('ФИО')}</th>
                 <th>{t('Должность')}</th>
-                <th className="num">{t('Оклад в месяц')}</th>
-                <th className="num">{t('Выплачено в месяце')}</th>
+                <th>{t('Связь')}</th>
+                <th className="num">{t('Оклад')}</th>
+                <th className="num">{t('Выплачено')}</th>
                 <th aria-label={t('Действия')} />
               </tr>
             </thead>
@@ -100,10 +117,15 @@ async function Team() {
                 <tr key={m.id} className={m.active ? undefined : 'cabinet__voided'} data-testid="team-row">
                   <td>
                     <b>{m.name}</b>
-                    {m.email && <div className="cabinet__sub muted">{m.email}</div>}
                     {!m.active && <div className="cabinet__sub muted">{t('ушёл')}</div>}
                   </td>
-                  <td>{m.role}</td>
+                  <td>
+                    {m.kind === 'DIGITAL' ? <Badge tone="info">{t('цифровой сотрудник')}</Badge> : m.role}
+                  </td>
+                  <td>
+                    {m.phone && <div>{m.phone}</div>}
+                    {m.email && <div className="cabinet__sub muted">{m.email}</div>}
+                  </td>
                   <td className="num">{usd(m.monthlySalaryCents)}</td>
                   <td className="num">{usd(String(paidTo(m.name)))}</td>
                   <td>

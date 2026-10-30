@@ -3152,7 +3152,7 @@ export interface PlatformPlan {
   periodMonths: number;
   active: boolean;
 }
-export type PlatformExpenseCategory = 'SERVER' | 'DOMAINS' | 'ADS' | 'AI' | 'SALARIES' | 'SERVICES' | 'OTHER';
+export type PlatformExpenseCategory = 'SERVER' | 'DOMAINS' | 'ADS' | 'AI' | 'SALARIES' | 'SERVICES' | 'PARTNERS' | 'OTHER';
 export interface PlatformMoneyMonth {
   month: string;
   incomeCents: string;
@@ -3210,8 +3210,11 @@ export type PlatformMoney =
       team: Array<{
         id: string;
         name: string;
-        role: string;
+        role: string | null;
         email: string | null;
+        /** Миграция 172; старый API без полей */
+        phone?: string | null;
+        kind?: 'PERSON' | 'DIGITAL';
         monthlySalaryCents: string | null;
         active: boolean;
       }>;
@@ -3233,6 +3236,30 @@ export interface PlatformClientCard {
 }
 
 /** Оплаты месяца в кабинете: клиенты, оплатившие в месяце, число оплат, сумма и средний чек (центы USD строкой) */
+/** Партнёры WETOP (миграция 172, DATA_MODEL §63.1): центы строкой, процент сотыми долями (`2000` это 20%) */
+export interface PlatformPartner {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  percentBp: number;
+  active: boolean;
+  trials: number;
+  connected: number;
+  incomeCents: string;
+  accruedCents: string;
+  paidCents: string;
+  dueCents: string;
+}
+export type PlatformPartners =
+  | { ready: false }
+  | {
+      ready: true;
+      partners: PlatformPartner[];
+      totals: { partners: number; trials: number; connected: number; incomeCents: string; accruedCents: string; paidCents: string; dueCents: string };
+      clients: Array<{ organizationId: string; partnerId: string; name: string }>;
+    };
+
 export interface PlatformMonthMoney {
   paidClients: number;
   paymentsCount: number;
@@ -3417,8 +3444,15 @@ export const platformApi = {
   voidExpense: (id: string) => sendJson<unknown>('POST', `/platform/expenses/${encodeURIComponent(id)}/void`, {}),
   saveTeamMember: (
     id: string | null,
-    body: { name: string; role: string; email: string; salary: string; active: boolean },
+    body: { name: string; role: string; email: string; phone: string; kind: 'PERSON' | 'DIGITAL'; salary: string; active: boolean },
   ) => sendJson<unknown>(id ? 'PUT' : 'POST', id ? `/platform/team/${encodeURIComponent(id)}` : '/platform/team', body),
+  partners: () => getJson<PlatformPartners>('/platform/partners'),
+  savePartner: (id: string | null, body: { name: string; phone: string; email: string; percent: string; active: boolean }) =>
+    sendJson<unknown>(id ? 'PUT' : 'POST', id ? `/platform/partners/${encodeURIComponent(id)}` : '/platform/partners', body),
+  payPartner: (id: string, body: { amount: string; spentOn: string; note: string }) =>
+    sendJson<unknown>('POST', `/platform/partners/${encodeURIComponent(id)}/payouts`, body),
+  setClientPartner: (organizationId: string, partnerId: string | null) =>
+    sendJson<unknown>('PUT', `/platform/clients/${encodeURIComponent(organizationId)}/partner`, { partnerId: partnerId ?? '' }),
   organizations: () => getJson<{ items: PlatformOrganization[] }>('/platform/organizations'),
   /** Обзор платформы: только главному администратору, остальным API отвечает 403 */
   overview: () => getJson<PlatformOverview>('/platform/overview'),

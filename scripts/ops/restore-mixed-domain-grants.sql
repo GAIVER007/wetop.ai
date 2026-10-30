@@ -1,4 +1,4 @@
--- Restore-only ACL companion for mixed migrations132,134-137,140,141,144,146,154,160,161,167,171.
+-- Restore-only ACL companion for mixed migrations132,134-137,140,141,144,146,154,160,161,167,171,172.
 -- Not a schema migration. Run after ordinary pure-ACL migrations, inside the restore transaction.
 -- Copy existing privileges exactly; never replay mixed DDL or end the caller's transaction.
 DO $restore_acl$
@@ -179,5 +179,13 @@ BEGIN
   -- 171_platform_admin_cabinet_home: стойка читает отметку «Кабинет по умолчанию» (как user_id и revoked_at, 033)
   IF EXISTS (SELECT 1 FROM pg_attribute WHERE attrelid = to_regclass('platform_admins') AND attname = 'cabinet_home' AND NOT attisdropped) THEN
     GRANT SELECT (cabinet_home) ON platform_admins TO wetop_app;
+  END IF;
+  -- 172_platform_partners_team: партнёры WETOP, как 166: только сервисная роль, DELETE ни у кого
+  SELECT count(*) INTO installed FROM unnest(ARRAY['platform_partners','platform_client_partners']) AS t(name)
+    WHERE to_regclass(quote_ident(name)) IS NOT NULL;
+  IF installed NOT IN (0,2) THEN RAISE EXCEPTION 'Incomplete company partners schema during ACL restore'; END IF;
+  IF installed = 2 THEN
+    REVOKE ALL ON platform_partners,platform_client_partners FROM wetop_app,wetop_service;
+    GRANT SELECT,INSERT,UPDATE ON platform_partners,platform_client_partners TO wetop_service;
   END IF;
 END $restore_acl$;

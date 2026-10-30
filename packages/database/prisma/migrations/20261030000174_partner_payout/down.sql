@@ -1,4 +1,4 @@
--- Откат 173. Оплаты допов и суммы выплат партнёрам молча не стираем: сначала копия базы.
+-- Откат 174. Оплаты допов и суммы выплат партнёрам молча не стираем: сначала копия базы.
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM platform_payments WHERE kind = 'ADDON') OR EXISTS (SELECT 1 FROM platform_plans WHERE partner_payout_cents IS NOT NULL) THEN
     RAISE EXCEPTION 'Есть оплаты допов или суммы выплат партнёрам: откат только по копии базы';

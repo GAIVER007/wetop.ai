@@ -31,6 +31,8 @@ export interface VerticalHomeSource {
   sales: Array<{ month: string; amountMinor: bigint; visitId: string; payerId: string; staff: Array<{ id: string; amountMinor: bigint; role?: StaffRole }> }>;
   /** Гостиница: ночи по категориям номеров (начисления за проживание), вместо мастеров (владелец 30.10.2026) */
   rooms: Array<{ typeId: string; name: string; month: string; nights: number; reservationId: string; amountMinor: bigint }>;
+  /** Гостиница: активные номера по категории и дни месяца в отчёте (текущий месяц по сегодня) для загрузки */
+  capacity?: { days: number; units: Map<string, number> };
   /** Брони месяца и прошлых: гость, статус приведён к BOOKED / CAME / NO_SHOW / CANCELLED */
   visits: Array<{ customerId: string; month: string; status: 'BOOKED' | 'CAME' | 'NO_SHOW' | 'CANCELLED'; paid: boolean; source: string; valueMinor: bigint | null }>;
   /** Месяц первого прихода гостя за всё время */
@@ -76,9 +78,27 @@ function roomsOf(src: VerticalHomeSource) {
     t.revenue += r.amountMinor;
     by.set(r.typeId, t);
   }
+  const cap = (typeId: string) => (src.capacity?.units.get(typeId) ?? 0) * (src.capacity?.days ?? 0);
   return [...by.values()]
     .sort((a, b) => (a.revenue === b.revenue ? a.name.localeCompare(b.name) : a.revenue > b.revenue ? -1 : 1))
-    .map((t) => ({ typeId: t.typeId, name: t.name, nights: t.nights, guests: t.guests.size, revenueMinor: String(t.revenue), avgNightMinor: roundedAverage(t.revenue, t.nights) }));
+    .map((t) => ({
+      typeId: t.typeId,
+      name: t.name,
+      nights: t.nights,
+      guests: t.guests.size,
+      revenueMinor: String(t.revenue),
+      avgNightMinor: roundedAverage(t.revenue, t.nights),
+      // загрузка категории: проданные ночи / (номера × дни); без номеров в базе пусто, не 0%
+      loadPercent: cap(t.typeId) ? pct(t.nights, cap(t.typeId)) : null,
+    }));
+}
+
+/** Гостиница: общая загрузка месяца, проданные ночи / все номера × дни */
+function loadOf(src: VerticalHomeSource) {
+  if (!src.capacity) return null;
+  const nights = src.rooms.filter((r) => r.month === src.month).reduce((n, r) => n + r.nights, 0);
+  const capacity = [...src.capacity.units.values()].reduce((n, u) => n + u, 0) * src.capacity.days;
+  return { nights, capacity, percent: pct(nights, capacity) };
 }
 
 export function buildVerticalHome(src: VerticalHomeSource) {
@@ -181,6 +201,7 @@ export function buildVerticalHome(src: VerticalHomeSource) {
     },
     masters,
     rooms: roomsOf(src),
+    load: loadOf(src),
     sources,
     months: months.map((m) => {
       const k = monthKpi(src, m);
@@ -285,7 +306,7 @@ export class OwnerHomeService {
     const propertyId = location.property?.id;
     if (!propertyId) throw new ForbiddenException('Hotel property is not set up');
     const property = { id: propertyId, locationId, organizationId };
-    const [charges, reservations, history, expenses] = await Promise.all([
+    const [charges, reservations, history, expenses, units] = await Promise.all([
       db.charge.findMany({
         where: {
           voidedAt: null,
@@ -325,7 +346,11 @@ export class OwnerHomeService {
         _max: { arrivalDate: true },
       }),
       db.$queryRaw<Array<{ amount: bigint; occurredAt: Date }>>`SELECT c.amount, c.occurred_at AS "occurredAt" FROM cash_operations c JOIN properties p ON p.id=c.property_id WHERE c.property_id=${propertyId}::uuid AND p.location_id=${locationId}::uuid AND p.organization_id=${organizationId}::uuid AND c.status='COMPLETED' AND c.kind='EXPENSE' AND c.occurred_at>=${from} AND c.occurred_at<${until}`,
+      db.inventoryUnit.groupBy({ by: ['accommodationTypeId'], where: { propertyId, active: true, property: { locationId, organizationId } }, _count: { _all: true } }),
     ]);
+    // дни месяца в отчёте: прошлый месяц целиком, текущий по сегодня филиала
+    const today = localDate(now, tz);
+    const days = today.slice(0, 7) === month ? Number(today.slice(8, 10)) : Number(lastDay(month).slice(8, 10));
     const day = (d: Date) => d.toISOString().slice(0, 7);
     // одна продажа = одна бронь в месяце услуги: сумма её начислений
     const sales = new Map<string, { month: string; amountMinor: bigint; visitId: string; payerId: string; staff: [] }>();
@@ -357,6 +382,7 @@ export class OwnerHomeService {
       expenses: expenses.map((e) => ({ month: monthOf(e.occurredAt), amountMinor: e.amount })),
       ratings: [],
       staffNames: new Map(),
+      capacity: { days, units: new Map(units.map((u) => [u.accommodationTypeId, u._count._all])) },
       // вместо мастеров категории номеров (владелец 30.10.2026: «в гостиницах как по сотрудникам, давай подумаем»):
       // начисления за проживание, ночи = количество в начислении
       rooms: charges

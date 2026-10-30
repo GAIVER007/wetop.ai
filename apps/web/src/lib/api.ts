@@ -5714,7 +5714,8 @@ export interface VerticalOwnerHome extends Omit<BeautyOwnerHome, 'masters' | 'so
   vertical: 'FOOD_SERVICE' | 'HOSPITALITY';
   funnel: BeautyOwnerHome['funnel'];
   masters: Array<BeautyOwnerHome['masters'][number] & { role: 'WAITER' | 'BARTENDER' }>;
-  rooms: Array<{ typeId: string; name: string; nights: number; guests: number; revenueMinor: string; avgNightMinor: string | null }>;
+  rooms: Array<{ typeId: string; name: string; nights: number; guests: number; revenueMinor: string; avgNightMinor: string | null; loadPercent: number | null }>;
+  load: { nights: number; capacity: number; percent: number | null } | null;
   sources: Array<{ source: string; clients: number; revenueMinor: string | null }>;
 }
 export const ownerHomeApi = {

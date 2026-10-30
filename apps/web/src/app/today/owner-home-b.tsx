@@ -208,7 +208,15 @@ export function OwnerHomeB({
         {/* все сотрудники одной таблицей (владелец 30.10.2026: «почему не все мастера»); гостиница: категории номеров */}
         <section className="owner-panel owner-b__card owner-b__grow" data-testid="owner-b-masters" aria-labelledby="owner-b-masters-title">
           <div className="owner-panel-heading">
-            <h2 id="owner-b-masters-title">{t(w.staff)}</h2>
+            <h2 id="owner-b-masters-title">
+              {t(w.staff)}
+              {'load' in view && view.load?.percent != null && (
+                <span className="muted" data-testid="owner-b-load">
+                  {' '}
+                  {t('загрузка {percent}%', { percent: view.load.percent })}
+                </span>
+              )}
+            </h2>
             <a href={w.staffLink}>{vertical === 'HOSPITALITY' ? t('Номерной фонд') : t('Персонал')}</a>
           </div>
           {vertical === 'HOSPITALITY' ? (
@@ -224,6 +232,7 @@ export function OwnerHomeB({
                       <th className="num">{t('Брони')}</th>
                       <th className="num">{t('Выручка')}</th>
                       <th className="num">{t('Ср. цена ночи')}</th>
+                      <th className="num">{t('Загрузка')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -236,6 +245,7 @@ export function OwnerHomeB({
                           <b>{money(r.revenueMinor)}</b>
                         </td>
                         <td className="num">{r.avgNightMinor === null ? '' : money(r.avgNightMinor)}</td>
+                        <td className="num" data-testid="owner-b-room-load">{r.loadPercent === null ? '' : `${r.loadPercent}%`}</td>
                       </tr>
                     ))}
                   </tbody>

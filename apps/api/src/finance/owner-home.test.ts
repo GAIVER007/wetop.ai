@@ -92,13 +92,18 @@ describe('Единая Главная «B»: ресторан и гостини�
         { typeId: 'lux', name: 'Люкс', month: '2026-10', nights: 2, reservationId: 'r3', amountMinor: 50000n },
         { typeId: 'lux', name: 'Люкс', month: '2026-09', nights: 5, reservationId: 'r0', amountMinor: 99000n },
       ],
+      // номеров категории и дней месяца в отчёте (текущий месяц: по сегодня)
+      capacity: { days: 31, units: new Map([['std', 2], ['lux', 1]]) },
     });
     expect(v.masters).toEqual([]);
     // Люкс 50000 / 2 = 250; Стандарт 40050 / 4 = 100,125: 100
+    // загрузка = проданные ночи / (номера категории × дни месяца): Люкс 2 / (1 × 31) = 6%, Стандарт 4 / (2 × 31) = 6%
     expect(v.rooms).toEqual([
-      { typeId: 'lux', name: 'Люкс', nights: 2, guests: 1, revenueMinor: '50000', avgNightMinor: '25000' },
-      { typeId: 'std', name: 'Стандарт', nights: 4, guests: 2, revenueMinor: '40050', avgNightMinor: '10000' },
+      { typeId: 'lux', name: 'Люкс', nights: 2, guests: 1, revenueMinor: '50000', avgNightMinor: '25000', loadPercent: 6 },
+      { typeId: 'std', name: 'Стандарт', nights: 4, guests: 2, revenueMinor: '40050', avgNightMinor: '10000', loadPercent: 6 },
     ]);
+    // общая загрузка гостиницы: 6 / (3 × 31) = 6%
+    expect(v.load).toEqual({ nights: 6, capacity: 93, percent: 6 });
   });
 
   it('откуда гости: пришедшие по источнику брони; суммы нет, если брони без денег', () => {

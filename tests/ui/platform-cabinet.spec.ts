@@ -19,7 +19,7 @@ async function signIn(page: Page, request: APIRequestContext, platformAdmin: boo
   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin } });
 }
 
-test('главный администратор: 4 цифры, путь клиента с конверсиями, доход по месяцам, сроки; один экран на 1280', async ({
+test('главная «B»: 4 цифры, воронка продаж из 6 шагов, пробный в оплату и продления, доход, пробный; без прокрутки вбок на 1280', async ({
   page,
   request,
 }) => {
@@ -37,15 +37,23 @@ test('главный администратор: 4 цифры, путь клие
   await page.goto('/platform/cabinet');
   const cabinet = page.getByTestId('cabinet');
   await expect(cabinet.getByRole('navigation', { name: 'Кабинет WETOP' })).toBeVisible();
-  await expect(page.getByTestId('cabinet-clients')).toHaveText('1');
+  // главная «B» (владелец 30.10.2026): MRR, оплатившие клиенты, средний чек, сумма оплат
   await expect(page.getByTestId('cabinet-mrr')).toHaveText('$49');
-  await expect(page.getByTestId('cabinet-ltv')).toHaveText('$49');
-  // посетители wetop.ai от счётчика компании и процент перехода в регистрацию
+  await expect(page.getByTestId('cabinet-paid-clients')).toHaveText('1');
+  await expect(page.getByTestId('cabinet-avg-check')).toHaveText('$49');
+  await expect(page.getByTestId('cabinet-income')).toHaveText('$49');
+  // воронка продаж из шести шагов: посетители wetop.ai от счётчика компании, проценты перехода
+  await expect(page.getByTestId('growth-funnel').getByRole('listitem')).toHaveCount(6);
   await expect(page.getByTestId('growth-visitors')).toContainText('400');
   await expect(page.getByTestId('growth-registrations')).toContainText('%');
-  await expect(page.getByTestId('growth-paid')).toContainText('Первая оплата');
+  await expect(page.getByTestId('growth-active')).toContainText('Активны на пробном');
+  await expect(page.getByTestId('growth-paid')).toContainText('Оплатили');
+  await expect(page.getByTestId('growth-renewals')).toContainText('Продлили');
+  await expect(page.getByTestId('growth-rates')).toContainText('пробный в оплату');
   await expect(page.getByTestId('growth-income')).toContainText('$49');
-  await expect(page.getByTestId('cabinet-deadlines')).toContainText('Хостел «Пример»');
+  await expect(page.getByTestId('cabinet-registrations')).toContainText('Регистрации за месяц');
+  await expect(page.getByTestId('cabinet-trial-activity')).toContainText('Активность на пробном');
+  await expect(page.getByTestId('cabinet-trial-unpaid')).toContainText('После пробного не оплатили');
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(wide).toBeLessThanOrEqual(0);
   if (process.env.CABINET_SHOTS)
@@ -139,17 +147,16 @@ test('кабинет главного администратора без стр
   await expect(page.locator('.workspace-header__property')).toHaveCount(1);
 });
 
-test('отток месяца: клиент ушёл в «только чтение», под «Клиентами» «ушли за месяц 1»', async ({ page, request }) => {
+test('отток месяца: клиент ушёл в «только чтение», в «Клиентах» «ушли за месяц: 1»', async ({ page, request }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await signIn(page, request, true);
   const token = (await page.context().cookies()).find((c) => c.name === 'wetop_session')?.value;
   const asAdmin = { headers: { 'x-wetop-test-client': '1', 'x-wetop-session': token! } };
-  await page.goto('/platform/cabinet');
-  await expect(page.getByTestId('cabinet')).toContainText('ушли за месяц 0');
+  // отток живёт в «Клиентах» (главная «B» 30.10.2026 без него)
+  await page.goto('/platform/cabinet/clients');
+  await expect(page.getByTestId('cabinet')).toContainText('ушли за месяц: 0, в прошлом: 0');
   expect((await request.put(`${FIXTURE_API}/platform/organizations/ui-org-2/status`, { ...asAdmin, data: { status: 'READ_ONLY' } })).ok()).toBe(true);
   await page.reload();
-  await expect(page.getByTestId('cabinet')).toContainText('ушли за месяц 1');
-  await page.goto('/platform/cabinet/clients');
   await expect(page.getByTestId('cabinet')).toContainText('ушли за месяц: 1, в прошлом: 0');
 });
 

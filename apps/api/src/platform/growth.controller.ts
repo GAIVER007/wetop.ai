@@ -53,7 +53,7 @@ export class PrismaGrowthRepository implements GrowthRepository {
   async source(own: string | null, since: Date) {
     const db = this.prisma.db;
     const money = (await db.$queryRaw<Array<{ ok: boolean }>>(Prisma.sql`SELECT to_regclass('platform_payments') IS NOT NULL AS ok`))[0]?.ok === true;
-    const [all, company, users, payments, subscriptions, statusLog] = await Promise.all([
+    const [all, company, users, payments, subscriptions, statusLog, activity] = await Promise.all([
       db.organization.findMany({ select: { id: true, name: true, status: true, createdAt: true, trialEndsAt: true } }),
       companyOrganizationIds(db),
       db.user.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true, memberships: { select: { role: true } } } }),
@@ -64,6 +64,14 @@ export class PrismaGrowthRepository implements GrowthRepository {
         where: { entityType: 'organization', action: 'organization.status_changed', createdAt: { gte: since } },
         select: { entityId: true, after: true, createdAt: true },
       }),
+      // дни работы в системе (главная «B», активность на пробном): действия в журнале организации и входы, по UTC
+      db.$queryRaw<Array<{ organization_id: string; day: string }>>(Prisma.sql`
+        SELECT organization_id::text AS organization_id, to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') AS day
+          FROM audit_logs WHERE organization_id IS NOT NULL AND user_id IS NOT NULL AND created_at >= ${since}
+        UNION
+        SELECT organization_id::text, to_char(issued_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') FROM sessions WHERE issued_at >= ${since}
+        UNION
+        SELECT organization_id::text, to_char(last_seen_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') FROM sessions WHERE last_seen_at >= ${since}`),
     ]);
     // запись компании WETOP (владелец сайта wetop.ai) не клиент: ни в пути, ни в деньгах
     const organizations = all.filter((o) => !company.has(o.id));
@@ -73,6 +81,7 @@ export class PrismaGrowthRepository implements GrowthRepository {
       registrations: users.filter((u) => u.memberships.length === 0 || u.memberships.some((m) => m.role === 'OWNER')).map((u) => u.createdAt),
       payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn)!, voided: p.voidedAt !== null })),
       subscriptions: subscriptions.map((s) => ({ organizationId: s.organizationId, monthlyCents: s.monthlyCents, paidUntil: day(s.paidUntil) })),
+      activity: activity.map((r) => ({ organizationId: r.organization_id, day: r.day })),
       statusChanges: statusLog.flatMap((r) => {
         const to = (r.after && typeof r.after === 'object' ? (r.after as Record<string, unknown>)['status'] : null) as OrganizationStatus | null;
         return to ? [{ organizationId: r.entityId, to, at: r.createdAt }] : [];

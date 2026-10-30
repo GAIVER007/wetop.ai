@@ -431,6 +431,161 @@
   .cabinet__pair td {
     overflow-wrap: anywhere;
   }
+
+  /* Главная кабинета, вариант «B» (владелец 30.10.2026): воронка конусом слева, графики справа, три факта о пробном */
+  .cabinet-home {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+  .cabinet-home__side {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  .cabinet-home__title {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-2);
+    inline-size: 100%;
+  }
+  .cabinet-home__title > .cabinet__sub {
+    font-weight: var(--weight-regular);
+  }
+  .cabinet-home__note {
+    margin: var(--space-2) 0 0;
+  }
+  .cabinet-home__trial {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .cabinet-home__fact {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .cabinet-home__fact > b {
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-bold);
+    line-height: 1.1;
+  }
+  .cabinet-home__fact > b[data-tone='danger'] {
+    color: var(--danger);
+  }
+  .cabinet-cone {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cabinet-cone__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) calc(var(--space-16) * 2);
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .cabinet-cone__bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+    justify-self: center;
+    inline-size: var(--cone-width, 100%);
+    min-width: 0;
+    min-height: var(--space-12);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-control);
+    background: var(--primary);
+    color: var(--surface-solid);
+  }
+  .cabinet-cone__bar[data-tone='paid'] {
+    background: var(--success);
+  }
+  .cabinet-cone__label {
+    overflow: hidden;
+    font-weight: var(--weight-bold);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cabinet-cone__value {
+    font-size: var(--text-xl);
+  }
+  .cabinet-cone__conv {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-1);
+  }
+  .cabinet__conv--start {
+    background: var(--surface-muted);
+    color: var(--muted);
+  }
+  .cabinet-rates {
+    margin: 0;
+  }
+  .cabinet-rates > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+  .cabinet-rates__grid {
+    stroke: var(--border-soft);
+  }
+  .cabinet-rates__axis {
+    fill: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .cabinet-rates__line {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 3;
+  }
+  .cabinet-rates__line[data-tone='renewal'] {
+    stroke: var(--success);
+  }
+  .cabinet-rates__dot {
+    fill: var(--primary);
+  }
+  .cabinet-rates__dot[data-tone='renewal'] {
+    fill: var(--success);
+  }
+  .cabinet-rates__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    font-size: var(--text-sm);
+  }
+  .cabinet-rates__legend > span::before {
+    content: '';
+    display: inline-block;
+    inline-size: var(--space-2);
+    block-size: var(--space-2);
+    margin-inline-end: var(--space-1);
+    border-radius: var(--radius-full);
+    background: var(--primary);
+  }
+  .cabinet-rates__legend > span[data-tone='renewal']::before {
+    background: var(--success);
+  }
+  @media (max-width: 1279px) {
+    .cabinet-home {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 960px) {
+    .cabinet-home__trial {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .cabinet-cone__row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .cabinet-cone__bar {
+      inline-size: 100%;
+    }
+  }
 }
 
 @media (max-width: 960px) {

@@ -3220,6 +3220,14 @@ export interface PlatformClientCard {
   journal: Array<{ at: string; action: string; by: string | null; status: string | null; note: string | null }>;
 }
 
+/** Оплаты месяца в кабинете: клиенты, оплатившие в месяце, число оплат, сумма и средний чек (центы USD строкой) */
+export interface PlatformMonthMoney {
+  paidClients: number;
+  paymentsCount: number;
+  incomeCents: string;
+  avgCheckCents: string;
+}
+
 export interface PlatformGrowth {
   month: string;
   kpi: { mrrCents: string; paying: number; trial: number; trialEndingSoon: number; unpaid: number; avgLtvCents: string; avgDaysWithUs: number };
@@ -3227,11 +3235,33 @@ export interface PlatformGrowth {
     visitors: number | null;
     registrations: number;
     trials: number;
+    /** Пробные месяца, где работали в системе 3 дня и больше; старый API без поля */
+    activeTrials?: number;
     firstPayments: number;
     renewals: number;
-    conversion: { visitorToRegistration: number | null; registrationToTrial: number | null; trialToPaid: number | null; renewal: number | null };
+    conversion: {
+      visitorToRegistration: number | null;
+      registrationToTrial: number | null;
+      trialToActive?: number | null;
+      trialToPaid: number | null;
+      renewal: number | null;
+    };
   };
   previous: { registrations: number; trials: number; firstPayments: number; incomeCents: string };
+  /** Главная «B» (30.10.2026): оплаты месяца; старый API без полей */
+  money?: PlatformMonthMoney & { previous: PlatformMonthMoney };
+  trial?: {
+    registrations: number;
+    previousRegistrations: number;
+    now: number;
+    endingSoon: number;
+    ended: number;
+    endedUnpaid: number;
+    avgActiveDaysTenths: number | null;
+    paidActiveDaysTenths: number | null;
+    unpaidActiveDaysTenths: number | null;
+  };
+  rates?: Array<{ month: string; trialToPaid: number | null; renewal: number | null }>;
   income: Array<{ month: string; cents: string }>;
   /** Отток месяца: ушли в «только чтение» или приостановку; старый API без поля */
   churn?: { count: number; previous: number };

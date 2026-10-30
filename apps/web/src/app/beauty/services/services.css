@@ -502,4 +502,87 @@
       width: 100%;
     }
   }
+
+  /* две колонки со стрелками (владелец 30.10.2026, макет): слева филиал, справа что добавить, строка в одну линию */
+  .beauty-service-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .beauty-service-col {
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .beauty-service-col > header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-bottom: 1px solid var(--border);
+  }
+  .beauty-service-col > header h2 { margin: 0; font-size: var(--text-md); }
+  .beauty-service-col > header small { color: var(--muted); font-size: var(--text-xs); }
+  .beauty-service-cat h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-1) var(--space-4);
+    background: var(--surface-muted);
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+  .beauty-service-cat ul { list-style: none; margin: 0; padding: 0; }
+  .beauty-service-cat li {
+    display: grid;
+    grid-template-columns: var(--space-6) minmax(0, 1fr) auto auto auto auto;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-h);
+    padding: 0 var(--space-4);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .beauty-service-row__name { min-width: 0; display: flex; align-items: baseline; gap: var(--space-2); }
+  .beauty-service-row__name b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .beauty-service-row__name small { color: var(--muted); font-size: var(--text-xs); white-space: nowrap; }
+  .beauty-service-row__time { color: var(--muted); text-align: right; white-space: nowrap; min-width: var(--space-16); }
+  .beauty-service-row__price { min-width: calc(var(--space-16) + var(--space-6)); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .beauty-service-row__pct { min-width: var(--space-12); text-align: right; color: var(--primary); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .beauty-service-row__actions { display: flex; justify-content: flex-end; gap: var(--space-1); min-width: 0; }
+  .beauty-service-arrows {
+    display: grid;
+    gap: var(--space-2);
+    position: sticky;
+    top: var(--space-16);
+    padding-top: var(--space-16);
+  }
+  .beauty-service-arrow {
+    width: var(--space-12);
+    height: var(--space-10);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--primary);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .beauty-service-arrow:not(:disabled) { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+  .beauty-service-arrow:disabled { cursor: default; opacity: 0.5; }
+  .beauty-service-hint { margin: 0; padding: var(--space-2) var(--space-4); color: var(--muted); font-size: var(--text-xs); }
+  @media (max-width: 960px) {
+    .beauty-service-columns { grid-template-columns: minmax(0, 1fr); }
+    .beauty-service-arrows { position: static; padding-top: 0; grid-auto-flow: column; justify-content: center; }
+    .beauty-service-arrows .beauty-service-arrow { transform: rotate(90deg); }
+  }
+  @media (max-width: 600px) {
+    .beauty-service-cat li { grid-template-columns: var(--space-6) minmax(0, 1fr) auto auto; padding: var(--space-1) var(--space-2); }
+    .beauty-service-row__time, .beauty-service-row__pct, .beauty-service-row__name small { display: none; }
+    .beauty-service-arrow { width: var(--touch-target); height: var(--touch-target); }
+  }
 }

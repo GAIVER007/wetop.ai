@@ -101,30 +101,19 @@
 }
 
 /* период Главной (владелец 29.10.2026): ‹ месяц › и «Свой период» с полями «с–по» */
-.owner-period { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; position: relative; }
-.owner-period__month { padding: var(--space-2) var(--space-4); border-radius: var(--radius); font-weight: 600; color: var(--text); text-decoration: none; white-space: nowrap; }
-.owner-period__month.is-on { background: var(--surface); box-shadow: inset 0 0 0 1px var(--border); }
+.owner-period { flex: none; }
 .owner-period .icon-button.is-disabled { opacity: 0.35; pointer-events: none; }
-.owner-period__custom { position: relative; }
-.owner-period__custom .btn.is-on { border-color: var(--primary); color: var(--primary); }
-.owner-period__form {
-  position: absolute;
-  z-index: var(--layer-overlay);
-  top: calc(100% + var(--space-2));
-  left: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-floating);
-}
-.owner-period__form label { display: grid; gap: var(--space-1); font-size: var(--text-sm); color: var(--text-2); }
 @media (max-width: 600px) {
-  .owner-period__form { position: static; width: 100%; }
-}
+  }
 /* узкий экран (внешний экран складного iPhone 466 px): «Расходов за период пока нет» переносится, а не вылезает */
 @media (max-width: 600px) { .owner-home .owner-expense-panel { flex-wrap: wrap; } .owner-home .owner-expense-empty { flex: 1 1 100%; min-width: 0; } }
+
+/* «Запись → визит» (владелец 30.10.2026): справа под делами, строки в одну линию, поля как у «Требуют решения» */
+.owner-home .owner-visits { padding: var(--space-2) var(--space-4); }
+.owner-visits > .owner-panel-heading { padding: 0; }
+.owner-visits__percent { font-size: var(--text-xl); color: var(--primary); }
+.owner-visits__rows { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+.owner-visits__rows li { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); min-height: var(--control-h-sm); border-bottom: 1px solid var(--border); }
+.owner-visits__rows li:last-child { border-bottom: 0; }
+.owner-visits__rows span { color: var(--text-2); }
+.owner-visits__note, .owner-visits__empty { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-xs); }

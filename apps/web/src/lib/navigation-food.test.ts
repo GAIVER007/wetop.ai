@@ -23,6 +23,7 @@ describe('Food workspace isolation', () => {
       // «Все бизнесы» владельцу (30.10.2026)
       ['Настройки', ['/restaurant-settings', '/journal', '/settings', '/owner']],
       ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/marketing/voice', '/ai-agents', '/sales', '/marketing/budget']],
+      ['Обучение', ['/learn']],
       ['Помощь', ['/help']],
     ]);
     expect(phoneNavigationFor('FOOD_SERVICE').map((i) => [i.href, i.label])).toEqual([

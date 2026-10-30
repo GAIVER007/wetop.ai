@@ -51,6 +51,7 @@ describe('меню по ролям', () => {
       ['settings', ['/incidents', '/settings']],
       // «Продвижение» по праву marketing закрыто, а продавец (диалоги) и конкуренты (право `reports`) открыты
       ['marketing', ['/ai-agents', '/market', '/sales']],
+      ['learn', ['/learn']],
       ['help', ['/help']],
     ]);
   });

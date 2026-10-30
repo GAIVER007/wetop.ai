@@ -154,6 +154,8 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Люди организации: роли, приглашения и доступ.',
       },
       { href: '/help', label: 'Помощь', icon: 'help', requires: 'desk', description: 'Ответы на частые вопросы и связь с поддержкой.' },
+      // «Обучение» (владелец 30.10.2026): все инструкции у любого клиента WETOP, при любой роли, всегда
+      { href: '/learn', label: 'Обучение', icon: 'file', requires: 'self', description: 'Все инструкции WETOP: краткое описание и вся инструкция по нажатию.' },
       {
         href: '/profile',
         label: 'Профиль',
@@ -781,6 +783,7 @@ const ROW: Array<{
     ],
     match: ['/website', '/ai-seller'],
   },
+  { id: 'learn', label: 'Обучение', icon: 'file', items: [{ label: 'Обучение', at: ALL('/learn') }] },
   { id: 'help', label: 'Помощь', icon: 'help', items: [{ label: 'Помощь', at: ALL('/help') }] },
 ];
 
@@ -965,6 +968,8 @@ export function pageOpen(access: NavigationAccess, permission: Permission, path?
   if (access.role === 'OWNER') return true;
   // салон: по прямому адресу тоже закрыто то, что скрыто в меню при запуске (выручка, недоделанные разделы)
   if (beautyLaunchHidden(path, access)) return false;
+  // «Обучение» открыто всем: должность салона его не закрывает (владелец 30.10.2026)
+  if (path === '/learn' || path.startsWith('/learn/')) return true;
   if (path === '/my-work' || path.startsWith('/my-work/')) return personalBeautyWork(access);
   if (path === '/team' || path.startsWith('/team/'))
     return mayAccess(access, 'staff') && mayBeautyAccess(access, 'employees', 'view', { legacy: 'staff' });
@@ -1130,6 +1135,7 @@ export function activeSectionOf(sections: MenuSection[], path: string): MenuSect
 const PAGE_LABELS: Array<{ href: string; label: string; icon: IconName }> = [
   { href: '/profile', label: 'Профиль', icon: 'person' },
   { href: '/help', label: 'Помощь', icon: 'help' },
+  { href: '/learn', label: 'Обучение', icon: 'file' },
   { href: '/whats-new', label: 'Что нового', icon: 'star' },
   { href: '/branches', label: 'Филиалы', icon: 'hotel' },
   { href: '/onboarding', label: 'Настройка объекта', icon: 'settings' },

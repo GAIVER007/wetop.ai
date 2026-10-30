@@ -2,16 +2,18 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
-import { Badge, EmptyState, LoadingState, Panel, Stat, Stats, Table } from '../../../../components/ui';
-import { Icon } from '../../../../components/icon';
+import { Badge, EmptyState, Input, LoadingState, Panel, Select, Table } from '../../../../components/ui';
 import { ApiError, platformApi, type PlatformCabinet, type PlatformGrowth } from '../../../../lib/api';
 import { loadErrorProps } from '../../../../lib/load-error';
 import { formatInt } from '../../../../lib/dashboard-format';
-import { serverT } from '../../../../i18n/server';
+import { currentLocale, serverT } from '../../../../i18n/server';
 import type { Translate } from '../../../../i18n';
 import { unstable_rethrow } from 'next/navigation';
-import { CabinetShell, dayText, usd } from '../shell';
-import { ClientStatus, withUsText } from '../growth-parts';
+import { CabinetShell, usd } from '../shell';
+import { ClientStatus } from '../growth-parts';
+import { countryName, flag } from '../country';
+import { PLATFORM_VERTICAL_LABEL } from '../../../../lib/platform';
+
 
 type Filter = 'all' | 'risk' | 'trial' | 'paying' | 'unpaid' | 'left';
 const FILTERS: Filter[] = ['all', 'risk', 'trial', 'paying', 'unpaid', 'left'];
@@ -35,17 +37,21 @@ export default async function ClientsPage({
   const t = await serverT();
   const q = await searchParams;
   const filter = (FILTERS as string[]).includes(String(q['show'])) ? (q['show'] as Filter) : 'all';
+  const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v.trim().slice(0, 100) : '');
+  const country = /^[A-Z]{2}$|^none$/.test(one(q['country'])) ? one(q['country']) : '';
+  const vertical = one(q['vertical']) in PLATFORM_VERTICAL_LABEL ? one(q['vertical']) : '';
   return (
     <Page width="full" title={t('Клиенты WETOP')}>
       <Suspense fallback={<LoadingState label={t('Считаем клиентов…')} />}>
-        <Clients filter={filter} />
+        <Clients filter={filter} country={country} vertical={vertical} search={one(q['q'])} />
       </Suspense>
     </Page>
   );
 }
 
-async function Clients({ filter }: { filter: Filter }) {
+async function Clients({ filter, country, vertical, search }: { filter: Filter; country: string; vertical: string; search: string }) {
   const t = await serverT();
+  const locale = await currentLocale();
   let view: PlatformCabinet;
   let growth: PlatformGrowth;
   try {
@@ -57,12 +63,39 @@ async function Clients({ filter }: { filter: Filter }) {
     return <LoadError testId="cabinet-error" {...loadErrorProps(error)} />;
   }
   const work = new Map(view.clients.map((c) => [c.id, c]));
-  const partners = await platformApi.partners().catch(() => ({ ready: false as const }));
-  const partnerOf = new Map(partners.ready ? partners.clients.map((x) => [x.organizationId, x.name]) : []);
+  const now = Date.now();
+  const today = new Date(now).toISOString().slice(0, 10);
+  const dayPlus = (n: number) => new Date(now + n * 86_400_000).toISOString().slice(0, 10);
+  const idleDays = (iso: string | null) => (iso ? Math.floor((now - new Date(iso).getTime()) / 86_400_000) : 999);
+  // фильтры страны, направления и поиск (владелец 30.10.2026: «страны добавь в раздел клиенты»)
+  const needle = search.toLocaleLowerCase();
+  const picked = growth.clients.filter(
+    (c) =>
+      (!country || (country === 'none' ? !c.country : c.country === country)) &&
+      (!vertical || (work.get(c.id)?.verticals ?? []).includes(vertical as never)) &&
+      (!needle || c.name.toLocaleLowerCase().includes(needle) || (work.get(c.id)?.owner ?? '').toLocaleLowerCase().includes(needle)),
+  );
   const shown = (f: Filter) =>
-    growth.clients.filter((c) =>
+    picked.filter((c) =>
       f === 'all' ? c.status !== 'SUSPENDED' : f === 'risk' ? c.atRisk === true : c.status === FILTER_STATUS[f],
     );
+  const countries = [...new Set(growth.clients.map((c) => c.country ?? 'none'))].sort();
+  const verticals = [...new Set(view.clients.flatMap((c) => c.verticals))];
+  const keep = (extra: Record<string, string>) => {
+    const p = new URLSearchParams();
+    for (const [k, v] of Object.entries({ show: filter === 'all' ? '' : filter, country, vertical, q: search, ...extra })) if (v) p.set(k, v);
+    const qs = p.toString();
+    return qs ? `/platform/cabinet/clients?${qs}` : '/platform/cabinet/clients';
+  };
+  // плашки «с кем говорить» (вариант C): по всем клиентам, без фильтров
+  const all = growth.clients;
+  const in14 = (d: string | null) => d !== null && d >= today && d <= dayPlus(14);
+  const tasks = {
+    ending: all.filter((c) => c.status === 'TRIAL' && (c.trialDaysLeft ?? 99) <= 7).length,
+    risk: all.filter((c) => c.atRisk === true).length,
+    idle: all.filter((c) => c.status !== 'SUSPENDED' && idleDays(work.get(c.id)?.lastLoginAt ?? null) > 7).length,
+    payment: all.filter((c) => c.status === 'ACTIVE' && in14(c.paidUntil)).length,
+  };
   // «Клиенты» C (владелец 30.10.2026): сверху те, с кем надо говорить сейчас: под риском и пробный кончается за 3 дня
   const urgent = (c: PlatformGrowth['clients'][number]) =>
     c.atRisk ? 0 : c.status === 'TRIAL' && (c.trialDaysLeft ?? 99) <= 3 ? 1 : c.status === 'READ_ONLY' ? 2 : 3;
@@ -70,7 +103,6 @@ async function Clients({ filter }: { filter: Filter }) {
     .map((c, i) => ({ c, i }))
     .sort((a, b) => urgent(a.c) - urgent(b.c) || a.i - b.i)
     .map((x) => x.c);
-  const now = Date.now();
   const label: Record<Filter, string> = {
     all: t('Все'),
     risk: t('Под риском'),
@@ -81,33 +113,35 @@ async function Clients({ filter }: { filter: Filter }) {
   };
   return (
     <CabinetShell active="clients" t={t} clients={view.totals.clients}>
-      <Stats min={180}>
-        <Stat
-          label={t('Клиенты')}
-          value={formatInt(view.totals.clients)}
-          hint={t('ушли за месяц: {n}, в прошлом: {p}', {
-            n: formatInt(growth.churn?.count ?? 0),
-            p: formatInt(growth.churn?.previous ?? 0),
-          })}
-          icon={<Icon name="guests" />}
-          testId="clients-total"
-        />
-        <Stat
-          label={t('Люди у клиентов')}
-          value={formatInt(view.totals.people)}
-          hint={t('входили за 7 дней: {n}', { n: formatInt(view.totals.activePeople7d) })}
-          icon={<Icon name="person" />}
-          testId="cabinet-people"
-        />
-        <Stat label={t('MRR, в месяц')} value={usd(growth.kpi.mrrCents)} icon={<Icon name="chart" />} tone="success" />
-        <Stat label={t('Средний LTV')} value={usd(growth.kpi.avgLtvCents)} icon={<Icon name="money" />} />
-      </Stats>
+      {/* «Клиенты» C (владелец 30.10.2026): без цифр Главной (MRR, LTV, люди у клиентов), только с кем говорить */}
+      <div className="cabinet-tasks" data-testid="clients-tasks">
+        <Link className="cabinet-task" data-tone="warning" href={keep({ show: 'trial' })} prefetch={false} data-testid="task-ending">
+          <span className="muted">{t('Кончается пробный')}</span>
+          <b>{formatInt(tasks.ending)}</b>
+          <span className="cabinet__sub">{t('за 7 дней, позвонить')}</span>
+        </Link>
+        <Link className="cabinet-task" data-tone="danger" href={keep({ show: 'risk' })} prefetch={false} data-testid="task-risk">
+          <span className="muted">{t('Под риском')}</span>
+          <b>{formatInt(tasks.risk)}</b>
+          <span className="cabinet__sub">{t('работали меньше 3 дн. из 7')}</span>
+        </Link>
+        <div className="cabinet-task" data-tone="info" data-testid="task-idle">
+          <span className="muted">{t('Долго не входили')}</span>
+          <b>{formatInt(tasks.idle)}</b>
+          <span className="cabinet__sub">{t('больше 7 дней')}</span>
+        </div>
+        <Link className="cabinet-task" data-tone="success" href={keep({ show: 'paying' })} prefetch={false} data-testid="task-payment">
+          <span className="muted">{t('Скоро оплата')}</span>
+          <b>{formatInt(tasks.payment)}</b>
+          <span className="cabinet__sub">{t('срок в 14 дней')}</span>
+        </Link>
+      </div>
       <Panel title={t('Клиенты')} className="cabinet__clients">
         <nav className="cabinet__filters" aria-label={t('Показать')}>
           {FILTERS.map((f) => (
             <Link
               key={f}
-              href={f === 'all' ? '/platform/cabinet/clients' : `/platform/cabinet/clients?show=${f}`}
+              href={keep({ show: f === 'all' ? '' : f })}
               aria-current={f === filter ? 'page' : undefined}
               prefetch={false}
               data-testid={`clients-filter-${f}`}
@@ -116,6 +150,45 @@ async function Clients({ filter }: { filter: Filter }) {
             </Link>
           ))}
         </nav>
+        <form className="cabinet__pick" action="/platform/cabinet/clients" data-testid="clients-pick">
+          {filter !== 'all' && <input type="hidden" name="show" value={filter} />}
+          <label>
+            <span className="sr-only">{t('Страна')}</span>
+            <Select name="country" defaultValue={country} data-testid="clients-country">
+              <option value="">{t('Страна: все')}</option>
+              {countries.map((c) => (
+                <option key={c} value={c}>
+                  {c === 'none' ? t('Страна не указана') : `${flag(c)} ${countryName(c, locale, t)}`}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label>
+            <span className="sr-only">{t('Направление')}</span>
+            <Select name="vertical" defaultValue={vertical} data-testid="clients-vertical">
+              <option value="">{t('Направление: все')}</option>
+              {verticals.map((v) => (
+                <option key={v} value={v}>
+                  {t(PLATFORM_VERTICAL_LABEL[v])}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label>
+            <span className="sr-only">{t('Поиск клиента')}</span>
+            <Input type="search" name="q" defaultValue={search} placeholder={t('Поиск клиента')} data-testid="clients-search" />
+          </label>
+          <button type="submit" className="btn btn--secondary">
+            {t('Показать')}
+          </button>
+        </form>
+        {/* отток месяца остаётся в «Клиентах» (Главная «B» без него) */}
+        <p className="muted cabinet__sub" data-testid="clients-churn">
+          {t('ушли за месяц: {n}, в прошлом: {p}', {
+            n: formatInt(growth.churn?.count ?? 0),
+            p: formatInt(growth.churn?.previous ?? 0),
+          })}
+        </p>
         {rows.length === 0 ? (
           <EmptyState title={t('Здесь пока никого нет.')} />
         ) : (
@@ -123,13 +196,16 @@ async function Clients({ filter }: { filter: Filter }) {
             <thead>
               <tr>
                 <th>{t('Клиент')}</th>
+                <th>{t('Страна')}</th>
+                <th>{t('Вид')}</th>
                 <th>{t('Статус')}</th>
-                <th>{t('В месяц')}</th>
-                <th>{t('Оплачено до')}</th>
-                <th>{t('LTV')}</th>
-                <th>{t('С нами')}</th>
-                <th title={t('Сколько дней из последних 7 работали в системе')}>{t('Входили, работа')}</th>
+                <th title={t('Сколько дней из последних 7 работали в системе')}>{t('Работа 7 дн.')}</th>
+                <th>{t('Входили')}</th>
                 <th title={t('Брони и записи за 30 дней')}>{t('За 30 дней')}</th>
+                <th title={t('Сколько клиент заплатил WETOP за всё время')}>{t('Принёс денег')}</th>
+                <th>
+                  <span className="sr-only">{t('Действия')}</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -146,14 +222,11 @@ async function Clients({ filter }: { filter: Filter }) {
                       >
                         {c.name}
                       </Link>
-                      {(w?.owner || partnerOf.get(c.id)) && (
-                        <span className="muted cabinet__sub cabinet__client-owner">
-                          {[w?.owner, partnerOf.get(c.id) && t('партнёр {name}', { name: partnerOf.get(c.id)! })]
-                            .filter(Boolean)
-                            .join(', ')}
-                        </span>
-                      )}
                     </td>
+                    <td title={c.country ? countryName(c.country, locale, t) : t('Страна не указана')}>
+                      {c.country ? flag(c.country) : t('нет')}
+                    </td>
+                    <td className="cabinet__wrap">{(w?.verticals ?? []).map((v) => t(PLATFORM_VERTICAL_LABEL[v])).join(', ') || t('нет')}</td>
                     <td className="cabinet__status-cell">
                       <ClientStatus client={c} t={t} />
                       {c.atRisk && (
@@ -162,17 +235,24 @@ async function Clients({ filter }: { filter: Filter }) {
                         </Badge>
                       )}
                     </td>
-                    <td>{c.monthlyCents ? usd(c.monthlyCents) : t('нет')}</td>
-                    <td>{c.paidUntil ? dayText(c.paidUntil) : t('нет')}</td>
-                    <td>{usd(c.ltvCents)}</td>
-                    <td>{withUsText(c.daysWithUs, t)}</td>
-                    <td>
-                      {loginText(w?.lastLoginAt ?? null, now, t)}
-                      {c.activeDays7 != null && (
-                        <span className="muted cabinet__sub">{t('{n} из 7 дн.', { n: formatInt(c.activeDays7) })}</span>
-                      )}
+                    <td className="cabinet__num">{formatInt(c.activeDays7 ?? 0)}/7</td>
+                    <td>{loginText(w?.lastLoginAt ?? null, now, t)}</td>
+                    <td className="cabinet__num">{formatInt(w?.records30d ?? 0)}</td>
+                    <td className="cabinet__num" data-testid="client-brought">
+                      <b>{usd(c.ltvCents)}</b>
                     </td>
-                    <td>{formatInt(w?.records30d ?? 0)}</td>
+                    <td>
+                      {w?.owner ? (
+                        <a
+                          className="btn btn--secondary btn--sm"
+                          href={`mailto:${w.owner}?subject=${encodeURIComponent(t('WETOP: как у вас дела?'))}`}
+                          aria-label={t('Написать: {name}', { name: c.name })}
+                          title={w.owner}
+                        >
+                          {t('Написать')}
+                        </a>
+                      ) : null}
+                    </td>
                   </tr>
                 );
               })}

@@ -13,7 +13,7 @@ import {
   Table,
 } from '../../components/ui';
 import { ActionMenu } from '../../components/action-menu';
-import { MonthInput } from '../../components/date-field';
+import { DateInput, MonthInput } from '../../components/date-field';
 import { Icon, type IconName } from '../../components/icon';
 import { Tabs } from '../../components/tabs';
 import { Segmented } from '../../components/segmented';
@@ -22,6 +22,7 @@ import { currencySign, formatMoney, inputToMinor, minorToInput } from '../../lib
 import {
   FOOD_PAYMENT_METHODS,
   type FoodPaymentMethod,
+  type PayFrequency,
   type PayModel,
   type PayrollRow,
   type PayrollView,
@@ -97,13 +98,28 @@ export const payChoiceOf = (model: PayModel): PayChoice => (model === 'BONUS_ONL
  * Что уйдёт на сервер из окна оплаты: поля только выбранного способа, у остальных ноль. Пустое или нулевое поле
  * выбранного способа это ошибка с понятной фразой, а не молча сохранённый ноль.
  */
+/** Как часто выплачиваем (PAYROLL-DAILY-20261030): день, неделя в свой день недели, месяц */
+export const PAY_FREQUENCY_LABEL: Record<PayFrequency, string> = {
+  DAILY: msg('Каждый день'),
+  WEEKLY: msg('Раз в неделю'),
+  MONTHLY: msg('Раз в месяц'),
+};
+const WEEKDAYS = [msg('понедельник'), msg('вторник'), msg('среда'), msg('четверг'), msg('пятница'), msg('суббота'), msg('воскресенье')];
+/** «каждый день», «по субботам» нет: «раз в неделю, суббота» без падежей, одинаково на трёх языках */
+export function payScheduleText(t: Translate, f: PayFrequency, weekday: number | null): string {
+  if (f === 'WEEKLY' && weekday) return t('{freq}, {day}', { freq: t(PAY_FREQUENCY_LABEL.WEEKLY), day: t(WEEKDAYS[weekday - 1]!) });
+  return t(PAY_FREQUENCY_LABEL[f]);
+}
+export type PaySchedule = { payFrequency: PayFrequency; payWeekday: number | null; payMethod: FoodPaymentMethod | null };
+
 export function paySettingsBody(
   model: PayChoice,
   fixed: string,
   percent: string,
   currency: string,
   t: Translate = translator('ru'),
-): { model: PayChoice; fixedMinor: number; percent: number } {
+  schedule?: PaySchedule,
+): { model: PayChoice; fixedMinor: number; percent: number } & Partial<PaySchedule> {
   const need = payFields(model);
   const fixedMinor = need.fixed ? payrollPositiveInputToMinor(fixed, currency, t) : 0;
   let pct = 0;
@@ -112,7 +128,16 @@ export function paySettingsBody(
     if (!percent.trim() || !Number.isInteger(pct) || pct < 1 || pct > 100)
       throw new Error(t('Процент: целое число от 1 до 100'));
   }
-  return { model, fixedMinor, percent: pct };
+  if (!schedule) return { model, fixedMinor, percent: pct };
+  if (schedule.payFrequency === 'WEEKLY' && !schedule.payWeekday) throw new Error(t('Укажите день недели выплаты'));
+  return {
+    model,
+    fixedMinor,
+    percent: pct,
+    payFrequency: schedule.payFrequency,
+    payWeekday: schedule.payFrequency === 'WEEKLY' ? schedule.payWeekday : null,
+    payMethod: schedule.payMethod,
+  };
 }
 
 export function PayDrawer({
@@ -135,12 +160,20 @@ export function PayDrawer({
   const [model, setModel] = useState<PayChoice>(payChoiceOf(row.model));
   const [fixed, setFixed] = useState(BigInt(row.fixedMinor) > 0n ? payrollMinorToInput(row.fixedMinor) : '');
   const [percent, setPercent] = useState(row.percent > 0 ? String(row.percent) : '');
+  const [frequency, setFrequency] = useState<PayFrequency>(row.payFrequency ?? 'MONTHLY');
+  const [weekday, setWeekday] = useState<number>(row.payWeekday ?? 6);
+  const [payMethod, setPayMethod] = useState<FoodPaymentMethod | ''>(row.payMethod ?? '');
+  const accepted = useBranchPaymentMethods(scopeKey);
   const need = payFields(model);
   function submit() {
     setError('');
     let body: ReturnType<typeof paySettingsBody>;
     try {
-      body = paySettingsBody(model, fixed, percent, currency, t);
+      body = paySettingsBody(model, fixed, percent, currency, t, {
+        payFrequency: frequency,
+        payWeekday: frequency === 'WEEKLY' ? weekday : null,
+        payMethod: payMethod || null,
+      });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t('Некорректная сумма'));
       return;
@@ -195,6 +228,36 @@ export function PayDrawer({
               </span>
             </Field>
           )}
+        </div>
+        {/* выплаты по дням (владелец 30.10.2026): как часто платим и чем обычно, подсказка окна «Выплатить» */}
+        <div className="pay-fields" data-testid="pay-schedule">
+          <Segmented
+            label={t('Как часто выплачиваем')}
+            value={frequency}
+            options={(['DAILY', 'WEEKLY', 'MONTHLY'] as const).map((f) => ({ value: f, label: t(PAY_FREQUENCY_LABEL[f]) }))}
+            onChange={setFrequency}
+          />
+          {frequency === 'WEEKLY' && (
+            <Field label={t('День выплаты')}>
+              <Select value={weekday} onChange={(e) => setWeekday(Number(e.target.value))}>
+                {WEEKDAYS.map((d, i) => (
+                  <option key={d} value={i + 1}>
+                    {t(d)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          )}
+          <Field label={t('Чем обычно платим')}>
+            <Select value={payMethod} onChange={(e) => setPayMethod(e.target.value as FoodPaymentMethod | '')}>
+              <option value="">{t('Выбрать при выплате')}</option>
+              {branchMethodsShown(FOOD_PAYMENT_METHODS, accepted, payMethod || 'CASH').map((m) => (
+                <option key={m} value={m}>
+                  {METHOD_RU[m] ? t(METHOD_RU[m]) : m}
+                </option>
+              ))}
+            </Select>
+          </Field>
         </div>
         <div className="food-actions pay-form__actions">
           <Button tone="secondary" disabled={pending} onClick={close}>
@@ -390,9 +453,20 @@ export function payoutPlan(
  * остатком (можно частями), способ из включённых в филиале и сколько останется после выплаты. Деньги уходят
  * расходом из кассы филиала (§35.3). Если начислять нечего, окно ведёт в «Условия оплаты».
  */
+/** Последний день месяца «2026-10» → «2026-10-31» */
+export function monthEnd(month: string): string {
+  const [y, m] = month.split('-').map(Number);
+  return new Date(Date.UTC(y!, m!, 0)).toISOString().slice(0, 10);
+}
+/** День выплаты по умолчанию: сегодня, если смотрим текущий месяц, иначе последний день месяца */
+export function payDateDefault(month: string, today: string): string {
+  return today.startsWith(month) ? today : monthEnd(month);
+}
+
 function PayoutDrawer({
   scopeKey,
   month,
+  today,
   currency,
   row,
   close,
@@ -400,6 +474,7 @@ function PayoutDrawer({
 }: {
   scopeKey: string;
   month: string;
+  today: string;
   currency: string;
   row: PayrollRow;
   close: () => void;
@@ -409,7 +484,10 @@ function PayoutDrawer({
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
-  const [method, setMethod] = useState<FoodPaymentMethod>('CASH');
+  const [method, setMethod] = useState<FoodPaymentMethod>(row.payMethod ?? 'CASH');
+  // выплаты по дням (PAYROLL-DAILY-20261030): у ежедневной и недельной выплаты отмечаем, за какой день
+  const byDay = row.payFrequency === 'DAILY' || row.payFrequency === 'WEEKLY';
+  const [payDate, setPayDate] = useState(payDateDefault(month, today));
   // §21.7: выплата только включёнными в филиале способами
   const accepted = useBranchPaymentMethods(scopeKey);
   const left = BigInt(row.totalMinor) - BigInt(row.paidMinor);
@@ -427,7 +505,7 @@ function PayoutDrawer({
       const result = await mutateStaff(scopeKey, {
         kind: 'payout',
         id: row.employeeId,
-        body: { period: month, method, amount: plan.amountMinor, idempotencyKey },
+        body: { period: month, method, amount: plan.amountMinor, idempotencyKey, ...(byDay && payDate ? { payDate } : {}) },
       });
       if (result.error) setError(result.error);
       else {
@@ -500,6 +578,17 @@ function PayoutDrawer({
                 onChange={(e) => setAmount(e.target.value)}
               />
             </Field>
+            {byDay && (
+              <Field controlId={`payout-day-${row.employeeId}`} label={t('За какой день')}>
+                <DateInput
+                  id={`payout-day-${row.employeeId}`}
+                  value={payDate}
+                  min={`${month}-01`}
+                  max={monthEnd(month)}
+                  onChange={(e) => setPayDate(e.target.value)}
+                />
+              </Field>
+            )}
             <Field label={t('Способ')}>
               <Select
                 value={method}
@@ -599,11 +688,14 @@ export function PayrollBoard({
   write,
   payroll,
   basis = 'orders',
+  today,
 }: {
   scopeKey: string;
   write: boolean;
   payroll: PayrollView;
   basis?: PayBasis;
+  /** сегодня по часам филиала: день выплаты по умолчанию; без него последний день месяца */
+  today?: string;
 }) {
   const t = useT();
   const [settings, setSettings] = useState<PayrollRow | null>(null);
@@ -648,6 +740,11 @@ export function PayrollBoard({
               </td>
               <td className="rest-pay-model">
                 {blank ? <Badge tone="warn">{t('Не настроено')}</Badge> : payTerms(t, r, basis, payroll.currency)}
+                {!blank && (
+                  <small data-testid="payroll-frequency">
+                    {payScheduleText(t, r.payFrequency ?? 'MONTHLY', r.payWeekday ?? null)}
+                  </small>
+                )}
               </td>
               <td className="num">{cell(r.baseMinor)}</td>
               <td className="num">
@@ -752,6 +849,7 @@ export function PayrollBoard({
         <PayoutDrawer
           scopeKey={scopeKey}
           month={payroll.month}
+          today={today ?? ''}
           currency={payroll.currency}
           row={payout}
           close={() => setPayout(null)}

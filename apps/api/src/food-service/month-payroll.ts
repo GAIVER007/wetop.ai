@@ -99,8 +99,9 @@ export async function monthPayrollRows(
   const cleaningsBy = new Map(cleanings.map((c) => [c.employeeId!, c._count._all]));
   const rows = employees.map((e) => {
     const setting = e.paySetting
-      ? { model: e.paySetting.model, fixedMinor: e.paySetting.fixedMinor, percent: e.paySetting.percent }
-      : { model: 'FIXED' as const, fixedMinor: 0n, percent: 0 };
+      ? { model: e.paySetting.model, fixedMinor: e.paySetting.fixedMinor, percent: e.paySetting.percent,
+          payFrequency: e.paySetting.payFrequency, payWeekday: e.paySetting.payWeekday, payMethod: e.paySetting.payMethod }
+      : { model: 'FIXED' as const, fixedMinor: 0n, percent: 0, payFrequency: 'MONTHLY' as const, payWeekday: null, payMethod: null };
     const perCleaningMinor = e.paySetting?.perCleaningMinor ?? 0n;
     const sales = salesByWaiter.get(e.id) ?? 0n;
     const cleaned = cleaningsBy.get(e.id) ?? 0;

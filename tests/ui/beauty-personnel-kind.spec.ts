@@ -222,6 +222,14 @@ test('новый специалист: «Доступ в WETOP», по умол�
   expect(await dialog.getByLabel('Почта для входа').evaluate((input: HTMLInputElement) => input.validity.valueMissing)).toBe(true);
   await dialog.getByLabel('Почта').fill('karina@example.invalid');
   await dialog.getByRole('button', { name: 'Создать и пригласить', exact: true }).click();
+  // вариант B (владелец 30.10.2026): письмо ушло, ссылка, «Скопировать» и WhatsApp сразу в окне; «Готово» в карточку
+  const done = dialog.getByTestId('invite-done');
+  await expect(done).toContainText('karina@example.invalid', { timeout: 90_000 });
+  await expect(done.getByTestId('invite-link-url')).toHaveValue(/\/invite\//);
+  await expect(done.getByRole('button', { name: 'Скопировать ссылку', exact: true })).toBeVisible();
+  await expect(done.getByTestId('invite-link-whatsapp')).toHaveAttribute('href', /^https:\/\/wa\.me\//);
+  await page.screenshot({ path: `${SNAPSHOTS}/invite-done-beauty-1440.png`, fullPage: true });
+  await done.getByRole('button', { name: 'Готово', exact: true }).click();
   await expect(page).toHaveURL(/\/employees\/[0-9a-f-]+\/profile$/, { timeout: 90_000 });
   // приглашение ушло с ролью «личный кабинет», сотрудником и только этим филиалом
   const invites = (await (await request.get(`${FIXTURE_API}/__test/invites`)).json()) as Array<{

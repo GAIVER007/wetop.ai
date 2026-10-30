@@ -77,7 +77,8 @@ export class MoneyController {
       this.money.expenses(month),
       this.money.team(),
     ]);
-    const clients = orgs.organizations.filter((o) => o.id !== own && o.status !== 'SUSPENDED');
+    // кого не считать клиентом решил репозиторий кабинета (запись компании WETOP или, без неё, своя организация)
+    const clients = orgs.organizations.filter((o) => o.id !== orgs.ownOrganizationId && o.status !== 'SUSPENDED');
     const names = new Map(orgs.organizations.map((o) => [o.id, o.name]));
     const summary = buildMoney({ ...src, clientIds: clients.map((c) => c.id) }, month, now.toISOString().slice(0, 10));
     const subs = new Map(subscriptions.map((s) => [s.organizationId, s]));

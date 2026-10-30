@@ -49,6 +49,8 @@ const money: Partial<MoneyRepository> = {
     return { id: 'e1', category: input.category, amountCents: input.amountCents, spentOn: input.spentOn, note: input.note, voided: false };
   },
 };
+/** null: запись компании WETOP есть (миграция 170), репозиторий уже убрал её; смотрящий не исключается */
+let cabinetOwn: string | null = OWN;
 const cabinet = {
   source: async () => ({
     organizations: [
@@ -56,7 +58,7 @@ const cabinet = {
       { id: LUXX, name: 'Luxx', status: 'ACTIVE' as const, trialEndsAt: null, createdAt: new Date(), verticals: [], locations: 2, members: [] },
     ],
     records30d: [],
-    ownOrganizationId: OWN,
+    ownOrganizationId: cabinetOwn,
   }),
 };
 
@@ -94,6 +96,7 @@ beforeEach(() => {
   vi.stubEnv('AUTH_REQUIRED', '1');
   ready = true;
   added.length = 0;
+  cabinetOwn = OWN;
 });
 
 const api = () => request(app.getHttpServer());
@@ -120,6 +123,12 @@ describe('деньги компании WETOP: API', () => {
     expect(res.body.clients.map((c: { name: string }) => c.name)).toEqual(['Luxx']);
     expect(res.body.clients[0]).toMatchObject({ monthlyCents: '9900', paidUntil: '2026-01-01' });
     expect(res.body.summary.overdue).toEqual([{ organizationId: LUXX, paidUntil: '2026-01-01', monthlyCents: '9900', name: 'Luxx' }]);
+  });
+
+  it('запись компании WETOP есть: организация смотрящего остаётся клиентом (один кабинет у Юрия и Вячеслава)', async () => {
+    cabinetOwn = null;
+    const res = await api().get('/platform/money').set(admin).expect(200);
+    expect(res.body.clients.map((c: { name: string }) => c.name)).toEqual(['WETOP', 'Luxx']);
   });
 
   it('оплата: клиент, сумма, дата проверяются; запись с автором и продлением на месяц', async () => {

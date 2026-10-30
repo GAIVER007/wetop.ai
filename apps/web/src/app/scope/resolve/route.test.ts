@@ -97,9 +97,15 @@ it('«Личный кабинет» (personal): несколько филиал�
  * Главный администратор WETOP (владелец 29.10.2026: «чтобы я под почтой вошёл и видел всё, что должно быть у админа»):
  * вход без своего адреса ведёт в кабинет компании, а не в стойку клиента. Свой адрес (`next`) остаётся как был.
  */
+it('главный администратор без отметки «открывать кабинет» (Вячеслав): вход как у всех, в свою стойку', async () => {
+  vi.spyOn(branchesApi, 'list').mockResolvedValue({ items: [item('HOSPITALITY')] } as never);
+  vi.spyOn(authApi, 'me').mockResolvedValue({ user: { platformAdmin: true, cabinetHome: false } } as never);
+  expect(await run('/today')).not.toBe('/platform/cabinet');
+});
+
 it('главный администратор: вход по умолчанию в кабинет WETOP, филиал при этом выбран, стойка откроется сразу', async () => {
   vi.spyOn(branchesApi, 'list').mockResolvedValue({ items: [item('HOSPITALITY')] } as never);
-  vi.spyOn(authApi, 'me').mockResolvedValue({ user: { platformAdmin: true } } as never);
+  vi.spyOn(authApi, 'me').mockResolvedValue({ user: { platformAdmin: true, cabinetHome: true } } as never);
   expect(await run('/today')).toBe('/platform/cabinet');
   expect(jar.set).toHaveBeenCalledWith('wetop_scope', `business=${B};location=${L}`, expect.anything());
 });

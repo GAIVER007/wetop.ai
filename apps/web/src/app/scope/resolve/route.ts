@@ -49,7 +49,7 @@ export async function GET(request: Request): Promise<Response> {
   const next = new URL(request.url).searchParams.get('next');
   if (!next || next === '/today') {
     const me = await authApi.me().catch(() => null);
-    if (me?.user?.platformAdmin === true) redirect('/platform/cabinet');
+    if (me?.user?.platformAdmin === true && me.user.cabinetHome === true) redirect('/platform/cabinet');
   }
   redirect(decision.target);
 }

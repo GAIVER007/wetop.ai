@@ -1,8 +1,12 @@
 import { startScreen } from '../lib/vertical-landing';
 import { redirect } from 'next/navigation';
-import { deskShell } from '../lib/desk-shell';
-/** Открытие сайта или приложения: стартовый экран по роли (владелец 27.10.2026, `startScreen`) */
+import { currentMe, deskShell } from '../lib/desk-shell';
+/**
+ * Открытие сайта или приложения: стартовый экран по роли (владелец 27.10.2026, `startScreen`); учётка компании с
+ * отметкой «Кабинет WETOP по умолчанию» (владелец 30.10.2026, миграция 171) открывает кабинет.
+ */
 export default async function Home() {
-  const shell = await deskShell();
-  redirect(startScreen(shell.vertical, shell.access.role));
+  const [shell, me] = await Promise.all([deskShell(), currentMe().catch(() => null)]);
+  const cabinetHome = me?.user?.platformAdmin === true && me.user.cabinetHome === true;
+  redirect(startScreen(shell.vertical, shell.access.role, { cabinetHome }));
 }

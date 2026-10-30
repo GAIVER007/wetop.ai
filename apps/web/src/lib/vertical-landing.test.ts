@@ -24,3 +24,14 @@ describe('стартовый экран по роли', () => {
     expect(startScreen('BEAUTY', null)).toBe(landingForVertical('BEAUTY'));
   });
 });
+
+describe('главный администратор с отметкой «открывать кабинет» (владелец 30.10.2026)', () => {
+  it('открытие приложения ведёт в Кабинет WETOP при любой роли в своей организации', () => {
+    expect(startScreen('HOSPITALITY', 'OWNER', { cabinetHome: true })).toBe('/platform/cabinet');
+    expect(startScreen('BEAUTY', 'MANAGER', { cabinetHome: true })).toBe('/platform/cabinet');
+  });
+  it('без отметки: как раньше', () => {
+    expect(startScreen('HOSPITALITY', 'OWNER', { cabinetHome: false })).toBe('/today');
+    expect(startScreen('HOSPITALITY', 'OWNER')).toBe('/today');
+  });
+});

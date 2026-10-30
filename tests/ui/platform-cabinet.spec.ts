@@ -120,6 +120,25 @@ test('главный администратор после входа сразу
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/platform/cabinet');
   await expect(page.getByTestId('cabinet')).toBeVisible();
+  // уже вошёл и снова открывает app.wetop.ai: опять кабинет, а не гостиница (владелец 30.10.2026)
+  await page.goto('/');
+  await page.waitForURL('**/platform/cabinet');
+  await expect(page.getByTestId('cabinet')).toBeVisible();
+});
+
+test('главный администратор без отметки «Кабинет WETOP по умолчанию» (как Вячеслав): входит в свою стойку, кабинет в «Настройках»', async ({
+  page,
+  request,
+}) => {
+  await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin: true, cabinetHome: false } });
+  await page.goto('/auth/fallback');
+  await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
+  await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
+  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.waitForURL(/\/today$/);
+  await page.goto('/');
+  await page.waitForURL(/\/today$/);
+  expect(new URL(page.url()).pathname).toBe('/today');
 });
 
 test('кабинет главного администратора без строки разделов стойки: только знак, тема и профиль', async ({

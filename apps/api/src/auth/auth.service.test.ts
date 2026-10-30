@@ -43,6 +43,7 @@ describe('AuthService.login', () => {
       // единственный участник организации — её владелец (DATA_MODEL §16.1); главным администратором не назначен
       role: 'OWNER',
       platformAdmin: false,
+      cabinetHome: false,
     });
     expect(result.token).toHaveLength(43);
     expect(new Date(result.expiresAt).getTime() - NOW.getTime()).toBe(SESSION_HOURS * 3_600_000);
@@ -282,6 +283,19 @@ describe('AuthService.whoami', () => {
 
     platformAdmins[0]!.revokedAt = NOW;
     await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: false } });
+  });
+
+  it('главный администратор с отметкой «открывать кабинет» (владелец 30.10.2026): cabinetHome только у него', async () => {
+    const { auth, platformAdmins } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: false, cabinetHome: false } });
+    platformAdmins.push({ userId: 'u-1', grantedAt: NOW, revokedAt: null, note: null, cabinetHome: false });
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: true, cabinetHome: false } });
+    platformAdmins[0]!.cabinetHome = true;
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: true, cabinetHome: true } });
+    // отметку отозвали: и кабинет по умолчанию снят
+    platformAdmins[0]!.revokedAt = NOW;
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: false, cabinetHome: false } });
   });
 
   it('сессия человека, которого исключили из организации, больше не годится (аудит 26.09, С-10)', async () => {

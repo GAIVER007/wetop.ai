@@ -25,7 +25,10 @@ const WORKSPACE: Record<WebVertical, string> = {
 export function startScreen(
   vertical: WebVertical,
   role: 'OWNER' | 'MANAGER' | 'STAFF' | 'EMPLOYEE' | null,
+  options: { cabinetHome?: boolean } = {},
 ): string {
+  // учётка компании WETOP (владелец 30.10.2026): открытие приложения ведёт в её кабинет, стойки клиентов из «Настроек»
+  if (options.cabinetHome === true) return '/platform/cabinet';
   if (role === 'EMPLOYEE') return '/my-work';
   if (role === 'MANAGER' || role === 'STAFF') return WORKSPACE[vertical];
   return landingForVertical(vertical);

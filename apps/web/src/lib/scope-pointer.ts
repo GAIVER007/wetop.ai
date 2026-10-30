@@ -28,6 +28,13 @@ export function lastBranchCookieOptions(env: Record<string, string | undefined>)
   return { ...scopeCookieOptions(env), maxAge: LAST_BRANCH_MAX_AGE };
 }
 
+/** `Set-Cookie` подсказки «последний филиал» для обработчиков, которые собирают ответ сами (переход в организацию) */
+export function lastBranchCookieHeader(locationId: string, env: Record<string, string | undefined>): string {
+  const parts = [`${LAST_BRANCH_COOKIE}=${locationId}`, 'Path=/', 'HttpOnly', 'SameSite=Lax', `Max-Age=${LAST_BRANCH_MAX_AGE}`];
+  if (cookieSecure(env)) parts.push('Secure');
+  return parts.join('; ');
+}
+
 /** `Set-Cookie`, снимающий указатель, для обработчиков, которые собирают ответ сами (вход с сайта, резервная форма). */
 export function clearScopeCookieHeader(env: Record<string, string | undefined>): string {
   const parts = [`${SCOPE_COOKIE}=`, 'Path=/', 'HttpOnly', 'SameSite=Lax', 'Max-Age=0'];

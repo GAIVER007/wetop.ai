@@ -156,6 +156,8 @@ export const CAPABILITIES: readonly Capability[] = [
   cap('journal', ['/journal'], 'journal', ALL, 'ORGANIZATION'),
   cap('platform', ['/platform'], 'platform', ALL, 'ORGANIZATION'),
   cap('platform-support', ['/platform/support'], 'platform', ALL, 'ORGANIZATION'),
+  // «Все бизнесы» владельца (30.10.2026): свои бизнесы и филиалы во всех своих организациях
+  cap('owner-businesses', ['/owner'], 'owner', ALL, 'ORGANIZATION'),
   // кабинет компании WETOP (28.10.2026): главная, деньги, подписки, команда
   cap('platform-cabinet', ['/platform/cabinet', '/platform/cabinet/money', '/platform/cabinet/subscriptions', '/platform/cabinet/team'], 'platform', ALL, 'ORGANIZATION'),
 

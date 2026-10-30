@@ -572,6 +572,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'platform',
       },
       {
+        // «Кабинет владельца: все бизнесы» (владелец 30.10.2026, вариант C): все свои бизнесы и филиалы и переход в них
+        href: '/owner',
+        requires: 'owner',
+        label: 'Все бизнесы',
+        icon: 'today',
+        description: 'Все ваши бизнесы и филиалы: выручка, расходы, прибыль и переход в любой из них.',
+      },
+      {
         // кабинет компании WETOP (владелец 28.10.2026, вариант «Г»): клиенты, путь клиента, сроки
         href: '/platform/cabinet',
         label: 'Кабинет WETOP',

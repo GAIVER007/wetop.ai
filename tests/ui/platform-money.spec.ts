@@ -186,3 +186,43 @@ test('партнёры: процент, клиент партнёра, начи�
   await page.goto('/platform/cabinet/money');
   await expect(page.getByTestId('money-table')).toContainText('Партнёрам');
 });
+
+/**
+ * «Расходы» (владелец 30.10.2026: «раздел расходы, там будем видеть все расходы и добавлять расходы»): запись в окне,
+ * итог месяца, статьи с долей, отбор по статье; зарплата из «Команды» здесь тоже видна.
+ */
+test('расходы: запись в окне, итог, статьи с долей и отбор по статье', async ({ page, request }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await signIn(page, request);
+  await page.goto('/platform/cabinet/expenses');
+  await expect(page.getByTestId('cabinet').getByRole('navigation', { name: 'Кабинет WETOP' })).toContainText('Расходы');
+  await expect(page.getByTestId('expenses-by-category')).toContainText('Расходов в этом месяце нет');
+  for (const [category, amount, note] of [
+    ['Сервер', '30', 'Hetzner'],
+    ['Реклама', '90', 'Instagram'],
+  ] as const) {
+    await page.getByTestId('expenses-add-dialog-open').click();
+    const form = page.getByTestId('expenses-add-dialog').getByTestId('money-expense-form');
+    await form.getByLabel('Статья').selectOption({ label: category });
+    await form.getByLabel('Сумма, $').fill(amount);
+    await form.getByLabel('Заметка').fill(note);
+    await form.getByTestId('money-expense-save').click();
+    await expect(page.getByTestId('expenses-list')).toContainText(note);
+  }
+  await expect(page.getByTestId('expenses-total')).toHaveText('$120');
+  await expect(page.getByTestId('expenses-top')).toContainText('Реклама');
+  await expect(page.getByTestId('expenses-by-category').getByTestId('expenses-category').first()).toContainText('75%');
+  await expect(page.getByTestId('expenses-row')).toHaveCount(2);
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/expenses-1280.png`, fullPage: true });
+  // отбор по статье и обратно
+  await page.getByTestId('expenses-category').filter({ hasText: 'Сервер' }).click();
+  await expect(page.getByTestId('expenses-row')).toHaveCount(1);
+  await expect(page.getByTestId('expenses-list')).toContainText('Hetzner');
+  await page.getByTestId('expenses-all').click();
+  await expect(page.getByTestId('expenses-row')).toHaveCount(2);
+  const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(wide).toBeLessThanOrEqual(0);
+  // те же записи в «Деньгах»
+  await page.goto('/platform/cabinet/money');
+  await expect(page.getByTestId('money-expenses')).toHaveText('$120');
+});

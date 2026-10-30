@@ -5,6 +5,8 @@ import { msg } from '../i18n';
  * и должности. Инструкция: название, краткое описание, для кого; по нажатию вся инструкция страницами. Файлы лежат
  * в `apps/web/public/guides/<lang>/` (PDF для «Скачать» и страницы картинками для чтения на сайте). RU и EN отдельно,
  * каждая снята со своего языка интерфейса; у казахского интерфейса русская версия.
+ * Правило владельца 30.10.2026: каждая новая инструкция сразу попадает сюда; сторож `guides.test.ts` не даёт
+ * положить PDF в `public/guides` без строки в списке.
  */
 export type GuideLang = 'ru' | 'en';
 export interface Guide {
@@ -63,6 +65,7 @@ export const GUIDES: readonly Guide[] = [
     updated: '2026-10-30',
     files: files('staff-access', 7, 7),
   },
+  // guides:end — новые инструкции добавляет сюда скрипт публикации (каждая новая инструкция сразу в «Обучении»)
 ];
 
 export function guideBySlug(slug: string): Guide | undefined {

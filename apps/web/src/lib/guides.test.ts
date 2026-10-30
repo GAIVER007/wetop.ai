@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { GUIDES, guideBySlug, guideLang, guidePages } from './guides';
@@ -13,8 +13,9 @@ const base = { platform: false, unknown: false, restricted: false } as const;
 const roles = ['OWNER', 'MANAGER', 'STAFF', 'EMPLOYEE'] as const;
 
 describe('Обучение: инструкции', () => {
-  it('четыре инструкции, у каждой название, описание и обе версии', () => {
-    expect(GUIDES.map((g) => g.slug)).toEqual(['admin', 'cash-payroll', 'master-cabinet', 'staff-access']);
+  it('инструкции, у каждой название, описание и обе версии', () => {
+    expect(GUIDES.map((g) => g.slug).slice(0, 4)).toEqual(['admin', 'cash-payroll', 'master-cabinet', 'staff-access']);
+    expect(new Set(GUIDES.map((g) => g.slug)).size).toBe(GUIDES.length);
     for (const g of GUIDES) {
       expect(g.title.length, g.slug).toBeGreaterThan(5);
       expect(g.description.length, g.slug).toBeGreaterThan(40);
@@ -23,6 +24,15 @@ describe('Обучение: инструкции', () => {
         expect(g.files[lang].pages, `${g.slug} ${lang}`).toBeGreaterThan(3);
         for (const page of guidePages(g, lang)) expect(existsSync(join(PUBLIC, page)), page).toBe(true);
       }
+    }
+  });
+
+  it('каждый PDF в public/guides есть в «Обучении»: новая инструкция не теряется', () => {
+    for (const lang of ['ru', 'en'] as const) {
+      const pdfs = readdirSync(join(PUBLIC, 'guides', lang)).filter((f) => f.endsWith('.pdf')).map((f) => f.slice(0, -4));
+      expect(pdfs.sort(), lang).toEqual(GUIDES.map((g) => g.slug).sort());
+      for (const g of GUIDES)
+        expect(readdirSync(join(PUBLIC, 'guides', lang, g.slug)).filter((f) => f.endsWith('.jpg')).length, `${g.slug} ${lang}`).toBe(g.files[lang].pages);
     }
   });
 

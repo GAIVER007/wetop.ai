@@ -3316,6 +3316,10 @@ export interface PlatformGrowth {
     lastPaidOn: string | null;
     monthlyCents: string | null;
     paidUntil: string | null;
+    /** «Клиенты» C (30.10.2026): дни работы на пробном и за 7 дней, «под риском»; старый API без полей */
+    trialActiveDays?: number | null;
+    activeDays7?: number | null;
+    atRisk?: boolean;
   }>;
 }
 

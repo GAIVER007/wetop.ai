@@ -192,3 +192,32 @@ describe('главная «B»: оплаты месяца и пробный', ()
     expect(g.trial.avgActiveDaysTenths).toBeNull();
   });
 });
+
+/**
+ * «Клиенты» вариант C (владелец 30.10.2026: «Давай»): у пробного видно, сколько дней он работал на пробном и за 7 дней;
+ * «под риском» тот, кто на пробном с нами 3 дня и больше, а работал меньше 3 дней из последних 7.
+ */
+describe('клиенты C: работа на пробном и «под риском»', () => {
+  it('дни работы на пробном и за 7 дней; риск только у пробного старше 3 дней с работой меньше 3 дней', () => {
+    const s = src();
+    s.organizations.push(org('e', '2026-10-28T00:00:00Z', 'TRIAL', '2026-11-04T00:00:00Z'));
+    s.activity = [
+      { organizationId: 'c', day: '2026-10-21' },
+      { organizationId: 'c', day: '2026-10-27' },
+      { organizationId: 'a', day: '2026-10-28' },
+      { organizationId: 'e', day: '2026-10-28' },
+    ];
+    const g = buildGrowth(s, '2026-10', NOW);
+    const by = new Map(g.clients.map((c) => [c.id, c]));
+    expect(by.get('c')).toMatchObject({ trialActiveDays: 2, activeDays7: 1, atRisk: true });
+    // новый пробный (1 день с нами) ещё не под риском
+    expect(by.get('e')).toMatchObject({ trialActiveDays: 1, activeDays7: 1, atRisk: false });
+    // платящий: риск пробного к нему не относится
+    expect(by.get('a')).toMatchObject({ activeDays7: 1, atRisk: false });
+  });
+
+  it('без журнала работы: дни неизвестны, риска нет', () => {
+    const c = buildGrowth(src(), '2026-10', NOW).clients.find((x) => x.id === 'c')!;
+    expect(c).toMatchObject({ trialActiveDays: null, activeDays7: null, atRisk: false });
+  });
+});

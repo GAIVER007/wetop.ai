@@ -69,6 +69,17 @@ test('главная «B»: 4 цифры, воронка продаж из 6 ш�
   const access = table.getByRole('link', { name: 'Карточка клиента: Хостел «Пример»' });
   await expect(access).toHaveAttribute('href', '/platform/cabinet/clients/ui-org-2');
   await expect(access).toBeInViewport({ ratio: 1 });
+  // «Клиенты» C (30.10.2026): пробный 4 дня, работал 1 день из 7: «под риском», сверху списка
+  const first = page.getByTestId('cabinet-client-row').first();
+  await expect(first).toContainText('Хостел «Пример»');
+  await expect(first.getByTestId('client-risk')).toHaveText('под риском');
+  await expect(first).toContainText('1 из 7 дн.');
+  // таблица целиком в панели и после новой отметки
+  expect(await page.getByTestId('cabinet-clients-table').evaluate((el) => (el.parentElement ?? el).scrollWidth - (el.parentElement ?? el).clientWidth)).toBeLessThanOrEqual(0);
+  await page.getByTestId('clients-filter-risk').click();
+  await page.waitForURL('**/clients?show=risk');
+  await expect(page.getByTestId('cabinet-client-row')).toHaveCount(1);
+  await page.goto('/platform/cabinet/clients');
   // таблица целиком в панели: без прокрутки вбок
   const overflow = await table.evaluate((el) => el.scrollWidth - el.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
@@ -95,6 +106,11 @@ test('карточка клиента: доступ, люди, филиалы, �
   await expect(page.getByTestId('client-members')).toContainText('owner@example.com');
   await expect(page.getByTestId('client-locations')).toContainText('Гостиница');
   await expect(page.getByTestId('client-journal')).toContainText('Зарегистрирован');
+  // «Что сделал на пробном» и «Написать» владельцу (вариант C, 30.10.2026)
+  await expect(page.getByTestId('client-trial-work')).toContainText('Дней работы на пробном');
+  await expect(page.getByTestId('client-trial-days')).toHaveText('1');
+  await expect(page.getByTestId('client-card-risk')).toHaveText('под риском');
+  await expect(page.getByTestId('client-write')).toHaveAttribute('href', /^mailto:owner@example\.com\?subject=/);
   if (process.env.CABINET_SHOTS)
     await page.screenshot({ path: `${process.env.CABINET_SHOTS}/client-card-1280.png`, fullPage: true });
   await page.getByTestId('client-trial-7').click();

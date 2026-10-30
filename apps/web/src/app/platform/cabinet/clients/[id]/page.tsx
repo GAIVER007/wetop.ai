@@ -4,7 +4,8 @@ import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../../../components/page';
 import { LoadError } from '../../../../../components/load-error';
 import { Badge, EmptyState, LoadingState, Panel, Table } from '../../../../../components/ui';
-import { ApiError, platformApi, type PlatformClientCard, type PlatformPartners } from '../../../../../lib/api';
+import { ApiError, platformApi, type PlatformClientCard, type PlatformGrowth, type PlatformPartners } from '../../../../../lib/api';
+import { formatInt } from '../../../../../lib/dashboard-format';
 import { ClientPartnerForm } from '../../money-forms';
 import { loadErrorProps } from '../../../../../lib/load-error';
 import { serverT } from '../../../../../i18n/server';
@@ -72,6 +73,8 @@ async function Card({ id }: { id: string }) {
   let c: PlatformClientCard;
   // партнёры для «чей клиент»; до миграции 172 или при сбое просто без выбора партнёра
   const partners = platformApi.partners().catch(() => ({ ready: false as const }));
+  // «Клиенты» C (30.10.2026): дни работы на пробном и за 7 дней из расчёта роста; сбой: блок без этих цифр
+  const growth = platformApi.growth(new Date().toISOString().slice(0, 7)).catch(() => null);
   try {
     c = await platformApi.clientCard(id);
   } catch (error) {
@@ -96,9 +99,22 @@ async function Card({ id }: { id: string }) {
             {t('Название, расширения, архив')}
           </Link>
         </div>
+        {(() => {
+          const owner = c.members.find((m) => m.owner) ?? c.members[0];
+          return owner ? (
+            <a
+              className="btn btn--primary cabinet__write"
+              href={`mailto:${owner.email}?subject=${encodeURIComponent(t('WETOP: как у вас дела?'))}`}
+              data-testid="client-write"
+            >
+              {t('Написать')}
+            </a>
+          ) : null;
+        })()}
         <AccessForm organizationId={c.id} status={c.status} />
         <ClientPartner organizationId={c.id} partners={await partners} t={t} />
       </Panel>
+      <TrialWork card={c} client={(await growth)?.clients.find((x) => x.id === c.id) ?? null} t={t} />
       <div className="cabinet__pair">
         <Panel title={t('Люди: {n}', { n: c.members.length })}>
           {c.members.length === 0 ? (
@@ -183,4 +199,55 @@ function ClientPartner({
   const choices = partners.partners.filter((p) => p.active || p.id === current).map((p) => ({ id: p.id, name: p.name }));
   if (choices.length === 0) return <p className="muted cabinet__sub">{t('Партнёров пока нет: их добавляют в «Партнёры WETOP».')}</p>;
   return <ClientPartnerForm organizationId={organizationId} partners={choices} current={current} />;
+}
+
+/**
+ * «Что сделал на пробном» (владелец 30.10.2026, «Клиенты» C): дни работы в системе за пробный и за последние 7 дней,
+ * сколько людей входили, филиалы; «под риском», если работал меньше 3 дней из 7. Только у пробного и недавно платящего.
+ */
+function TrialWork({
+  card,
+  client,
+  t,
+}: {
+  card: PlatformClientCard;
+  client: PlatformGrowth['clients'][number] | null;
+  t: Translate;
+}) {
+  const logged = card.members.filter((m) => m.lastLoginAt).length;
+  const days = (n: number | null | undefined) => (n == null ? t('нет данных') : formatInt(n));
+  return (
+    <Panel title={t('Что сделал на пробном')} data-testid="client-trial-work">
+      <dl className="cabinet__trial-work">
+        <div>
+          <dt>{t('Дней работы на пробном')}</dt>
+          <dd data-testid="client-trial-days">{days(client?.trialActiveDays)}</dd>
+        </div>
+        <div>
+          <dt>{t('Работа за 7 дней')}</dt>
+          <dd>
+            {client?.activeDays7 == null ? t('нет данных') : t('{n} из 7', { n: formatInt(client.activeDays7) })}
+          </dd>
+        </div>
+        <div>
+          <dt>{t('Входили люди')}</dt>
+          <dd>{t('{n} из {all}', { n: formatInt(logged), all: formatInt(card.members.length) })}</dd>
+        </div>
+        <div>
+          <dt>{t('Филиалы')}</dt>
+          <dd>{formatInt(card.locations.length)}</dd>
+        </div>
+        {client?.atRisk && (
+          <div>
+            <dt>{t('Внимание')}</dt>
+            <dd>
+              <Badge tone="danger" data-testid="client-card-risk">
+                {t('под риском')}
+              </Badge>
+            </dd>
+          </div>
+        )}
+      </dl>
+    </Panel>
+  );
 }

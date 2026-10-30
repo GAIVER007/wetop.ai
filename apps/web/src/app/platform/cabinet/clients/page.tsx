@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
-import { EmptyState, LoadingState, Panel, Stat, Stats, Table } from '../../../../components/ui';
+import { Badge, EmptyState, LoadingState, Panel, Stat, Stats, Table } from '../../../../components/ui';
 import { Icon } from '../../../../components/icon';
 import { ApiError, platformApi, type PlatformCabinet, type PlatformGrowth } from '../../../../lib/api';
 import { loadErrorProps } from '../../../../lib/load-error';
@@ -13,9 +13,9 @@ import { unstable_rethrow } from 'next/navigation';
 import { CabinetShell, dayText, usd } from '../shell';
 import { ClientStatus, withUsText } from '../growth-parts';
 
-type Filter = 'all' | 'trial' | 'paying' | 'unpaid' | 'left';
-const FILTERS: Filter[] = ['all', 'trial', 'paying', 'unpaid', 'left'];
-const FILTER_STATUS: Record<Exclude<Filter, 'all'>, PlatformGrowth['clients'][number]['status']> = {
+type Filter = 'all' | 'risk' | 'trial' | 'paying' | 'unpaid' | 'left';
+const FILTERS: Filter[] = ['all', 'risk', 'trial', 'paying', 'unpaid', 'left'];
+const FILTER_STATUS: Record<Exclude<Filter, 'all' | 'risk'>, PlatformGrowth['clients'][number]['status']> = {
   trial: 'TRIAL',
   paying: 'ACTIVE',
   unpaid: 'READ_ONLY',
@@ -24,7 +24,8 @@ const FILTER_STATUS: Record<Exclude<Filter, 'all'>, PlatformGrowth['clients'][nu
 
 /**
  * Клиенты WETOP (владелец 29.10.2026, вариант «Б» вкладкой): строка на клиента: статус, «оплачено до», LTV, сколько
- * с нами, вход и работа за 30 дней. Имя клиента ведёт к карточке организации («Доступ») (там пробный, оплата, расширения).
+ * с нами, вход и работа за 30 дней. Вариант C (30.10.2026): «под риском» (пробный, работал меньше 3 дней из 7), дни работы
+ * за 7 дней, партнёр под именем, сверху те, с кем говорить сейчас. Имя клиента ведёт к карточке организации («Доступ») (там пробный, оплата, расширения).
  */
 export default async function ClientsPage({
   searchParams,
@@ -56,11 +57,23 @@ async function Clients({ filter }: { filter: Filter }) {
     return <LoadError testId="cabinet-error" {...loadErrorProps(error)} />;
   }
   const work = new Map(view.clients.map((c) => [c.id, c]));
-  const shown = (f: Filter) => growth.clients.filter((c) => (f === 'all' ? c.status !== 'SUSPENDED' : c.status === FILTER_STATUS[f]));
-  const rows = shown(filter);
+  const partners = await platformApi.partners().catch(() => ({ ready: false as const }));
+  const partnerOf = new Map(partners.ready ? partners.clients.map((x) => [x.organizationId, x.name]) : []);
+  const shown = (f: Filter) =>
+    growth.clients.filter((c) =>
+      f === 'all' ? c.status !== 'SUSPENDED' : f === 'risk' ? c.atRisk === true : c.status === FILTER_STATUS[f],
+    );
+  // «Клиенты» C (владелец 30.10.2026): сверху те, с кем надо говорить сейчас: под риском и пробный кончается за 3 дня
+  const urgent = (c: PlatformGrowth['clients'][number]) =>
+    c.atRisk ? 0 : c.status === 'TRIAL' && (c.trialDaysLeft ?? 99) <= 3 ? 1 : c.status === 'READ_ONLY' ? 2 : 3;
+  const rows = shown(filter)
+    .map((c, i) => ({ c, i }))
+    .sort((a, b) => urgent(a.c) - urgent(b.c) || a.i - b.i)
+    .map((x) => x.c);
   const now = Date.now();
   const label: Record<Filter, string> = {
     all: t('Все'),
+    risk: t('Под риском'),
     trial: t('Пробный'),
     paying: t('Платят'),
     unpaid: t('Не оплатили'),
@@ -115,7 +128,7 @@ async function Clients({ filter }: { filter: Filter }) {
                 <th>{t('Оплачено до')}</th>
                 <th>{t('LTV')}</th>
                 <th>{t('С нами')}</th>
-                <th>{t('Входили')}</th>
+                <th title={t('Сколько дней из последних 7 работали в системе')}>{t('Входили, работа')}</th>
                 <th title={t('Брони и записи за 30 дней')}>{t('За 30 дней')}</th>
               </tr>
             </thead>
@@ -123,7 +136,7 @@ async function Clients({ filter }: { filter: Filter }) {
               {rows.map((c) => {
                 const w = work.get(c.id);
                 return (
-                  <tr key={c.id}>
+                  <tr key={c.id} data-testid="cabinet-client-row" data-risk={c.atRisk || undefined}>
                     <td>
                       <Link
                         className="cabinet__client-name"
@@ -133,16 +146,32 @@ async function Clients({ filter }: { filter: Filter }) {
                       >
                         {c.name}
                       </Link>
-                      {w?.owner && <span className="muted cabinet__sub cabinet__client-owner">{w.owner}</span>}
+                      {(w?.owner || partnerOf.get(c.id)) && (
+                        <span className="muted cabinet__sub cabinet__client-owner">
+                          {[w?.owner, partnerOf.get(c.id) && t('партнёр {name}', { name: partnerOf.get(c.id)! })]
+                            .filter(Boolean)
+                            .join(', ')}
+                        </span>
+                      )}
                     </td>
-                    <td>
+                    <td className="cabinet__status-cell">
                       <ClientStatus client={c} t={t} />
+                      {c.atRisk && (
+                        <Badge tone="danger" data-testid="client-risk">
+                          {t('под риском')}
+                        </Badge>
+                      )}
                     </td>
                     <td>{c.monthlyCents ? usd(c.monthlyCents) : t('нет')}</td>
                     <td>{c.paidUntil ? dayText(c.paidUntil) : t('нет')}</td>
                     <td>{usd(c.ltvCents)}</td>
                     <td>{withUsText(c.daysWithUs, t)}</td>
-                    <td>{loginText(w?.lastLoginAt ?? null, now, t)}</td>
+                    <td>
+                      {loginText(w?.lastLoginAt ?? null, now, t)}
+                      {c.activeDays7 != null && (
+                        <span className="muted cabinet__sub">{t('{n} из 7 дн.', { n: formatInt(c.activeDays7) })}</span>
+                      )}
+                    </td>
                     <td>{formatInt(w?.records30d ?? 0)}</td>
                   </tr>
                 );

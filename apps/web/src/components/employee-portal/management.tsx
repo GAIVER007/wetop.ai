@@ -1,5 +1,6 @@
 'use client';
 import { useState, useTransition, type FormEvent } from 'react';
+import { InviteLinkBox } from '../invite-link-box';
 import type { EmployeePortalDto } from '@pms/domain';
 import { Field, Input, Select } from '../ui';
 import { inviteNewStaffAction } from '../../app/login/actions';
@@ -113,36 +114,54 @@ function PortalInvite({ data }: { data: EmployeePortalDto }) {
   const t = useT();
   const beauty = data.business.vertical === 'BEAUTY';
   const [email, setEmail] = useState(data.employee.email ?? '');
+  // владелец 30.10.2026 (вариант A): «на почту и скопировать ссылку»; по умолчанию и то и другое
+  const [delivery, setDelivery] = useState<'email' | 'link' | 'both'>('both');
   const [error, setError] = useState<string | null>(null);
   const [invited, setInvited] = useState<string | null>(null);
+  const [link, setLink] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!email.trim()) {
-      setError(msg('Укажите почту: на неё придёт приглашение.'));
+      setError(msg('Укажите почту: по ней сотрудник будет входить.'));
       return;
     }
     start(async () => {
-      const result = await inviteNewStaffAction({ employeeId: data.employee.id, level: 'PORTAL', email, allBranches: false });
+      const result = await inviteNewStaffAction({ employeeId: data.employee.id, level: 'PORTAL', email, allBranches: false, delivery });
       setError(result.error);
-      setInvited(result.invited);
+      setInvited(result.error ? null : result.invited);
+      setLink(result.link ?? null);
     });
   };
+  const options = [
+    { id: 'both', label: msg('Почта и ссылка') },
+    { id: 'email', label: msg('На почту') },
+    { id: 'link', label: msg('Скопировать ссылку') },
+  ] as const;
   return <form className="portal-invite" data-testid="portal-invite" onSubmit={submit} noValidate>
-    <p>{beauty ? t('Мастер увидит свои записи, график и зарплату. Пароль он задаст сам по ссылке из письма.') : t('Сотрудник увидит свои заказы, график и зарплату. Пароль он задаст сам по ссылке из письма.')}</p>
-    <Field label={t('Почта для приглашения')}>
+    <p>{beauty ? t('Мастер увидит свои записи, график и зарплату. Пароль он задаст сам по ссылке.') : t('Сотрудник увидит свои заказы, график и зарплату. Пароль он задаст сам по ссылке.')}</p>
+    <Field label={t('Почта для входа')}>
       <Input
         type="email"
         name="portalInviteEmail"
         autoComplete="off"
-        placeholder="name@company.kz"
+        placeholder="name@example.com"
         value={email}
         aria-invalid={error ? true : undefined}
         onChange={(event) => setEmail(event.target.value)}
       />
     </Field>
+    <div className="portal-invite__delivery" role="group" aria-label={t('Как отправить приглашение')} data-testid="portal-invite-delivery">
+      {options.map((o) => (
+        <button key={o.id} type="button" className="cash-header__chip" aria-pressed={delivery === o.id} disabled={pending} onClick={() => setDelivery(o.id)}>
+          {t(o.label)}
+        </button>
+      ))}
+    </div>
     {error && <p role="alert">{t(error)}</p>}
-    {invited && <p role="status">{t('Приглашение отправлено на {email}.', { email: invited })}</p>}
-    <button className="btn btn--primary" type="submit" disabled={pending}>{pending ? t('Отправляем…') : t('Пригласить в личный кабинет')}</button>
+    {invited && delivery !== 'link' && <p role="status">{t('Приглашение отправлено на {email}.', { email: invited })}</p>}
+    {invited && delivery === 'link' && <p role="status">{t('Приглашение для {email} готово. Отправьте ссылку сотруднику.', { email: invited })}</p>}
+    {link && <InviteLinkBox link={link} business={data.business.name} phone={data.employee.phone} />}
+    {!invited && <button className="btn btn--primary" type="submit" disabled={pending}>{pending ? t('Отправляем…') : t('Пригласить в личный кабинет')}</button>}
   </form>;
 }

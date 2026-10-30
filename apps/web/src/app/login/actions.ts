@@ -9,7 +9,7 @@ import {
   parseInviteRole,
   type AccessLevel,
 } from '@pms/domain';
-import { ApiError, authApi, type AuthInviteExtra, type AuthScope } from '../../lib/api';
+import { ApiError, authApi, type AuthInviteDelivery, type AuthInviteExtra, type AuthScope } from '../../lib/api';
 import {
   clearScopeCookie,
   clearSessionCookie,
@@ -276,7 +276,9 @@ export async function inviteNewStaffAction(input: {
   level: string;
   email: string;
   allBranches: boolean;
-}): Promise<{ error: string | null; invited: string | null }> {
+  /** владелец 30.10.2026: «на почту и скопировать ссылку»; ссылкой только «Личный кабинет» (проверяет API) */
+  delivery?: AuthInviteDelivery;
+}): Promise<{ error: string | null; invited: string | null; link?: string | null }> {
   if (!(ACCESS_LEVELS as readonly string[]).includes(input.level))
     return { error: msg('Выберите уровень доступа.'), invited: null };
   const role = inviteRoleOfLevel(input.level as AccessLevel);
@@ -289,10 +291,11 @@ export async function inviteNewStaffAction(input: {
     const invite = await authApi.invite(token, input.email.trim(), role, await clientInfo(), {
       employeeId: input.employeeId,
       ...(input.allBranches ? { allBranches: true } : {}),
+      ...(input.delivery && input.delivery !== 'email' ? { delivery: input.delivery } : {}),
     });
     revalidatePath('/team');
     revalidatePath('/employees');
-    return { error: null, invited: invite.email };
+    return { error: null, invited: invite.email, ...(invite.link ? { link: invite.link } : {}) };
   } catch (e) {
     return { error: errorText(e), invited: null };
   }
@@ -321,6 +324,19 @@ async function teamAction(
   // общий экран «Сотрудники» салона и ресторана показывает те же входы (U2)
   revalidatePath('/employees');
   return { error: null };
+}
+
+/** «Новая ссылка» приглашения «Личного кабинета»: прежняя ссылка перестаёт открываться, письмо не уходит */
+export async function inviteLinkAction(id: string): Promise<{ error: string | null; link: string | null }> {
+  const token = await sessionToken();
+  if (!token) return { error: msg('Сеанс закончился. Войдите заново.'), link: null };
+  try {
+    const { link } = await authApi.inviteLink(token, id, await clientInfo());
+    revalidatePath('/team');
+    return { error: null, link };
+  } catch (e) {
+    return { error: errorText(e), link: null };
+  }
 }
 
 /** Отозвать ожидающее приглашение: ссылка больше не откроется */

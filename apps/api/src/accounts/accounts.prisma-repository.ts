@@ -285,6 +285,28 @@ export class PrismaAccountsRepository implements AccountsRepository {
     });
   }
 
+  async reissueInvite(id: string, organizationId: string, tokenHash: string, at: Date, by: string): Promise<boolean> {
+    if (!UUID.test(id)) return false;
+    return this.prisma.db.$transaction(async (tx) => {
+      const { count } = await tx.invite.updateMany({
+        where: { id, organizationId, acceptedAt: null, expiresAt: { gt: at }, role: 'EMPLOYEE' },
+        data: { tokenHash },
+      });
+      if (!count) return false;
+      await tx.auditLog.create({
+        data: {
+          organizationId,
+          userId: by,
+          entityType: 'organization',
+          entityId: organizationId,
+          action: 'invite.link_issued',
+          after: { inviteId: id },
+        },
+      });
+      return true;
+    });
+  }
+
   async acceptInvite(input: {
     id: string;
     now: Date;

@@ -9,6 +9,7 @@ import { inviteNewStaffAction } from '../../app/login/actions';
 import { StaffAccessPicker, staffAccessDraft, type StaffAccessDraft } from '../staff-access-picker';
 import type { AccessLevel } from '@pms/domain';
 import { Overlay } from '../overlay';
+import { InviteLinkBox } from '../invite-link-box';
 import { Alert, Button } from '../ui';
 import { rovingIndex } from '../tabs';
 import { msg } from '../../i18n';
@@ -54,6 +55,8 @@ export function EmployeeProfile({
   const [accessTouched, setAccessTouched] = useState(false);
   const showAccess = !row && !!access && access.levels.length > 0;
   const [created, setCreated] = useState<BeautyEmployeeRow | null>(null);
+  // вариант B (владелец 30.10.2026): после «Создать» с «Личным кабинетом» письмо ушло, и ссылка сразу здесь
+  const [invite, setInvite] = useState<{ row: BeautyEmployeeRow; email: string; link: string } | null>(null);
   const form = useRef<HTMLFormElement>(null);
   const alive = useRef(true);
   const busy = useRef(false);
@@ -163,6 +166,8 @@ export function EmployeeProfile({
           level: accessDraft.level,
           email: draft.email.trim(),
           allBranches: accessDraft.allBranches,
+          // ссылкой только «Личный кабинет»; администратору и управляющему только письмо
+          ...(accessDraft.level === 'PORTAL' ? { delivery: 'both' as const } : {}),
         });
         if (!alive.current) return;
         // специалист уже создан: ошибку приглашения показываем, пригласить заново можно в «Сотрудники и доступ»
@@ -173,6 +178,10 @@ export function EmployeeProfile({
               error: invited.error,
             }),
           );
+          return;
+        }
+        if (invited.link) {
+          setInvite({ row: saved, email: invited.invited ?? draft.email.trim(), link: invited.link });
           return;
         }
       }
@@ -275,6 +284,16 @@ export function EmployeeProfile({
         <Button tone="secondary" onClick={() => onSaved(created)}>
           {t('Открыть карточку специалиста')}
         </Button>
+      )}
+      {invite && (
+        <section className="invite-done" data-testid="invite-done" aria-live="polite">
+          <h3>{t('{name} добавлен(а)', { name: invite.row.name })}</h3>
+          <p>{t('Письмо со ссылкой ушло на {email}. Можно сразу отправить ссылку в WhatsApp.', { email: invite.email })}</p>
+          <InviteLinkBox link={invite.link} business={access?.branchName ?? 'WETOP'} phone={invite.row.phone} />
+          <Button tone="primary" onClick={() => onSaved(invite.row)}>
+            {t('Готово')}
+          </Button>
+        </section>
       )}
     </>
   );

@@ -264,6 +264,15 @@ export class FakeAccountsRepository implements AccountsRepository {
     return true;
   }
 
+  async reissueInvite(id: string, organizationId: string, tokenHash: string, at: Date): Promise<boolean> {
+    const i = this.invites.find(
+      (x) => x.id === id && x.organizationId === organizationId && x.acceptedAt === null && x.expiresAt > at && x.role === 'EMPLOYEE',
+    );
+    if (!i) return false;
+    i.tokenHash = tokenHash;
+    return true;
+  }
+
   async isMember(email: string, organizationId: string): Promise<boolean> {
     return this.accounts.some((a) => a.email === email && a.organizationId === organizationId);
   }

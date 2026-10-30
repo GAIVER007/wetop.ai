@@ -42,6 +42,7 @@ import {
 import type { OrganizationStructure } from './accounts.repository';
 import {
   AccountsService,
+  INVITE_LINK_ROLE_MESSAGE,
   type InvitePreview,
   type InviteView,
   type MemberRefusal,
@@ -154,7 +155,27 @@ export class AccountsController {
         outcome.reason === 'member' ? INVITE_ALREADY_MEMBER_MESSAGE : INVITE_EMAIL_MESSAGE,
       );
     }
-    return inviteJson(outcome.invite);
+    return { ...inviteJson(outcome.invite), ...(outcome.link ? { link: outcome.link } : {}) };
+  }
+
+  /**
+   * «Новая ссылка» приглашения «Личного кабинета» (владелец 30.10.2026): прежняя ссылка перестаёт открываться.
+   * Чужое, мёртвое и не по роли — 404; администратор и управляющий ссылкой не приглашаются — 400.
+   */
+  @Access('staff')
+  @Post('invites/:id/link')
+  @HttpCode(201)
+  async issueInviteLink(
+    @Param('id') id: string,
+    @Headers('cookie') cookie?: string,
+    @Headers('authorization') authorization?: string,
+  ): Promise<{ link: string }> {
+    const outcome = await this.accounts.issueInviteLink(tokenFrom(cookie, authorization), id);
+    if (!outcome) throw new UnauthorizedException(SESSION_ENDED_MESSAGE);
+    if (outcome === 'owner') throw new ForbiddenException(INVITE_STAFF_ONLY_MESSAGE);
+    if (outcome === 'missing') throw new NotFoundException(INVITE_INVALID_MESSAGE);
+    if (outcome === 'role') throw new BadRequestException(INVITE_LINK_ROLE_MESSAGE);
+    return { link: outcome.link };
   }
 
   /** Ожидающие приглашения своей организации. Ключей в ответе нет — только кого и до когда. */

@@ -180,6 +180,11 @@ export interface AccountsRepository {
     by?: string,
     deliveryFailed?: boolean,
   ): Promise<boolean>;
+  /**
+   * «Новая ссылка»: новый отпечаток ключа живому приглашению «Личного кабинета» своей организации; прежний ключ
+   * перестаёт открываться. `false` — живого приглашения нет. Пишет `invite.link_issued` в журнал.
+   */
+  reissueInvite(id: string, organizationId: string, tokenHash: string, at: Date, by: string): Promise<boolean>;
   /** Есть ли у адреса членство в этой организации (любой статус человека). */
   isMember(email: string, organizationId: string): Promise<boolean>;
   /**

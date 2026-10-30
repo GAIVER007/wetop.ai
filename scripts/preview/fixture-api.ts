@@ -7242,10 +7242,27 @@ createServer(async (req, res) => {
           invite.firstName = first ?? null;
           invite.lastName = rest.join(' ') || null;
         }
+        // «на почту и скопировать ссылку» (владелец 30.10.2026): как API, ссылкой только «Личный кабинет»
+        const delivery = body['delivery'] ?? 'email';
+        if (delivery !== 'email' && invite.role !== 'EMPLOYEE')
+          return send(400, { message: 'Ссылкой приглашают только в «Личный кабинет». Администратору и управляющему приглашение уходит на почту.' });
         uiInvites.unshift(invite);
-        return send(201, view(invite));
+        const fixtureLink = `https://app.wetop.ai/invite/demo-${invite.id.slice(-6)}`;
+        return send(201, { ...view(invite), ...(delivery !== 'email' ? { link: fixtureLink } : {}) });
       }
       return send(200, uiInvites.map(view));
+    }
+    // «Новая ссылка» (владелец 30.10.2026): только живое приглашение «Личного кабинета»
+    const linkMatch = /^\/auth\/invites\/([^/]+)\/link$/.exec(path);
+    if (linkMatch && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const found = uiInvites.find((i) => i.id === linkMatch[1] && canInvite(uiRole, i.role));
+      if (!found) return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
+      if (found.role !== 'EMPLOYEE')
+        return send(400, { message: 'Ссылкой приглашают только в «Личный кабинет». Администратору и управляющему приглашение уходит на почту.' });
+      return send(201, { link: `https://app.wetop.ai/invite/demo-${Date.now().toString(36)}` });
     }
     // отозвать приглашение (С-10): тот, кто вправе позвать с этой ролью; иначе — «не найдено», как API
     const revokeMatch = /^\/auth\/invites\/([^/]+)$/.exec(path);

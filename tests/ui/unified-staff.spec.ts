@@ -94,7 +94,18 @@ test('владелец: одна строка на человека, вход б
   await expect(dialog.getByLabel('Почта')).toHaveValue('aliya@example.invalid');
   await expect(dialog.getByRole('radio', { name: /^Без входа/ })).toHaveCount(0);
   await dialog.getByRole('button', { name: 'Отправить приглашение', exact: true }).click();
+  // владелец 30.10.2026: «Личный кабинет» письмом и ссылкой; ссылка, «Скопировать» и WhatsApp сразу в окне
+  await expect(dialog.getByTestId('invite-link-url')).toHaveValue(/\/invite\//);
+  await expect(dialog.getByRole('button', { name: 'Скопировать ссылку', exact: true })).toBeVisible();
+  await expect(dialog.getByTestId('invite-link-whatsapp')).toHaveAttribute('href', /^https:\/\/wa\.me\//);
+  if (process.env.STAFF_SHOTS) await dialog.screenshot({ path: `${process.env.STAFF_SHOTS}/grant-link.png` });
+  await dialog.getByRole('button', { name: 'Готово', exact: true }).click();
   await expect(dialog).toBeHidden();
+  // «Новая ссылка» из «⋯» строки: ссылка над списком
+  await row(page, 'Алия Без входа').getByRole('button', { name: 'Ещё: Алия Без входа' }).click();
+  await page.getByRole('menuitem', { name: 'Новая ссылка' }).click();
+  await expect(page.getByRole('main').getByTestId('invite-link-url')).toHaveValue(/\/invite\/demo-/);
+  if (process.env.STAFF_SHOTS) await page.screenshot({ path: `${process.env.STAFF_SHOTS}/new-link.png` });
   // приглашение с карточкой ждёт на строке карточки, а не отдельной строкой
   await expect(row(page, 'Алия Без входа').getByTestId('person-access')).toHaveText('Ждёт ответа');
   await expect(row(page, 'aliya@example.invalid')).toHaveCount(0);

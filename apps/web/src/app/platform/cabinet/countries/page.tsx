@@ -53,7 +53,7 @@ async function Countries({ month }: { month: string }) {
       );
     return <LoadError testId="cabinet-error" {...loadErrorProps(error)} />;
   }
-  const dash = '·';
+  const dash = '';
   const known = view.rows.filter((r) => r.country !== null);
   const topIncome = known.find((r) => BigInt(r.incomeCents) > 0n) ?? null;
   const topVisitors = [...known].sort((a, b) => (b.visitors ?? 0) - (a.visitors ?? 0))[0] ?? null;
@@ -115,11 +115,11 @@ async function Countries({ month }: { month: string }) {
                   <td className="num">{r.visitors === null ? dash : formatInt(r.visitors)}</td>
                   <td className="num">
                     {formatInt(r.newClients)}
-                    {r.visitorToClient !== null && r.newClients > 0 && <span className="muted"> · {percentText(r.visitorToClient)}</span>}
+                    {r.visitorToClient !== null && r.newClients > 0 && <small className="muted cabinet__sub">{percentText(r.visitorToClient)}</small>}
                   </td>
                   <td className="num">
                     {formatInt(r.firstPayments)}
-                    {r.clientToPaid !== null && r.firstPayments > 0 && <span className="muted"> · {percentText(r.clientToPaid)}</span>}
+                    {r.clientToPaid !== null && r.firstPayments > 0 && <small className="muted cabinet__sub">{percentText(r.clientToPaid)}</small>}
                   </td>
                   <td className="num">{formatInt(r.paying)}</td>
                   <td className="num">

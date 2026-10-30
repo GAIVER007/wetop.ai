@@ -165,7 +165,7 @@ test('«Сайт wetop.ai»: посетители, путь к регистра�
   await expect(page.getByTestId('site-path-done')).toContainText('1');
   await expect(page.getByTestId('site-sources')).toContainText('google');
   // число и доля видны в строке источника
-  await expect(page.getByTestId('site-sources').getByRole('row', { name: /google/ })).toContainText('1 · 33,3%');
+  await expect(page.getByTestId('site-sources').getByRole('row', { name: /google/ })).toContainText(/1\s*33,3%/);
   // число в пределах панели, не за краем таблицы (общий минимум ширины таблицы шире половины экрана)
   const fits = await page.getByTestId('site-sources').evaluate((table) => {
     const box = table.parentElement!.getBoundingClientRect();

@@ -166,7 +166,8 @@ async function Site({ month }: { month: string }) {
                   <tr key={`${s.kind}:${s.source ?? ''}`}>
                     <td>{sourceName(s, t)}</td>
                     <td className="num">
-                      {formatInt(s.visitors)} <span className="muted">· {percentText(s.share) || '0%'}</span>
+                      {formatInt(s.visitors)}
+                      <small className="muted cabinet__sub">{percentText(s.share) || '0%'}</small>
                     </td>
                   </tr>
                 ))}
@@ -190,7 +191,8 @@ async function Site({ month }: { month: string }) {
                   <tr key={pg.path}>
                     <td>{pg.path}</td>
                     <td className="num">
-                      {formatInt(pg.views)} <span className="muted">· {percentText(pg.share) || '0%'}</span>
+                      {formatInt(pg.views)}
+                      <small className="muted cabinet__sub">{percentText(pg.share) || '0%'}</small>
                     </td>
                   </tr>
                 ))}

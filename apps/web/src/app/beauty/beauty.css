@@ -1,5 +1,10 @@
 /* Рабочее место салона (срез B2). Отступы по шкале DESIGN.md §3, цвета только токенами */
 @layer sections {
+  /* окно «Оплатить» из «Ближайших» (владелец 30.10.2026): сводка суммы и оплата, без действий записи */
+  .appointment-card--pay .appointment-card-actions,
+  .appointment-card--pay .appointment-card-more {
+    display: none;
+  }
   .beauty-popularity {
     display: grid;
     gap: var(--space-1);

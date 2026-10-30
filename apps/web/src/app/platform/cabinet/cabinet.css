@@ -1,4 +1,89 @@
 @layer sections {
+  /* плитки «B» (владелец 30.10.2026): одна полоса цифр с разделителями, подпись сверху, изменение рядом с цифрой */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(calc(var(--space-16) * 2), 1fr));
+    margin: 0 0 var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .kpi-strip > div {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    align-items: end;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4);
+    border-inline-start: 1px solid var(--border-soft);
+  }
+  .kpi-strip > div:first-child {
+    border-inline-start: 0;
+  }
+  .kpi-strip dt {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .kpi-strip dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+  }
+  .kpi-strip b {
+    font-size: var(--text-xl);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+  .kpi-strip small {
+    color: var(--muted);
+    white-space: nowrap;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  /* фильтры «стекло» (как у Apple): полоса-подложка, выбранный пункт светлой плашкой с рамкой */
+  .glass-tabs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .glass-tabs > a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-h-sm);
+    padding: 0 var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .glass-tabs > a:hover {
+    color: var(--text);
+  }
+  .glass-tabs > a[aria-current='page'] {
+    border-color: var(--border);
+    background: var(--surface-solid);
+    color: var(--primary);
+  }
+  .glass-tabs > a:not([aria-current='page']) {
+    background: transparent;
+  }
+  /* РНП: цифры в строку, заголовки в две строки, отступы уже: 9 столбцов целиком в 1280 */
+  .cabinet__rnp td {
+    white-space: nowrap;
+  }
+  .cabinet__rnp :is(th, td) {
+    padding-inline: var(--space-2);
+  }
+  .cabinet__rnp th {
+    white-space: normal;
+  }
   /* доступ клиента к модулям тарифа (владелец 29.10.2026): строка на филиал под формой подписки; модуль и филиал
      слева, статус посередине, кнопки справа; на узком переносится ровными рядами */
   .cabinet-access-list {

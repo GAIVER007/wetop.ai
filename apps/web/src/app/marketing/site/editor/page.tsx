@@ -4,7 +4,7 @@ import { unstable_rethrow } from 'next/navigation';
 import { requireFeature } from '../../../../lib/vertical-guard';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
-import { Alert } from '../../../../components/ui';
+import { Alert, EmptyState } from '../../../../components/ui';
 import { loadErrorProps } from '../../../../lib/load-error';
 import {
   ApiError,
@@ -77,9 +77,13 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
     .catch((e: unknown) => {
       unstable_rethrow(e);
       if (verticalDenied(vertical, e)) return { ...NO_SITE(), pending: true as const };
+      // выбрана организация, а не филиал (409 «Выберите филиал»): сайт у каждого филиала свой
+      if (e instanceof ApiError && e.status === 409) return { ...NO_SITE(), chooseLocation: true as const };
       throw e;
     })
     .then(async (current) => {
+      if ('chooseLocation' in current)
+        return { ok: true as const, current, draft: null, versions: [], bookmarks: [], conversation: [] as SiteConversationItem[], brief: null, assets: [] as SiteAssetView[] };
       if ('pending' in current)
         return { ok: true as const, current, draft: null, versions: [], bookmarks: [], conversation: [] as SiteConversationItem[], brief: null, assets: [] as SiteAssetView[] };
       if (!current.site)
@@ -110,6 +114,14 @@ export default async function SiteEditorPage({ searchParams }: { searchParams?: 
       </Page>
     );
   const { current } = loaded;
+  if ('chooseLocation' in current)
+    return (
+      <Page crumbs={<BackToModules />} title={t('Сайт и SEO')}>
+        <EmptyState data-testid="site-choose-location" title={t('Выберите филиал')}>
+          {t('Сайт у каждого филиала свой. Выберите филиал в переключателе наверху, и здесь откроется его сайт.')}
+        </EmptyState>
+      </Page>
+    );
   // у направления, которое API ещё не подключил, лицензию сервер не сообщает: решит отказ на «Создать сайт»
   const pending = 'pending' in current;
   const licensed = current.builder.access === 'active';

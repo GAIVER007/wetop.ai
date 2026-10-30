@@ -747,4 +747,5 @@ export const marketingSite: Record<string, string> = {
   'Дизайн пересобран по описанию. Тексты, фото и блоки на месте.': 'The design was rebuilt from the description. Texts, photos and blocks stay in place.',
   'Создать по стилю': 'Create from style',
   'Открыть редактор сейчас': 'Open the editor now',
+  "Сайт у каждого филиала свой. Выберите филиал в переключателе наверху, и здесь откроется его сайт.": 'Each branch has its own website. Choose a branch in the switcher at the top, and its website will open here.',
 };

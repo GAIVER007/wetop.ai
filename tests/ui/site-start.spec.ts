@@ -308,3 +308,17 @@ test('сайт по промту: живое превью, свой дизайн
   }
 });
 
+// Владелец 29.10.2026 (скрин): «Сайт и SEO» без выбранного филиала показывал «Сервер не принял запрос: проверьте
+// адрес страницы». Сайт у каждого филиала свой: нужна подсказка выбрать филиал, а не ошибка сервера.
+test('без выбранного филиала «Сайт и SEO» просит выбрать филиал, а не показывает ошибку сервера', async ({ page, request }) => {
+  await request.post(`${FIXTURE_API}/__test/site-no-location`, { data: { on: true } });
+  try {
+    await signIn(page);
+    await page.goto('/marketing/site/editor');
+    await expect(main(page).getByTestId('site-choose-location')).toBeVisible();
+    await expect(main(page)).toContainText('Выберите филиал');
+    await expect(main(page)).not.toContainText('Сервер не принял запрос');
+  } finally {
+    await request.post(`${FIXTURE_API}/__test/site-no-location`, { data: { on: false } });
+  }
+});

@@ -176,6 +176,8 @@ const openAtLock = (p: string): boolean =>
   p === '/auth/verify' ||
   p.startsWith('/auth/email/') ||
   p.startsWith('/auth/password-reset/');
+/** стенд «выбрана организация, а не филиал» для «Сайт и SEO» (__test/site-no-location) */
+let siteNoLocation = false;
 let propertyName = 'Luxx Aparts';
 let connectionState: DataConnection['state'] = 'READY';
 let holdHotel = false;
@@ -6097,6 +6099,13 @@ createServer(async (req, res) => {
     const siteVertical = String((siteBranch as Record<string, unknown>)['vertical'] ?? 'HOSPITALITY');
     // гостиница стенда по умолчанию это сайт стенда (`FIXTURE_LOCATION_ID`), остальные филиалы ведут свои сайты
     const siteLocationOf = (b: Record<string, unknown>) => (b === DEFAULT_FIXTURE_BRANCH ? FIXTURE_LOCATION_ID : String(b['locationId']));
+    // указатель на организацию без филиала: настоящий scope отвечает 409 «Выберите филиал» (marketing-site/scope.ts)
+    if (path === '/__test/site-no-location' && req.method === 'POST') {
+      siteNoLocation = body['on'] === true;
+      return send(200, { ok: true });
+    }
+    if (siteNoLocation && path.startsWith('/marketing/site') && path !== '/marketing/site/locations')
+      return send(409, { message: 'Выберите филиал' });
     const siteRoute = marketingSiteFixture(path, req.method ?? 'GET', body, url.searchParams, siteVertical, {
       locationId: siteLocationOf(siteBranch as Record<string, unknown>),
       name: String((siteBranch as Record<string, unknown>)['name'] ?? 'Филиал'),
@@ -6582,6 +6591,7 @@ createServer(async (req, res) => {
     }
     if (path === '/__test/reset') {
       resetPlatformMoney();
+      siteNoLocation = false;
       fixtureContentDrafts = [];
       fixtureContentAiDown = false;
       resetSalonLoyaltyFixture();

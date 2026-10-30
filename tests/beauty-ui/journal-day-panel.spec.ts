@@ -75,6 +75,8 @@ test('вариант B: панель дня, загрузка мастера, «
   await upcoming.getByRole('button', { name: /^Пришла: Тест Жанна/ }).click();
   await expect(tile).toContainText('В процессе');
   await expect(panel.getByTestId('day-panel-money')).toContainText('Ждём оплату');
+  // владелец 30.10.2026: пришла, но не оплатила, запись остаётся в «Ближайших» с меткой «Без оплаты»
+  await expect(upcoming.getByRole('listitem').filter({ hasText: 'Тест Жанна' })).toContainText('Без оплаты');
   // телефон: панели нет, щелчок открывает карточку сразу
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();

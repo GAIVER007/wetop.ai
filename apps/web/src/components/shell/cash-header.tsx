@@ -465,6 +465,10 @@ export function CashHeader({
                     mutate({ ...b, shiftId: cash.active?.id, fingerprint: cash.snapshot.fingerprint })
                   }
                   onCancel={() => setPanel(null)}
+                  scopeKey={scopeKey}
+                  onPaid={() => {
+                    void loadCashHeader(scopeKey).then((data) => mounted.current && setCash(data)).catch(() => undefined);
+                  }}
                   onExpense={(category) => {
                     afterExpense.current = 'close';
                     void show('expense', category);

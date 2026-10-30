@@ -2817,3 +2817,8 @@
   flex-wrap: wrap;
   gap: var(--space-2);
 }
+
+/* «Ближайшие»: пришла без оплаты или долг, метка справа вместо кнопки (владелец 30.10.2026) */
+.beauty-tag { flex: none; align-self: center; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); font-size: var(--text-xs); font-weight: 600; white-space: nowrap; }
+.beauty-tag--unpaid { background: var(--warning-soft); color: var(--warning); }
+.beauty-tag--debt { background: var(--danger-soft); color: var(--danger); }

@@ -6,7 +6,7 @@ import { formatMoney } from '../../lib/money';
 import { formatPhone } from '../../lib/phone';
 import { beautyStatus } from '../../lib/status/beauty';
 import { ACTION_WORD } from './appointment-status';
-import { dayMoney, quickAction, upcoming } from './journal-day';
+import { dayMoney, quickAction, upcoming, upcomingTag } from './journal-day';
 import { setAppointmentStatus } from './journal-actions';
 import { clock } from './time';
 import { useT } from '../../i18n/locale-provider';
@@ -154,13 +154,14 @@ export function DayPanel({
         data-testid="day-panel-upcoming"
       >
         <h3>
-          {t('Ближайшие')}{' '}
-          {nowMinutes !== null && <small>{t('с {time}', { time: clock(Math.max(0, nowMinutes - 30)) })}</small>}
+          {t('Ближайшие')}
         </h3>
         {soon.length ? (
           <ul className="beauty-day-panel__list">
             {soon.map((r) => {
               const act = canUpdate ? quickAction(r) : null;
+              // пришла, но не оплачено: метка вместо кнопки, запись висит до оплаты (владелец 30.10.2026)
+              const tag = upcomingTag(r.id && arrived.has(r.id) ? { status: 'IN_PROGRESS' } : r);
               return (
                 <li key={r.id}>
                   <button type="button" className="beauty-day-panel__row" onClick={() => onOpen(r)}>
@@ -173,7 +174,8 @@ export function DayPanel({
                       <small>{r.serviceName}</small>
                     </span>
                   </button>
-                  {act && (
+                  {tag && <span className={r.status === 'DONE' ? 'beauty-tag beauty-tag--debt' : 'beauty-tag beauty-tag--unpaid'}>{t(tag)}</span>}
+                  {!tag && act && (
                     <Button
                       size="sm"
                       tone={act.to === 'IN_PROGRESS' ? 'success' : 'secondary'}

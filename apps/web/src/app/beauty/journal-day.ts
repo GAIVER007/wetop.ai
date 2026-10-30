@@ -7,18 +7,33 @@ import { msg } from '../../i18n';
  */
 
 /** Кто придёт: записанные и подтверждённые с «сейчас» минус 30 минут (опоздавшие видны), по времени, до пяти */
+/**
+ * «Ближайшие» (владелец 30.10.2026): запись висит, пока не оплачена. Ещё не пришли (записан, подтверждена) и пришли
+ * без полной оплаты (в работе, завершена); оплатили полностью, не пришёл или отменили: уходит. По времени, раньше
+ * сверху: утренний долг виден первым. `arrived`: только что отмечены «Пришла», до обновления страницы уже «Без оплаты».
+ */
 export function upcoming(
   rows: BeautyAppointmentRow[],
-  nowMinutes: number | null,
+  _nowMinutes: number | null,
   limit = 5,
-  /** записи, которые только что отметили «Пришла»: уходят сразу, до обновления страницы (владелец 29.10.2026) */
   arrived: ReadonlySet<string> = new Set(),
 ): BeautyAppointmentRow[] {
-  const from = nowMinutes === null ? -Infinity : nowMinutes - 30;
   return rows
-    .filter((r) => (r.status === 'BOOKED' || r.status === 'CONFIRMED') && r.startMinutes >= from && !arrived.has(r.id))
+    .map((r) => (arrived.has(r.id) && (r.status === 'BOOKED' || r.status === 'CONFIRMED') ? { ...r, status: 'IN_PROGRESS' as const } : r))
+    .filter((r) => {
+      if (r.status === 'CANCELLED' || r.status === 'NO_SHOW') return false;
+      if (r.status === 'BOOKED' || r.status === 'CONFIRMED') return true;
+      return BigInt(r.paidMinor || '0') < BigInt(r.priceMinor || '0');
+    })
     .sort((a, b) => a.startMinutes - b.startMinutes || a.id.localeCompare(b.id))
     .slice(0, limit);
+}
+
+/** Метка пришедшей неоплаченной записи в «Ближайших»: в работе «Без оплаты», завершена «Долг»; ещё не пришли: нет */
+export function upcomingTag(row: Pick<BeautyAppointmentRow, 'status'>): string | null {
+  if (row.status === 'IN_PROGRESS') return msg('Без оплаты');
+  if (row.status === 'DONE') return msg('Долг');
+  return null;
 }
 
 /** Одна кнопка в строке «Ближайших»: подтверждённая «Пришла» (начать визит), записанная «Подтвердить» */

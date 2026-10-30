@@ -273,6 +273,7 @@ export const components: Record<string, string> = {
   "Незаезд": 'No-show',
   "Незаезды": 'No-shows',
   "Оплачено частично": 'Partially paid',
+  "Без оплаты": "Unpaid",
   "Отменены": 'Canceled',
   "Поданы": 'Served',
   "Подтверждённые": 'Confirmed',

@@ -3368,6 +3368,51 @@ export interface PlatformCountries {
   total: Omit<PlatformCountryRow, 'country' | 'avgLtvCents'>;
 }
 
+/** РНП Кабинета WETOP (30.10.2026): деньги центами USD строкой, конверсии десятыми процента; нет знаменателя: null */
+export interface PlatformRnpDay {
+  day: string;
+  visitors: number;
+  leads: number;
+  registrations: number;
+  firstPayments: number;
+  incomeCents: string;
+  expensesCents: string;
+}
+export interface PlatformRnp {
+  month: string;
+  days: PlatformRnpDay[];
+  total: Omit<PlatformRnpDay, 'day'> & {
+    visitorToLead: number | null;
+    leadToRegistration: number | null;
+    registrationToPaid: number | null;
+    costPerRegistrationCents: string | null;
+  };
+  partners: {
+    rows: Array<{
+      id: string;
+      name: string;
+      active: boolean;
+      clients: number;
+      registrations: number;
+      firstPayments: number;
+      broughtCents: string;
+      accruedCents: string;
+      paidCents: string;
+      broughtAllTimeCents: string;
+    }>;
+    total: {
+      partners: number;
+      active: number;
+      registrations: number;
+      firstPayments: number;
+      broughtCents: string;
+      accruedCents: string;
+      paidCents: string;
+      broughtAllTimeCents: string;
+    };
+  };
+}
+
 export interface PlatformCabinet {
   totals: { clients: number; people: number; activePeople7d: number };
   funnel: { registered30d: number; working: number; trial: number; paying: number; left: number };
@@ -3437,6 +3482,7 @@ export const platformApi = {
   growth: (month: string) => getJson<PlatformGrowth>(`/platform/growth?month=${encodeURIComponent(month)}`),
   site: (month: string) => getJson<PlatformSite>(`/platform/site?month=${encodeURIComponent(month)}`),
   countries: (month: string) => getJson<PlatformCountries>(`/platform/countries?month=${encodeURIComponent(month)}`),
+  rnp: (month: string) => getJson<PlatformRnp>(`/platform/rnp?month=${encodeURIComponent(month)}`),
   clientCard: (organizationId: string) =>
     getJson<PlatformClientCard>(`/platform/organizations/${encodeURIComponent(organizationId)}/card`),
   /** Продлить пробный на 1–30 дней (от сегодня, если срок прошёл) */

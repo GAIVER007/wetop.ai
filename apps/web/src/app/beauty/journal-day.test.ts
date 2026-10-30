@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BeautyAppointmentRow } from '../../lib/api';
-import { dayMoney, quickAction, shortHour, shortName, tilePayment, upcoming, upcomingTag } from './journal-day';
+import { dayMoney, payAction, quickAction, shortHour, shortName, tilePayment, upcoming, upcomingTag } from './journal-day';
 
 /** Журнал салона, вариант B (владелец 24.10.2026): загрузка мастера, ближайшие, деньги дня, быстрое действие */
 const row = (p: Partial<BeautyAppointmentRow>): BeautyAppointmentRow => ({
@@ -130,5 +130,17 @@ describe('оплата на плашке записи: короткое слов
   it('у неявки оплаты на плашке нет; бесплатная запись оплачена', () => {
     expect(tilePayment(row({ status: 'NO_SHOW', priceMinor: '40000', paidMinor: '0' }))).toBeNull();
     expect(tilePayment(row({ priceMinor: '0', paidMinor: '0' }))?.kind).toBe('paid');
+  });
+});
+
+// владелец 30.10.2026: «без оплаты означает, что в процессе услуга, а кнопка должна гореть «Оплатить», которая
+// выкидывает окно подтвердить оплату: нал, безнал и т. д.»
+describe('«Оплатить» в «Ближайших»', () => {
+  it('пришла или завершена без полной оплаты: кнопка «Оплатить»; оплачена или ещё не пришла: нет', () => {
+    expect(payAction(row({ status: 'IN_PROGRESS' }))).toBe('Оплатить');
+    expect(payAction(row({ status: 'DONE', paidMinor: '400000' }))).toBe('Оплатить');
+    expect(payAction(row({ status: 'DONE', paidMinor: '1000000' }))).toBeNull();
+    expect(payAction(row({ status: 'CONFIRMED' }))).toBeNull();
+    expect(payAction(row({ status: 'BOOKED' }))).toBeNull();
   });
 });

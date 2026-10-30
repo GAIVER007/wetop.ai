@@ -1,4 +1,4 @@
--- Restore-only ACL companion for mixed migrations132,134-137,140,141,144,146,154,160,161,167.
+-- Restore-only ACL companion for mixed migrations132,134-137,140,141,144,146,154,160,161,167,171.
 -- Not a schema migration. Run after ordinary pure-ACL migrations, inside the restore transaction.
 -- Copy existing privileges exactly; never replay mixed DDL or end the caller's transaction.
 DO $restore_acl$
@@ -175,5 +175,9 @@ BEGIN
       FROM wetop_app,wetop_service;
     GRANT SELECT,INSERT,UPDATE ON platform_plans,platform_subscriptions,platform_payments,platform_expenses,platform_team_members
       TO wetop_service;
+  END IF;
+  -- 171_platform_admin_cabinet_home: стойка читает отметку «Кабинет по умолчанию» (как user_id и revoked_at, 033)
+  IF EXISTS (SELECT 1 FROM pg_attribute WHERE attrelid = to_regclass('platform_admins') AND attname = 'cabinet_home' AND NOT attisdropped) THEN
+    GRANT SELECT (cabinet_home) ON platform_admins TO wetop_app;
   END IF;
 END $restore_acl$;

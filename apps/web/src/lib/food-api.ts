@@ -230,7 +230,7 @@ export const restaurantApi = {
     sendJson<{ id: string }>('POST', `${idPath('cash/operations', id)}/void`, {}),
   cashReconciliation: (body: { method: FoodPaymentMethod; counted: number; note?: string | null }) =>
     sendJson<{ id: string }>('POST', `${base}/cash/reconciliations`, body),
-  payout: (id: string, body: { period: string; method: FoodPaymentMethod; amount: number; idempotencyKey: string }) =>
+  payout: (id: string, body: { period: string; method: FoodPaymentMethod; amount: number; idempotencyKey: string; payDate?: string }) =>
     sendJson<{ id: string }>('POST', `${idPath('employees', id)}/payouts`, body),
   tableCleaning: (id: string, needsCleaning: boolean) =>
     sendJson<{ id: string }>('POST', `${idPath('tables', id)}/cleaning`, { needsCleaning }),

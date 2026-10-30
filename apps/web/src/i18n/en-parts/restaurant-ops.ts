@@ -317,4 +317,15 @@ export const restaurantOps: Record<string, string> = {
   'мало мест': 'too small',
   'Быстрый выбор гостей': 'Quick guest count',
   'Быстрый выбор времени': 'Quick time',
+  // выплаты по дням (PAYROLL-DAILY-20261030)
+  'Каждый день': 'Every day',
+  'Раз в неделю': 'Once a week',
+  'Раз в месяц': 'Once a month',
+  '{freq}, {day}': '{freq}, {day}',
+  'Как часто выплачиваем': 'How often we pay',
+  'День выплаты': 'Payday',
+  'Чем обычно платим': 'Usual payment method',
+  'Выбрать при выплате': 'Choose when paying',
+  'Укажите день недели выплаты': 'Choose the payday of the week',
+  'За какой день': 'For which day',
 };

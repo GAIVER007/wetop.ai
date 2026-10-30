@@ -267,6 +267,30 @@ test('«Страны»: посетители, новые клиенты, опл�
   await page.screenshot({ path: 'test-results/cabinet-countries-390.png', fullPage: true });
 });
 
+// РНП (владелец 30.10.2026): полоса итогов, каждый день строкой с итогом, вкладка «Партнёры» с «Принёс денег»
+test('РНП: итоги периода, дни строкой, вкладка «Партнёры»; таблица целиком в 1280', async ({ page, request }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await signIn(page, request, true);
+  await page.goto('/platform/cabinet');
+  await page.getByTestId('cabinet').getByRole('navigation', { name: 'Кабинет WETOP' }).getByRole('link', { name: 'РНП' }).click();
+  await expect(page).toHaveURL(/\/platform\/cabinet\/rnp$/);
+  await expect(page.getByTestId('rnp-visitors')).toContainText('3');
+  await expect(page.getByTestId('rnp-leads')).toContainText('33,3%');
+  await expect(page.getByTestId('rnp-income')).toContainText('$49');
+  await expect(page.getByTestId('rnp-total')).toContainText('$20');
+  const days = page.getByTestId('rnp-day');
+  await expect(days.first()).toContainText('01.');
+  const over = await page.getByTestId('rnp-days').evaluate((el) => (el.parentElement ?? el).scrollWidth - (el.parentElement ?? el).clientWidth);
+  expect(over).toBeLessThanOrEqual(0);
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/rnp-1280.png` });
+  await page.getByTestId('rnp-tab-partners').click();
+  await expect(page).toHaveURL(/tab=partners/);
+  const aidar = page.getByTestId('rnp-partner').filter({ hasText: 'Айдар' });
+  await expect(aidar).toContainText('$49');
+  await expect(page.getByTestId('rnp-brought')).toContainText('$49');
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/rnp-partners-1280.png` });
+});
+
 test('без отметки главного администратора кабинет закрыт', async ({ page, request }) => {
   await signIn(page, request, false);
   await page.goto('/platform/cabinet');

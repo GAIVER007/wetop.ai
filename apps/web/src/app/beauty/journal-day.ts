@@ -36,6 +36,15 @@ export function upcomingTag(row: Pick<BeautyAppointmentRow, 'status'>): string |
   return null;
 }
 
+/**
+ * «Оплатить» в «Ближайших» (владелец 30.10.2026): пришла или завершена, а оплачено не всё: кнопка открывает окно оплаты
+ * (способ: наличные, карта и т. д., сумма остатка). Оплачено полностью или ещё не пришла: кнопки нет.
+ */
+export function payAction(row: Pick<BeautyAppointmentRow, 'status' | 'paidMinor' | 'priceMinor'>): string | null {
+  if (row.status !== 'IN_PROGRESS' && row.status !== 'DONE') return null;
+  return BigInt(row.paidMinor || '0') < BigInt(row.priceMinor || '0') ? msg('Оплатить') : null;
+}
+
 /** Одна кнопка в строке «Ближайших»: подтверждённая «Пришла» (начать визит), записанная «Подтвердить» */
 export function quickAction(row: BeautyAppointmentRow): { to: 'IN_PROGRESS' | 'CONFIRMED'; label: string } | null {
   if (row.status === 'CONFIRMED' && row.next.includes('IN_PROGRESS')) return { to: 'IN_PROGRESS', label: msg('Пришла') };

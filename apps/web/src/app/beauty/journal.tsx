@@ -43,6 +43,8 @@ const STEP = 30;
 type Panel =
   | { kind: 'new'; employeeId: string; time: string }
   | { kind: 'card'; row: BeautyAppointmentRow }
+  // «Оплатить» из «Ближайших» (владелец 30.10.2026): то же окно записи, только оплата
+  | { kind: 'pay'; row: BeautyAppointmentRow }
   | null;
 
 export function JournalBoard({
@@ -706,6 +708,7 @@ export function JournalBoard({
               currency={day.location.currency}
               canUpdate={canUpdate}
               onOpen={(row) => setPanel({ kind: 'card', row })}
+              onPay={canPay ? (row) => setPanel({ kind: 'pay', row }) : undefined}
               onDone={() => router.refresh()}
             />
           )}
@@ -722,6 +725,23 @@ export function JournalBoard({
         time={panel?.kind === 'new' ? panel.time : clock(day.bounds.fromMinutes)}
         onDone={done}
       />
+      <Overlay
+        open={panel?.kind === 'pay'}
+        onClose={() => setPanel(null)}
+        title={panel?.kind === 'pay' ? t('Оплата: {name}', { name: panel.row.customer.name }) : t('Оплата')}
+        className="appointment-pay-modal"
+      >
+        {panel?.kind === 'pay' && (
+          <AppointmentCard
+            scopeKey={scopeKey}
+            day={{ ...day, columns }}
+            row={panel.row}
+            canPay={canPay}
+            payOnly
+            onDone={done}
+          />
+        )}
+      </Overlay>
       <Overlay
         open={panel?.kind === 'card'}
         onClose={() => setPanel(null)}

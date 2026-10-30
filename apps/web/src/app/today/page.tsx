@@ -20,6 +20,7 @@ import { FoodToday } from './food-today';
 import { HospitalityToday } from './hospitality-today';
 import { TodayScopeContent } from './scope-content';
 import { Page } from '../../components/page';
+import { beautyInsightsApi } from '../../lib/api';
 import { Alert } from '../../components/ui';
 import { translator } from '../../i18n';
 import { currentLocale } from '../../i18n/server';
@@ -63,12 +64,24 @@ export default async function TodayPage({
         return { summary: null, closed: false as const };
       },
     );
-    if (owner.summary)
+    if (owner.summary) {
+      // «Запись → визит» только у салона (записи к мастеру); сбой сводки клиентов не ломает Главную
+      const visits =
+        c.vertical === 'BEAUTY'
+          ? await beautyInsightsApi.insights(owner.summary.period.fromDate, owner.summary.period.toDate).then(
+              (r) => r.visits ?? null,
+              (error: unknown) => {
+                unstable_rethrow(error);
+                return null;
+              },
+            )
+          : null;
       return (
         <TodayScopeContent key={`${c.businessId}:${c.locationId}`}>
-          <OwnerSummaryView summary={owner.summary} locale={locale} />
+          <OwnerSummaryView summary={owner.summary} locale={locale} visits={visits} />
         </TodayScopeContent>
       );
+    }
     if (!owner.closed)
       return (
         // общий каркас `Page`: один `main#main-content`, куда ведёт «К содержимому» (Д6)

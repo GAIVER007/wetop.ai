@@ -183,6 +183,21 @@ function appointmentView(row: AppointmentViewRow, timezone: string, anchorDate: 
   };
 }
 
+/**
+ * Записи прошедшего времени по статусам: пришли («Пришла» и «Завершена»), не пришли, отменили, не отмечены (время
+ * прошло, а запись всё ещё «Записан» или «Подтверждена»). Процент пришедших из всех прошедших записей, без записей null.
+ */
+export function visitConversion(rows: Array<{ status?: string; _count?: { _all?: number } }>) {
+  const n = (...statuses: string[]) =>
+    rows.filter((r) => r.status && statuses.includes(r.status)).reduce((sum, r) => sum + (r._count?._all ?? 0), 0);
+  const came = n('DONE', 'IN_PROGRESS');
+  const noShow = n('NO_SHOW');
+  const cancelled = n('CANCELLED');
+  const unmarked = n('BOOKED', 'CONFIRMED');
+  const booked = came + noShow + cancelled + unmarked;
+  return { booked, came, noShow, cancelled, unmarked, percent: booked ? Math.round((came * 100) / booked) : null };
+}
+
 @Injectable()
 export class BeautyAppointmentsService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
@@ -394,7 +409,9 @@ export class BeautyAppointmentsService {
       timezone: tz,
     });
     const db = this.prisma.db;
-    const [reviews, done, history, masterHistory] = await Promise.all([
+    // конверсия «запись → визит» (владелец 30.10.2026): только записи периода, время которых уже прошло
+    const passed = new Date(Math.min(window.toUtcExclusive.getTime(), Date.now()));
+    const [reviews, done, history, masterHistory, byStatus] = await Promise.all([
       db.beautyAppointmentReview.findMany({
         where: { submittedAt: { gte: window.fromUtc, lt: window.toUtcExclusive }, appointment: { locationId: scope.locationId } },
         select: { employeeId: true, stars: true },
@@ -421,7 +438,13 @@ export class BeautyAppointmentsService {
           lines: { select: { employeeId: true, priceMinor: true } },
         },
       }),
+      db.appointment.groupBy({
+        by: ['status'],
+        where: { locationId: scope.locationId, startsAt: { gte: window.fromUtc, lt: passed } },
+        _count: { _all: true },
+      }),
     ]);
+    const visits = visitConversion(byStatus as Array<{ status?: string; _count?: { _all?: number } }>);
     const first = new Map(history.map((h) => [h.customerId, h._min.startsAt]));
     const isNew = (customerId: string) => {
       const at = first.get(customerId);
@@ -469,6 +492,7 @@ export class BeautyAppointmentsService {
       period,
       reviews: { count: reviews.length, avgTenths: tenths(total, reviews.length) },
       customers: { total: customers.size, new: newCount, repeat: customers.size - newCount, lapsed },
+      visits,
       employees: [...new Set([...perEmployee.keys(), ...stars.keys()])].sort().map((employeeId) => {
         const served = [...(perEmployee.get(employeeId) ?? [])];
         const s = stars.get(employeeId);

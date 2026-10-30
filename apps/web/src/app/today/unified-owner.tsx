@@ -1,13 +1,12 @@
 import { financePeriodHref } from '../../lib/finance-period';
 import type { OwnerSummaryDto, Workload } from '../../lib/owner-summary';
 import { formatOwnerMoney, ownerMonth, ownerReason, shiftMonth } from '../../lib/owner-summary';
-import { OwnerPeriodPicker } from './owner-period-picker';
+import { DateRangePopover } from '../../components/date-range-popover';
 import './unified-owner.css';
 import { OwnerDailyChart } from './owner-daily-chart';
 import { intlLocale, translator, type DeskLocale, type Translate } from '../../i18n';
 import { Icon } from '../../components/icon';
 /** «сентябрь 2026 г.» → «Сентябрь 2026»: заглавная и без «г.» */
-const capitalMonth = (s: string) => (s.charAt(0).toUpperCase() + s.slice(1)).replace(/\s?\S\.$/u, '');
 import { dateFormat } from '../../i18n/dates';
 
 function MoneyValue({ value, t }: { value: OwnerSummaryDto['current']['revenue']; t: Translate }) {
@@ -122,10 +121,22 @@ export function humanPeriod(from: string, to: string, locale: DeskLocale = 'ru')
   return `${dayMonth(from)} - ${dayMonth(to)}`;
 }
 
+/** «Запись → визит» салона за период (insights `visits`): прошедшие записи по статусам */
+export interface OwnerVisits {
+  booked: number;
+  came: number;
+  noShow: number;
+  cancelled: number;
+  unmarked: number;
+  percent: number | null;
+}
+
 export function OwnerSummaryView({
   summary: s,
   locale = 'ru',
+  visits,
 }: {
+  visits?: OwnerVisits | null;
   summary: OwnerSummaryDto;
   locale?: DeskLocale;
 }) {
@@ -185,21 +196,27 @@ export function OwnerSummaryView({
             timeZone: s.period.timezone,
           }).format(new Date(s.generatedAt))}
         </span>
-        {/* владелец 29.10.2026: только месяц со стрелками и «Свой период» с календарём «от–до» */}
+        {/* владелец 30.10.2026: «выбор периода как в Журнале, единый стиль»: одна рамка [📅 период ˅ ‹ ›], окно
+            с готовыми периодами и календарём (DateRangePopover); стрелки листают месяцы */}
         {(() => {
           const month = ownerMonth(s.period.fromDate, s.period.key);
-          const custom = s.period.key.startsWith('range:');
           // текущий месяц филиала: дальше вперёд листать нечего
-          const thisMonth = new Date(s.generatedAt).toISOString().slice(0, 7);
-          const title = dateFormat(intlLocale(locale), { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${month}-01T00:00:00Z`));
+          const today = new Date(s.generatedAt).toISOString().slice(0, 10);
+          const thisMonth = today.slice(0, 7);
           const next = shiftMonth(month, 1);
           return (
-            <nav className="owner-period" aria-label={t('Период отчёта')}>
+            <div className="board-period owner-period" role="group" aria-label={t('Период отчёта')}>
+              <DateRangePopover
+                from={s.period.fromDate}
+                to={s.period.toDate}
+                today={today}
+                maxDays={366}
+                action="/today"
+                triggerTestId="owner-custom-period"
+                compact
+              />
               <a className="icon-button" href={`/today?period=month:${shiftMonth(month, -1)}`} aria-label={t('Предыдущий месяц')}>
                 <Icon name="chevron" className="rotate-left" />
-              </a>
-              <a className={custom ? 'owner-period__month' : 'owner-period__month is-on'} href={`/today?period=month:${month}`} aria-current={custom ? undefined : 'page'}>
-                {capitalMonth(title)}
               </a>
               {next <= thisMonth ? (
                 <a className="icon-button" href={`/today?period=month:${next}`} aria-label={t('Следующий месяц')}>
@@ -210,13 +227,9 @@ export function OwnerSummaryView({
                   <Icon name="chevron" />
                 </span>
               )}
-              <OwnerPeriodPicker from={s.period.fromDate} to={s.period.toDate} today={new Date(s.generatedAt).toISOString().slice(0, 10)} active={custom} />
-            </nav>
+            </div>
           );
         })()}
-        <time className="owner-bar__period" dateTime={s.period.fromDate}>
-          {humanPeriod(s.period.fromDate, s.period.toDate, locale)}
-        </time>
         <div className="owner-bar__actions">
           {/* экраны дня (записи, зал, заезды) уехали с Главной сюда: без ссылки до них было не дойти (Д6) */}
           <a className="btn btn--secondary" href="/today/operations">
@@ -326,6 +339,33 @@ export function OwnerSummaryView({
               )}
             </ul>
           </section>
+          {/* владелец 30.10.2026: «конверсия из записи в визит, а то бронируют и не доходят, чтобы мы понимали» */}
+          {visits && (
+            <section className="owner-panel owner-visits" data-testid="owner-visits" aria-labelledby="owner-visits-title">
+              <div className="owner-panel-heading">
+                <h2 id="owner-visits-title">{t('Запись → визит')}</h2>
+                {visits.booked > 0 && <strong className="owner-visits__percent">{visits.percent} %</strong>}
+              </div>
+              {visits.booked > 0 ? (
+                <ul className="owner-visits__rows">
+                  <li><span>{t('Пришли')}</span><b>{visits.came}</b></li>
+                  <li>
+                    <span>{t('Не пришли')}</span>
+                    {visits.noShow > 0 ? (
+                      <a href={`/appointments?from=${s.period.fromDate}&to=${s.period.toDate}&status=NO_SHOW`}>{visits.noShow}</a>
+                    ) : (
+                      <b>0</b>
+                    )}
+                  </li>
+                  <li><span>{t('Отменили')}</span><b>{visits.cancelled}</b></li>
+                  <li title={t('Время записи прошло, а статус не отмечен')}><span>{t('Не отмечены')}</span><b>{visits.unmarked}</b></li>
+                </ul>
+              ) : (
+                <p className="owner-visits__empty">{t('Прошедших записей за период нет')}</p>
+              )}
+              <p className="owner-visits__note">{t('Из {n} записей, время которых прошло', { n: visits.booked })}</p>
+            </section>
+          )}
         </aside>
       </div>
       <section className="owner-panel owner-expense-panel" aria-labelledby="owner-expense-title">

@@ -24,6 +24,7 @@ type InsightsService = BeautyAppointmentsService & {
     period: { from: string; to: string };
     reviews: { count: number; avgTenths: number | null };
     customers: { total: number; new: number; repeat: number; lapsed: number };
+    visits: { booked: number; came: number; noShow: number; cancelled: number; unmarked: number; percent: number | null };
     employees: Array<{
       employeeId: string;
       customers: number;
@@ -162,5 +163,37 @@ describe('вернулись к мастеру и LTV', () => {
     const m2 = r.employees.find((e) => e.employeeId === 'm2')!;
     expect(m1).toMatchObject({ customers: 2, returnedToMaster: 1, ltvMinor: '450000' });
     expect(m2).toMatchObject({ customers: 1, returnedToMaster: 0, ltvMinor: '600000' });
+  });
+});
+
+/**
+ * Конверсия «запись → визит» (владелец 30.10.2026: «бронируют и не доходят, чтобы мы понимали»): записи периода,
+ * время которых уже прошло. Пришли: «Пришла» и «Завершена»; не пришли; отменили; не отмечены (время прошло, а
+ * статус «Записан» или «Подтверждена»). Процент: пришли из всех прошедших записей, будущие не считаются.
+ */
+describe('конверсия запись → визит', () => {
+  it('считает прошедшие записи периода по статусам, будущие не берёт', async () => {
+    const { service } = fixture();
+    const count = vi.fn().mockResolvedValue([
+      { status: 'DONE', _count: { _all: 6 } },
+      { status: 'IN_PROGRESS', _count: { _all: 1 } },
+      { status: 'NO_SHOW', _count: { _all: 2 } },
+      { status: 'CANCELLED', _count: { _all: 1 } },
+      { status: 'BOOKED', _count: { _all: 1 } },
+      { status: 'CONFIRMED', _count: { _all: 1 } },
+    ]);
+    (service as unknown as { prisma: { db: { appointment: Record<string, unknown> } } }).prisma.db.appointment.groupBy = vi.fn(async (args: { by: string[] }) =>
+      args.by[0] === 'status' ? count(args) : [],
+    );
+    const r = await service.insights('2026-10-19', '2026-10-25');
+    expect(r.visits).toEqual({ booked: 12, came: 7, noShow: 2, cancelled: 1, unmarked: 2, percent: 58 });
+    const where = count.mock.calls[0]![0].where;
+    expect(where.locationId).toBe('salon');
+    expect(where.startsAt.lt.getTime()).toBeLessThanOrEqual(Date.now());
+  });
+  it('записей не было: процент null, а не деление на ноль', async () => {
+    const { service } = fixture();
+    const r = await service.insights('2026-10-19', '2026-10-25');
+    expect(r.visits).toEqual({ booked: 0, came: 0, noShow: 0, cancelled: 0, unmarked: 0, percent: null });
   });
 });

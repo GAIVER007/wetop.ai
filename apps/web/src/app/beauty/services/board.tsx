@@ -71,7 +71,6 @@ export function ServicesBoard({
   const [search, setSearch] = useState('');
   const [showArchived, setShowArchived] = useState(false);
   const [materialService, setMaterialService] = useState<BeautyServiceRow | null>(null);
-  const [transferState, transferAction, transferPending] = useActionState(saveLocationService, null);
   const [bulkState, bulkAction, bulkPending] = useActionState(moveLocationServices, null);
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [notice, setNotice] = useState<{ error?: string; message?: string } | null>(null);
@@ -86,7 +85,7 @@ export function ServicesBoard({
     return !needle || `${preset.name} ${preset.category}`.toLocaleLowerCase('ru-RU').includes(needle);
   });
   const archivedCount = items.filter((row) => !row.active).length;
-  const busy = transferPending || bulkPending;
+  const busy = bulkPending;
   const transferDisabled = busy || !locationCurrency;
 
   // Что можно отметить: слева услуги филиала, справа то, чего в филиале ещё нет (включая типовые)
@@ -100,15 +99,6 @@ export function ServicesBoard({
       const next = new Set(current);
       if (on) next.add(key);
       else next.delete(key);
-      return next;
-    });
-  const toggleAll = (keys: string[], on: boolean) =>
-    setSelected((current) => {
-      const next = new Set(current);
-      for (const key of keys) {
-        if (on) next.add(key);
-        else next.delete(key);
-      }
       return next;
     });
   const submitBulk = (keys: string[], enable: boolean) => {
@@ -129,15 +119,7 @@ export function ServicesBoard({
       setSelected(new Set());
     }
   }, [bulkState]);
-  useEffect(() => {
-    if (transferState) setNotice(transferState);
-  }, [transferState]);
 
-  const submitTransfer = (row: BeautyServiceRow, enabled: boolean) => {
-    if (transferDisabled || !row.active || Boolean(row.location?.enabled) === enabled) return;
-    const form = locationTransferFormData(row, enabled, scopeKey);
-    startTransition(() => transferAction(form));
-  };
   useEffect(() => {
     const id = pendingCreation(scopeKey, 'service');
     const row = items.find((item) => item.id === id);
@@ -339,16 +321,6 @@ export function ServicesBoard({
       </Overlay>
     </>
   );
-}
-
-function locationTransferFormData(row: BeautyServiceRow, enabled: boolean, scopeKey: string) {
-  const form = new FormData();
-  form.set('id', row.id);
-  form.set('scopeKey', scopeKey);
-  form.set('priceOverrideMinor', row.location?.priceOverrideMinor ?? '');
-  form.set('durationOverrideMinutes', row.location?.durationOverrideMinutes == null ? '' : String(row.location.durationOverrideMinutes));
-  if (enabled) form.set('enabled', 'on');
-  return form;
 }
 
 function ServiceForm({

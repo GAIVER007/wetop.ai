@@ -4,6 +4,7 @@ import { Prisma } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import type { CabinetSource } from './cabinet';
 import { companyOrganizationIds } from './growth.controller';
+import { viewerExclusion } from './company-scope';
 
 export const CABINET_REPOSITORY = Symbol('CABINET_REPOSITORY');
 
@@ -74,7 +75,8 @@ export class PrismaCabinetRepository implements CabinetRepository {
         })),
       })),
       records30d: records.map((r) => ({ organizationId: r.organization_id, count: Number(r.count) })),
-      ownOrganizationId: input.ownOrganizationId,
+      // запись компании есть: смотрящий не исключается, список клиентов одинаковый у всех главных администраторов
+      ownOrganizationId: viewerExclusion(company, input.ownOrganizationId),
     };
   }
 }

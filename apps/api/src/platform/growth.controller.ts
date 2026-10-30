@@ -3,6 +3,7 @@ import { Controller, Get, Header, Inject, Injectable, Query, UseInterceptors } f
 import { Prisma, type OrganizationStatus } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
 import { ServiceDatabaseInterceptor } from '../database/service-database.interceptor';
+import { viewerExclusion } from './company-scope';
 import { currentOrganizationId } from '../auth/request-context';
 import { Access } from '../auth/access.decorator';
 import { requirePlatformAdmin } from './admin';
@@ -11,7 +12,8 @@ import { buildGrowth, type GrowthSource } from './growth';
 export const GROWTH_REPOSITORY = Symbol('GROWTH_REPOSITORY');
 
 export interface GrowthRepository {
-  source(ownOrganizationId: string | null, since: Date): Promise<Omit<GrowthSource, 'visitors' | 'ownOrganizationId'>>;
+  /** ownOrganizationId в ответе: кого ещё не считать клиентом (company-scope.ts), уже с учётом записи компании */
+  source(ownOrganizationId: string | null, since: Date): Promise<Omit<GrowthSource, 'visitors'>>;
   /** Уникальные посетители сайта с этими адресами за [from, to); сайта со счётчиком нет: `null` */
   visitors(hosts: readonly string[], from: Date, to: Date): Promise<number | null>;
 }
@@ -42,7 +44,7 @@ const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 export class PrismaGrowthRepository implements GrowthRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async source(_own: string | null, since: Date) {
+  async source(own: string | null, since: Date) {
     const db = this.prisma.db;
     const money = (await db.$queryRaw<Array<{ ok: boolean }>>(Prisma.sql`SELECT to_regclass('platform_payments') IS NOT NULL AS ok`))[0]?.ok === true;
     const [all, company, users, payments, subscriptions, statusLog] = await Promise.all([
@@ -60,6 +62,7 @@ export class PrismaGrowthRepository implements GrowthRepository {
     // запись компании WETOP (владелец сайта wetop.ai) не клиент: ни в пути, ни в деньгах
     const organizations = all.filter((o) => !company.has(o.id));
     return {
+      ownOrganizationId: viewerExclusion(company, own),
       organizations,
       registrations: users.filter((u) => u.memberships.length === 0 || u.memberships.some((m) => m.role === 'OWNER')).map((u) => u.createdAt),
       payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn)!, voided: p.voidedAt !== null })),
@@ -105,6 +108,6 @@ export class GrowthController {
     const to = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1));
     // посетители wetop.ai: счётчик WETOP на своём сайте; пока сайт не заведён, null и «счётчик не подключён»
     const [src, visitors] = await Promise.all([this.repo.source(own, since), this.repo.visitors(WETOP_SITE_HOSTS, from, to)]);
-    return buildGrowth({ ...src, visitors, ownOrganizationId: own }, month, now);
+    return buildGrowth({ ...src, visitors }, month, now);
   }
 }

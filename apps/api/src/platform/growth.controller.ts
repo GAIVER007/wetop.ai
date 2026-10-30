@@ -108,7 +108,8 @@ export class PrismaGrowthRepository implements GrowthRepository {
       db.webPageview.findMany({ where: { session: { siteId }, at: { gte: from, lt: to } }, select: { path: true } }),
     ]);
     return {
-      timezone: sites[0]!.location?.timezone ?? 'Asia/Almaty',
+      // день по поясу филиала сайта; у сайта без филиала: UTC, как месяц в «Деньгах»
+      timezone: sites[0]!.location?.timezone ?? 'UTC',
       sessions,
       events: events.map((e) => ({ name: e.name, sessionKey: e.session.sessionKey })),
       pageviews,

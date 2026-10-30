@@ -96,7 +96,7 @@ export class MoneyController {
         overdue: summary.overdue.map((o) => ({ ...o, name: names.get(o.organizationId) ?? '' })),
         upcoming: summary.upcoming.map((o) => ({ ...o, name: names.get(o.organizationId) ?? '' })),
       },
-      plans: plans.map((p) => ({ ...p, priceCents: cents(p.priceCents) })),
+      plans: plans.map((p) => ({ ...p, priceCents: cents(p.priceCents), partnerPayoutCents: p.partnerPayoutCents == null ? null : cents(p.partnerPayoutCents) })),
       clients: clients.map((c) => {
         const s = subs.get(c.id);
         return {
@@ -135,8 +135,19 @@ export class MoneyController {
     const price = parseUsdCents(b['price']);
     if (price === null) throw new BadRequestException(MONEY_AMOUNT);
     const periodMonths = b['periodMonths'] === 12 || b['periodMonths'] === '12' ? 12 : 1;
-    const saved = await this.money.savePlan({ id, name, priceCents: price, periodMonths, active: b['active'] !== false && b['active'] !== 'false' });
-    return { ...saved, priceCents: cents(saved.priceCents) };
+    // «Партнёру за первый чек» (DATA_MODEL §63.2): пусто снимает сумму, поле не прислано: не трогаем
+    const rawPayout = b['partnerPayout'];
+    const partnerPayoutCents = rawPayout === undefined ? undefined : rawPayout === null || rawPayout === '' ? null : parseUsdCents(rawPayout);
+    if (partnerPayoutCents === null && rawPayout !== null && rawPayout !== '' && rawPayout !== undefined) throw new BadRequestException(MONEY_AMOUNT);
+    const saved = await this.money.savePlan({
+      id,
+      name,
+      priceCents: price,
+      periodMonths,
+      active: b['active'] !== false && b['active'] !== 'false',
+      ...(partnerPayoutCents !== undefined ? { partnerPayoutCents } : {}),
+    });
+    return { ...saved, priceCents: cents(saved.priceCents), partnerPayoutCents: saved.partnerPayoutCents == null ? null : cents(saved.partnerPayoutCents) };
   }
 
   @Put('subscriptions/:organizationId')
@@ -181,7 +192,9 @@ export class MoneyController {
       paidOn,
       note: text(b['note'], 300),
       by: currentUserId(),
-      extendMonths,
+      // доп (ИИ-продавец, таргетолог, контент, продвижение) срок подписки не продлевает
+      extendMonths: b['kind'] === 'ADDON' ? 0 : extendMonths,
+      kind: b['kind'] === 'ADDON' ? 'ADDON' : 'PLAN',
     });
     return { ...saved, amountCents: cents(saved.amountCents) };
   }

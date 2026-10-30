@@ -809,7 +809,7 @@ export const platformOrg: Record<string, string> = {
   "Партнёры": "Partners",
   "Партнёры WETOP": "WETOP partners",
   "Партнёры ещё не подключены: сервер обновится сам.": "Partners are not connected yet: the server will update itself.",
-  "Процент от оплат клиентов": "Percent of client payments",
+  "Процент с допов": "Percent of add-ons",
   "Связь": "Contact",
   "ФИО": "Full name",
   "Цифровой сотрудник": "Digital employee",
@@ -873,4 +873,8 @@ export const platformOrg: Record<string, string> = {
   "Прибыль": "Profit",
   "Расходы": "Expenses",
   "Все ваши бизнесы и филиалы: выручка, расходы, прибыль и переход в любой из них.": "All your businesses and branches: revenue, expenses, profit and a jump into any of them.",
+  "Доп: ИИ-продавец, таргет, контент": "Add-on: AI seller, ads, content",
+  "Партнёру за первый чек, $": "Partner payout for first check, $",
+  "партнёру {sum}": "partner {sum}",
+  "За что": "What for",
 };

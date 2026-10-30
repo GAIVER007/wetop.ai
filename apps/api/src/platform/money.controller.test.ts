@@ -61,6 +61,8 @@ const money: Partial<MoneyRepository> = {
     partners: [{ id: PARTNER, name: 'Айдар', phone: null, email: null, percentBp: 2000, active: true }],
     links: [{ organizationId: LUXX, partnerId: PARTNER }],
     payments: [{ organizationId: LUXX, amountCents: 9900n, voided: false }],
+    // тариф клиента: партнёру $19,80 за первый чек (DATA_MODEL §63.2)
+    planPayouts: [{ organizationId: LUXX, payoutCents: 1980n }],
     payouts: [],
   }),
   savePartner: async (input) => {

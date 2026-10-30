@@ -723,7 +723,8 @@ export function PayrollBoard({
           <th>{t('Как платим')}</th>
           <th className="num">{t('Оклад')}</th>
           <th className="num">{t(BASIS[basis].column)}</th>
-          {[msg('Премии'), msg('Удержания'), msg('Начислено'), msg('Выплачено'), msg('Осталось')].filter((h) => withAdj || (h !== 'Премии' && h !== 'Удержания')).map((h) => (
+          {/* первые два: «Премии» и «Удержания», только в месяце с начислениями */}
+          {[msg('Премии'), msg('Удержания'), msg('Начислено'), msg('Выплачено'), msg('Осталось')].filter((h, i) => withAdj || i > 1).map((h) => (
             <th key={h} className="num">
               {t(h)}
             </th>

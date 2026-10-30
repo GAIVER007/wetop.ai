@@ -5597,6 +5597,27 @@ export interface BeautyInsights {
   /** `returnedToMaster`: были у этого мастера до периода; `ltvMinor`: средняя выручка мастера с одного его клиента за всё время */
   employees: Array<{ employeeId: string; customers: number; returning: number; returnedToMaster?: number; ltvMinor?: string; reviews: number; avgTenths: number | null }>;
 }
+/** Главная владельца салона «B» (`GET /beauty/owner-home`, 30.10.2026): деньги минорными единицами строкой */
+export interface BeautyOwnerHome {
+  month: string;
+  currency: string;
+  kpi: {
+    revenueMinor: string;
+    expensesMinor: string;
+    profitMinor: string;
+    paidClients: number;
+    averageMinor: string | null;
+    previous: { revenueMinor: string; expensesMinor: string; profitMinor: string; paidClients: number; averageMinor: string | null };
+  };
+  funnel: Array<{ step: 'BOOKED' | 'CAME' | 'PAID' | 'RETURNED'; count: number; percent: number | null }>;
+  clients: { new: number; noShow: number; lapsed: number };
+  masters: Array<{ employeeId: string; name: string; revenueMinor: string; visits: number; customers: number; returning: number; reviews: number; avgTenths: number | null }>;
+  sources: Array<{ source: string; clients: number; revenueMinor: string }>;
+  months: Array<{ month: string; revenueMinor: string; expensesMinor: string; profitMinor: string }>;
+}
+export const beautyOwnerHomeApi = {
+  read: (month: string) => getJsonPublic<BeautyOwnerHome>(`/beauty/owner-home?${new URLSearchParams({ month })}`),
+};
 /** Сводка салона выбранного филиала (указатель из сессии), например «Запись → визит» на Главной */
 export const beautyInsightsApi = {
   insights: (from: string, to: string) =>

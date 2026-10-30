@@ -4,7 +4,7 @@ import { DateInput } from '../../../components/date-field';
 import { Alert, Button, Field, Input, Notice, Select } from '../../../components/ui';
 import type { PlatformExpenseCategory, PlatformPlan } from '../../../lib/api';
 import { useT } from '../../../i18n/locale-provider';
-import { msg } from '../../../i18n';
+import { CATEGORY_LABEL } from './categories';
 import {
   addExpenseAction,
   addPaymentAction,
@@ -18,19 +18,16 @@ import {
 
 /** Формы кабинета WETOP (DATA_MODEL §63): одна кнопка, поля в окне, отказ словами API */
 
-export const CATEGORY_LABEL: Record<PlatformExpenseCategory, string> = {
-  SERVER: msg('Сервер'),
-  DOMAINS: msg('Домены'),
-  ADS: msg('Реклама'),
-  AI: msg('ИИ'),
-  SALARIES: msg('Зарплаты'),
-  SERVICES: msg('Сервисы'),
-  OTHER: msg('Другое'),
-};
 
 function Result({ state, testId }: { state: MoneyFormResult | null; testId: string }) {
   if (state?.error) return <Alert data-testid={`${testId}-error`}>{state.error}</Alert>;
-  if (state?.message) return <Notice data-testid={`${testId}-result`}>{state.message}</Notice>;
+  // `data-saved`: окно с формой (FormDialog) закрывается само после успешной записи
+  if (state?.message)
+    return (
+      <Notice data-testid={`${testId}-result`} data-saved="">
+        {state.message}
+      </Notice>
+    );
   return null;
 }
 
@@ -94,9 +91,12 @@ export function PaymentForm({
 export function ExpenseForm({
   categories,
   today,
+  preset,
 }: {
   categories: PlatformExpenseCategory[];
   today: string;
+  /** Выплата зарплаты из «Сотрудников»: статья, сумма и заметка (имя) заполнены заранее */
+  preset?: { category: PlatformExpenseCategory; amount: string; note: string } | undefined;
 }) {
   const t = useT();
   const [state, action, pending] = useActionState<MoneyFormResult | null, FormData>(
@@ -111,7 +111,7 @@ export function ExpenseForm({
       data-testid="money-expense-form"
     >
       <Field label={t('Статья')} required>
-        <Select name="category" defaultValue="SERVER">
+        <Select name="category" defaultValue={preset?.category ?? 'SERVER'}>
           {categories.map((c) => (
             <option key={c} value={c}>
               {t(CATEGORY_LABEL[c])}
@@ -120,16 +120,16 @@ export function ExpenseForm({
         </Select>
       </Field>
       <Field label={t('Сумма, $')} required>
-        <Input name="amount" inputMode="decimal" placeholder="20" />
+        <Input name="amount" inputMode="decimal" placeholder="20" defaultValue={preset?.amount ?? ''} />
       </Field>
       <Field label={t('Дата')} required>
         <DateInput name="spentOn" defaultValue={today} />
       </Field>
       <Field label={t('Заметка')}>
-        <Input name="note" maxLength={300} />
+        <Input name="note" maxLength={300} defaultValue={preset?.note ?? ''} />
       </Field>
       <Button type="submit" disabled={pending} aria-busy={pending} data-testid="money-expense-save">
-        {pending ? t('Сохраняю…') : t('Записать расход')}
+        {pending ? t('Сохраняю…') : preset?.category === 'SALARIES' ? t('Выплатить') : t('Записать расход')}
       </Button>
       <Result state={state} testId="money-expense" />
     </form>
@@ -305,7 +305,7 @@ export function TeamForm({
         </Field>
       )}
       <Button type="submit" disabled={pending} aria-busy={pending} data-testid="money-team-save">
-        {pending ? t('Сохраняю…') : member ? t('Сохранить') : t('Добавить в команду')}
+        {pending ? t('Сохраняю…') : member ? t('Сохранить') : t('Добавить сотрудника')}
       </Button>
       <Result state={state} testId="money-team" />
     </form>

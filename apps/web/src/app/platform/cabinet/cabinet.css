@@ -432,6 +432,80 @@
     overflow-wrap: anywhere;
   }
 
+
+  /* «Деньги» (владелец 30.10.2026): кнопки записи в окне, таблица по месяцам, приход и расход рядом */
+  .cabinet-money__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .cabinet-money__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .cabinet-money__table td,
+  .cabinet-money__table th {
+    white-space: nowrap;
+  }
+  .cabinet-money__table .num,
+  .cabinet-money__table + * .num {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+  }
+  .cabinet-money__income > td {
+    color: var(--success);
+    font-weight: var(--weight-semibold);
+  }
+  .cabinet-money__profit > td {
+    background: var(--surface-muted);
+    font-weight: var(--weight-bold);
+  }
+  .cabinet-money__profit > td[data-negative] {
+    color: var(--danger);
+  }
+  .cabinet-money__margin > td {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  [data-testid='money-overdue'] tr[data-late] > td {
+    color: var(--danger);
+  }
+  [data-testid='money-upcoming'] .num,
+  [data-testid='money-overdue'] .num {
+    text-align: end;
+  }
+  .cabinet-money__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+  .cabinet-money__pair .tbl {
+    min-width: 0;
+  }
+  .cabinet-money__pair .num {
+    text-align: end;
+    white-space: nowrap;
+  }
+  .cabinet-money__pair td:last-child {
+    inline-size: 1%;
+    white-space: nowrap;
+  }
+  @media (max-width: 960px) {
+    .cabinet-money__pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .cabinet-dialog__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
   /* Главная кабинета, вариант «B» (владелец 30.10.2026): воронка конусом слева, графики справа, три факта о пробном */
   .cabinet-home {
     display: grid;

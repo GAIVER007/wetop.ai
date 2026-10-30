@@ -25,7 +25,7 @@ const LINKS: Array<{
     icon: 'booking',
     label: msg('Подписки'),
   },
-  { key: 'team', href: '/platform/cabinet/team', icon: 'person', label: msg('Команда WETOP') },
+  { key: 'team', href: '/platform/cabinet/team', icon: 'person', label: msg('Сотрудники') },
   { key: 'support', href: '/platform/support', icon: 'chat', label: msg('Поддержка') },
 ];
 

@@ -3168,6 +3168,16 @@ export type PlatformMoney =
         expectedMonthlyCents: string;
         expensesByCategory: Array<{ category: PlatformExpenseCategory; cents: string }>;
         overdue: Array<{ organizationId: string; name: string; paidUntil: string | null; monthlyCents: string }>;
+        /** Таблица по месяцам и ожидаемые оплаты (30.10.2026); старый API без полей */
+        table?: {
+          months: string[];
+          income: string[];
+          categories: Array<{ category: PlatformExpenseCategory; cents: string[]; totalCents: string }>;
+          profit: string[];
+          totals: { incomeCents: string; expensesCents: string; profitCents: string };
+          margin: Array<number | null>;
+        };
+        upcoming?: Array<{ organizationId: string; name: string; paidUntil: string; monthlyCents: string }>;
       };
       plans: PlatformPlan[];
       clients: Array<{

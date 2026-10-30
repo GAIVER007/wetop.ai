@@ -4,6 +4,7 @@ import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-f
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { buildGrowth } from '../../apps/api/src/platform/growth';
+import { buildMoney } from '../../apps/api/src/platform/money';
 import { buildSiteReport } from '../../apps/api/src/platform/site-report';
 import { buildCountries } from '../../apps/api/src/platform/countries';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
@@ -2521,27 +2522,29 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
   const ok = (data: unknown, status = 200) => ({ status, data });
   if (path.startsWith('/platform/money') && method === 'GET') {
     const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
-    const live = <T extends { voided: boolean }>(rows: T[]) => rows.filter((r) => !r.voided);
-    const sum = (rows: Array<{ amountCents: string }>) => rows.reduce((n, r) => n + BigInt(r.amountCents), 0n);
-    const monthOf = (m: string) => {
-      const income = sum(live(platformMoney.payments).filter((p) => p.paidOn.startsWith(m)));
-      const spent = sum(live(platformMoney.expenses).filter((e) => e.spentOn.startsWith(m)));
-      return { month: m, incomeCents: String(income), expensesCents: String(spent), profitCents: String(income - spent) };
-    };
     const today = new Date().toISOString().slice(0, 10);
     const subs = clients.flatMap((c) => (platformMoney.subs.has(c.id) ? [{ id: c.id, ...platformMoney.subs.get(c.id)! }] : []));
     return ok({
       ready: true,
       month,
-      summary: {
-        month: monthOf(month),
-        history: [monthOf(month)],
-        expectedMonthlyCents: String(subs.reduce((n, s) => n + BigInt(s.monthlyCents), 0n)),
-        expensesByCategory: [],
-        overdue: subs
-          .filter((s) => BigInt(s.monthlyCents) > 0n && (!s.paidUntil || s.paidUntil < today))
-          .map((s) => ({ organizationId: s.id, name: names.get(s.id) ?? '', paidUntil: s.paidUntil, monthlyCents: s.monthlyCents })),
-      },
+      // те же расчёты, что у API (buildMoney): таблица по месяцам, должники и ожидаемые оплаты
+      summary: (() => {
+        const built = buildMoney(
+          {
+            payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), paidOn: p.paidOn, voided: p.voided })),
+            expenses: platformMoney.expenses.map((e) => ({ category: e.category as 'OTHER', amountCents: BigInt(e.amountCents), spentOn: e.spentOn, voided: e.voided })),
+            subscriptions: subs.map((x) => ({ organizationId: x.id, monthlyCents: BigInt(x.monthlyCents), paidUntil: x.paidUntil })),
+            clientIds: clients.map((c) => c.id),
+          },
+          month,
+          today,
+        );
+        return {
+          ...built,
+          overdue: built.overdue.map((o) => ({ ...o, name: names.get(o.organizationId) ?? '' })),
+          upcoming: built.upcoming.map((o) => ({ ...o, name: names.get(o.organizationId) ?? '' })),
+        };
+      })(),
       plans: platformMoney.plans,
       clients: clients.map((c) => {
         const s = platformMoney.subs.get(c.id);

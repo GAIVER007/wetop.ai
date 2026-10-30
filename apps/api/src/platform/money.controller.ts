@@ -85,7 +85,11 @@ export class MoneyController {
     return {
       ready: true,
       month,
-      summary: { ...summary, overdue: summary.overdue.map((o) => ({ ...o, name: names.get(o.organizationId) ?? '' })) },
+      summary: {
+        ...summary,
+        overdue: summary.overdue.map((o) => ({ ...o, name: names.get(o.organizationId) ?? '' })),
+        upcoming: summary.upcoming.map((o) => ({ ...o, name: names.get(o.organizationId) ?? '' })),
+      },
       plans: plans.map((p) => ({ ...p, priceCents: cents(p.priceCents) })),
       clients: clients.map((c) => {
         const s = subs.get(c.id);

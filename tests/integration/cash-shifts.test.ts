@@ -139,6 +139,7 @@ describe.skipIf(!process.env.DATABASE_URL)('кассовые смены всех
         amount: '200',
         method: 'CASH',
         category: 'Такси',
+        note: 'мастер домой после 21:00',
         shiftId,
       };
       await command(place, expense);
@@ -214,6 +215,7 @@ describe.skipIf(!process.env.DATABASE_URL)('кассовые смены всех
             amount: '1',
             method: 'CASH',
             category: 'Новая произвольная статья',
+            note: 'проверка прав статьи',
           },
           cashier,
         ),
@@ -390,7 +392,7 @@ describe.skipIf(!process.env.DATABASE_URL)('кассовые смены всех
     let shiftId = view.active!.id;
     await command(place, { action: 'income', amount: '100', method: 'CASH', category: 'Внесение', shiftId });
     for (const category of ['Вода', 'Вода', 'Вода', 'Такси'])
-      await command(place, { action: 'expense', amount: '1', method: 'CASH', category, shiftId });
+      await command(place, { action: 'expense', amount: '1', method: 'CASH', category, note: 'частая статья', shiftId });
     view = (await at(place, owner, () => service.state())) as View;
     // окно закрытия (вариант B): расходы смены списком, по порядку внесения
     expect((view as unknown as { shiftExpenses: Array<{ category: string; amount: string }> }).shiftExpenses).toEqual([
@@ -411,8 +413,8 @@ describe.skipIf(!process.env.DATABASE_URL)('кассовые смены всех
     // кассир берёт уже использованную в кассе статью; новую по-прежнему создаёт владелец
     view = (await command(place, { action: 'open', counted: left }, cashier)) as never;
     shiftId = view.active!.id;
-    await expect(command(place, { action: 'expense', amount: '1', method: 'CASH', category: 'Вода', shiftId }, cashier)).resolves.toBeTruthy();
-    await expect(command(place, { action: 'expense', amount: '1', method: 'CASH', category: 'Совсем новая', shiftId }, cashier)).rejects.toThrow('Новые статьи');
+    await expect(command(place, { action: 'expense', amount: '1', method: 'CASH', category: 'Вода', note: 'вода', shiftId }, cashier)).resolves.toBeTruthy();
+    await expect(command(place, { action: 'expense', amount: '1', method: 'CASH', category: 'Совсем новая', note: 'новая', shiftId }, cashier)).rejects.toThrow('Новые статьи');
     view = (await at(place, cashier, () => service.state())) as View;
     const end = money(BigInt(view.snapshot.balances.CASH ?? '0'));
     await command(place, { action: 'close', shiftId, counted: end, retained: end, fingerprint: view.snapshot.fingerprint }, cashier);
@@ -467,6 +469,7 @@ describe.skipIf(!process.env.DATABASE_URL)('кассовые смены всех
         action: 'expense',
         method: 'OTHER',
         category: 'Прочее',
+        note: 'прочий расход',
       });
       expect(after.snapshot.balances.OTHER).toBe('0');
     } finally {

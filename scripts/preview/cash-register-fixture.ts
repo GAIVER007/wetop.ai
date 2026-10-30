@@ -78,6 +78,9 @@ export function cashRegisterFixture(
       view.totals = { received: {}, refunds: {}, expenses: {} };
       view.shiftExpenses = [];
     }
+    // как API (владелец 30.10.2026): расход без комментария не сохраняется
+    if (body.action === 'expense' && !String(body.note ?? '').trim())
+      return send(400, { message: 'Напишите комментарий к расходу' });
     if (body.action === 'expense') {
       view.shiftExpenses = [
         ...(view.shiftExpenses ?? []),

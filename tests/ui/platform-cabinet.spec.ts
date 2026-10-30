@@ -81,7 +81,20 @@ test('главная «B»: 4 цифры, воронка продаж из 6 ш�
   const first = page.getByTestId('cabinet-client-row').first();
   await expect(first).toContainText('Хостел «Пример»');
   await expect(first.getByTestId('client-risk')).toHaveText('под риском');
-  await expect(first).toContainText('1 из 7 дн.');
+  await expect(first).toContainText('1/7');
+  // владелец 30.10.2026: «Клиенты» без цифр Главной; сверху «с кем говорить», в строке «Принёс денег» и страна
+  await expect(page.getByTestId('clients-tasks')).toBeVisible();
+  await expect(page.getByTestId('task-risk')).toContainText('1');
+  await expect(page.getByText('Люди у клиентов')).toHaveCount(0);
+  await expect(page.getByText('MRR, в месяц')).toHaveCount(0);
+  await expect(table.getByRole('columnheader', { name: 'Принёс денег' })).toBeVisible();
+  await expect(table.getByRole('columnheader', { name: 'Партнёр' })).toHaveCount(0);
+  // фильтр страны и поиск: адрес хранит выбор
+  await page.getByTestId('clients-search').fill('Пример');
+  await page.getByRole('button', { name: 'Показать' }).click();
+  await page.waitForURL(/clients\?.*q=/);
+  await expect(page.getByTestId('cabinet-client-row')).toHaveCount(1);
+  await page.goto('/platform/cabinet/clients');
   // таблица целиком в панели и после новой отметки
   expect(await page.getByTestId('cabinet-clients-table').evaluate((el) => (el.parentElement ?? el).scrollWidth - (el.parentElement ?? el).clientWidth)).toBeLessThanOrEqual(0);
   await page.getByTestId('clients-filter-risk').click();

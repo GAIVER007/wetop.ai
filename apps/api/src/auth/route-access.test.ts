@@ -628,6 +628,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /analytics/sites/:id/report': 'marketing',
   'GET /audit': 'journal',
   'GET /audit/actors': 'journal',
+  'GET /audit/summary': 'journal',
 
   // ── ИИ-продавец: диалоги — всем ролям, настройки — владельцу и управляющему ─────────────
   'GET /ai-seller/status': 'dialogs',

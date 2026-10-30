@@ -3262,7 +3262,27 @@ export interface PlatformSite {
     path: { visitors: number; signupOpen: number; signupSent: number; signupDone: number; loginOpen: number };
     sources: Array<{ kind: 'DIRECT' | 'SEARCH' | 'SOCIAL' | 'PAID' | 'EMAIL' | 'REFERRAL'; source: string | null; visitors: number; share: number }>;
     pages: Array<{ path: string; views: number; share: number }>;
+    countries: Array<{ country: string | null; visitors: number; signupDone: number }>;
   } | null;
+}
+
+/** «Страны» в кабинете руководителя (29.10.2026): центы USD строкой, переходы десятыми процента */
+export interface PlatformCountryRow {
+  country: string | null;
+  visitors: number | null;
+  newClients: number;
+  firstPayments: number;
+  paying: number;
+  incomeCents: string;
+  mrrCents: string;
+  avgLtvCents: string;
+  visitorToClient: number | null;
+  clientToPaid: number | null;
+}
+export interface PlatformCountries {
+  month: string;
+  rows: PlatformCountryRow[];
+  total: Omit<PlatformCountryRow, 'country' | 'avgLtvCents'>;
 }
 
 export interface PlatformCabinet {
@@ -3333,6 +3353,7 @@ export const platformApi = {
   cabinet: () => getJson<PlatformCabinet>('/platform/cabinet'),
   growth: (month: string) => getJson<PlatformGrowth>(`/platform/growth?month=${encodeURIComponent(month)}`),
   site: (month: string) => getJson<PlatformSite>(`/platform/site?month=${encodeURIComponent(month)}`),
+  countries: (month: string) => getJson<PlatformCountries>(`/platform/countries?month=${encodeURIComponent(month)}`),
   clientCard: (organizationId: string) =>
     getJson<PlatformClientCard>(`/platform/organizations/${encodeURIComponent(organizationId)}/card`),
   /** Продлить пробный на 1–30 дней (от сегодня, если срок прошёл) */

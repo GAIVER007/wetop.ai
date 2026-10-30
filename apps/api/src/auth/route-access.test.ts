@@ -683,6 +683,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /platform/cabinet': 'platform',
   'GET /platform/growth': 'platform',
   'GET /platform/site': 'platform',
+  'GET /platform/countries': 'platform',
   'GET /platform/organizations/:id/card': 'platform',
   'PUT /platform/organizations/:id/trial': 'platform',
   'GET /platform/money': 'platform',

@@ -2547,6 +2547,8 @@ model WebSession {
   browser         String?
   os              String?
   language        String?
+  /// Страна посетителя, ISO 3166-1 alpha-2 из CF-IPCountry (миграция 169, владелец 29.10.2026); IP не хранится
+  country         String?       @db.VarChar(2)
   /// Бронь, сделанная виджетом в этой сессии (срез 9): конверсия по источникам
   reservationId   String?       @map("reservation_id") @db.Uuid
 

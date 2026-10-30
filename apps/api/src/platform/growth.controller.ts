@@ -8,6 +8,7 @@ import { Access } from '../auth/access.decorator';
 import { requirePlatformAdmin } from './admin';
 import { buildGrowth, type GrowthSource } from './growth';
 import { buildSiteReport, type SiteReportInput } from './site-report';
+import { buildCountries, type CountriesSource } from './countries';
 
 export const GROWTH_REPOSITORY = Symbol('GROWTH_REPOSITORY');
 
@@ -17,6 +18,8 @@ export interface GrowthRepository {
   visitors(hosts: readonly string[], from: Date, to: Date): Promise<number | null>;
   /** Сессии, события и просмотры сайта с этими адресами за [from, to); сайта нет: `null` */
   siteActivity(hosts: readonly string[], from: Date, to: Date): Promise<Omit<SiteReportInput, 'month'> | null>;
+  /** Клиенты со страной, деньги и посетители сайта по стране за [from, to) («Страны», 29.10.2026) */
+  countries(hosts: readonly string[], from: Date, to: Date): Promise<Omit<CountriesSource, 'ownOrganizationId'>>;
 }
 
 /**
@@ -96,7 +99,7 @@ export class PrismaGrowthRepository implements GrowthRepository {
     const [sessions, events, pageviews] = await Promise.all([
       db.webSession.findMany({
         where: { siteId, startedAt: { gte: from, lt: to } },
-        select: { visitorKey: true, sessionKey: true, startedAt: true, sourceKind: true, source: true, device: true },
+        select: { visitorKey: true, sessionKey: true, startedAt: true, sourceKind: true, source: true, device: true, country: true },
       }),
       db.webEvent.findMany({
         where: { session: { siteId }, at: { gte: from, lt: to } },
@@ -110,6 +113,36 @@ export class PrismaGrowthRepository implements GrowthRepository {
       sessions,
       events: events.map((e) => ({ name: e.name, sessionKey: e.session.sessionKey })),
       pageviews,
+    };
+  }
+
+  async countries(hosts: readonly string[], from: Date, to: Date) {
+    const db = this.prisma.db;
+    const money = (await db.$queryRaw<Array<{ ok: boolean }>>(Prisma.sql`SELECT to_regclass('platform_payments') IS NOT NULL AS ok`))[0]?.ok === true;
+    const [all, company, payments, subscriptions, sites] = await Promise.all([
+      db.organization.findMany({ select: { id: true, countryCode: true, status: true, createdAt: true } }),
+      companyOrganizationIds(db),
+      money ? db.platformPayment.findMany() : Promise.resolve([]),
+      money ? db.platformSubscription.findMany() : Promise.resolve([]),
+      db.trackedSite.findMany({ where: { hosts: { hasSome: [...hosts] } }, select: { id: true } }),
+    ]);
+    // посетитель считается в стране первого визита месяца
+    const visitors = sites.length
+      ? (
+          await db.$queryRaw<Array<{ country: string | null; n: bigint }>>(Prisma.sql`
+            SELECT country, COUNT(*)::bigint AS n FROM (
+              SELECT DISTINCT ON (visitor_key) visitor_key, country FROM web_sessions
+              WHERE site_id IN (${Prisma.join(sites.map((x) => Prisma.sql`${x.id}::uuid`))})
+                AND started_at >= ${from} AND started_at < ${to}
+              ORDER BY visitor_key, started_at
+            ) v GROUP BY country`)
+        ).map((r) => ({ country: r.country, visitors: Number(r.n) }))
+      : null;
+    return {
+      organizations: all.filter((o) => !company.has(o.id)),
+      payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn)!, voided: p.voidedAt !== null })),
+      subscriptions: subscriptions.map((x) => ({ organizationId: x.organizationId, monthlyCents: x.monthlyCents, paidUntil: day(x.paidUntil) })),
+      visitors,
     };
   }
 }
@@ -149,5 +182,17 @@ export class GrowthController {
     const to = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1));
     const activity = await this.repo.siteActivity(WETOP_SITE_HOSTS, from, to);
     return { month, report: activity ? buildSiteReport({ ...activity, month }) : null };
+  }
+
+  /** «Страны»: посетители, новые клиенты, платящие, доход месяца, MRR и LTV по стране */
+  @Get('countries')
+  @Header('Cache-Control', 'no-store')
+  async countries(@Query('month') rawMonth?: string) {
+    requirePlatformAdmin();
+    const month = typeof rawMonth === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(rawMonth) ? rawMonth : thisMonth();
+    const from = new Date(`${month}-01T00:00:00.000Z`);
+    const to = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1));
+    const src = await this.repo.countries(WETOP_SITE_HOSTS, from, to);
+    return buildCountries({ ...src, ownOrganizationId: currentOrganizationId() }, month, new Date());
   }
 }

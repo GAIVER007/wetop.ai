@@ -66,6 +66,7 @@ describe.skipIf(!url)('web analytics repository (integration)', () => {
     },
     device: { device: 'DESKTOP', browser: 'Chrome', os: 'macOS' },
     language: 'ru-RU',
+    country: null,
     eventName: null,
     props: null,
     ...over,
@@ -113,6 +114,8 @@ describe.skipIf(!url)('web analytics repository (integration)', () => {
             landingPath: '/',
           },
           device: { device: 'MOBILE', browser: 'Chrome', os: 'Android' },
+          // страна посетителя (миграция 169): пишется при создании визита
+          country: 'KZ',
         }),
         base({
           at: at(3600 + 20),
@@ -140,6 +143,7 @@ describe.skipIf(!url)('web analytics repository (integration)', () => {
           device: true,
           landingPath: true,
           referrerHost: true,
+          country: true,
         },
       });
       expect(sessions).toEqual([
@@ -153,6 +157,7 @@ describe.skipIf(!url)('web analytics repository (integration)', () => {
           device: 'DESKTOP',
           landingPath: '/',
           referrerHost: null,
+          country: null,
         },
         {
           sessionKey: 'sess-2',
@@ -164,6 +169,7 @@ describe.skipIf(!url)('web analytics repository (integration)', () => {
           device: 'DESKTOP',
           landingPath: '/',
           referrerHost: 'l.instagram.com',
+          country: null,
         },
         {
           sessionKey: 'sess-3',
@@ -175,6 +181,7 @@ describe.skipIf(!url)('web analytics repository (integration)', () => {
           device: 'MOBILE',
           landingPath: '/',
           referrerHost: 'google.com',
+          country: 'KZ',
         },
       ]);
       expect(await db.webPageview.count({ where: { session: { siteId } } })).toBe(4);

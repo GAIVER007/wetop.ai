@@ -1075,6 +1075,9 @@ device                DESKTOP | MOBILE | TABLET
 browser
 os
 language
+country               varchar(2) null ← VISITOR-COUNTRY-20261029 (владелец 29.10.2026, миграция 169): страна
+                                         посетителя из CF-IPCountry, ISO 3166-1 alpha-2; XX/T1 и не по форме: null.
+                                         IP не хранится. CHECK `web_sessions_country_iso2`
 ```
 
 **UNIQUE (site_id, session_key).** Индекс `(site_id, started_at)` — все отчёты режут по нему.

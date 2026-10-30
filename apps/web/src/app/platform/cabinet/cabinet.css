@@ -316,6 +316,24 @@
   .cabinet__pair .tbl {
     min-width: 0;
   }
+  .cabinet__countries td,
+  .cabinet__countries th {
+    white-space: nowrap;
+  }
+  .cabinet__countries tfoot th,
+  .cabinet__countries tfoot td {
+    border-top: 1px solid var(--border);
+    font-weight: 700;
+  }
+  /* доля или переход рядом с числом, мелко той же строкой */
+  .cabinet__sub {
+    margin-inline-start: var(--space-2);
+    font-size: var(--text-xs);
+  }
+  .cabinet__note {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-xs);
+  }
   .cabinet__more {
     justify-self: start;
     margin-top: var(--space-2);

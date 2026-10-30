@@ -95,6 +95,8 @@ export interface StoredHit {
   source: SessionSource;
   device: DeviceInfo;
   language: string | null;
+  /** Страна посетителя, двухбуквенный код (CF-IPCountry); не определена: null */
+  country: string | null;
   eventName: EventName | null;
   props: Record<string, PropValue> | null;
 }
@@ -469,6 +471,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       browser: h.device.browser,
       os: h.device.os,
       language: h.language,
+      country: h.country,
     };
     const where = { siteId_sessionKey: { siteId: h.siteId, sessionKey: h.sessionKey } };
     if (h.type === 'ping' || h.type === 'leave') {

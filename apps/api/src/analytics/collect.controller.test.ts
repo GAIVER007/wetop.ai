@@ -94,6 +94,16 @@ describe('приёмник счётчика POST /a/hit и скрипт GET /a/p
     });
   });
 
+  it('страна посетителя из CF-IPCountry (владелец 29.10.2026): только двухбуквенный код, IP не хранится', async () => {
+    await post(hit(), { 'CF-IPCountry': 'kz' }).expect(204);
+    await post(hit({ s: 'session-0002' }), { 'CF-IPCountry': 'XX' }).expect(204);
+    await post(hit({ s: 'session-0003' }), { 'CF-IPCountry': 'T1' }).expect(204);
+    await post(hit({ s: 'session-0004' }), { 'CF-IPCountry': '<script>' }).expect(204);
+    await post(hit({ s: 'session-0005' })).expect(204);
+    await collect.flush();
+    expect(repo.recorded.map((h) => h.country)).toEqual(['KZ', null, null, null, null]);
+  });
+
   it('тело application/json тоже принимается; реферер с Referer-заголовком без Origin проходит', async () => {
     await request(app.getHttpServer())
       .post('/a/hit')

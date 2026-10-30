@@ -63,8 +63,9 @@ export class CollectController {
     @Headers('origin') origin?: string,
     @Headers('referer') referer?: string,
     @Headers('host') host?: string,
+    @Headers('cf-ipcountry') country?: string,
   ): Promise<void> {
-    await this.collect.accept(body, { userAgent, origin, referer, host });
+    await this.collect.accept(body, { userAgent, origin, referer, host, country });
   }
 
   /**

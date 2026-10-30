@@ -155,3 +155,15 @@ export function parseHit(raw: unknown): HitParse {
     },
   };
 }
+
+/**
+ * Страна посетителя из заголовка Cloudflare `CF-IPCountry` (владелец 29.10.2026, кабинет руководителя: страны).
+ * Сохраняется только двухбуквенный код ISO 3166-1; IP не хранится. `XX` (не определена), `T1` (Tor) и всё не по
+ * форме: `null`.
+ */
+export function countryFromHeader(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const code = value.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(code) || code === 'XX') return null;
+  return code;
+}

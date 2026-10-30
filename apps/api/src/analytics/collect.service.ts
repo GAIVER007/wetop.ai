@@ -9,6 +9,7 @@ import {
   parseHit,
   HIT_LIMITS,
   type ParsedHit,
+  countryFromHeader,
 } from '@pms/domain';
 import {
   ANALYTICS_REPOSITORY,
@@ -24,6 +25,8 @@ export interface HitHeaders {
   referer?: string | null | undefined;
   /** Заголовок Host запроса: страница со своего же адреса API (демо) принимается без домена сайта */
   host?: string | null | undefined;
+  /** `CF-IPCountry` от Cloudflare (туннель api.wetop.ai): страна посетителя, двухбуквенный код */
+  country?: string | string[] | null | undefined;
 }
 
 export type AcceptResult = 'queued' | `rejected:${string}`;
@@ -92,7 +95,7 @@ export class CollectService implements OnModuleDestroy {
       return 'rejected:site limit';
     }
 
-    this.queue.push(toStored(site, hit, ua, now));
+    this.queue.push(toStored(site, hit, ua, now, countryFromHeader(headers.country)));
     if (this.queue.length >= COLLECT_LIMITS.flushBatch) void this.flush();
     else this.schedule();
     return 'queued';
@@ -211,7 +214,7 @@ function hostOf(value: string | null | undefined): string | null {
   }
 }
 
-function toStored(site: SiteRecord, hit: ParsedHit, ua: string | null, now: Date): StoredHit {
+function toStored(site: SiteRecord, hit: ParsedHit, ua: string | null, now: Date, country: string | null): StoredHit {
   return {
     siteId: site.id,
     at: now,
@@ -227,6 +230,7 @@ function toStored(site: SiteRecord, hit: ParsedHit, ua: string | null, now: Date
     }),
     device: deviceFromUserAgent(ua, hit.width),
     language: hit.language,
+    country,
     eventName: hit.eventName,
     props: hit.props,
   };

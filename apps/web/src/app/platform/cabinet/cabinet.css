@@ -365,6 +365,15 @@
   .cabinet__clients td {
     white-space: nowrap;
   }
+  /* «Клиенты» C: статус и «под риском» друг под другом, столбец не раздувается */
+  .cabinet__clients .cabinet__status-cell {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-1);
+  }
+  .cabinet__clients :is(th, td) {
+    padding-inline: var(--space-2);
+  }
   .cabinet__clients td:first-child {
     max-inline-size: calc(var(--space-16) * 4);
     white-space: normal;
@@ -526,6 +535,25 @@
     justify-content: flex-end;
   }
   /* «Расходы»: статьи полосами слева, все расходы месяца справа */
+  /* «Клиенты» C: «Что сделал на пробном» цифрами в строку и «Написать» в шапке карточки */
+  .cabinet__trial-work {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+  }
+  .cabinet__trial-work dt {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .cabinet__trial-work dd {
+    margin: 0;
+    font-size: var(--text-xl);
+    font-weight: 700;
+  }
+  .cabinet__write {
+    justify-self: start;
+  }
   .cabinet-expenses {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);

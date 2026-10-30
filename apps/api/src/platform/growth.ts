@@ -37,6 +37,11 @@ export interface GrowthClient {
   lastPaidOn: string | null;
   monthlyCents: string | null;
   paidUntil: string | null;
+  /** «Клиенты» C (30.10.2026): дни работы в системе за срок пробного и за последние 7 дней; журнала нет: `null` */
+  trialActiveDays: number | null;
+  activeDays7: number | null;
+  /** Пробный, с нами 3 дня и больше, а работал меньше 3 дней из последних 7 */
+  atRisk: boolean;
 }
 
 export interface GrowthView {
@@ -184,10 +189,16 @@ export function buildGrowth(src: GrowthSource, month: string, now: Date): Growth
   const endedPaid = ended.filter((o) => everPaid.has(o.id));
   const endedUnpaid = ended.filter((o) => !everPaid.has(o.id));
 
+  const weekFrom = dayOf(new Date(now.getTime() - 6 * DAY_MS));
   const clients: GrowthClient[] = orgs.map((o) => {
     const own = payments.filter((p) => p.organizationId === o.id);
     const sub = subs.get(o.id);
+    const week = known ? [...(days.get(o.id) ?? [])].filter((d) => d >= weekFrom && d <= today).length : null;
+    const withUs = Math.max(0, Math.floor((now.getTime() - o.createdAt.getTime()) / DAY_MS));
     return {
+      trialActiveDays: known ? trialDays(o) : null,
+      activeDays7: week,
+      atRisk: o.status === 'TRIAL' && week !== null && withUs >= ACTIVE_TRIAL_DAYS && week < ACTIVE_TRIAL_DAYS,
       id: o.id,
       name: o.name,
       status: o.status,

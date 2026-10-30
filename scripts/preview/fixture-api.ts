@@ -2479,7 +2479,8 @@ const platformOrganizations = () => [
       ? 'SUSPENDED'
       : (platformStatuses.get('ui-org-2') ?? 'TRIAL'),
     trialEndsAt: platformTrials.get('ui-org-2') ?? new Date(Date.now() + 5 * DAY_MS).toISOString(),
-    createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
+    // «Клиенты» C (30.10.2026): 4 дня на пробном, работал один день: «под риском»
+    createdAt: new Date(Date.now() - 4 * DAY_MS).toISOString(),
     members: 1,
     owners: ['owner@example.com'],
     ownerPending: false,
@@ -8461,6 +8462,8 @@ createServer(async (req, res) => {
               visitors: 400,
               ownOrganizationId: 'ui-org',
               statusChanges: platformStatusLog.map((c) => ({ ...c, to: c.to as 'READ_ONLY' })),
+              // день работы хостела на пробном: сегодня (журнал и входы)
+              activity: [{ organizationId: 'ui-org-2', day: new Date().toISOString().slice(0, 10) }],
             },
             month,
             new Date(),

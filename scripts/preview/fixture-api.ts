@@ -9,6 +9,7 @@ import { buildMoney } from '../../apps/api/src/platform/money';
 import { buildPartners, parsePercentBp } from '../../apps/api/src/platform/partners';
 import { buildSiteReport } from '../../apps/api/src/platform/site-report';
 import { buildCountries } from '../../apps/api/src/platform/countries';
+import { buildRnp } from '../../apps/api/src/platform/rnp';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { barFixture, resetBarFixture } from './bar-fixture';
 import {
@@ -8465,6 +8466,19 @@ createServer(async (req, res) => {
       // Кабинет компании WETOP (28.10.2026): своя организация ui-org не клиент, остальные как в таблице
       if (path === '/platform/cabinet' && req.method === 'GET') return send(200, platformCabinet());
       // Кабинет руководителя (29.10.2026): путь клиента, MRR, LTV тем же расчётом, что API (buildGrowth)
+      // РНП на стенде (30.10.2026): 2 посетителя и заявка 1-го числа, хостел оплатил 2-го, партнёр «Айдар» привёл хостел
+      if (path.startsWith('/platform/rnp') && req.method === 'GET') {
+        const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
+        return send(200, buildRnp({
+          visitors: [{ day: `${month}-01`, visitorKey: 'v1' }, { day: `${month}-01`, visitorKey: 'v2' }, { day: `${month}-02`, visitorKey: 'v3' }],
+          leads: [{ day: `${month}-01`, visitorKey: 'v1' }],
+          organizations: [{ id: 'ui-org-2', createdAt: new Date(`${month}-01T09:00:00Z`) }],
+          payments: [{ organizationId: 'ui-org-2', amountCents: 4900n, paidOn: `${month}-02`, voided: false }],
+          expenses: [{ amountCents: 2000n, spentOn: `${month}-01`, voided: false, partnerId: null }],
+          partners: [{ id: 'p-aidar', name: 'Айдар', percentBp: 2000, active: true }, { id: 'p-dina', name: 'Дина', percentBp: 1000, active: true }],
+          links: [{ organizationId: 'ui-org-2', partnerId: 'p-aidar' }],
+        }, month));
+      }
       if (path.startsWith('/platform/countries') && req.method === 'GET') {
         // «Страны» на стенде: Казахстан платит, Катар пробует, у старого клиента страны нет
         const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);

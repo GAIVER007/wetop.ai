@@ -18,6 +18,11 @@ export interface GrowthSource {
   ownOrganizationId: string | null;
   /** Смены статуса из журнала (`organization.status_changed`); старый источник без них: отток 0 */
   statusChanges?: Array<{ organizationId: string; to: OrganizationStatus; at: Date }>;
+  /**
+   * Дни, когда организация работала в системе (действия в журнале и входы), по UTC (главная «B», 30.10.2026). Старый
+   * источник без них: активность на пробном неизвестна
+   */
+  activity?: Array<{ organizationId: string; day: string }>;
 }
 
 export interface GrowthClient {
@@ -51,24 +56,60 @@ export interface GrowthView {
     visitors: number | null;
     registrations: number;
     trials: number;
+    /** Пробные месяца, где работали в системе 3 дня и больше за срок пробного */
+    activeTrials: number;
     firstPayments: number;
     renewals: number;
     conversion: {
       visitorToRegistration: number | null;
       registrationToTrial: number | null;
+      /** Пробный → активный на пробном; журнала работы нет: `null` */
+      trialToActive: number | null;
       trialToPaid: number | null;
       /** Из клиентов, чей срок оплаты пришёлся на месяц, сколько оплатили снова */
       renewal: number | null;
     };
   };
   previous: { registrations: number; trials: number; firstPayments: number; incomeCents: string };
+  /** Оплаты месяца (главная «B»): клиенты, оплатившие в месяце, число оплат, сумма и средний чек; и прошлый месяц */
+  money: MonthMoney & { previous: MonthMoney };
+  /**
+   * Пробный (главная «B»): регистрации, сейчас на пробном, у кого пробный кончился в месяце и сколько из них не
+   * оплатили; средние дни работы на пробном (десятые доли дня) у всех, у оплативших и у не оплативших
+   */
+  trial: {
+    registrations: number;
+    previousRegistrations: number;
+    now: number;
+    endingSoon: number;
+    ended: number;
+    endedUnpaid: number;
+    avgActiveDaysTenths: number | null;
+    paidActiveDaysTenths: number | null;
+    unpaidActiveDaysTenths: number | null;
+  };
+  /** По месяцам: пробный в оплату и продления, десятые доли процента; шесть месяцев, выбранный последним */
+  rates: Array<{ month: string; trialToPaid: number | null; renewal: number | null }>;
   income: Array<{ month: string; cents: string }>;
   /** Отток: клиенты, ушедшие за месяц в «только чтение» или приостановку (каждый один раз), и то же за прошлый месяц */
   churn: { count: number; previous: number };
   clients: GrowthClient[];
 }
 
+export interface MonthMoney {
+  paidClients: number;
+  paymentsCount: number;
+  incomeCents: string;
+  avgCheckCents: string;
+}
+
 const DAY_MS = 24 * 60 * 60 * 1000;
+/** Активный на пробном: работал в системе столько дней и больше за срок пробного */
+export const ACTIVE_TRIAL_DAYS = 3;
+const TRIAL_FALLBACK_DAYS = 7;
+const dayOf = (d: Date) => d.toISOString().slice(0, 10);
+/** Среднее в десятых долях, округление половины вверх; пусто: `null` */
+const avgTenths = (xs: number[]) => (xs.length ? Math.floor((xs.reduce((n, x) => n + x, 0) * 20 / xs.length + 1) / 2) : null);
 const monthOfDate = (d: Date) => d.toISOString().slice(0, 7);
 
 /** Доля в десятых процента вниз; знаменатель 0 или неизвестен: `null` */
@@ -97,8 +138,33 @@ export function buildGrowth(src: GrowthSource, month: string, now: Date): Growth
       firstPayments: first.length,
       renewals: paidIn.size - first.length,
       incomeCents: payments.filter((p) => p.paidOn.slice(0, 7) === m).reduce((n, p) => n + p.amountCents, 0n),
+      paymentsCount: payments.filter((p) => p.paidOn.slice(0, 7) === m).length,
       paidIn,
     };
+  };
+  const moneyOf = (st: ReturnType<typeof monthStats>): MonthMoney => ({
+    paidClients: st.paidIn.size,
+    paymentsCount: st.paymentsCount,
+    incomeCents: String(st.incomeCents),
+    avgCheckCents: st.paymentsCount ? String(st.incomeCents / BigInt(st.paymentsCount)) : '0',
+  });
+  // срок оплаты в месяце m прошёл, а оплаты в m не было: не продлили
+  const lapsedIn = (m: string, paidIn: Set<string>) =>
+    [...subs.values()].filter(
+      (s) => s.paidUntil !== null && s.paidUntil.slice(0, 7) === m && s.paidUntil < today && !paidIn.has(s.organizationId),
+    ).length;
+  // дни работы в системе за срок пробного: от создания до конца пробного (нет срока: 7 дней)
+  const known = src.activity !== undefined;
+  const days = new Map<string, Set<string>>();
+  for (const a of src.activity ?? []) {
+    if (!days.has(a.organizationId)) days.set(a.organizationId, new Set());
+    days.get(a.organizationId)!.add(a.day);
+  }
+  const trialEnd = (o: (typeof orgs)[number]) => o.trialEndsAt ?? new Date(o.createdAt.getTime() + TRIAL_FALLBACK_DAYS * DAY_MS);
+  const trialDays = (o: (typeof orgs)[number]) => {
+    const from = dayOf(o.createdAt);
+    const to = dayOf(trialEnd(o));
+    return [...(days.get(o.id) ?? [])].filter((d) => d >= from && d < to).length;
   };
   const churnOf = (m: string) =>
     new Set(
@@ -109,9 +175,14 @@ export function buildGrowth(src: GrowthSource, month: string, now: Date): Growth
   const cur = monthStats(month);
   const prev = monthStats(shiftMonth(month, -1));
   // срок оплаты в этом месяце прошёл, а оплаты в месяце не было: не продлили
-  const lapsed = [...subs.values()].filter(
-    (s) => s.paidUntil !== null && s.paidUntil.slice(0, 7) === month && s.paidUntil < today && !cur.paidIn.has(s.organizationId),
-  ).length;
+  const lapsed = lapsedIn(month, cur.paidIn);
+  const monthTrials = orgs.filter((o) => monthOfDate(o.createdAt) === month);
+  const activeTrials = known ? monthTrials.filter((o) => trialDays(o) >= ACTIVE_TRIAL_DAYS).length : 0;
+  // пробный кончился в месяце и уже кончился
+  const ended = orgs.filter((o) => monthOfDate(trialEnd(o)) === month && trialEnd(o).getTime() <= now.getTime());
+  const everPaid = new Set(payments.map((p) => p.organizationId));
+  const endedPaid = ended.filter((o) => everPaid.has(o.id));
+  const endedUnpaid = ended.filter((o) => !everPaid.has(o.id));
 
   const clients: GrowthClient[] = orgs.map((o) => {
     const own = payments.filter((p) => p.organizationId === o.id);
@@ -153,11 +224,13 @@ export function buildGrowth(src: GrowthSource, month: string, now: Date): Growth
       visitors: src.visitors,
       registrations: cur.registrations,
       trials: cur.trials,
+      activeTrials,
       firstPayments: cur.firstPayments,
       renewals: cur.renewals,
       conversion: {
         visitorToRegistration: tenthsPercent(cur.registrations, src.visitors),
         registrationToTrial: tenthsPercent(cur.trials, cur.registrations),
+        trialToActive: known ? tenthsPercent(activeTrials, cur.trials) : null,
         trialToPaid: tenthsPercent(cur.firstPayments, cur.trials),
         renewal: tenthsPercent(cur.renewals, cur.renewals + lapsed),
       },
@@ -168,6 +241,23 @@ export function buildGrowth(src: GrowthSource, month: string, now: Date): Growth
       firstPayments: prev.firstPayments,
       incomeCents: String(prev.incomeCents),
     },
+    money: { ...moneyOf(cur), previous: moneyOf(prev) },
+    trial: {
+      registrations: cur.registrations,
+      previousRegistrations: prev.registrations,
+      now: live.filter((c) => c.status === 'TRIAL').length,
+      endingSoon: live.filter((c) => c.status === 'TRIAL' && (c.trialDaysLeft ?? 0) <= 3).length,
+      ended: ended.length,
+      endedUnpaid: endedUnpaid.length,
+      avgActiveDaysTenths: known ? avgTenths(ended.map(trialDays)) : null,
+      paidActiveDaysTenths: known ? avgTenths(endedPaid.map(trialDays)) : null,
+      unpaidActiveDaysTenths: known ? avgTenths(endedUnpaid.map(trialDays)) : null,
+    },
+    rates: [-5, -4, -3, -2, -1, 0].map((d) => {
+      const m = shiftMonth(month, d);
+      const st = monthStats(m);
+      return { month: m, trialToPaid: tenthsPercent(st.firstPayments, st.trials), renewal: tenthsPercent(st.renewals, st.renewals + lapsedIn(m, st.paidIn)) };
+    }),
     income: [-5, -4, -3, -2, -1, 0].map((d) => {
       const m = shiftMonth(month, d);
       return { month: m, cents: String(monthStats(m).incomeCents) };

@@ -24,20 +24,30 @@ test('оплата и расход: доход, расходы и прибыль
   await page.goto('/platform/cabinet/money');
   await expect(page.getByTestId('money-income')).toHaveText('$0');
 
-  const pay = page.getByTestId('money-payment-form');
+  // формы не висят на странице: кнопка открывает окно, после записи окно закрывается само (владелец 30.10.2026)
+  await expect(page.getByTestId('money-payment-form')).toHaveCount(0);
+  await page.getByTestId('money-payment-dialog-open').click();
+  const pay = page.getByTestId('money-payment-dialog').getByTestId('money-payment-form');
   await pay.getByLabel('Сумма, $').fill('-5');
   await pay.getByTestId('money-payment-save').click();
   await expect(page.getByTestId('money-payment-error')).toContainText('Сумма в долларах');
   await pay.getByLabel('Сумма, $').fill('99.50');
   await pay.getByTestId('money-payment-save').click();
   await expect(page.getByTestId('money-income')).toHaveText('$99,50');
+  await expect(page.getByTestId('money-payment-dialog')).toBeHidden();
   await expect(page.getByTestId('money-payments')).toContainText('Хостел «Пример»');
 
-  const exp = page.getByTestId('money-expense-form');
+  await page.getByTestId('money-expense-dialog-open').click();
+  const exp = page.getByTestId('money-expense-dialog').getByTestId('money-expense-form');
   await exp.getByLabel('Сумма, $').fill('20');
   await exp.getByTestId('money-expense-save').click();
   await expect(page.getByTestId('money-expenses')).toHaveText('$20');
   await expect(page.getByTestId('money-profit')).toHaveText('$79,50');
+  // таблица по месяцам: доход, статья «Сервер», прибыль
+  const table = page.getByTestId('money-table');
+  await expect(table).toContainText('Доход: оплаты клиентов');
+  await expect(table).toContainText('Сервер');
+  await expect(table).toContainText('$79,50');
 
   await page.getByTestId('money-payments').getByTestId('money-void-payment').click();
   await expect(page.getByTestId('money-income')).toHaveText('$0');
@@ -47,7 +57,7 @@ test('оплата и расход: доход, расходы и прибыль
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/money-1280.png`, fullPage: true });
 });
 
-test('тариф, подписка клиента и команда', async ({ page, request }) => {
+test('тариф, подписка клиента и сотрудники с выплатой зарплаты', async ({ page, request }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await signIn(page, request);
   await page.goto('/platform/cabinet/subscriptions');
@@ -64,15 +74,29 @@ test('тариф, подписка клиента и команда', async ({ p
   await expect(page.getByTestId('money-subscriptions')).toContainText('не оплачено');
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/subscriptions-1280.png`, fullPage: true });
 
+  // «Сотрудники» (владелец 30.10.2026): добавить в окне, «Выплатить» пишет расход «Зарплаты», он сразу в «Деньгах»
   await page.goto('/platform/cabinet/team');
-  const team = page.getByTestId('money-team-form').first();
+  await expect(page.getByTestId('cabinet').getByRole('navigation', { name: 'Кабинет WETOP' })).toContainText('Сотрудники');
+  await page.getByTestId('team-add-dialog-open').click();
+  const team = page.getByTestId('team-add-dialog').getByTestId('money-team-form');
   await team.getByLabel('Имя').fill('Айдар');
   await team.getByLabel('Должность').fill('Поддержка');
   await team.getByLabel('Зарплата в месяц, $').fill('800');
   await team.getByTestId('money-team-save').click();
   await expect(page.getByTestId('team-list')).toContainText('Айдар');
   await expect(page.getByTestId('team-payroll')).toHaveText('$800');
+  await expect(page.getByTestId('team-left')).toHaveText('$800');
+  await page.getByTestId('team-row').filter({ hasText: 'Айдар' }).getByTestId('team-pay-dialog-open').click();
+  const payout = page.getByTestId('team-pay-dialog').getByTestId('money-expense-form');
+  await expect(payout.getByLabel('Сумма, $')).toHaveValue('800');
+  await payout.getByTestId('money-expense-save').click();
+  await expect(page.getByTestId('team-paid')).toHaveText('$800');
+  await expect(page.getByTestId('team-left')).toHaveText('$0');
+  await expect(page.getByTestId('team-payouts')).toContainText('Айдар');
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/team-1280.png`, fullPage: true });
+  await page.goto('/platform/cabinet/money');
+  await expect(page.getByTestId('money-expenses')).toHaveText('$800');
+  await expect(page.getByTestId('money-table')).toContainText('Зарплаты');
 });
 
 /**

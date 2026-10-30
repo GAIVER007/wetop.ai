@@ -30,6 +30,20 @@ export interface MoneyView {
   expensesByCategory: Array<{ category: ExpenseCategory; cents: string }>;
   /** Подписка есть, а «оплачено до» раньше сегодня или пусто */
   overdue: Array<{ organizationId: string; paidUntil: string | null; monthlyCents: string }>;
+  /**
+   * Таблица по месяцам (владелец 30.10.2026): шесть месяцев, выбранный последним; статьи расходов, где за полгода
+   * что-то было, по порядку статей; итоги за полгода; маржа месяца десятыми процента к доходу (без дохода `null`)
+   */
+  table: {
+    months: string[];
+    income: string[];
+    categories: Array<{ category: ExpenseCategory; cents: string[]; totalCents: string }>;
+    profit: string[];
+    totals: { incomeCents: string; expensesCents: string; profitCents: string };
+    margin: Array<number | null>;
+  };
+  /** Ожидаем оплату в ближайшие 30 дней: подписки клиентов, у которых «оплачено до» в окне, по сроку */
+  upcoming: Array<{ organizationId: string; paidUntil: string; monthlyCents: string }>;
 }
 
 const monthOf = (isoDate: string) => isoDate.slice(0, 7);
@@ -54,9 +68,20 @@ export function buildMoney(src: MoneySource, month: string, today: string): Mone
   for (const e of expenses)
     if (monthOf(e.spentOn) === month) byCategory.set(e.category, (byCategory.get(e.category) ?? 0n) + e.amountCents);
   const subs = src.subscriptions.filter((s) => clients.has(s.organizationId));
+  const history = [-5, -4, -3, -2, -1, 0].map((d) => sumMonth(shiftMonth(month, d)));
+  const months = history.map((h) => h.month);
+  const categories = EXPENSE_CATEGORIES.flatMap((category) => {
+    const cents = months.map((m) =>
+      expenses.filter((e) => e.category === category && monthOf(e.spentOn) === m).reduce((n, e) => n + e.amountCents, 0n),
+    );
+    const total = cents.reduce((n, c) => n + c, 0n);
+    return total === 0n ? [] : [{ category, cents: cents.map(String), totalCents: String(total) }];
+  });
+  const sum = (pick: (h: MoneyMonth) => string) => history.reduce((n, h) => n + BigInt(pick(h)), 0n);
+  const horizon = new Date(Date.parse(`${today}T00:00:00Z`) + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   return {
     month: sumMonth(month),
-    history: [-5, -4, -3, -2, -1, 0].map((d) => sumMonth(shiftMonth(month, d))),
+    history,
     expectedMonthlyCents: String(subs.reduce((n, s) => n + s.monthlyCents, 0n)),
     expensesByCategory: EXPENSE_CATEGORIES.filter((c) => byCategory.has(c)).map((category) => ({
       category,
@@ -66,6 +91,23 @@ export function buildMoney(src: MoneySource, month: string, today: string): Mone
       .filter((s) => s.monthlyCents > 0n && (s.paidUntil === null || s.paidUntil < today))
       .map((s) => ({ organizationId: s.organizationId, paidUntil: s.paidUntil, monthlyCents: String(s.monthlyCents) }))
       .sort((a, b) => (a.paidUntil ?? '').localeCompare(b.paidUntil ?? '')),
+    table: {
+      months,
+      income: history.map((h) => h.incomeCents),
+      categories,
+      profit: history.map((h) => h.profitCents),
+      totals: {
+        incomeCents: String(sum((h) => h.incomeCents)),
+        expensesCents: String(sum((h) => h.expensesCents)),
+        profitCents: String(sum((h) => h.profitCents)),
+      },
+      // BigInt делит к нулю: маржа без плавающей точки
+      margin: history.map((h) => (BigInt(h.incomeCents) > 0n ? Number((BigInt(h.profitCents) * 1000n) / BigInt(h.incomeCents)) : null)),
+    },
+    upcoming: subs
+      .filter((s) => s.monthlyCents > 0n && s.paidUntil !== null && s.paidUntil >= today && s.paidUntil <= horizon)
+      .map((s) => ({ organizationId: s.organizationId, paidUntil: s.paidUntil!, monthlyCents: String(s.monthlyCents) }))
+      .sort((a, b) => a.paidUntil.localeCompare(b.paidUntil)),
   };
 }
 

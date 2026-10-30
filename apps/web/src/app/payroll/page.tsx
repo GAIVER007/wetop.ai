@@ -44,6 +44,7 @@ export default async function PayrollPage({
             write={shell.canStaff && !shell.readOnly}
             payroll={payroll}
             basis={salon ? 'visits' : 'orders'}
+            today={shell.date}
           />
         </div>
       </Page>

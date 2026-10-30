@@ -117,10 +117,18 @@ export function parseFoodReconciliation(raw: unknown) {
   return { method: methodOf(b.method), counted: amountOf(b.counted, 0), note: noteOf(b.note) };
 }
 
-/** Период приходит как `ГГГГ-ММ`, храним первым днём месяца */
+/** Период приходит как `ГГГГ-ММ`, храним первым днём месяца; `payDate` (PAYROLL-DAILY-20261030): за какой день */
 export function parseFoodPayout(raw: unknown) {
-  const b = foodObject(raw, ['period', 'method', 'amount']);
+  const b = foodObject(raw, ['period', 'payDate', 'method', 'amount']);
   const period = foodText(b.period, 7);
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(period)) throw new Error('Период в формате ГГГГ-ММ');
-  return { period: `${period}-01`, method: methodOf(b.method), amount: amountOf(b.amount, 1) };
+  let payDate: string | null = null;
+  if (b.payDate != null) {
+    payDate = foodText(b.payDate, 10);
+    const d = new Date(`${payDate}T00:00:00Z`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(payDate) || Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== payDate)
+      throw new Error('День выплаты в формате ГГГГ-ММ-ДД');
+    if (payDate.slice(0, 7) !== period) throw new Error('День выплаты не из этого месяца');
+  }
+  return { period: `${period}-01`, payDate, method: methodOf(b.method), amount: amountOf(b.amount, 1) };
 }

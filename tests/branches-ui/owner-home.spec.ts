@@ -108,8 +108,34 @@ test('Главная владельца салона «B»: цифры меся�
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(wide).toBeLessThanOrEqual(0);
   if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/owner-b-1280.png`, fullPage: true });
-  await page.setViewportSize({ width: 1280, height: 720 });
-  const tall = await page.evaluate(() => document.documentElement.scrollHeight);
-  console.log(`owner-b height at 1280x720: ${tall}`);
-  if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/owner-b-720.png` });
+  // владелец 30.10.2026: «четко ровно на 1 экран без лишних свайпов»: ноутбук 1440x800 и 1280x720 без прокрутки,
+  // ни один блок не обрезан снизу, под коротким блоком нет пустоты (колонки встык, нижние края на одной линии)
+  for (const size of [{ width: 1440, height: 800 }, { width: 1280, height: 720 }]) {
+    await page.setViewportSize(size);
+    const fit = await page.evaluate(() => {
+      const cols = [...document.querySelectorAll('.owner-b__col')].map((c) => Math.round(c.getBoundingClientRect().bottom));
+      return {
+        scroll: document.documentElement.scrollHeight - window.innerHeight,
+        bottom: Math.round(document.querySelector('.owner-b')!.getBoundingClientRect().bottom) - window.innerHeight,
+        cols,
+      };
+    });
+    expect(fit.scroll, `${size.width}x${size.height}`).toBeLessThanOrEqual(0);
+    expect(fit.bottom, `${size.width}x${size.height}`).toBeLessThanOrEqual(0);
+    expect(fit.cols).toHaveLength(3);
+    expect(Math.max(...fit.cols) - Math.min(...fit.cols)).toBeLessThanOrEqual(1);
+    if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/owner-b-${size.width}x${size.height}.png` });
+  }
+  // у настоящего салона 8 и больше мастеров: все строки в таблице, экран не растёт, длинный список листается в карточке
+  await page.setViewportSize({ width: 1440, height: 800 });
+  const many = await page.evaluate(() => {
+    const body = document.querySelector('[data-testid="owner-b-masters"] tbody')!;
+    const row = body.querySelector('tr')!;
+    for (let i = 0; i < 11; i++) body.appendChild(row.cloneNode(true));
+    const wrap = document.querySelector('.owner-b__masters-wrap')!;
+    return { rows: body.querySelectorAll('tr').length, scroll: document.documentElement.scrollHeight - window.innerHeight, inner: wrap.scrollHeight > wrap.clientHeight };
+  });
+  expect(many.rows).toBe(12);
+  expect(many.scroll).toBeLessThanOrEqual(0);
+  if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/owner-b-12-masters.png` });
 });

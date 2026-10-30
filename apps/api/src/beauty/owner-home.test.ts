@@ -101,6 +101,17 @@ describe('Главная владельца салона «B»', () => {
     expect(m[5]).toEqual({ month: '2026-10', revenueMinor: '34000', expensesMinor: '4000', profitMinor: '30000' });
   });
 
+  // владелец 30.10.2026: «470,69 QAR с копейками, округлять нужно»: средний чек целыми, половина вверх
+  it('средний чек округлён до целых: 471,62 даёт 472, 100,50 даёт 101, 100,33 даёт 100', () => {
+    const many = Array.from({ length: 43 }, (_, i) => row({ id: `m${i}`, customerId: `m${i}`, month: '2026-10', priceMinor: i < 42 ? 47000n : 50000n + 4000n }));
+    // 42 × 470 + 540 = 20 280; 20 280 / 43 = 471,62: 472
+    expect(buildOwnerHome({ ...src(), appointments: many, expenses: [] }).kpi.averageMinor).toBe('47200');
+    const two = [row({ id: 'x1', customerId: 'x1', month: '2026-10', priceMinor: 10000n }), row({ id: 'x2', customerId: 'x2', month: '2026-10', priceMinor: 10100n })];
+    expect(buildOwnerHome({ ...src(), appointments: two, expenses: [] }).kpi.averageMinor).toBe('10100');
+    const three = [...two.slice(0, 1), row({ id: 'x3', customerId: 'x3', month: '2026-10', priceMinor: 10000n }), row({ id: 'x4', customerId: 'x4', month: '2026-10', priceMinor: 10100n })];
+    expect(buildOwnerHome({ ...src(), appointments: three, expenses: [] }).kpi.averageMinor).toBe('10000');
+  });
+
   it('пустой месяц: нули без деления на ноль, средний чек пустой', () => {
     const v = buildOwnerHome({ ...src(), appointments: [], expenses: [], reviews: [] });
     expect(v.kpi.averageMinor).toBeNull();

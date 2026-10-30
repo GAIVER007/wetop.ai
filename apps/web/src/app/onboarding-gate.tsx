@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { hotelApi } from '../lib/hotel-api';
 import { ApiError, sharedOnboardingApi } from '../lib/api';
 import { ONBOARDING_LATER_COOKIE, needsOnboardingRedirect } from '../lib/onboarding-later';
-import { deskShell } from '../lib/desk-shell';
+import { currentMe, deskShell } from '../lib/desk-shell';
 import { serverT } from '../i18n/server';
 
 /**
@@ -53,7 +53,10 @@ export async function OnboardingGate() {
   // (plans/onboarding-without-property-2026-09-28.md). Не вошёл и прочие отказы решают сами страницы.
   const propertyMissing = settings instanceof ApiError && settings.status === 404;
   const needsOnboarding = !(settings instanceof ApiError) && Boolean(settings?.needsOnboarding);
-  if (needsOnboardingRedirect({ path, needsOnboarding, postponed, propertyMissing, vertical }))
+  // учётка компании WETOP (миграция 171): гостиницу ей не предлагаем (владелец 30.10.2026)
+  const me = await currentMe().catch(() => null);
+  const cabinetHome = me?.user?.platformAdmin === true && me.user.cabinetHome === true;
+  if (needsOnboardingRedirect({ path, needsOnboarding, postponed, propertyMissing, vertical, cabinetHome }))
     redirect('/onboarding');
   return null;
 }

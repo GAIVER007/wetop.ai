@@ -320,6 +320,7 @@ Brush, SprayCan, ClipboardCheck) добавлена в набор 21.09 при �
 | Компонент | Реализация | Контракт |
 |---|---|---|
 | PhoneInput | `components/phone-input.tsx` | Код страны из PHONE_COUNTRIES, полный номер в hidden input, пустое поле остаётся пустым, подпись связана с национальным номером. Пример на `/design-system`. |
+| InviteLinkBox | `components/invite-link-box.tsx`, правила `components/invite-link.ts`, `.invite-link*` в `components.css` | Ссылка приглашения после отправки (владелец 30.10.2026): поле только для чтения, «Скопировать», «Отправить в WhatsApp», подсказка про срок и один раз. Ссылка в базе не хранится, показывается только сразу после выдачи. |
 
 
 Мобильная основа (24.10.2026, `docs/decisions/2026-10-24-mobile-foundation.md`):

@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { unstable_rethrow } from 'next/navigation';
 import { beautyTotalsVisible, deskAccessOf, mayAccess } from '../../lib/navigation';
-import { ownerPeriod, ownerSummaryEnabled } from '../../lib/owner-summary';
+import { ownerMonth, ownerPeriod, ownerSummaryEnabled } from '../../lib/owner-summary';
 import { readOwnerSummary } from '../../lib/owner-summary-api';
 import { OwnerSummaryView } from './unified-owner';
 import { redirect } from 'next/navigation';
@@ -20,7 +20,7 @@ import { FoodToday } from './food-today';
 import { HospitalityToday } from './hospitality-today';
 import { TodayScopeContent } from './scope-content';
 import { Page } from '../../components/page';
-import { beautyInsightsApi } from '../../lib/api';
+import { beautyInsightsApi, beautyOwnerHomeApi } from '../../lib/api';
 import { Alert } from '../../components/ui';
 import { translator } from '../../i18n';
 import { currentLocale } from '../../i18n/server';
@@ -76,9 +76,19 @@ export default async function TodayPage({
               },
             )
           : null;
+      // Главная владельца «B» (владелец 30.10.2026): месяц шапки; сбой не ломает Главную, остаётся прежний вид
+      const ownerB =
+        c.vertical === 'BEAUTY'
+          ? await beautyOwnerHomeApi.read(ownerMonth(owner.summary.period.fromDate, owner.summary.period.key)).catch(
+              (error: unknown) => {
+                unstable_rethrow(error);
+                return null;
+              },
+            )
+          : null;
       return (
         <TodayScopeContent key={`${c.businessId}:${c.locationId}`}>
-          <OwnerSummaryView summary={owner.summary} locale={locale} visits={visits} />
+          <OwnerSummaryView summary={owner.summary} locale={locale} visits={visits} ownerB={ownerB} />
         </TodayScopeContent>
       );
     }

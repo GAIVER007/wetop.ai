@@ -86,3 +86,19 @@ it('existing empty hotel can edit its settings before room setup', () => {
     ).toBe(true);
   }
 });
+
+it('владелец 30.10.2026: Кабинет WETOP не уводит в настройку гостиницы (zapoinov@bk.ru)', () => {
+  const base = { needsOnboarding: true, postponed: false };
+  for (const path of ['/platform', '/platform/cabinet', '/platform/cabinet/money', '/platform/organizations'])
+    for (const extra of [{}, { propertyMissing: true }, { vertical: 'HOSPITALITY' as const }])
+      expect(needsOnboardingRedirect({ ...base, ...extra, path })).toBe(false);
+});
+
+it('владелец 30.10.2026: учётке компании с «Кабинетом по умолчанию» гостиницу не предлагаем нигде', () => {
+  for (const path of ['/', '/today', '/calendar', '/hotel-settings'])
+    expect(
+      needsOnboardingRedirect({ path, needsOnboarding: true, postponed: false, propertyMissing: true, cabinetHome: true }),
+    ).toBe(false);
+  // у остальных как было
+  expect(needsOnboardingRedirect({ path: '/today', needsOnboarding: true, postponed: false, propertyMissing: true })).toBe(true);
+});

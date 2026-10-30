@@ -46,6 +46,8 @@ export const components: Record<string, string> = {
     'Наличных в кассе: {sum}': 'Cash in the till: {sum}',
     'Чем платили': 'Paid with',
     'Комментарий, если нужно': 'Comment, if needed',
+    "Комментарий (обязательно)": "Comment (required)",
+    "Создать статью": "New category",
     'Добавить {sum}': 'Add {sum}',
     'Внести {sum}': 'Deposit {sum}',
     'Забыли расход?': 'Forgot an expense?',

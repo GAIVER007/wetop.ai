@@ -5116,6 +5116,16 @@ function read(path: string, q: URLSearchParams): unknown {
   }
   if (path === '/audit/actors')
     return [{ id: '11111111-1111-4111-8111-111111111111', name: 'Тестовый кассир' }];
+  // сводка рисков «Истории действий» (владелец 30.10.2026): вымышленные числа и суммы
+  if (path === '/audit/summary')
+    return {
+      discount: { count: 6, minor: '42000' },
+      cancel: { count: 4, minor: '150000' },
+      delete: { count: 1, minor: '0' },
+      refund: { count: 2, minor: '30000' },
+      access: { count: 18, minor: '0' },
+      currency: 'QAR',
+    };
   if (path === '/audit') {
     if (journalFinance) {
       const actor = '11111111-1111-4111-8111-111111111111';
@@ -5212,6 +5222,23 @@ function read(path: string, q: URLSearchParams): unknown {
           author: null,
         },
       );
+    // разделы риска (владелец 30.10.2026): вымышленные строки салона только под ?group=…, старые проверки не меняются
+    const group = q.get('group');
+    if (group && group !== 'finance' && group !== 'staff') {
+      const ra = (id: string, hh: string, action: string, risk: string, before: Record<string, unknown>, after: Record<string, unknown>, author = 'Тест Админ Салона') => ({
+        id, at: `${today}T${hh}:00Z`, entityType: 'appointment', entityId: `appt-${id}`, action, subject: null,
+        targetAvailable: null, author, authorId: null, before, after, risk,
+      });
+      const risky = [
+        ra('r1', '18:40', 'beauty.appointment.price_adjusted', 'discount', { priceMinor: '50000', currency: 'QAR' }, { priceMinor: '35000', currency: 'QAR', reason: 'Постоянная клиентка, попросила' }),
+        ra('r2', '18:12', 'beauty.appointment.status', 'cancel', { status: 'DONE' }, { status: 'CANCELLED' }),
+        ra('r3', '17:02', 'beauty.appointment.refunded', 'refund', {}, { amountMinor: '30000', currency: 'QAR', method: 'CASH', reason: 'Не понравилось наращивание' }),
+        ra('r4', '15:30', 'beauty.appointment.price_adjusted', 'discount', { priceMinor: '50000', currency: 'QAR' }, { priceMinor: '40000', currency: 'QAR' }, 'Тест Мастер'),
+        ra('r5', '12:05', 'beauty.appointment.status', 'cancel', { status: 'BOOKED' }, { status: 'NO_SHOW' }),
+        ra('r6', '09:00', 'user.login', 'access', {}, {}),
+      ];
+      return risky.filter((r) => group === 'risk' ? r.risk !== 'access' : r.risk === group);
+    }
     // поиск — как у настоящего API: по номеру брони (subject); пустой ответ даёт пустое состояние (D4)
     const needle = (q.get('q') || '').trim().toLowerCase();
     return entries
@@ -7310,10 +7337,27 @@ createServer(async (req, res) => {
           invite.firstName = first ?? null;
           invite.lastName = rest.join(' ') || null;
         }
+        // «на почту и скопировать ссылку» (владелец 30.10.2026): как API, ссылкой только «Личный кабинет»
+        const delivery = body['delivery'] ?? 'email';
+        if (delivery !== 'email' && invite.role !== 'EMPLOYEE')
+          return send(400, { message: 'Ссылкой приглашают только в «Личный кабинет». Администратору и управляющему приглашение уходит на почту.' });
         uiInvites.unshift(invite);
-        return send(201, view(invite));
+        const fixtureLink = `https://app.wetop.ai/invite/demo-${invite.id.slice(-6)}`;
+        return send(201, { ...view(invite), ...(delivery !== 'email' ? { link: fixtureLink } : {}) });
       }
       return send(200, uiInvites.map(view));
+    }
+    // «Новая ссылка» (владелец 30.10.2026): только живое приглашение «Личного кабинета»
+    const linkMatch = /^\/auth\/invites\/([^/]+)\/link$/.exec(path);
+    if (linkMatch && req.method === 'POST') {
+      const token = sessionOf(req as never);
+      if (!token || !uiSessions.has(token)) return send(401, { message: 'Сеанс закончился. Войдите заново.' });
+      if (!canManageStaff(uiRole)) return send(403, { message: INVITE_STAFF_ONLY_MESSAGE });
+      const found = uiInvites.find((i) => i.id === linkMatch[1] && canInvite(uiRole, i.role));
+      if (!found) return send(404, { message: 'Приглашение не найдено, уже принято или его срок истёк.' });
+      if (found.role !== 'EMPLOYEE')
+        return send(400, { message: 'Ссылкой приглашают только в «Личный кабинет». Администратору и управляющему приглашение уходит на почту.' });
+      return send(201, { link: `https://app.wetop.ai/invite/demo-${Date.now().toString(36)}` });
     }
     // отозвать приглашение (С-10): тот, кто вправе позвать с этой ролью; иначе — «не найдено», как API
     const revokeMatch = /^\/auth\/invites\/([^/]+)$/.exec(path);

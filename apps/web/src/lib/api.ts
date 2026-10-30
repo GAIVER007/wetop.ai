@@ -773,6 +773,16 @@ export const authApi = {
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite;
   },
+  /** «Новая ссылка» приглашения «Личного кабинета»: прежняя перестаёт открываться (владелец 30.10.2026) */
+  inviteLink: async (token: string, id: string, info: AuthClientInfo): Promise<{ link: string }> => {
+    const res = await backendFetch(`/auth/invites/${encodeURIComponent(id)}/link`, {
+      method: 'POST',
+      headers: authHeaders(info, token),
+      body: '{}',
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { link: string };
+  },
   /** Бизнесы и филиалы организации для выбора области доступа (DATA_MODEL §31.1) */
   accessStructure: async (token: string, info: AuthClientInfo): Promise<AuthAccessStructure> => {
     const res = await backendFetch('/auth/access-structure', { headers: authHeaders(info, token) });
@@ -3758,7 +3768,12 @@ export interface AuthInvite {
   scopes?: AuthScope[];
   /** Приглашение из формы «Новый сотрудник»: карточка, к которой привяжется вход; старый API не присылает */
   employeeId?: string | null;
+  /** Ссылка для копирования (владелец 30.10.2026): только в ответе на создание с delivery link/both, в списке её нет */
+  link?: string;
 }
+
+/** Как отдать приглашение: письмом, ссылкой для копирования или и тем и другим (ссылкой только «Личный кабинет») */
+export type AuthInviteDelivery = 'email' | 'link' | 'both';
 
 /** Назначение: роль в бизнесе целиком (`locationId` null) или в одном филиале (DATA_MODEL §31.1) */
 export interface AuthScope {
@@ -3778,6 +3793,8 @@ export interface AuthInviteExtra {
   employeeId?: string;
   /** «Все филиалы» вместо филиала сотрудника */
   allBranches?: boolean;
+  /** Как отдать приглашение (по умолчанию письмом) */
+  delivery?: AuthInviteDelivery;
 }
 
 /** Бизнесы и филиалы организации для назначений */
@@ -5621,6 +5638,27 @@ export interface OwnerBusinesses {
 }
 export const ownerBusinessesApi = {
   read: (month: string) => getJsonPublic<OwnerBusinesses>(`/owner/businesses?${new URLSearchParams({ month })}`),
+};
+/** Главная владельца салона «B» (`GET /beauty/owner-home`, 30.10.2026): деньги минорными единицами строкой */
+export interface BeautyOwnerHome {
+  month: string;
+  currency: string;
+  kpi: {
+    revenueMinor: string;
+    expensesMinor: string;
+    profitMinor: string;
+    paidClients: number;
+    averageMinor: string | null;
+    previous: { revenueMinor: string; expensesMinor: string; profitMinor: string; paidClients: number; averageMinor: string | null };
+  };
+  funnel: Array<{ step: 'BOOKED' | 'CAME' | 'PAID' | 'RETURNED'; count: number; percent: number | null }>;
+  clients: { new: number; noShow: number; lapsed: number };
+  masters: Array<{ employeeId: string; name: string; revenueMinor: string; visits: number; customers: number; returning: number; reviews: number; avgTenths: number | null }>;
+  sources: Array<{ source: string; clients: number; revenueMinor: string }>;
+  months: Array<{ month: string; revenueMinor: string; expensesMinor: string; profitMinor: string }>;
+}
+export const beautyOwnerHomeApi = {
+  read: (month: string) => getJsonPublic<BeautyOwnerHome>(`/beauty/owner-home?${new URLSearchParams({ month })}`),
 };
 /** Сводка салона выбранного филиала (указатель из сессии), например «Запись → визит» на Главной */
 export const beautyInsightsApi = {

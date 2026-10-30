@@ -14,7 +14,7 @@ import { currentOrganizationId, hasSignedInActor } from '../auth/request-context
 import { PrismaService } from '../database/prisma.provider';
 import { propertyIdRef } from '../database/property-ref';
 import { Access } from '../auth/access.decorator';
-import { auditFilters, safeSnapshot, type AuditQuery } from './audit-query';
+import { auditFilters, RISK_KINDS, RISK_MINOR_SQL, RISK_SQL, safeSnapshot, type AuditQuery, type RiskKind } from './audit-query';
 
 export interface AuditRow {
   id: string;
@@ -35,7 +35,14 @@ export interface AuditRow {
   cursor: string;
   before: Record<string, unknown>;
   after: Record<string, unknown>;
+  /** Раздел риска строки (скидка, отмена, удаление, возврат, доступ) или null для обычного действия */
+  risk: RiskKind | null;
 }
+
+export type AuditSummary = Record<RiskKind, { count: number; minor: string }> & {
+  /** валюта сумм: самая частая валюта в снимках периода; без денег null */
+  currency: string | null;
+};
 
 /** Служебные строки: служебная проверка системы пишет одну каждые 5 минут и вытесняет из журнала действия людей */
 export const SYSTEM_AUDIT_ACTIONS = ['system.health'];
@@ -84,6 +91,7 @@ export class AuditService {
         cursor_at: string;
         before_safe: Record<string, unknown>;
         after_safe: Record<string, unknown>;
+        risk?: string | null;
       }>
     >`
       SELECT a."id", a."created_at", a."entity_type", a."entity_id", a."action", ${SUBJECT_SQL} AS "subject",
@@ -91,7 +99,8 @@ export class AuditService {
                AS "target_available",
              u."name" AS "author", a."user_id",
              to_char(a."created_at" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "cursor_at",
-             ${safeSnapshot('before')} AS "before_safe", ${safeSnapshot('after')} AS "after_safe"
+             ${safeSnapshot('before')} AS "before_safe", ${safeSnapshot('after')} AS "after_safe",
+             ${RISK_SQL} AS "risk"
       FROM "audit_logs" a
       LEFT JOIN "users" u ON u."id" = a."user_id"
       LEFT JOIN "reservations" reservation_target
@@ -112,7 +121,32 @@ export class AuditService {
       cursor: `${r.cursor_at ?? r.created_at.toISOString()}|${r.id}`,
       before: r.before_safe ?? {},
       after: r.after_safe ?? {},
+      risk: (RISK_KINDS as readonly string[]).includes(r.risk ?? '') ? (r.risk as RiskKind) : null,
     }));
+  }
+  /**
+   * Сводка периода для верхних цифр «Истории действий» (владелец 30.10.2026): сколько скидок, отмен, удалений,
+   * возвратов и входов и на какую сумму. Те же фильтры периода, сотрудника и замок организации, что у списка.
+   */
+  async summary(q: AuditQuery): Promise<AuditSummary> {
+    const where: Prisma.Sql[] = [Prisma.sql`TRUE`, ...auditFilters({ ...q, group: undefined, cursor: undefined })];
+    if (hasSignedInActor()) where.push(await ownAuditRows(this.prisma.db));
+    const rows = await this.prisma.db.$queryRaw<
+      Array<{ risk: string; count: bigint | number; minor: string | null; currency: string | null }>
+    >`
+      SELECT ${RISK_SQL} AS "risk", COUNT(*) AS "count", SUM(${RISK_MINOR_SQL})::text AS "minor",
+             MODE() WITHIN GROUP (ORDER BY COALESCE(a."after"->>'currency', a."before"->>'currency')) AS "currency"
+      FROM "audit_logs" a
+      WHERE ${Prisma.join(where, ' AND ')} AND ${RISK_SQL} IS NOT NULL
+      GROUP BY 1`;
+    const out = {
+      ...Object.fromEntries(RISK_KINDS.map((k) => [k, { count: 0, minor: '0' }])),
+      currency: rows.map((r) => r.currency).find((c) => c && /^[A-Z]{3}$/.test(c)) ?? null,
+    } as AuditSummary;
+    for (const r of rows)
+      if ((RISK_KINDS as readonly string[]).includes(r.risk))
+        out[r.risk as RiskKind] = { count: Number(r.count), minor: (r.minor ?? '0').replace(/\.0+$/, '') };
+    return out;
   }
   async actors(): Promise<Array<{ id: string; name: string | null }>> {
     const scope = hasSignedInActor() ? await ownAuditRows(this.prisma.db) : Prisma.sql`TRUE`;
@@ -186,6 +220,16 @@ export class AuditController {
   @Get('actors')
   actors() {
     return this.service.actors();
+  }
+
+  @Get('summary')
+  summary(
+    @Query('actor') actor?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('timezone') timezone?: string,
+  ) {
+    return this.service.summary({ actor, from, to, timezone });
   }
 
   @Get()

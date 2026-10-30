@@ -398,6 +398,8 @@ export class CashShiftsService {
       throw new BadRequestException('Некорректная команда кассы');
     const note = typeof body.note === 'string' ? body.note.trim() : '';
     if (note.length > 390) throw new BadRequestException('Комментарий: максимум 390 символов');
+    // владелец 30.10.2026: расход без комментария не сохраняется, иначе по нему нечего спросить (контроль краж)
+    if (body.action === 'expense' && !note) throw new BadRequestException('Напишите комментарий к расходу');
     const fingerprint = createHash('sha256')
       .update(
         currentUserId() +

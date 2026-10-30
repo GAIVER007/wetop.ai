@@ -61,6 +61,8 @@ describe.skipIf(!url)('журнал действий: список (integration,
         'entityId',
         'entityType',
         'id',
+        // раздел риска строки (История действий, 30.10.2026): скидка, отмена, удаление, возврат, доступ или null
+        'risk',
         'subject',
         'targetAvailable',
       ].sort(),

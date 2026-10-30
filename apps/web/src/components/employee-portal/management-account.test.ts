@@ -105,6 +105,14 @@ describe('E4: привязка входа мастера выбором учас
     expect(linked).toContain('Мастер входит в личный кабинет');
   });
 
+  it('владелец 30.10.2026: «на почту и скопировать ссылку», по умолчанию почта и ссылка, без казахского адреса', () => {
+    const html = renderToStaticMarkup(createElement(ManagementWithOptions, { data: data(), context, accountOptions: [] }));
+    expect(html).toContain('data-testid="portal-invite-delivery"');
+    for (const label of ['Почта и ссылка', 'На почту', 'Скопировать ссылку']) expect(html).toContain(label);
+    expect(html).toMatch(/aria-pressed="true"[^>]*>Почта и ссылка</);
+    expect(html).not.toContain('company.kz');
+  });
+
   it('не показывает управление аккаунтом сотруднику в своём кабинете', () => {
     const html = renderToStaticMarkup(createElement(ManagementWithOptions, {
       data: data(false, 'SELF'), context, accountOptions: options,

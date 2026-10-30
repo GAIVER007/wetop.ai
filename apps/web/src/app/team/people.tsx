@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { AccessLevel, MembershipRole } from '@pms/domain';
 import { Alert, Badge, Button, Field, Input } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
+import { InviteLinkBox } from '../../components/invite-link-box';
 import type { StaffColumn, StaffTab } from '../../components/staff-board';
 import { StaffAccessPicker, type StaffAccessDraft } from '../../components/staff-access-picker';
 import type { AuthAccessStructure } from '../../lib/api';
@@ -23,7 +24,7 @@ export interface TeamBoardData extends TeamPeople {
   actorRole: MembershipRole;
 }
 
-type EmployeeLike = { id: string; name: string; email?: string | null };
+type EmployeeLike = { id: string; name: string; email?: string | null; phone?: string | null };
 
 const initials = (name: string) =>
   name
@@ -136,7 +137,13 @@ export function usePeopleBoard<E extends EmployeeLike>({
       [p.employee ? search(p.employee) : '', p.member?.name, p.member?.email, p.member?.phone, p.invite?.email]
         .filter(Boolean)
         .join(' '),
-    notice: error ? <Alert boxed>{t(error)}</Alert> : null,
+    // «Новая ссылка» из меню «⋯»: ссылка над списком, показывается один раз
+    notice: (
+      <>
+        {error ? <Alert boxed>{t(error)}</Alert> : null}
+        {invite.issuedBox()}
+      </>
+    ),
     overlays: (
       <>
         {member.overlays}
@@ -178,7 +185,16 @@ function GrantAccessForm({
   const [email, setEmail] = useState(employee.email ?? '');
   const [draft, setDraft] = useState<StaffAccessDraft>({ level: levels[0]!, allBranches: false });
   const [error, setError] = useState('');
+  const [link, setLink] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  if (link)
+    return (
+      <div className="team-invite-form invite-done" data-testid="grant-link">
+        <p role="status">{t('Письмо со ссылкой ушло на {email}. Можно сразу отправить ссылку в WhatsApp.', { email })}</p>
+        <InviteLinkBox link={link} business={grant.branchName ?? 'WETOP'} phone={employee.phone} />
+        <Button type="button" onClick={() => { router.refresh(); onDone(); }}>{t('Готово')}</Button>
+      </div>
+    );
   return (
     <form
       className="team-invite-form"
@@ -191,9 +207,15 @@ function GrantAccessForm({
             level: draft.level,
             email,
             allBranches: draft.allBranches,
+            // владелец 30.10.2026: «Личный кабинет» письмом и ссылкой; администратор и управляющий только письмом
+            ...(draft.level === 'PORTAL' ? { delivery: 'both' as const } : {}),
           });
           if (result.error) {
             setError(result.error);
+            return;
+          }
+          if (result.link) {
+            setLink(result.link);
             return;
           }
           router.refresh();

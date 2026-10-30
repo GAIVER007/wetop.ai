@@ -103,6 +103,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /auth/invites': 'staff',
   'GET /auth/invites': 'staff',
   'DELETE /auth/invites/:id': 'staff',
+  'POST /auth/invites/:id/link': 'staff',
   'GET /auth/invites/:token': 'public',
   'POST /auth/invites/:token/accept': 'public',
   'GET /auth/members': 'staff',
@@ -398,6 +399,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /beauty/finance/appointments': 'desk',
   'GET /beauty/appointments/period': 'desk',
   'GET /beauty/appointments/insights': 'desk',
+  'GET /beauty/owner-home': 'desk',
   'POST /beauty/appointments': 'desk',
   'PATCH /beauty/appointments/:id': 'desk',
   'POST /beauty/appointments/:id/status': 'desk',
@@ -629,6 +631,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /analytics/sites/:id/report': 'marketing',
   'GET /audit': 'journal',
   'GET /audit/actors': 'journal',
+  'GET /audit/summary': 'journal',
 
   // ── ИИ-продавец: диалоги — всем ролям, настройки — владельцу и управляющему ─────────────
   'GET /ai-seller/status': 'dialogs',

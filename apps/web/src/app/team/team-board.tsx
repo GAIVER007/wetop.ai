@@ -18,6 +18,7 @@ import {
 } from '@pms/domain';
 import { Alert, Badge, Button, Field, Input, Select } from '../../components/ui';
 import { Overlay } from '../../components/overlay';
+import { InviteLinkBox } from '../../components/invite-link-box';
 import { StaffBoard } from '../../components/staff-board';
 import { PhoneInput } from '../../components/phone-input';
 import { StaffAccessPicker } from '../../components/staff-access-picker';
@@ -47,6 +48,7 @@ import {
   inviteAction,
   inviteNewStaffAction,
   removeMemberAction,
+  inviteLinkAction,
   resendInviteAction,
   revokeInviteAction,
   setMemberDetailsAction,
@@ -800,9 +802,25 @@ function DetailsForm({ member, onDone }: { member: AuthMember; onDone: () => voi
 export function useInviteActions() {
   const t = useT();
   const { error, pending, run } = useTeamActions();
+  // «Новая ссылка» (вариант C, владелец 30.10.2026): только «Личный кабинет»; ссылка показывается один раз
+  const [issued, setIssued] = useState<{ id: string; email: string; link: string } | null>(null);
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [linkPending, startLink] = useTransition();
+  const newLink = (i: AuthInvite) =>
+    startLink(async () => {
+      const result = await inviteLinkAction(i.id);
+      setLinkError(result.error);
+      setIssued(result.link ? { id: i.id, email: i.email, link: result.link } : null);
+    });
+  const portal = (i: AuthInvite) => i.role === 'EMPLOYEE';
   const inviteCell = (i: AuthInvite) =>
     i.revocable ? (
       <span className="team-row-actions">
+        {portal(i) && (
+          <Button type="button" tone="secondary" size="sm" disabled={pending || linkPending} onClick={() => newLink(i)}>
+            {t('Новая ссылка')}
+          </Button>
+        )}
         <Button
           type="button"
           tone="secondary"
@@ -835,18 +853,27 @@ export function useInviteActions() {
             onSelect: () => run(() => resendInviteAction(i.id, i.email, i.role ?? 'STAFF', resendExtra(i))),
           },
           { label: t('Отозвать'), disabled: pending, onSelect: () => run(() => revokeInviteAction(i.id)) },
+          ...(portal(i) ? [{ label: t('Новая ссылка'), disabled: pending || linkPending, onSelect: () => newLink(i) }] : []),
         ]
       : [];
-  return { error, inviteCell, inviteItems };
+  const issuedBox = () =>
+    issued ? (
+      <div className="invite-done" data-testid="issued-link">
+        <p role="status">{t('Новая ссылка для {email}. Прежняя больше не работает.', { email: issued.email })}</p>
+        <InviteLinkBox link={issued.link} business="WETOP" />
+      </div>
+    ) : null;
+  return { error: error ?? linkError, inviteCell, inviteItems, issuedBox };
 }
 
 export function PendingInvites({ invites }: { invites: AuthInvite[] }) {
   const t = useT();
-  const { error, inviteCell } = useInviteActions();
+  const { error, inviteCell, issuedBox } = useInviteActions();
   return (
     <section className="team-invites" aria-labelledby="team-invites-heading">
       <h2 id="team-invites-heading">{t('Ожидают ответа')}</h2>
       {error && <Alert>{t(error)}</Alert>}
+      {issuedBox()}
       {invites.length > 0 ? (
         <ul className="login-invite-list" data-testid="invite-list" aria-label={t('Приглашения')}>
           {invites.map((i) => (

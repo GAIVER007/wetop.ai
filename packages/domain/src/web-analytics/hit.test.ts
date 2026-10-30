@@ -90,6 +90,16 @@ describe('разбор события счётчика', () => {
       category: 'x'.repeat(HIT_LIMITS.propValue),
     });
   });
+  it('шаги регистрации на wetop.ai (кабинет руководителя 29.10.2026): открыл окно, отправил форму, подтвердил почту, открыл вход', () => {
+    for (const n of ['signup_open', 'signup_sent', 'signup_done', 'login_open']) {
+      const r = parseHit({ ...good, t: 'event', n, p: { email: 'x@example.com' } });
+      expect(r.ok, n).toBe(true);
+      if (!r.ok) return;
+      expect(r.hit.eventName).toBe(n);
+      // почта и прочее мимо allow-list не проходят
+      expect(r.hit.props ?? {}).toEqual({});
+    }
+  });
   it('ping и leave без реферера и заголовка проходят', () => {
     const r = parseHit({ k: good.k, v: good.v, s: good.s, t: 'ping', u: good.u });
     expect(r.ok).toBe(true);

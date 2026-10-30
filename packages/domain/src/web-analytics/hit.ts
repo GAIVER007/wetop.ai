@@ -12,6 +12,11 @@ export const EVENT_NAMES = [
   'phone_click',
   'whatsapp_click',
   'custom',
+  // главная wetop.ai (кабинет руководителя 29.10.2026): путь посетитель → регистрация
+  'signup_open',
+  'signup_sent',
+  'signup_done',
+  'login_open',
 ] as const;
 export type EventName = (typeof EVENT_NAMES)[number];
 export const PROP_KEYS = [

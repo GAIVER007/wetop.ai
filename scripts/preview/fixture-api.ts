@@ -4,6 +4,7 @@ import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-f
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { buildGrowth } from '../../apps/api/src/platform/growth';
+import { buildSiteReport } from '../../apps/api/src/platform/site-report';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { barFixture, resetBarFixture } from './bar-fixture';
 import {
@@ -8285,6 +8286,30 @@ createServer(async (req, res) => {
       // Кабинет компании WETOP (28.10.2026): своя организация ui-org не клиент, остальные как в таблице
       if (path === '/platform/cabinet' && req.method === 'GET') return send(200, platformCabinet());
       // Кабинет руководителя (29.10.2026): путь клиента, MRR, LTV тем же расчётом, что API (buildGrowth)
+      if (path.startsWith('/platform/site') && req.method === 'GET') {
+        // «Сайт wetop.ai» на стенде: 3 посетителя месяца, один дошёл до подтверждения почты
+        const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
+        const at = (d: number) => new Date(`${month}-${String(d).padStart(2, '0')}T08:00:00Z`);
+        return send(200, {
+          month,
+          report: buildSiteReport({
+            month,
+            timezone: 'Asia/Almaty',
+            sessions: [
+              { visitorKey: 'v1', sessionKey: 's1', startedAt: at(2), sourceKind: 'SEARCH', source: 'google', device: 'MOBILE' },
+              { visitorKey: 'v2', sessionKey: 's2', startedAt: at(3), sourceKind: 'SOCIAL', source: 'instagram', device: 'MOBILE' },
+              { visitorKey: 'v3', sessionKey: 's3', startedAt: at(3), sourceKind: 'DIRECT', source: null, device: 'DESKTOP' },
+            ],
+            events: [
+              { name: 'signup_open', sessionKey: 's1' },
+              { name: 'signup_sent', sessionKey: 's1' },
+              { name: 'signup_done', sessionKey: 's1' },
+              { name: 'signup_open', sessionKey: 's2' },
+            ],
+            pageviews: [{ path: '/' }, { path: '/' }, { path: '/pricing/' }],
+          }),
+        });
+      }
       if (path.startsWith('/platform/growth') && req.method === 'GET') {
         const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
         const orgs = platformOrganizations();

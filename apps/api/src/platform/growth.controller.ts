@@ -7,6 +7,7 @@ import { currentOrganizationId } from '../auth/request-context';
 import { Access } from '../auth/access.decorator';
 import { requirePlatformAdmin } from './admin';
 import { buildGrowth, type GrowthSource } from './growth';
+import { buildSiteReport, type SiteReportInput } from './site-report';
 
 export const GROWTH_REPOSITORY = Symbol('GROWTH_REPOSITORY');
 
@@ -14,6 +15,8 @@ export interface GrowthRepository {
   source(ownOrganizationId: string | null, since: Date): Promise<Omit<GrowthSource, 'visitors' | 'ownOrganizationId'>>;
   /** Уникальные посетители сайта с этими адресами за [from, to); сайта со счётчиком нет: `null` */
   visitors(hosts: readonly string[], from: Date, to: Date): Promise<number | null>;
+  /** Сессии, события и просмотры сайта с этими адресами за [from, to); сайта нет: `null` */
+  siteActivity(hosts: readonly string[], from: Date, to: Date): Promise<Omit<SiteReportInput, 'month'> | null>;
 }
 
 /**
@@ -81,6 +84,34 @@ export class PrismaGrowthRepository implements GrowthRepository {
         AND started_at >= ${from} AND started_at < ${to}`);
     return Number(rows[0]?.n ?? 0);
   }
+
+  async siteActivity(hosts: readonly string[], from: Date, to: Date) {
+    const db = this.prisma.db;
+    const sites = await db.trackedSite.findMany({
+      where: { hosts: { hasSome: [...hosts] } },
+      select: { id: true, location: { select: { timezone: true } } },
+    });
+    if (!sites.length) return null;
+    const siteId = { in: sites.map((s) => s.id) };
+    const [sessions, events, pageviews] = await Promise.all([
+      db.webSession.findMany({
+        where: { siteId, startedAt: { gte: from, lt: to } },
+        select: { visitorKey: true, sessionKey: true, startedAt: true, sourceKind: true, source: true, device: true },
+      }),
+      db.webEvent.findMany({
+        where: { session: { siteId }, at: { gte: from, lt: to } },
+        select: { name: true, session: { select: { sessionKey: true } } },
+      }),
+      db.webPageview.findMany({ where: { session: { siteId }, at: { gte: from, lt: to } }, select: { path: true } }),
+    ]);
+    return {
+      // день по поясу филиала сайта; у сайта без филиала: UTC, как месяц в «Деньгах»
+      timezone: sites[0]!.location?.timezone ?? 'UTC',
+      sessions,
+      events: events.map((e) => ({ name: e.name, sessionKey: e.session.sessionKey })),
+      pageviews,
+    };
+  }
 }
 
 const thisMonth = () => new Date().toISOString().slice(0, 7);
@@ -106,5 +137,17 @@ export class GrowthController {
     // посетители wetop.ai: счётчик WETOP на своём сайте; пока сайт не заведён, null и «счётчик не подключён»
     const [src, visitors] = await Promise.all([this.repo.source(own, since), this.repo.visitors(WETOP_SITE_HOSTS, from, to)]);
     return buildGrowth({ ...src, visitors, ownOrganizationId: own }, month, now);
+  }
+
+  /** «Сайт wetop.ai» в кабинете: посетители по дням, откуда, страницы, путь к регистрации; счётчика нет: `null` */
+  @Get('site')
+  @Header('Cache-Control', 'no-store')
+  async site(@Query('month') rawMonth?: string) {
+    requirePlatformAdmin();
+    const month = typeof rawMonth === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(rawMonth) ? rawMonth : thisMonth();
+    const from = new Date(`${month}-01T00:00:00.000Z`);
+    const to = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1));
+    const activity = await this.repo.siteActivity(WETOP_SITE_HOSTS, from, to);
+    return { month, report: activity ? buildSiteReport({ ...activity, month }) : null };
   }
 }

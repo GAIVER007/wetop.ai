@@ -292,6 +292,30 @@
   .cabinet__bar-label {
     color: var(--text-2);
   }
+  /* «Сайт wetop.ai»: столбики по дням месяца, подписи мельче */
+  .cabinet__bars--days {
+    grid-template-columns: repeat(31, minmax(0, 1fr));
+    gap: var(--space-1);
+    block-size: calc(var(--space-16) * 2);
+  }
+  .cabinet__bars--days > li {
+    font-size: var(--text-xs);
+  }
+  .cabinet__bars--days > li[data-busy] > .cabinet__bar {
+    background: var(--primary);
+  }
+  .cabinet__funnel--four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .cabinet__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  /* две колонки в половине экрана: общий минимум таблицы шире панели и прятал числа за край */
+  .cabinet__pair .tbl {
+    min-width: 0;
+  }
   .cabinet__more {
     justify-self: start;
     margin-top: var(--space-2);
@@ -402,6 +426,15 @@
     }
     .cabinet__funnel {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .cabinet__pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    /* телефон: 31 день не влезает, лента прокручивается внутри панели, страница вбок не едет */
+    .cabinet__bars--days {
+      grid-template-columns: repeat(31, var(--space-6));
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
     }
     .cabinet__grid,
     .cabinet__access,

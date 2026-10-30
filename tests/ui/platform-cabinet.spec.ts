@@ -153,6 +153,36 @@ test('отток месяца: клиент ушёл в «только чтен�
   await expect(page.getByTestId('cabinet')).toContainText('ушли за месяц: 1, в прошлом: 0');
 });
 
+test('«Сайт wetop.ai»: посетители, путь к регистрации с процентами, откуда пришли; один экран на 1280', async ({ page, request }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await signIn(page, request, true);
+  await page.goto('/platform/cabinet');
+  await page.getByTestId('cabinet').getByRole('link', { name: 'Сайт wetop.ai' }).click();
+  await expect(page).toHaveURL(/\/platform\/cabinet\/site$/);
+  await expect(page.getByTestId('site-visitors')).toContainText('3');
+  await expect(page.getByTestId('site-path-open')).toContainText('2');
+  await expect(page.getByTestId('site-path-open')).toContainText('66,6%');
+  await expect(page.getByTestId('site-path-done')).toContainText('1');
+  await expect(page.getByTestId('site-sources')).toContainText('google');
+  // число и доля видны в строке источника
+  await expect(page.getByTestId('site-sources').getByRole('row', { name: /google/ })).toContainText('1 · 33,3%');
+  // число в пределах панели, не за краем таблицы (общий минимум ширины таблицы шире половины экрана)
+  const fits = await page.getByTestId('site-sources').evaluate((table) => {
+    const box = table.parentElement!.getBoundingClientRect();
+    const cell = table.querySelector('tbody tr td:last-child')!.getBoundingClientRect();
+    return cell.right <= box.right + 1 && table.parentElement!.scrollWidth <= table.parentElement!.clientWidth;
+  });
+  expect(fits).toBe(true);
+  await expect(page.getByTestId('site-sources')).toContainText('Напрямую');
+  await expect(page.getByTestId('site-pages')).toContainText('/pricing/');
+  await expect(page.getByTestId('site-daily').locator('li')).toHaveCount(new Date(Number(new Date().toISOString().slice(0, 4)), Number(new Date().toISOString().slice(5, 7)), 0).getDate());
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: 'test-results/cabinet-site-1280.png', fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: 'test-results/cabinet-site-390.png', fullPage: true });
+});
+
 test('без отметки главного администратора кабинет закрыт', async ({ page, request }) => {
   await signIn(page, request, false);
   await page.goto('/platform/cabinet');

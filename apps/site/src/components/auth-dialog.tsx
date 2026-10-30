@@ -39,6 +39,17 @@ type Props = {
 type Registration = 'unknown' | 'open' | 'closed';
 type Sent = { email: string; sent: boolean };
 
+
+/**
+ * Шаги окна в счётчик WETOP (кабинет руководителя 29.10.2026: путь посетитель → регистрация). Счётчика нет
+ * (заблокирован, не загрузился) — молча ничего. Только имя шага, без почты и полей формы.
+ */
+type Step = 'signup_open' | 'signup_sent' | 'signup_done' | 'login_open';
+function track(step: Step) {
+  const pms = (window as unknown as { pms?: (cmd: 'event', name: Step) => void }).pms;
+  if (typeof pms === 'function') pms('event', step);
+}
+
 /** Ответ стойки: `{ message }` при ошибке. Сбой сети — `null`: окно предложит отдельную страницу. */
 async function post(
   url: string,
@@ -183,6 +194,7 @@ export function AuthDialog({ texts, urls }: Props) {
       setError(null);
       setFieldErrors({});
       setIsOpen(true);
+      track(next === 'register' ? 'signup_open' : 'login_open');
       if (!optionsAsked.current) {
         optionsAsked.current = true;
         fetch(urls.endpoint.options, { credentials: 'include' })
@@ -250,6 +262,7 @@ export function AuthDialog({ texts, urls }: Props) {
   };
 
   const switchTo = (next: AuthMode) => {
+    if (next !== mode) track(next === 'register' ? 'signup_open' : 'login_open');
     setMode(next);
     setError(null);
     setFieldErrors({});
@@ -359,6 +372,7 @@ export function AuthDialog({ texts, urls }: Props) {
     if (!res) return setError({ text: texts.errors.network, fallback: true });
     if (!res.ok)
       return setError({ text: message(res.data, texts.errors.network), fallback: false });
+    track('signup_sent');
     setSent({
       email: typeof res.data.email === 'string' ? res.data.email : body.email,
       sent: res.data.sent !== false,
@@ -404,6 +418,7 @@ export function AuthDialog({ texts, urls }: Props) {
       return;
     }
     setCodeStatus('success');
+    track('signup_done');
     setDone(true);
     window.location.assign(nextUrl(urls.app, res.data.next));
   };

@@ -113,6 +113,7 @@ export interface MonthMoney {
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** Активный на пробном: работал в системе столько дней и больше за срок пробного */
 export const ACTIVE_TRIAL_DAYS = 3;
+/** Старые записи без `trial_ends_at` заведены по правилу 7 дней; новые получают тестовый месяц сразу в базе */
 const TRIAL_FALLBACK_DAYS = 7;
 const dayOf = (d: Date) => d.toISOString().slice(0, 10);
 /** Среднее в десятых долях, округление половины вверх; пусто: `null` */

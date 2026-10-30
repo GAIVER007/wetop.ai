@@ -8,7 +8,7 @@ import { shiftMonth } from './money';
  * долями процента (`500` это 50,0%), без плавающей точки. Месяц календарный по UTC, как в «Деньгах».
  */
 export interface GrowthSource {
-  organizations: Array<{ id: string; name: string; status: OrganizationStatus; createdAt: Date; trialEndsAt: Date | null }>;
+  organizations: Array<{ id: string; name: string; status: OrganizationStatus; createdAt: Date; trialEndsAt: Date | null; countryCode?: string | null }>;
   /** Когда созданы учётки людей (регистрации) */
   registrations: Date[];
   payments: Array<{ organizationId: string; amountCents: bigint; paidOn: string; voided: boolean }>;
@@ -42,6 +42,8 @@ export interface GrowthClient {
   activeDays7: number | null;
   /** Пробный, с нами 3 дня и больше, а работал меньше 3 дней из последних 7 */
   atRisk: boolean;
+  /** Страна организации (ISO-2), не указана: `null` («Клиенты» C, 30.10.2026) */
+  country: string | null;
 }
 
 export interface GrowthView {
@@ -202,6 +204,7 @@ export function buildGrowth(src: GrowthSource, month: string, now: Date): Growth
       atRisk: o.status === 'TRIAL' && week !== null && withUs >= ACTIVE_TRIAL_DAYS && week < ACTIVE_TRIAL_DAYS,
       id: o.id,
       name: o.name,
+      country: o.countryCode ?? null,
       status: o.status,
       since: o.createdAt.toISOString(),
       daysWithUs: Math.max(0, Math.floor((now.getTime() - o.createdAt.getTime()) / DAY_MS)),

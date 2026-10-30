@@ -81,7 +81,20 @@ test('главная «B»: 4 цифры, воронка продаж из 6 ш�
   const first = page.getByTestId('cabinet-client-row').first();
   await expect(first).toContainText('Хостел «Пример»');
   await expect(first.getByTestId('client-risk')).toHaveText('под риском');
-  await expect(first).toContainText('1 из 7 дн.');
+  await expect(first).toContainText('1/7');
+  // владелец 30.10.2026: «Клиенты» без цифр Главной; сверху «с кем говорить», в строке «Принёс денег» и страна
+  await expect(page.getByTestId('clients-tasks')).toBeVisible();
+  await expect(page.getByTestId('task-risk')).toContainText('1');
+  await expect(page.getByText('Люди у клиентов')).toHaveCount(0);
+  await expect(page.getByText('MRR, в месяц')).toHaveCount(0);
+  await expect(table.getByRole('columnheader', { name: 'Принёс денег' })).toBeVisible();
+  await expect(table.getByRole('columnheader', { name: 'Партнёр' })).toHaveCount(0);
+  // фильтр страны и поиск: адрес хранит выбор
+  await page.getByTestId('clients-search').fill('Пример');
+  await page.getByRole('button', { name: 'Показать' }).click();
+  await page.waitForURL(/clients\?.*q=/);
+  await expect(page.getByTestId('cabinet-client-row')).toHaveCount(1);
+  await page.goto('/platform/cabinet/clients');
   // таблица целиком в панели и после новой отметки
   expect(await page.getByTestId('cabinet-clients-table').evaluate((el) => (el.parentElement ?? el).scrollWidth - (el.parentElement ?? el).clientWidth)).toBeLessThanOrEqual(0);
   await page.getByTestId('clients-filter-risk').click();
@@ -265,6 +278,30 @@ test('«Страны»: посетители, новые клиенты, опл�
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: 'test-results/cabinet-countries-390.png', fullPage: true });
+});
+
+// РНП (владелец 30.10.2026): полоса итогов, каждый день строкой с итогом, вкладка «Партнёры» с «Принёс денег»
+test('РНП: итоги периода, дни строкой, вкладка «Партнёры»; таблица целиком в 1280', async ({ page, request }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await signIn(page, request, true);
+  await page.goto('/platform/cabinet');
+  await page.getByTestId('cabinet').getByRole('navigation', { name: 'Кабинет WETOP' }).getByRole('link', { name: 'РНП' }).click();
+  await expect(page).toHaveURL(/\/platform\/cabinet\/rnp$/);
+  await expect(page.getByTestId('rnp-visitors')).toContainText('3');
+  await expect(page.getByTestId('rnp-leads')).toContainText('33,3%');
+  await expect(page.getByTestId('rnp-income')).toContainText('$49');
+  await expect(page.getByTestId('rnp-total')).toContainText('$20');
+  const days = page.getByTestId('rnp-day');
+  await expect(days.first()).toContainText('01.');
+  const over = await page.getByTestId('rnp-days').evaluate((el) => (el.parentElement ?? el).scrollWidth - (el.parentElement ?? el).clientWidth);
+  expect(over).toBeLessThanOrEqual(0);
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/rnp-1280.png` });
+  await page.getByTestId('rnp-tab-partners').click();
+  await expect(page).toHaveURL(/tab=partners/);
+  const aidar = page.getByTestId('rnp-partner').filter({ hasText: 'Айдар' });
+  await expect(aidar).toContainText('$49');
+  await expect(page.getByTestId('rnp-brought')).toContainText('$49');
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/rnp-partners-1280.png` });
 });
 
 test('без отметки главного администратора кабинет закрыт', async ({ page, request }) => {

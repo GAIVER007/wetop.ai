@@ -18,7 +18,7 @@ export function MonthPicker({
   return (
     <nav className="cabinet__month" aria-label={t('Месяц отчёта')}>
       <a
-        href={`${base}?month=${previous}`}
+        href={`${base}${base.includes('?') ? '&' : '?'}month=${previous}`}
         aria-label={t('Предыдущий месяц: {month}', { month: monthLabel(previous, locale) })}
       >
         <Icon name="back" />
@@ -27,7 +27,7 @@ export function MonthPicker({
         {monthLabel(month, locale)}
       </span>
       <a
-        href={`${base}?month=${next}`}
+        href={`${base}${base.includes('?') ? '&' : '?'}month=${next}`}
         aria-label={t('Следующий месяц: {month}', { month: monthLabel(next, locale) })}
       >
         <Icon name="arrow" />

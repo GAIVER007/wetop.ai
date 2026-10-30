@@ -537,12 +537,26 @@ export function CashHeader({
                               {t(v)}
                             </button>
                           ))}
+                          {/* владелец 30.10.2026: своя статья одной кнопкой; поле «Статья» уже принимает новое имя */}
+                          <button
+                            type="button"
+                            className="cash-header__chip"
+                            disabled={busy}
+                            data-testid="cash-expense-new-category"
+                            onClick={() => {
+                              setCategory('');
+                              document.querySelector<HTMLInputElement>('.cash-money-form input[name="category"]')?.focus();
+                            }}
+                          >
+                            + {t('Создать статью')}
+                          </button>
                         </div>
                       )}
                     </>
                   )}
-                  <Field label={t('Комментарий, если нужно')}>
-                    <Textarea name="note" rows={2} maxLength={1000} disabled={busy} />
+                  {/* владелец 30.10.2026: у расхода комментарий обязателен, без него расход не сохраняется */}
+                  <Field label={panel === 'expense' ? t('Комментарий (обязательно)') : t('Комментарий, если нужно')}>
+                    <Textarea name="note" rows={2} maxLength={390} required={panel === 'expense'} disabled={busy} />
                   </Field>
                   <div className="cash-header__footer">
                     <Button

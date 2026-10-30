@@ -118,6 +118,12 @@ test('общая шапка: одна кнопка смены, расход, и�
     // частая статья одним касанием (владелец 27.10.2026): кнопка заполняет «Статью»
     await panel.getByTestId('cash-expense-chips').getByRole('button', { name: 'Такси', exact: true }).click();
     await expect(panel.getByLabel('Статья', { exact: true })).toHaveValue('Такси');
+    // владелец 30.10.2026: без комментария расход не сохраняется, своя статья кнопкой «+ Создать статью»
+    await expect(panel.getByTestId('cash-expense-new-category')).toHaveText('+ Создать статью');
+    await expect(panel.getByLabel('Комментарий (обязательно)')).toHaveAttribute('required', '');
+    await panel.getByRole('button', { name: /^Добавить 500/ }).click();
+    await expect(panel).toHaveCount(1);
+    await panel.getByLabel('Комментарий (обязательно)').fill('мастер домой после 21:00');
     await panel.getByRole('button', { name: /^Добавить 500/ }).click();
     await expect(panel).toHaveCount(0);
     await header.getByRole('button', { name: 'Итоги смены', exact: true }).click();
@@ -153,6 +159,7 @@ test('общая шапка: одна кнопка смены, расход, и�
     await panel.getByTestId('cash-close-chips').getByRole('button', { name: '+ Другое', exact: true }).click();
     await panel.getByLabel('Сумма', { exact: true }).fill('100');
     await panel.getByLabel('Статья', { exact: true }).fill('Вода');
+    await panel.getByLabel('Комментарий (обязательно)').fill('вода для клиентов');
     await panel.getByRole('button', { name: /^Добавить 100/ }).click();
     await expect(panel.getByTestId('cash-close-expected')).toContainText('9 400');
     await panel.getByLabel('Пересчитали наличные').fill('9400');

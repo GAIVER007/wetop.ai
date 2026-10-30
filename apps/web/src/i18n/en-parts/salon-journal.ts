@@ -341,4 +341,6 @@ export const salonJournal: Record<string, string> = {
   "Пришёл сам": "Walk-in",
   "Администратор": "Administrator",
   "Голосовой агент": "Voice agent",
+  "Оплатить": "Pay",
+  "Оплата: {name}": "Pay: {name}",
 };

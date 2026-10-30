@@ -76,7 +76,22 @@ test('вариант B: панель дня, загрузка мастера, «
   await expect(tile).toContainText('В процессе');
   await expect(panel.getByTestId('day-panel-money')).toContainText('Ждём оплату');
   // владелец 30.10.2026: пришла, но не оплатила, запись остаётся в «Ближайших» с меткой «Без оплаты»
-  await expect(upcoming.getByRole('listitem').filter({ hasText: 'Тест Жанна' })).toContainText('Без оплаты');
+  // владелец 30.10.2026 («кнопка должна гореть «Оплатить», окно подтвердить оплату: нал, безнал»): вместо метки кнопка
+  const payButton = upcoming.getByRole('button', { name: /^Оплатить: Тест Жанна/ });
+  await expect(payButton).toBeVisible();
+  await payButton.click();
+  const payDialog = page.getByRole('dialog', { name: 'Оплата: Тест Жанна' });
+  await expect(payDialog).toBeVisible();
+  await expect(payDialog.getByLabel('Способ')).toBeVisible();
+  await expect(payDialog.getByRole('button', { name: 'Принять оплату' })).toBeVisible();
+  // только оплата: действий записи («Пришла», «Отменить») в этом окне нет
+  await expect(payDialog.locator('.appointment-card-actions')).toBeHidden();
+  await page.screenshot({ path: `${out}/journal-pay-1440.png` });
+  await payDialog.getByRole('button', { name: 'Принять оплату' }).click();
+  await expect(payDialog.getByTestId('beauty-card-paid')).toContainText('12 000', { timeout: 15_000 });
+  await page.keyboard.press('Escape');
+  // оплачено полностью: запись уходит из «Ближайших»
+  await expect(upcoming.getByRole('listitem').filter({ hasText: 'Тест Жанна' })).toHaveCount(0, { timeout: 15_000 });
   // телефон: панели нет, щелчок открывает карточку сразу
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();

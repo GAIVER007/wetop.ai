@@ -3330,6 +3330,8 @@ export interface PlatformGrowth {
     trialActiveDays?: number | null;
     activeDays7?: number | null;
     atRisk?: boolean;
+    /** Страна организации (ISO-2); старый API без поля */
+    country?: string | null;
   }>;
 }
 

@@ -54,7 +54,7 @@ export class PrismaGrowthRepository implements GrowthRepository {
     const db = this.prisma.db;
     const money = (await db.$queryRaw<Array<{ ok: boolean }>>(Prisma.sql`SELECT to_regclass('platform_payments') IS NOT NULL AS ok`))[0]?.ok === true;
     const [all, company, users, payments, subscriptions, statusLog, activity] = await Promise.all([
-      db.organization.findMany({ select: { id: true, name: true, status: true, createdAt: true, trialEndsAt: true } }),
+      db.organization.findMany({ select: { id: true, name: true, status: true, createdAt: true, trialEndsAt: true, countryCode: true } }),
       companyOrganizationIds(db),
       db.user.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true, memberships: { select: { role: true } } } }),
       money ? db.platformPayment.findMany() : Promise.resolve([]),

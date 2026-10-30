@@ -280,6 +280,11 @@ export class BranchPayrollController {
   @Get('payroll') @Access('staff') payroll(@Query() q: Record<string, unknown>) {
     return this.service.payroll(q);
   }
+  /** Выплаты по дням (PAYROLL-DAILY-20261030): начислено и выплачено за день, кому сегодня платить */
+  @BeautyAccess('payroll','view')
+  @Get('payroll/day') @Access('staff') payrollDay(@Query() q: Record<string, unknown>) {
+    return this.service.payrollDay(q);
+  }
   @BeautyAccess('payroll','update')
   @Put('employees/:id/pay-settings') @Access('staff') paySettings(
     @Param('id') id: string,

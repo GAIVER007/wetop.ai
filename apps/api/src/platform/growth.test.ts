@@ -221,3 +221,14 @@ describe('клиенты C: работа на пробном и «под рис�
     expect(c).toMatchObject({ trialActiveDays: null, activeDays7: null, atRisk: false });
   });
 });
+
+// «Клиенты» C (владелец 30.10.2026): страна клиента в строке и фильтр по стране; страны нет: null
+describe('страна клиента', () => {
+  it('страна организации идёт в строку клиента, без страны: null', () => {
+    const source = src();
+    source.organizations = source.organizations.map((o) => (o.id === 'a' ? { ...o, countryCode: 'QA' } : o));
+    const view = buildGrowth(source, '2026-10', NOW);
+    expect(view.clients.find((c) => c.id === 'a')?.country).toBe('QA');
+    expect(view.clients.find((c) => c.id === 'b')?.country).toBeNull();
+  });
+});

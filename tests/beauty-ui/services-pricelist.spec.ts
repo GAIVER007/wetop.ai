@@ -3,12 +3,12 @@ import { test, expect } from '../ui/fixtures';
 import { seed } from './tz11-helpers';
 
 /**
- * Прайс-лист услуг салона (вариант B, выбор владельца 25.10.2026): категории с ценой и длительностью в одной таблице,
- * «В филиале» выключателем, пачка галочками, телефон карточками. Снимки 1440 и 390, светлая и тёмная тема.
+ * Услуги салона двумя колонками (владелец 30.10.2026, макет): слева «В филиале», справа «Можно добавить», стрелки
+ * ← и → переносят отмеченные. Снимки 1440 и 390, светлая и тёмная тема.
  */
-const out = 'reports/beauty-services-pricelist-2026-10-25';
+const out = 'reports/beauty-services-columns-2026-10-30';
 
-test('прайс-лист: цена в строке, выключатель «В филиале», пачка и телефон', async ({ page, request }) => {
+test('услуги: две колонки, стрелки переносят отмеченные, телефон без прокрутки вбок', async ({ page, request }) => {
   test.setTimeout(240_000);
   mkdirSync(out, { recursive: true });
   const f = await seed(page, request);
@@ -28,30 +28,25 @@ test('прайс-лист: цена в строке, выключатель «В
   await page.goto('/services');
   const list = page.locator('[data-service-list="price"]');
   const row = (name: string) => list.locator('.beauty-service-item').filter({ has: page.getByText(name, { exact: true }) });
-  await expect(row('Окрашивание волос')).toContainText('25 000 ₸');
-  await expect(row('Окрашивание волос')).toContainText('120 мин');
-  await expect(page.getByRole('group', { name: 'Услуги салона' })).toContainText('В филиале');
+  const left = (name: string) => page.locator('[data-service-column="location"] .beauty-service-item').filter({ has: page.getByText(name, { exact: true }) });
+  const right = (name: string) => page.locator('[data-service-column="catalog"] .beauty-service-item').filter({ has: page.getByText(name, { exact: true }) });
+  await expect(left('Окрашивание волос')).toContainText('25 000 ₸');
+  await expect(left('Окрашивание волос')).toContainText('120 мин');
+  await expect(right('Педикюр')).toHaveCount(1);
 
-  // выключатель: Педикюр включается в филиал одним нажатием
-  const sw = row('Педикюр').getByRole('switch', { name: 'В филиале: Педикюр' });
-  await expect(sw).not.toBeChecked();
-  await sw.click({ force: true });
-  // сохранение идёт сервером: ждём итог, на загруженном стенде дольше 5 с
-  await expect(page.getByRole('status').filter({ hasText: 'Настройки филиала сохранены' })).toBeVisible({ timeout: 30_000 });
-  await expect(row('Педикюр').getByRole('switch')).toBeChecked({ timeout: 30_000 });
+  // стрелка ←: Педикюр справа уходит в филиал
+  await row('Педикюр').getByLabel('Выбрать: Педикюр').check();
+  await page.getByRole('button', { name: 'Добавить в филиал отмеченные' }).click();
+  await expect(page.getByRole('status').filter({ hasText: /в филиал/i })).toBeVisible({ timeout: 30_000 });
+  await expect(left('Педикюр')).toHaveCount(1, { timeout: 30_000 });
 
-  // пачка: две услуги филиала убираются галочками
+  // стрелка →: две услуги филиала уходят вправо
   await row('Маникюр').getByLabel('Выбрать: Маникюр').check();
   await row('Педикюр').getByLabel('Выбрать: Педикюр').check();
-  await page.getByRole('button', { name: /^Убрать из филиала \(2\)/ }).click();
+  await page.getByRole('button', { name: 'Убрать из филиала отмеченные' }).click();
   await expect(page.getByRole('status').filter({ hasText: /из филиала/i })).toBeVisible({ timeout: 30_000 });
-  await expect(row('Маникюр').getByRole('switch')).not.toBeChecked({ timeout: 30_000 });
-
-  // охват «В филиале»: только включённые
-  await page.getByRole('group', { name: 'Какие услуги показать' }).getByRole('button', { name: /^В филиале/ }).click();
-  await expect(row('Маникюр')).toHaveCount(0);
-  await expect(row('Стрижка женская')).toBeVisible();
-  await page.getByRole('group', { name: 'Какие услуги показать' }).getByRole('button', { name: 'Все', exact: true }).click();
+  await expect(right('Маникюр')).toHaveCount(1, { timeout: 30_000 });
+  await expect(left('Маникюр')).toHaveCount(0);
 
   for (const theme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });

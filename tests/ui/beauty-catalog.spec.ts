@@ -159,12 +159,14 @@ async function addService(page: Page, name: string, minutes: string, price: stri
   await expect(panel.getByRole('status')).toHaveText('Услуга создана. Включите её в выбранном филиале ниже.');
 }
 
-// Прайс-лист (вариант B, выбор владельца 25.10.2026): одна таблица, цена в строке, «В филиале» выключателем
+// Две колонки со стрелками (владелец 30.10.2026): слева «В филиале», справа «Можно добавить»
 const priceRow = (page: Page, name: string) =>
   page
     .getByRole('main')
     .locator('[data-service-list="price"] .beauty-service-item')
     .filter({ has: page.getByText(name, { exact: true }) });
+const inLocation = (page: Page, name: string) =>
+  page.getByRole('main').locator('[data-service-column="location"] .beauty-service-item').filter({ has: page.getByText(name, { exact: true }) });
 
 test('услуга каталога добавляется и видна в прайс-листе с ценой', async ({ page, request }) => {
   await openSalon(page, request);
@@ -193,23 +195,22 @@ test('филиал включает услугу и ставит свою цен
   // в строке цена и длительность филиала
   await expect(item).toContainText('90 мин');
   await expect(item).toContainText('9 500 ₸');
-  await expect(item.getByRole('switch', { name: 'В филиале: Маникюр' })).toBeChecked();
+  await expect(inLocation(page, 'Маникюр')).toHaveCount(1);
 });
 
-test('выключатель «В филиале» переносит услугу одним нажатием на 1440 и на 390', async ({ page, request }) => {
+test('стрелки переносят услугу в филиал и обратно на 1440 и на 390', async ({ page, request }) => {
   await openSalon(page, request);
-  await addService(page, 'Услуга выключателем', '45', '5000');
+  await addService(page, 'Услуга стрелкой', '45', '5000');
   for (const width of [1440, 390] as const) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     await page.goto('/beauty/services');
-    const sw = priceRow(page, 'Услуга выключателем').getByRole('switch', { name: 'В филиале: Услуга выключателем' });
-    const was = await sw.isChecked();
-    await sw.click({ force: true });
-    await expect(sw).toBeChecked({ checked: !was });
+    const main = page.getByRole('main');
+    const was = (await inLocation(page, 'Услуга стрелкой').count()) > 0;
+    await priceRow(page, 'Услуга стрелкой').getByLabel('Выбрать: Услуга стрелкой').check();
+    await main.getByRole('button', { name: was ? 'Убрать из филиала отмеченные' : 'Добавить в филиал отмеченные' }).click();
+    await expect(inLocation(page, 'Услуга стрелкой')).toHaveCount(was ? 0 : 1);
     await page.reload();
-    await expect(
-      priceRow(page, 'Услуга выключателем').getByRole('switch', { name: 'В филиале: Услуга выключателем' }),
-    ).toBeChecked({ checked: !was });
+    await expect(inLocation(page, 'Услуга стрелкой')).toHaveCount(was ? 0 : 1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: `${SNAPSHOTS}/services-transfer-${width}.png`, fullPage: true });
   }
@@ -223,23 +224,20 @@ test('Услуги: отмеченные галочкой переносятся
   await page.goto('/beauty/services');
 
   const main = page.getByRole('main');
-  const on = (name: string) => priceRow(page, name).getByRole('switch', { name: `В филиале: ${name}` });
-  // addService создаёт услугу только в каталоге: добавляем пачкой, потом убираем пачкой
+  // addService создаёт услугу только в каталоге (справа): добавляем пачкой ←, потом убираем пачкой →
   await priceRow(page, 'Пачка один').getByLabel('Выбрать: Пачка один').check();
   await priceRow(page, 'Пачка два').getByLabel('Выбрать: Пачка два').check();
-  await expect(main.getByText('Выбрано: 2')).toBeVisible();
-  const addBtn = main.getByRole('button', { name: /^Добавить в филиал \(2\)/ });
-  await addBtn.click();
+  await main.getByRole('button', { name: 'Добавить в филиал отмеченные' }).click();
   await expect(main.getByRole('status').filter({ hasText: 'Добавлено в филиал: 2 услуги' })).toBeVisible();
-  // переносится на сервере: после перезагрузки услуги остались в филиале
+  // переносится на сервере: после перезагрузки услуги слева
   await page.reload();
-  await expect(on('Пачка один')).toBeChecked();
-  await expect(on('Пачка два')).toBeChecked();
+  await expect(inLocation(page, 'Пачка один')).toHaveCount(1);
+  await expect(inLocation(page, 'Пачка два')).toHaveCount(1);
   await priceRow(page, 'Пачка один').getByLabel('Выбрать: Пачка один').check();
   await priceRow(page, 'Пачка два').getByLabel('Выбрать: Пачка два').check();
-  await main.getByRole('button', { name: /^Убрать из филиала \(2\)/ }).click();
-  await expect(on('Пачка один')).not.toBeChecked();
-  await expect(on('Пачка два')).not.toBeChecked();
+  await main.getByRole('button', { name: 'Убрать из филиала отмеченные' }).click();
+  await expect(inLocation(page, 'Пачка один')).toHaveCount(0);
+  await expect(inLocation(page, 'Пачка два')).toHaveCount(0);
   await page.screenshot({ path: `${SNAPSHOTS}/services-bulk-1440.png`, fullPage: true });
 });
 
@@ -414,8 +412,7 @@ test('типовая услуга требует цену и после наст
   await page.goto('/beauty/services');
   await expect(
     main
-      .locator('[data-service-list="price"] .beauty-service-item')
-      .filter({ has: page.getByText('Стрижка мужская', { exact: true }) })
-      .getByRole('switch', { name: 'В филиале: Стрижка мужская' }),
-  ).toBeChecked();
+      .locator('[data-service-column="location"] .beauty-service-item')
+      .filter({ has: page.getByText('Стрижка мужская', { exact: true }) }),
+  ).toHaveCount(1);
 });

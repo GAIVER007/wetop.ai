@@ -171,10 +171,9 @@ test('report: centered multi-service appointment, per-master occupancy and exact
   await expect(serviceForm).toBeHidden();
   await expect(
     page
-      .locator('[data-service-list="price"] .beauty-service-item')
-      .filter({ has: page.getByText('Стрижка мужская', { exact: true }) })
-      .getByRole('switch', { name: 'В филиале: Стрижка мужская' }),
-  ).toBeChecked();
+      .locator('[data-service-column="location"] .beauty-service-item')
+      .filter({ has: page.getByText('Стрижка мужская', { exact: true }) }),
+  ).toHaveCount(1);
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     expect(

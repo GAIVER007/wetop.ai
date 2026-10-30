@@ -19,7 +19,11 @@ describe('выплаты по дням', () => {
           { id: 'c', name: 'Noor', status: 'ACTIVE', paySetting: null },
         ],
       },
-      appointmentLine: { groupBy: async () => [{ employeeId: 'a', _sum: { priceMinor: 50000n } }] },
+      appointmentLine: { findMany: async () => [
+        { employeeId: 'a', appointmentId: 'v1', priceMinor: 30000n },
+        { employeeId: 'a', appointmentId: 'v1', priceMinor: 5000n },
+        { employeeId: 'a', appointmentId: 'v2', priceMinor: 15000n },
+      ] },
       restaurantOrder: { groupBy: async () => { throw new Error('салон не читает заказы'); } },
       restaurantCashOperation: {
         groupBy: async (q: { where: { payDate: Date } }) => {
@@ -31,7 +35,7 @@ describe('выплаты по дням', () => {
     } as unknown as DayPayrollDb;
     const rows = await dayPayrollRows(db, { businessId: 'x', timezone: 'Asia/Qatar', vertical: 'BEAUTY' }, '2026-10-14');
     const a = rows.find((r) => r.e.id === 'a')!;
-    expect([a.accruedMinor, a.paidMinor, a.remainingMinor, a.due]).toEqual([20000n, 5000n, 15000n, true]);
+    expect([a.accruedMinor, a.paidMinor, a.remainingMinor, a.due, a.clients]).toEqual([20000n, 5000n, 15000n, true, 2]);
     // месячный оклад по дням не делится и в середине месяца не к выплате
     const b = rows.find((r) => r.e.id === 'b')!;
     expect([b.accruedMinor, b.due]).toEqual([0n, false]);

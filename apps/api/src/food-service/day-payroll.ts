@@ -32,22 +32,32 @@ export async function dayPayrollRows(
   const [employees, sales, paid, hours] = await Promise.all([
     db.employee.findMany({ where: { businessId: s.businessId }, include: { paySetting: true }, orderBy: { id: 'asc' } }),
     s.vertical === 'HOSPITALITY'
-      ? Promise.resolve([] as Array<{ id: string; sum: bigint }>)
+      ? Promise.resolve([] as Array<{ id: string; sum: bigint; clients: number }>)
       : beauty
         ? db.appointmentLine
-            .groupBy({
-              by: ['employeeId'],
+            .findMany({
               where: { appointment: { location: { businessId: s.businessId }, status: 'DONE', startsAt: { gte: w.fromUtc, lt: w.toUtcExclusive } } },
-              _sum: { priceMinor: true },
+              select: { employeeId: true, appointmentId: true, priceMinor: true },
             })
-            .then((r) => r.map((x) => ({ id: x.employeeId, sum: x._sum.priceMinor ?? 0n })))
+            .then((lines) => {
+              // клиенты дня: разные записи мастера, выручка: сумма строк по снимкам цены
+              const by = new Map<string, { sum: bigint; visits: Set<string> }>();
+              for (const l of lines) {
+                const v = by.get(l.employeeId) ?? { sum: 0n, visits: new Set<string>() };
+                v.sum += l.priceMinor;
+                v.visits.add(l.appointmentId);
+                by.set(l.employeeId, v);
+              }
+              return [...by].map(([id, v]) => ({ id, sum: v.sum, clients: v.visits.size }));
+            })
         : db.restaurantOrder
             .groupBy({
               by: ['waiterId'],
               where: { location: { businessId: s.businessId }, status: 'CLOSED', waiterId: { not: null }, closedAt: { gte: w.fromUtc, lt: w.toUtcExclusive } },
               _sum: { total: true },
+              _count: { _all: true },
             })
-            .then((r) => r.map((x) => ({ id: x.waiterId!, sum: x._sum.total ?? 0n }))),
+            .then((r) => r.map((x) => ({ id: x.waiterId!, sum: x._sum.total ?? 0n, clients: x._count._all }))),
     db.restaurantCashOperation.groupBy({
       by: ['employeeId'],
       where: { location: { businessId: s.businessId }, payDate, status: 'COMPLETED', employeeId: { not: null } },
@@ -56,6 +66,7 @@ export async function dayPayrollRows(
     db.workingHours.findMany({ where: { employee: { businessId: s.businessId } }, select: { employeeId: true, weekday: true } }),
   ]);
   const salesBy = new Map(sales.map((x) => [x.id, x.sum]));
+  const clientsBy = new Map(sales.map((x) => [x.id, x.clients]));
   const paidBy = new Map(paid.map((x) => [x.employeeId!, x._sum.amount ?? 0n]));
   return employees.map((e) => {
     const p = e.paySetting;
@@ -76,6 +87,7 @@ export async function dayPayrollRows(
       e,
       setting,
       salesMinor,
+      clients: clientsBy.get(e.id) ?? 0,
       accruedMinor: accrued,
       paidMinor,
       remainingMinor: accrued > paidMinor ? accrued - paidMinor : 0n,

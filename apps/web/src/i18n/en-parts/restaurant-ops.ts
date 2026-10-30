@@ -328,4 +328,9 @@ export const restaurantOps: Record<string, string> = {
   'Выбрать при выплате': 'Choose when paying',
   'Укажите день недели выплаты': 'Choose the payday of the week',
   'За какой день': 'For which day',
+  'Выплаты мастерам': 'Payouts to specialists',
+  'Клиенты': 'Clients',
+  'Не забрал': 'Not collected',
+  'Выплатить {sum}': 'Pay {sum}',
+  'Не забрали сегодня: {list}. Сумма копится в «Зарплате» и попадёт в отчёт.': 'Not collected today: {list}. The amount builds up in Payroll and goes into the report.',
 };

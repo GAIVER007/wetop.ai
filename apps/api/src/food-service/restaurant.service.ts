@@ -2101,7 +2101,8 @@ export class RestaurantService {
     foodMay('staff');
     const s = await foodScope(this.prisma.db, BRANCH_PAYROLL_VERTICALS);
     const q = parsed(() => foodObject(query, ['date']));
-    const day = dayParam(q.date);
+    // без даты сегодня по часам филиала: окно закрытия смены спрашивает свой день
+    const day = q.date === undefined ? new Intl.DateTimeFormat('en-CA', { timeZone: s.timezone }).format(new Date()) : dayParam(q.date);
     const rows = await dayPayrollRows(this.prisma.db, s, day);
     let accrued = 0n, paid = 0n, remaining = 0n;
     const out = rows.map((r) => {
@@ -2114,6 +2115,8 @@ export class RestaurantService {
         payWeekday: r.setting.payWeekday,
         payMethod: r.setting.payMethod,
         salesMinor: r.salesMinor.toString(),
+        clients: r.clients,
+        percent: r.setting.percent,
         accruedMinor: r.accruedMinor.toString(),
         paidMinor: r.paidMinor.toString(),
         remainingMinor: r.remainingMinor.toString(),

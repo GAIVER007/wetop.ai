@@ -754,10 +754,12 @@ const ROW: Array<{
       // хаб со всеми настройками направления карточками (21.10.2026): последним рабочим пунктом, порядок прочих прежний
       { label: 'Все настройки', at: ALL('/settings') },
       // «Кабинет WETOP» и «Организации» только главному администратору (отметка `platform`)
+      // «Все бизнесы» владельцу (30.10.2026): все свои бизнесы и филиалы
+      { label: 'Все бизнесы', at: ALL('/owner') },
       { label: 'Кабинет WETOP', at: ALL('/platform/cabinet') },
       { label: 'Организации', at: ALL('/platform') },
     ],
-    match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/branch-payment-methods', '/connections', '/channel-manager', '/platform'],
+    match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/branch-payment-methods', '/connections', '/channel-manager', '/platform', '/owner'],
   },
   {
     // «Продвижение» (ADR-184): бывшие «Маркетинг» и «Продажи»

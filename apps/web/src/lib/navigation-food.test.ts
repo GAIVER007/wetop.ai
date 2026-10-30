@@ -20,7 +20,8 @@ describe('Food workspace isolation', () => {
       ['Склад', ['/warehouse', '/bar', '/stock', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
       // `/finance` ресторану не свой экран: «Финансы» ресторана (аудит 17.10.2026, Д2)
       ['Финансы', ['/restaurant-finance', '/cashbox']],
-      ['Настройки', ['/restaurant-settings', '/journal', '/settings']],
+      // «Все бизнесы» владельцу (30.10.2026)
+      ['Настройки', ['/restaurant-settings', '/journal', '/settings', '/owner']],
       ['Продвижение', ['/marketing', '/marketing/ads', '/marketing/content', '/marketing/voice', '/ai-agents', '/sales', '/marketing/budget']],
       ['Помощь', ['/help']],
     ]);

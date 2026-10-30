@@ -18,10 +18,19 @@ async function signIn(page: Page, request: APIRequestContext, platformAdmin: boo
   await request.post(`${FIXTURE_API}/__test/control`, { data: { platformAdmin } });
 }
 
+test.describe.configure({ timeout: 120_000 });
+
 test('все бизнесы: итог по валютам, строки WETOP и двух филиалов Luxx, переход', async ({ page, request }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await signIn(page, request, true);
-  await page.goto('/owner');
+  // вход из меню: «Настройки» → «Все бизнесы»
+  await page.goto('/today');
+  // холодная сборка /today на стенде бывает дольше обычного ожидания
+  const settings = page.getByRole('navigation', { name: 'Главное меню' }).getByRole('button', { name: 'Настройки' });
+  await expect(settings).toBeVisible({ timeout: 60_000 });
+  await settings.click();
+  await page.getByRole('link', { name: 'Все бизнесы' }).first().click();
+  await page.waitForURL('**/owner');
   const view = page.getByTestId('owner-businesses');
   await expect(view).toBeVisible();
   await expect(page.getByTestId('owner-total-QAR')).toContainText('Все бизнесы, QAR');

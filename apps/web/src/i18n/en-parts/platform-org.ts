@@ -872,4 +872,5 @@ export const platformOrg: Record<string, string> = {
   "Выручка": "Revenue",
   "Прибыль": "Profit",
   "Расходы": "Expenses",
+  "Все ваши бизнесы и филиалы: выручка, расходы, прибыль и переход в любой из них.": "All your businesses and branches: revenue, expenses, profit and a jump into any of them.",
 };

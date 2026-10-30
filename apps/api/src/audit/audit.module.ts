@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   Module,
+  Param,
   Query,
   NotFoundException,
 } from '@nestjs/common';
@@ -262,5 +263,65 @@ export class AuditController {
   }
 }
 
-@Module({ controllers: [AuditController], providers: [PrismaService, AuditService] })
+/**
+ * «История изменений» одной брони у стойки (владелец 30.10.2026: «как единую систему, лучшее в каждом разделе»), как у
+ * записи салона: что сделали, кто, когда, было и стало, комментарий. Строки общего журнала по самой брони, её местам,
+ * счетам и оплатам; служебные строки системы скрыты. Замок организации тот же, что у журнала. Право `desk`: стойке
+ * видна история своей брони, весь журнал по-прежнему у владельца и управляющего.
+ */
+@Injectable()
+export class ReservationHistoryService {
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  async history(number: string) {
+    const db = this.prisma.db;
+    const organizationId = currentOrganizationId();
+    if (!hasSignedInActor() || !organizationId) throw new NotFoundException('Бронь не найдена');
+    const reservation = await db.reservation.findFirst({
+      where: { confirmationNumber: number, property: { organizationId } },
+      select: { id: true, currency: true, property: { select: { timezone: true } }, items: { select: { id: true, folio: { select: { id: true, allocations: { select: { paymentId: true } } } } } } },
+    });
+    if (!reservation) throw new NotFoundException('Бронь не найдена');
+    const items = reservation.items.map((i) => i.id);
+    const folios = reservation.items.flatMap((i) => (i.folio ? [i.folio.id] : []));
+    const payments = [...new Set(reservation.items.flatMap((i) => i.folio?.allocations.map((a) => a.paymentId) ?? []))];
+    const ids = [reservation.id, ...items, ...folios, ...payments];
+    const rows = await db.$queryRaw<
+      Array<{ id: string; created_at: Date; entity_type: string; action: string; author: string | null; before_safe: Record<string, unknown>; after_safe: Record<string, unknown> }>
+    >`
+      SELECT a."id", a."created_at", a."entity_type", a."action", u."name" AS "author",
+             ${safeSnapshot('before')} AS "before_safe", ${safeSnapshot('after')} AS "after_safe"
+      FROM "audit_logs" a LEFT JOIN "users" u ON u."id" = a."user_id"
+      WHERE a."entity_id" = ANY(${ids}::text[])
+        AND (a."organization_id" IS NULL OR a."organization_id" = ${organizationId}::uuid)
+        AND a."action" <> ALL(${SYSTEM_AUDIT_ACTIONS}::text[])
+      ORDER BY a."created_at" DESC, a."id" DESC
+      LIMIT 101`;
+    return {
+      timezone: reservation.property.timezone,
+      currency: reservation.currency,
+      items: rows.slice(0, 100).map((r) => ({
+        id: r.id,
+        at: r.created_at.toISOString(),
+        entityType: r.entity_type,
+        action: r.action,
+        author: r.author ?? null,
+        before: r.before_safe ?? {},
+        after: r.after_safe ?? {},
+      })),
+      truncated: rows.length > 100,
+    };
+  }
+}
+
+@Access('desk')
+@Controller('reservation-history')
+export class ReservationHistoryController {
+  constructor(@Inject(ReservationHistoryService) private readonly service: ReservationHistoryService) {}
+  @Get(':number')
+  history(@Param('number') number: string) {
+    return this.service.history(number);
+  }
+}
+
+@Module({ controllers: [AuditController, ReservationHistoryController], providers: [PrismaService, AuditService, ReservationHistoryService] })
 export class AuditModule {}

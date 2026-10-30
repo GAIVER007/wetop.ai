@@ -5565,10 +5565,11 @@ export interface BeautyOwnerHome {
   currency: string;
   kpi: {
     revenueMinor: string;
+    expensesMinor: string;
     profitMinor: string;
     paidClients: number;
     averageMinor: string | null;
-    previous: { revenueMinor: string; profitMinor: string; paidClients: number; averageMinor: string | null };
+    previous: { revenueMinor: string; expensesMinor: string; profitMinor: string; paidClients: number; averageMinor: string | null };
   };
   funnel: Array<{ step: 'BOOKED' | 'CAME' | 'PAID' | 'RETURNED'; count: number; percent: number | null }>;
   clients: { new: number; noShow: number; lapsed: number };

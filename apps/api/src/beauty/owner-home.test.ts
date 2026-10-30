@@ -57,11 +57,13 @@ describe('Главная владельца салона «B»', () => {
     // выручка октября: 10000 + 5000 + 10000 + 9000 = 34000 (неявка и отмена не выручка)
     expect(v.kpi).toEqual({
       revenueMinor: '34000',
+      // владелец 30.10.2026: «на главной выручка, должны быть расходы, прибыль»
+      expensesMinor: '4000',
       profitMinor: '30000',
       // оплатили: c1, c5 (c2 не оплатил)
       paidClients: 2,
       averageMinor: '8500',
-      previous: { revenueMinor: '7000', profitMinor: '6000', paidClients: 1, averageMinor: '7000' },
+      previous: { revenueMinor: '7000', expensesMinor: '1000', profitMinor: '6000', paidClients: 1, averageMinor: '7000' },
     });
   });
 

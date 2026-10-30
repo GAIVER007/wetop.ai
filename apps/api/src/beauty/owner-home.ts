@@ -42,10 +42,12 @@ export interface OwnerHomeView {
   currency: string;
   kpi: {
     revenueMinor: string;
+    /** Оплаченные расходы кассы месяца (владелец 30.10.2026: «выручка, расходы, прибыль») */
+    expensesMinor: string;
     profitMinor: string;
     paidClients: number;
     averageMinor: string | null;
-    previous: { revenueMinor: string; profitMinor: string; paidClients: number; averageMinor: string | null };
+    previous: { revenueMinor: string; expensesMinor: string; profitMinor: string; paidClients: number; averageMinor: string | null };
   };
   funnel: Array<{ step: FunnelStep; count: number; percent: number | null }>;
   clients: { new: number; noShow: number; lapsed: number };
@@ -81,6 +83,7 @@ function monthKpi(src: OwnerHomeSource, month: string) {
   const paidClients = new Set(rows.filter((a) => a.paid).map((a) => a.customerId)).size;
   return {
     revenueMinor: String(revenue),
+    expensesMinor: String(spent),
     profitMinor: String(revenue - spent),
     paidClients,
     averageMinor: rows.length ? String(revenue / BigInt(rows.length)) : null,
@@ -178,10 +181,11 @@ export function buildOwnerHome(src: OwnerHomeSource): OwnerHomeView {
     currency: src.currency,
     kpi: {
       revenueMinor: cur.revenueMinor,
+      expensesMinor: cur.expensesMinor,
       profitMinor: cur.profitMinor,
       paidClients: cur.paidClients,
       averageMinor: cur.averageMinor,
-      previous: { revenueMinor: prev.revenueMinor, profitMinor: prev.profitMinor, paidClients: prev.paidClients, averageMinor: prev.averageMinor },
+      previous: { revenueMinor: prev.revenueMinor, expensesMinor: prev.expensesMinor, profitMinor: prev.profitMinor, paidClients: prev.paidClients, averageMinor: prev.averageMinor },
     },
     funnel,
     clients: {

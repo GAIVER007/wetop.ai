@@ -90,6 +90,9 @@ test('Главная владельца салона «B»: цифры меся�
   await expect(b.getByTestId('owner-attention-unpaid-visits')).toContainText('Не оплачено сегодня: 1 запись');
   await expect(b).toBeVisible();
   await expect(b.getByTestId('owner-b-revenue')).toContainText('12 000');
+  // выручка, расходы, прибыль рядом (владелец 30.10.2026); расходов в сиде нет: прибыль = выручка
+  await expect(b.getByTestId('owner-b-expenses')).toContainText('0 ₸');
+  await expect(b.getByTestId('owner-b-profit')).toContainText('12 000');
   await expect(b.getByTestId('owner-b-clients')).toContainText('0');
   await expect(b.getByTestId('owner-b-step-BOOKED')).toContainText('1');
   await expect(b.getByTestId('owner-b-step-CAME')).toContainText('100%');

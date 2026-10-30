@@ -17,14 +17,14 @@ const STEP: Record<BeautyOwnerHome['funnel'][number]['step'], string> = {
   RETURNED: msg('Вернулись повторно'),
 };
 
-function delta(cur: string | number | null, prev: string | number | null, money: (v: string) => string, t: Translate) {
+function delta(cur: string | number | null, prev: string | number | null, money: (v: string) => string, t: Translate, lessIsBetter = false) {
   if (cur === null || prev === null) return <span className="muted">{t('нет данных за прошлый месяц')}</span>;
   const d = BigInt(cur) - BigInt(prev);
   if (BigInt(prev) === 0n && BigInt(cur) === 0n) return <span className="muted">{t('как в прошлом месяце')}</span>;
   const text = typeof cur === 'number' ? String(d < 0n ? -d : d) : money(String(d < 0n ? -d : d));
   if (d === 0n) return <span className="muted">{t('как в прошлом месяце')}</span>;
   return (
-    <span className={d > 0n ? 'owner-b__up' : 'owner-b__down'}>
+    <span className={d > 0n !== lessIsBetter ? 'owner-b__up' : 'owner-b__down'}>
       {d > 0n ? '+' : '\u2212'}
       {text} <span className="muted">{t('к прошлому месяцу')}</span>
     </span>
@@ -60,6 +60,13 @@ export function OwnerHomeB({
           <h2>{t('Выручка')}</h2>
           <strong>{money(k.revenueMinor)}</strong>
           {delta(k.revenueMinor, p.revenueMinor, money, t)}
+        </div>
+        <div data-testid="owner-b-expenses">
+          <h2>
+            <a href="/finance">{t('Расходы')}</a>
+          </h2>
+          <strong>{money(k.expensesMinor)}</strong>
+          {delta(k.expensesMinor, p.expensesMinor, money, t, true)}
         </div>
         <div data-testid="owner-b-profit">
           <h2>{t('Прибыль')}</h2>

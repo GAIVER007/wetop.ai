@@ -41,6 +41,7 @@ export const ACTION_RU: Record<string, string> = {
   'finance.payment_request.cancelled': msg('Счёт на оплату отменён'),
   'invite.created': msg('Приглашение создано'),
   'invite.revoked': msg('Приглашение отозвано'),
+  'invite.link_issued': msg('Выдана новая ссылка приглашения'),
   'invite.accepted': msg('Приглашение принято'),
   'employee.account_linked': msg('Вход привязан к сотруднику'),
   'membership.details.updated': msg('Данные сотрудника изменены'),

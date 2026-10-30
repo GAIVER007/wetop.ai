@@ -3914,3 +3914,35 @@
   .staff-form-dialog .team-scope__tree { margin-top: var(--space-4); }
   .staff-form-dialog .team-scope__row input { width: 18px; height: calc(var(--space-4) + var(--space-1) / 2); accent-color: var(--primary); }
 }
+
+/* ссылка приглашения (владелец 30.10.2026: «на почту и скопировать ссылку»): поле, две кнопки в ряд, подсказка */
+.invite-link {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+}
+.invite-link__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.invite-link__note {
+  margin: 0;
+  color: var(--muted);
+}
+.portal-invite__delivery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block: var(--space-2);
+}
+.invite-done {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+}

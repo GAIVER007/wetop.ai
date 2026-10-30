@@ -352,3 +352,75 @@ describe('приглашение: язык организации', () => {
     expect(repo.userLocales.get(INVITEE)).toBe('ru');
   });
 });
+
+/**
+ * Владелец 30.10.2026: «отправить на почту и скопировать ссылку приглашения». Ссылку можно скопировать и отправить в
+ * WhatsApp только для «Личного кабинета» (EMPLOYEE): видит только своё. Администратор и управляющий получают ссылку
+ * только письмом, у них касса и клиенты. В базе по-прежнему только отпечаток: «Новая ссылка» гасит старую.
+ */
+describe('ссылка приглашения: почта и «Скопировать ссылку»', () => {
+  const create = (token: string, body: Record<string, unknown>) =>
+    request(app.getHttpServer()).post('/auth/invites').set('Authorization', `Bearer ${token}`).send(body);
+  const issue = (token: string, id: string) =>
+    request(app.getHttpServer()).post(`/auth/invites/${id}/link`).set('Authorization', `Bearer ${token}`).send({});
+  const tokenOf = (link: string) => link.split('/invite/')[1]!;
+
+  it('«Личный кабинет» только ссылкой: ссылка в ответе, письма нет, ссылка открывается', async () => {
+    const token = await login();
+    const res = await create(token, { email: INVITEE, role: 'EMPLOYEE', delivery: 'link' }).expect(201);
+    expect(res.body.link).toMatch(new RegExp(`^${APP_URL}/invite/\\S+$`));
+    expect(sender.sent).toHaveLength(0);
+    await request(app.getHttpServer()).get(`/auth/invites/${tokenOf(res.body.link)}`).expect(200);
+  });
+
+  it('«Почта и ссылка»: письмо ушло и та же ссылка в ответе', async () => {
+    const token = await login();
+    const res = await create(token, { email: INVITEE, role: 'EMPLOYEE', delivery: 'both' }).expect(201);
+    expect(linkFromLetter(INVITEE)).toBe(res.body.link);
+  });
+
+  it('по умолчанию как раньше: только письмо, ссылки в ответе нет', async () => {
+    const token = await login();
+    const res = await create(token, { email: INVITEE, role: 'EMPLOYEE' }).expect(201);
+    expect(res.body.link).toBeUndefined();
+    expect(sender.to(INVITEE)).toHaveLength(1);
+  });
+
+  it('администратору и управляющему ссылкой нельзя: только письмо, приглашения нет', async () => {
+    const token = await login();
+    for (const role of ['STAFF', 'MANAGER']) {
+      const res = await create(token, { email: INVITEE, role, delivery: 'link' }).expect(400);
+      expect(res.body.message).toBe('Ссылкой приглашают только в «Личный кабинет». Администратору и управляющему приглашение уходит на почту.');
+    }
+    expect(repo.invites).toHaveLength(0);
+    expect(sender.sent).toHaveLength(0);
+  });
+
+  it('«Новая ссылка»: старая перестаёт открываться, новая открывается; письмо не уходит', async () => {
+    const token = await login();
+    const first = await create(token, { email: INVITEE, role: 'EMPLOYEE', delivery: 'link' }).expect(201);
+    const next = await issue(token, first.body.id).expect(201);
+    expect(next.body.link).not.toBe(first.body.link);
+    await request(app.getHttpServer()).get(`/auth/invites/${tokenOf(first.body.link)}`).expect(404);
+    await request(app.getHttpServer()).get(`/auth/invites/${tokenOf(next.body.link)}`).expect(200);
+    expect(sender.sent).toHaveLength(0);
+  });
+
+  it('«Новая ссылка» администратора не выдаётся, отозванного и чужого тоже нет', async () => {
+    const token = await login();
+    const staff = await create(token, { email: 'admin@example.com', role: 'STAFF' }).expect(201);
+    expect((await issue(token, staff.body.id)).status).toBe(400);
+    const own = await create(token, { email: INVITEE, role: 'EMPLOYEE', delivery: 'link' }).expect(201);
+    await request(app.getHttpServer()).delete(`/auth/invites/${own.body.id}`).set('Authorization', `Bearer ${token}`).expect(200);
+    expect((await issue(token, own.body.id)).status).toBe(404);
+    expect((await issue(token, '00000000-0000-4000-8000-000000000000')).status).toBe(404);
+  });
+
+  it('администратор «Новую ссылку» не получает (403)', async () => {
+    const token = await login();
+    const own = await create(token, { email: INVITEE, role: 'EMPLOYEE', delivery: 'link' }).expect(201);
+    repo.accounts = [{ ...ACCOUNT, role: 'STAFF' }];
+    expect((await issue(token, own.body.id)).status).toBe(403);
+  });
+});
+

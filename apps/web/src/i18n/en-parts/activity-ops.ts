@@ -33,6 +33,7 @@ export const activityOps: Record<string, string> = {
   'Счёт на оплату отменён': 'Payment request canceled',
   'Приглашение создано': 'Invitation created',
   'Приглашение отозвано': 'Invitation revoked',
+  'Выдана новая ссылка приглашения': 'New invitation link issued',
   'Приглашение принято': 'Invitation accepted',
   'Вход привязан к сотруднику': 'Sign-in linked to employee',
   'Данные сотрудника изменены': 'Employee details changed',

@@ -128,8 +128,14 @@ export interface InvitePreview {
   setPasswordToken?: string | null;
 }
 
+/** Как отдать приглашение (владелец 30.10.2026): письмом, ссылкой для копирования или и тем и другим */
+export type InviteDelivery = 'email' | 'link' | 'both';
+/** Ссылкой отдают только «Личный кабинет»: видит только своё (администратор и управляющий только письмом) */
+export const INVITE_LINK_ROLE_MESSAGE =
+  'Ссылкой приглашают только в «Личный кабинет». Администратору и управляющему приглашение уходит на почту.';
+
 export type InviteOutcome =
-  | { ok: true; invite: InviteView }
+  | { ok: true; invite: InviteView; link?: string }
   | { ok: false; reason: 'email' | 'member' | 'owner' | 'limit' | 'role' | 'manager-role' }
   | { ok: false; reason: 'invalid'; message: string };
 
@@ -210,6 +216,12 @@ export class AccountsService {
         : parseInviteRole(rawRole);
     if (!role) return { ok: false, reason: 'role' };
     if (!canInvite(who.role, role)) return { ok: false, reason: 'manager-role' };
+    const extraBody = (rawExtra && typeof rawExtra === 'object' ? rawExtra : {}) as Record<string, unknown>;
+    const delivery: InviteDelivery | null =
+      extraBody.delivery === undefined || extraBody.delivery === null || extraBody.delivery === ''
+        ? 'email'
+        : (['email', 'link', 'both'] as const).find((d) => d === extraBody.delivery) ?? null;
+    if (!delivery) return { ok: false, reason: 'invalid', message: 'Выберите, как отправить приглашение' };
     // имя, телефон, должность и назначения приглашения (DATA_MODEL §31.3): ошибки формы словами, до любой записи
     const extra = parseInviteExtra(rawExtra);
     if (!extra.ok) return { ok: false, reason: 'invalid', message: extra.message };
@@ -237,6 +249,9 @@ export class AccountsService {
       // роль приглашения при назначениях: старшая из назначенных; роль из формы не может быть выше назначений
       inviteRole = membershipRoleFor(extra.scopes, role);
     }
+    // роль после назначений: «Личный кабинет» с назначением администратора ссылкой уже не уходит; отказ до записи
+    if (delivery !== 'email' && inviteRole !== 'EMPLOYEE')
+      return { ok: false, reason: 'invalid', message: INVITE_LINK_ROLE_MESSAGE };
     if (typeof rawEmail !== 'string') return { ok: false, reason: 'email' };
     const email = normalizeEmail(rawEmail);
     if (!isEmailShaped(email)) return { ok: false, reason: 'email' };
@@ -263,6 +278,7 @@ export class AccountsService {
       ...(employeeLink.employee ? { employeeId: employeeLink.employee.id } : {}),
     });
     const link = `${this.appUrl.replace(/\/+$/, '')}/invite/${token}`;
+    if (delivery === 'link') return { ok: true, invite: toInviteView(invite, who.role), link };
     try {
       if (!this.mailReady) throw new Error('Mail is not configured');
       await this.sender.send(
@@ -291,7 +307,28 @@ export class AccountsService {
         'Не удалось отправить письмо. Приглашение отозвано. Проверьте настройку почты и попробуйте снова.',
       );
     }
-    return { ok: true, invite: toInviteView(invite, who.role) };
+    return { ok: true, invite: toInviteView(invite, who.role), ...(delivery === 'both' ? { link } : {}) };
+  }
+
+  /**
+   * «Новая ссылка» (владелец 30.10.2026): ключ в базе не хранится, поэтому прежнюю ссылку не показать; выдаём новую,
+   * старая сразу перестаёт открываться. Только живое приглашение «Личного кабинета» своей организации, только тот,
+   * кто вправе позвать с этой ролью. Письмо не уходит. Запись в журнале `invite.link_issued`.
+   */
+  async issueInviteLink(
+    sessionToken: string | null,
+    id: string,
+  ): Promise<{ ok: true; link: string } | 'owner' | 'missing' | 'role' | null> {
+    const who = await this.liveSession(sessionToken);
+    if (!who) return null;
+    if (!canManageStaff(who.role)) return 'owner';
+    const live = (await this.repo.pendingInvites(who.organizationId, new Date())).find((i) => i.id === id);
+    if (!live || !(invitableRoles(who.role) as readonly MembershipRole[]).includes(live.role)) return 'missing';
+    if (live.role !== 'EMPLOYEE') return 'role';
+    const token = newSessionToken();
+    const done = await this.repo.reissueInvite(live.id, who.organizationId, hashSecret(token), new Date(), who.userId);
+    if (!done) return 'missing';
+    return { ok: true, link: `${this.appUrl.replace(/\/+$/, '')}/invite/${token}` };
   }
 
   /**

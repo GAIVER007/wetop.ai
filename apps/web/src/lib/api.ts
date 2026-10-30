@@ -773,6 +773,16 @@ export const authApi = {
     if (!res.ok) throw new ApiError(res.status, await messageOf(res));
     return (await res.json()) as AuthInvite;
   },
+  /** «Новая ссылка» приглашения «Личного кабинета»: прежняя перестаёт открываться (владелец 30.10.2026) */
+  inviteLink: async (token: string, id: string, info: AuthClientInfo): Promise<{ link: string }> => {
+    const res = await backendFetch(`/auth/invites/${encodeURIComponent(id)}/link`, {
+      method: 'POST',
+      headers: authHeaders(info, token),
+      body: '{}',
+    });
+    if (!res.ok) throw new ApiError(res.status, await messageOf(res));
+    return (await res.json()) as { link: string };
+  },
   /** Бизнесы и филиалы организации для выбора области доступа (DATA_MODEL §31.1) */
   accessStructure: async (token: string, info: AuthClientInfo): Promise<AuthAccessStructure> => {
     const res = await backendFetch('/auth/access-structure', { headers: authHeaders(info, token) });
@@ -3758,7 +3768,12 @@ export interface AuthInvite {
   scopes?: AuthScope[];
   /** Приглашение из формы «Новый сотрудник»: карточка, к которой привяжется вход; старый API не присылает */
   employeeId?: string | null;
+  /** Ссылка для копирования (владелец 30.10.2026): только в ответе на создание с delivery link/both, в списке её нет */
+  link?: string;
 }
+
+/** Как отдать приглашение: письмом, ссылкой для копирования или и тем и другим (ссылкой только «Личный кабинет») */
+export type AuthInviteDelivery = 'email' | 'link' | 'both';
 
 /** Назначение: роль в бизнесе целиком (`locationId` null) или в одном филиале (DATA_MODEL §31.1) */
 export interface AuthScope {
@@ -3778,6 +3793,8 @@ export interface AuthInviteExtra {
   employeeId?: string;
   /** «Все филиалы» вместо филиала сотрудника */
   allBranches?: boolean;
+  /** Как отдать приглашение (по умолчанию письмом) */
+  delivery?: AuthInviteDelivery;
 }
 
 /** Бизнесы и филиалы организации для назначений */

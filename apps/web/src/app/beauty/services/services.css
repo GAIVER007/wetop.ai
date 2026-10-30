@@ -507,7 +507,7 @@
   .beauty-service-columns {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    gap: var(--space-3);
+    gap: var(--space-4);
     align-items: start;
   }
   .beauty-service-col {
@@ -581,7 +581,7 @@
     .beauty-service-arrows .beauty-service-arrow { transform: rotate(90deg); }
   }
   @media (max-width: 600px) {
-    .beauty-service-cat li { grid-template-columns: var(--space-6) minmax(0, 1fr) auto auto; padding: var(--space-1) var(--space-3); }
+    .beauty-service-cat li { grid-template-columns: var(--space-6) minmax(0, 1fr) auto auto; padding: var(--space-1) var(--space-2); }
     .beauty-service-row__time, .beauty-service-row__pct, .beauty-service-row__name small { display: none; }
     .beauty-service-arrow { width: var(--touch-target); height: var(--touch-target); }
   }

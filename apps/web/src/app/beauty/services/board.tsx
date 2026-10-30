@@ -228,7 +228,7 @@ export function ServicesBoard({
           <header>
             <h2>{t('В филиале')}</h2>
             <small>
-              {countLabel(locale, t, salon.length, [msg('услуга'), 'услуги', msg('услуг')])}
+              {countLabel(locale, t, salon.length, [msg('услуга'), 'услуги', msg('услуг')])} {/* kk-allow: форма склонения */}
               {summary.averageMinor ? `, ${t('средняя {price}', { price: formatMoney(summary.averageMinor, locationCurrency ?? 'KZT') })}` : ''}
             </small>
           </header>

@@ -13,7 +13,7 @@ import { ServicesBoard } from './board';
 const row = { id: 'service', name: 'Тестовая услуга', category: null, durationMinutes: 60,
   priceMinor: '800000', currency: 'KZT', active: true,
   location: { enabled: true, priceOverrideMinor: null, durationOverrideMinutes: null },
-  effective: { sellable: true, priceMinor: '800000', currency: 'KZT', durationMinutes: 60, overridden: false } };
+  effective: { sellable: true as const, priceMinor: '800000', currency: 'KZT', durationMinutes: 60, overridden: false } };
 describe('Доля завершённых визитов в каталоге', () => {
   it('показывает процент и числитель со знаменателем словами', () => {
     const html = renderToStaticMarkup(createElement(ServicesBoard, { canEdit: false, locationCurrency: 'KZT',

@@ -1,5 +1,6 @@
 import { foodId, foodInt, foodObject, foodText } from './food';
 import { parseModifierIds } from './modifiers';
+import { FOOD_PAYMENT_METHODS, type FoodPaymentMethod } from './cash';
 
 /** Ресторан v2 (DATA_MODEL §33, ADR-159): заказы, техкарты, зарплата. Деньги — bigint minor units (ADR-008). */
 export const ORDER_STATUSES = ['NEW', 'COOKING', 'READY', 'SERVED', 'CLOSED', 'CANCELLED'] as const;
@@ -278,22 +279,70 @@ export function parseOrderCreate(raw: unknown): OrderCreate {
   };
 }
 
+/** Как часто выплачиваем (PAYROLL-DAILY-20261030); у всех сейчас месяц */
+export const PAY_FREQUENCIES = ['DAILY', 'WEEKLY', 'MONTHLY'] as const;
+export type PayFrequency = (typeof PAY_FREQUENCIES)[number];
+
 export interface PaySettingsInput {
   model: PayModel;
   fixedMinor: bigint;
   percent: number;
   /** Ставка за одну уборку гостиницы (миграция 143); не прислана: прежняя не меняется */
   perCleaningMinor?: bigint;
+  /** Не прислана: прежняя частота и способ не меняются (старые окна присылают без неё) */
+  payFrequency?: PayFrequency;
+  /** ISO 1 (пн) .. 7 (вс), только у WEEKLY */
+  payWeekday?: number | null;
+  payMethod?: FoodPaymentMethod | null;
 }
 export function parsePaySettings(raw: unknown): PaySettingsInput {
-  const b = foodObject(raw, ['model', 'fixedMinor', 'percent', 'perCleaningMinor']);
+  const b = foodObject(raw, ['model', 'fixedMinor', 'percent', 'perCleaningMinor', 'payFrequency', 'payWeekday', 'payMethod']);
   if (!PAY_MODELS.includes(b.model as PayModel)) throw new Error('Неизвестная модель оплаты');
-  return {
+  const out: PaySettingsInput = {
     model: b.model as PayModel,
     fixedMinor: money(b.fixedMinor),
     percent: foodInt(b.percent, 0, 100),
     ...(b.perCleaningMinor === undefined ? {} : { perCleaningMinor: money(b.perCleaningMinor) }),
   };
+  if (b.payFrequency === undefined) return out;
+  if (!PAY_FREQUENCIES.includes(b.payFrequency as PayFrequency)) throw new Error('Как часто платим: день, неделя или месяц');
+  const payFrequency = b.payFrequency as PayFrequency;
+  let payWeekday: number | null = null;
+  if (payFrequency === 'WEEKLY') {
+    if (b.payWeekday == null) throw new Error('Укажите день недели выплаты');
+    payWeekday = foodInt(b.payWeekday, 1, 7);
+  } else if (b.payWeekday != null) throw new Error('День недели только у выплаты раз в неделю');
+  let payMethod: FoodPaymentMethod | null = null;
+  if (b.payMethod != null) {
+    if (!FOOD_PAYMENT_METHODS.includes(b.payMethod as FoodPaymentMethod)) throw new Error('Неизвестный способ выплаты');
+    payMethod = b.payMethod as FoodPaymentMethod;
+  }
+  return { ...out, payFrequency, payWeekday, payMethod };
+}
+
+/**
+ * «Начислено за день» (PAYROLL-DAILY-20261030): процент от оказанных услуг дня, как месячный расчёт §35.3;
+ * оклад делится на рабочие дни месяца только у ежедневной выплаты. Премий нет. Не хранится.
+ */
+export function dayAccrual(
+  s: { model: PayModel; fixedMinor: bigint; percent: number; payFrequency: PayFrequency },
+  daySales: bigint,
+  workDaysInMonth: number,
+): bigint {
+  const t = payrollTotals({ model: s.model, fixedMinor: 0n, percent: s.percent }, daySales, []);
+  const fixed = s.payFrequency === 'DAILY' && workDaysInMonth > 0 && (s.model === 'FIXED' || s.model === 'FIXED_PLUS_PERCENT')
+    ? divRound(s.fixedMinor, BigInt(workDaysInMonth))
+    : 0n;
+  return t.percentPart + fixed;
+}
+
+/** День выплаты по настройке: DAILY каждый день, WEEKLY в свой день недели, MONTHLY первого числа */
+export function payDueOn(s: { payFrequency: PayFrequency; payWeekday: number | null }, day: string): boolean {
+  const d = new Date(`${day}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) throw new Error('Дата в формате ГГГГ-ММ-ДД');
+  if (s.payFrequency === 'DAILY') return true;
+  if (s.payFrequency === 'WEEKLY') return (d.getUTCDay() || 7) === s.payWeekday;
+  return d.getUTCDate() === 1;
 }
 
 export interface PayAdjustmentInput {

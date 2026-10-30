@@ -86,7 +86,8 @@ function monthKpi(src: OwnerHomeSource, month: string) {
     expensesMinor: String(spent),
     profitMinor: String(revenue - spent),
     paidClients,
-    averageMinor: rows.length ? String(revenue / BigInt(rows.length)) : null,
+    // средний чек целыми (владелец 30.10.2026: «с копейками, округлять нужно»): выручка / визиты, половина вверх
+    averageMinor: rows.length ? String(((revenue * 2n + BigInt(rows.length) * 100n) / (BigInt(rows.length) * 200n)) * 100n) : null,
     revenue,
     spent,
   };

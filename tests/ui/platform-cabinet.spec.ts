@@ -58,6 +58,14 @@ test('главная «B»: 4 цифры, воронка продаж из 6 ш�
   expect(wide).toBeLessThanOrEqual(0);
   if (process.env.CABINET_SHOTS)
     await page.screenshot({ path: `${process.env.CABINET_SHOTS}/cabinet-1280.png`, fullPage: true });
+  // владелец 30.10.2026 («сделай повыше, чтобы не было обрезанного»): на ноутбуке (1440×800 без панелей браузера)
+  // цифры, вся воронка и оба графика целиком на первом экране
+  await page.setViewportSize({ width: 1440, height: 800 });
+  await page.reload();
+  await expect(page.getByTestId('growth-renewals')).toBeVisible();
+  for (const id of ['cabinet-mrr', 'growth-renewals', 'growth-rates', 'growth-income'])
+    await expect(page.getByTestId(id), id).toBeInViewport({ ratio: 1 });
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/cabinet-1440x800.png` });
 
   // «Клиенты»: строка с LTV, «оплачено до» и кнопкой «Доступ»; своя организация не клиент
   await cabinet.getByRole('navigation', { name: 'Кабинет WETOP' }).getByRole('link', { name: /Клиенты/ }).click();

@@ -66,6 +66,8 @@ test('администратор: в меню — работа с гостями
       '/ai-agents',
       '/market',
       '/sales',
+      // «Обучение» у всех ролей (владелец 30.10.2026)
+      '/learn',
       '/help',
     ]);
   await expect(page.locator('.workspace-header .profile-caption')).toContainText('Администратор');

@@ -43,8 +43,9 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
       await page.setViewportSize({ width, height: 900 });
       const header = page.locator('.workspace-header');
       const tabs = page.locator('.tabnav .tabnav__tab');
-      // у салона «Продвижение» скрыто до готовности (запуск первых салонов 25.10.2026): 10 разделов, у прочих 11
-      await expect(tabs).toHaveCount(vertical === 'beauty' ? 10 : 11);
+      // у салона «Продвижение» скрыто до готовности (запуск первых салонов 25.10.2026): 11 разделов, у прочих 12
+      // («Обучение» у всех с 30.10.2026)
+      await expect(tabs).toHaveCount(vertical === 'beauty' ? 11 : 12);
       if (vertical === 'beauty')
         await expect(tabs.filter({ hasText: 'Продвижение' })).toHaveCount(0);
       // две строки: 48 px управление + 40 px разделы, переменная шапки совпадает с высотой
@@ -100,7 +101,7 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
 
 test('у всех трёх направлений одни и те же разделы в одном порядке', () => {
   const base = seen['hotel-1440'] ?? [];
-  expect(base).toHaveLength(11);
+  expect(base).toHaveLength(12);
   expect(base).toContain('Продвижение');
   // салон при запуске (владелец 25.10.2026): ровно без «Продвижения» (и «Сертификатов», если они разделом в базе),
   // прочие разделы те же и в том же порядке; ресторан и гостиница совпадают с базой целиком

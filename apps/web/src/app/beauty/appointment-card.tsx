@@ -49,8 +49,11 @@ function AppointmentCardBody({
   canIssueReview = false,
   canAdjustPrice = false,
   scopeKey = '',
+  payOnly = false,
   onDone,
 }: {
+  /** окно «Оплатить» из «Ближайших»: только сумма к оплате и блок оплаты (владелец 30.10.2026) */
+  payOnly?: boolean;
   day: BeautyDay;
   row: BeautyAppointmentRow;
   canEdit?: boolean;
@@ -277,7 +280,7 @@ function AppointmentCardBody({
   const leftToPay = net > 0n && remaining > 0n;
 
   return (
-    <div className="beauty-form appointment-card">
+    <div className={payOnly ? 'beauty-form appointment-card appointment-card--pay' : 'beauty-form appointment-card'}>
       {/* ТЗ 25.10.2026 п.8: шапка, сводка, действия строкой; оплата справа на ПК, под сводкой на телефоне */}
       <header className="appointment-card-head">
         <strong className="appointment-card-client">{row.customer.name}</strong>

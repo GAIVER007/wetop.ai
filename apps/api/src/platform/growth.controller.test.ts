@@ -52,6 +52,18 @@ const repo = {
       visitors: visitors === null ? null : [{ country: 'KZ', visitors: 20 }, { country: 'QA', visitors: 5 }],
     };
   },
+  async rnp(hosts: readonly string[], from: Date, to: Date) {
+    asked.push({ hosts, from: from.toISOString(), to: to.toISOString() });
+    return {
+      visitors: [{ day: '2026-10-01', visitorKey: 'v1' }],
+      leads: [{ day: '2026-10-01', visitorKey: 'v1' }],
+      organizations: [{ id: 'c1', createdAt: new Date('2026-10-01T09:00:00Z') }],
+      payments: [{ organizationId: 'c1', amountCents: 1900n, paidOn: '2026-10-02', voided: false }],
+      expenses: [],
+      partners: [],
+      links: [],
+    };
+  },
 };
 
 let app: INestApplication;
@@ -148,5 +160,13 @@ describe('страны (GET /platform/countries)', () => {
   });
   it('не главному администратору закрыто', async () => {
     await api().get('/platform/countries').set(as('session-owner')).expect(403);
+  });
+
+  it('РНП: каждый день месяца строкой и итоги; только главному администратору', async () => {
+    const res = await api().get('/platform/rnp?month=2026-10').set(as('session-admin')).expect(200);
+    expect(res.body.days).toHaveLength(31);
+    expect(res.body.total).toMatchObject({ visitors: 1, leads: 1, registrations: 1, firstPayments: 1, incomeCents: '1900' });
+    expect(asked.at(-1)).toMatchObject({ hosts: ['wetop.ai', 'www.wetop.ai'], from: '2026-10-01T00:00:00.000Z', to: '2026-11-01T00:00:00.000Z' });
+    await api().get('/platform/rnp').set(as('session-owner')).expect(403);
   });
 });

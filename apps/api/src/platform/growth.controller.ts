@@ -10,6 +10,7 @@ import { requirePlatformAdmin } from './admin';
 import { buildGrowth, type GrowthSource } from './growth';
 import { buildSiteReport, type SiteReportInput } from './site-report';
 import { buildCountries, type CountriesSource } from './countries';
+import { buildRnp, type RnpSource } from './rnp';
 
 export const GROWTH_REPOSITORY = Symbol('GROWTH_REPOSITORY');
 
@@ -22,6 +23,8 @@ export interface GrowthRepository {
   siteActivity(hosts: readonly string[], from: Date, to: Date): Promise<Omit<SiteReportInput, 'month'> | null>;
   /** Клиенты со страной, деньги и посетители сайта по стране за [from, to) («Страны», 29.10.2026) */
   countries(hosts: readonly string[], from: Date, to: Date): Promise<Omit<CountriesSource, 'ownOrganizationId'>>;
+  /** РНП по дням за [from, to): сайт, регистрации, оплаты, расходы, партнёры (30.10.2026) */
+  rnp(hosts: readonly string[], from: Date, to: Date): Promise<RnpSource>;
 }
 
 /**
@@ -157,6 +160,54 @@ export class PrismaGrowthRepository implements GrowthRepository {
       visitors,
     };
   }
+
+  async rnp(hosts: readonly string[], from: Date, to: Date) {
+    return rnpSource(this.prisma.db, hosts, from, to);
+  }
+}
+
+const tableExists = async (db: PrismaService['db'], table: string) =>
+  (await db.$queryRaw<Array<{ ok: boolean }>>(Prisma.sql`SELECT to_regclass(${table}) IS NOT NULL AS ok`))[0]?.ok === true;
+
+/** РНП: оплаты за всё время (первая оплата клиента), расходы и сайт за месяц; таблиц ещё нет: пусто */
+export async function rnpSource(db: PrismaService['db'], hosts: readonly string[], from: Date, to: Date): Promise<RnpSource> {
+  const [money, expenses, partnersOn] = await Promise.all([
+    tableExists(db, 'platform_payments'),
+    tableExists(db, 'platform_expenses'),
+    tableExists(db, 'platform_partners'),
+  ]);
+  const [orgs, company, payments, spent, partners, links, sites] = await Promise.all([
+    db.organization.findMany({ select: { id: true, createdAt: true } }),
+    companyOrganizationIds(db),
+    money ? db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, paidOn: true, voidedAt: true } }) : Promise.resolve([]),
+    expenses
+      ? db.platformExpense.findMany({ where: { spentOn: { gte: from, lt: to } }, select: { amountCents: true, spentOn: true, voidedAt: true, partnerId: true } })
+      : Promise.resolve([]),
+    partnersOn ? db.platformPartner.findMany({ orderBy: { createdAt: 'asc' }, select: { id: true, name: true, percentBp: true, active: true } }) : Promise.resolve([]),
+    partnersOn ? db.platformClientPartner.findMany({ select: { organizationId: true, partnerId: true } }) : Promise.resolve([]),
+    db.trackedSite.findMany({ where: { hosts: { hasSome: [...hosts] } }, select: { id: true } }),
+  ]);
+  const siteIds = sites.map((x) => x.id);
+  const [sessions, sent] = siteIds.length
+    ? await Promise.all([
+        db.webSession.findMany({ where: { siteId: { in: siteIds }, startedAt: { gte: from, lt: to } }, select: { visitorKey: true, startedAt: true } }),
+        db.webEvent.findMany({
+          where: { name: 'signup_sent', session: { siteId: { in: siteIds } }, at: { gte: from, lt: to } },
+          select: { at: true, session: { select: { visitorKey: true } } },
+        }),
+      ])
+    : [[], []];
+  return {
+    visitors: sessions.map((x) => ({ day: day(x.startedAt)!, visitorKey: x.visitorKey })),
+    leads: sent.map((e) => ({ day: day(e.at)!, visitorKey: e.session.visitorKey })),
+    organizations: orgs.filter((o) => !company.has(o.id)),
+    payments: payments
+      .filter((p) => !company.has(p.organizationId))
+      .map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn)!, voided: p.voidedAt !== null })),
+    expenses: spent.map((e) => ({ amountCents: e.amountCents, spentOn: day(e.spentOn)!, voided: e.voidedAt !== null, partnerId: e.partnerId })),
+    partners,
+    links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId }] : [])),
+  };
 }
 
 const thisMonth = () => new Date().toISOString().slice(0, 7);
@@ -206,5 +257,16 @@ export class GrowthController {
     const to = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1));
     const src = await this.repo.countries(WETOP_SITE_HOSTS, from, to);
     return buildCountries({ ...src, ownOrganizationId: currentOrganizationId() }, month, new Date());
+  }
+
+  /** РНП: каждый день месяца строкой и итоги; вкладка «Партнёры» (владелец 30.10.2026) */
+  @Get('rnp')
+  @Header('Cache-Control', 'no-store')
+  async rnp(@Query('month') rawMonth?: string) {
+    requirePlatformAdmin();
+    const month = typeof rawMonth === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(rawMonth) ? rawMonth : thisMonth();
+    const from = new Date(`${month}-01T00:00:00.000Z`);
+    const to = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1));
+    return buildRnp(await this.repo.rnp(WETOP_SITE_HOSTS, from, to), month);
   }
 }

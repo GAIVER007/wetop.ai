@@ -6,7 +6,7 @@ import { formatMoney } from '../../lib/money';
 import { formatPhone } from '../../lib/phone';
 import { beautyStatus } from '../../lib/status/beauty';
 import { ACTION_WORD } from './appointment-status';
-import { dayMoney, quickAction, upcoming, upcomingTag } from './journal-day';
+import { dayMoney, payAction, quickAction, upcoming, upcomingTag } from './journal-day';
 import { setAppointmentStatus } from './journal-actions';
 import { clock } from './time';
 import { useT } from '../../i18n/locale-provider';
@@ -32,6 +32,7 @@ export function DayPanel({
   currency,
   canUpdate,
   onOpen,
+  onPay,
   onDone,
 }: {
   rows: BeautyAppointmentRow[];
@@ -43,6 +44,8 @@ export function DayPanel({
   nowMinutes: number | null;
   canUpdate: boolean;
   onOpen: (row: BeautyAppointmentRow) => void;
+  /** «Оплатить»: окно записи сразу на оплате; не передано: обычное открытие */
+  onPay?: ((row: BeautyAppointmentRow) => void) | undefined;
   onDone: () => void;
 }) {
   const t = useT();
@@ -174,7 +177,20 @@ export function DayPanel({
                       <small>{r.serviceName}</small>
                     </span>
                   </button>
-                  {tag && <span className={r.status === 'DONE' ? 'beauty-tag beauty-tag--debt' : 'beauty-tag beauty-tag--unpaid'}>{t(tag)}</span>}
+                  {tag && payAction(arrived.has(r.id) ? { ...r, status: 'IN_PROGRESS' } : r) ? (
+                    // в работе или долг: «Оплатить» горит и открывает окно оплаты (владелец 30.10.2026)
+                    <Button
+                      size="sm"
+                      tone={r.status === 'DONE' ? 'danger' : 'primary'}
+                      aria-label={`${t('Оплатить')}: ${r.customer.name}, ${clock(r.startMinutes)}`}
+                      data-testid="upcoming-pay"
+                      onClick={() => (onPay ?? onOpen)(r)}
+                    >
+                      {t('Оплатить')}
+                    </Button>
+                  ) : (
+                    tag && <span className={r.status === 'DONE' ? 'beauty-tag beauty-tag--debt' : 'beauty-tag beauty-tag--unpaid'}>{t(tag)}</span>
+                  )}
                   {!tag && act && (
                     <Button
                       size="sm"

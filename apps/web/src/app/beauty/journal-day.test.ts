@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BeautyAppointmentRow } from '../../lib/api';
-import { dayMoney, quickAction, shortHour, shortName, tilePayment, upcoming } from './journal-day';
+import { dayMoney, quickAction, shortHour, shortName, tilePayment, upcoming, upcomingTag } from './journal-day';
 
 /** Журнал салона, вариант B (владелец 24.10.2026): загрузка мастера, ближайшие, деньги дня, быстрое действие */
 const row = (p: Partial<BeautyAppointmentRow>): BeautyAppointmentRow => ({
@@ -23,24 +23,47 @@ const row = (p: Partial<BeautyAppointmentRow>): BeautyAppointmentRow => ({
   ...p,
 });
 describe('ближайшие', () => {
-  it('записанные и подтверждённые от «сейчас» минус 30 минут, по времени, не больше пяти', () => {
+  it('неоплаченные записи дня по времени, не больше пяти', () => {
     const rows = [
       row({ id: 'late', startMinutes: 900 }),
-      row({ id: 'past', startMinutes: 500 }),
       row({ id: 'conf', startMinutes: 760, status: 'CONFIRMED' }),
-      row({ id: 'work', startMinutes: 780, status: 'IN_PROGRESS' }),
       row({ id: 'soon', startMinutes: 740 }),
     ];
     expect(upcoming(rows, 765).map((r) => r.id)).toEqual(['soon', 'conf', 'late']);
     expect(upcoming(Array.from({ length: 9 }, (_, i) => row({ id: String(i), startMinutes: 800 + i })), 765)).toHaveLength(5);
   });
-  // владелец 29.10.2026: нажали «Пришла», и запись сразу уходит из «Ближайших», не дожидаясь обновления страницы
-  it('отмеченные «Пришла» сразу уходят из списка, на их место встаёт следующая', () => {
-    const rows = Array.from({ length: 7 }, (_, i) => row({ id: `r${i}`, startMinutes: 800 + i * 10, status: 'CONFIRMED' }));
-    expect(upcoming(rows, 765, 5, new Set(['r0', 'r2'])).map((r) => r.id)).toEqual(['r1', 'r3', 'r4', 'r5', 'r6']);
-  });
   it('не сегодня: весь день сначала', () => {
     expect(upcoming([row({ id: 'x', startMinutes: 500 })], null).map((r) => r.id)).toEqual(['x']);
+  });
+});
+
+// владелец 30.10.2026: «в Ближайших висят те, кто пришёл; пусть висят только те, кто ещё не оплатил: пришла, и висит
+// как без оплаты или долг; оплатили, и пропадает; пока не оплатили, висит»
+describe('ближайшие: висит, пока не оплачено', () => {
+  it('пришла без оплаты висит с меткой «Без оплаты», завершена без оплаты «Долг», оплаченные уходят', () => {
+    const rows = [
+      row({ id: 'chair', startMinutes: 600, status: 'IN_PROGRESS' }),
+      row({ id: 'debt', startMinutes: 540, status: 'DONE', paidMinor: '400000' }),
+      row({ id: 'paid', startMinutes: 560, status: 'DONE', paidMinor: '1000000' }),
+      row({ id: 'paidChair', startMinutes: 570, status: 'IN_PROGRESS', paidMinor: '1000000' }),
+      row({ id: 'gone', startMinutes: 580, status: 'NO_SHOW' }),
+      row({ id: 'off', startMinutes: 590, status: 'CANCELLED' }),
+      row({ id: 'next', startMinutes: 900, status: 'CONFIRMED' }),
+    ];
+    const list = upcoming(rows, 765);
+    expect(list.map((r) => r.id)).toEqual(['debt', 'chair', 'next']);
+    expect(upcomingTag(list[0]!)).toBe('Долг');
+    expect(upcomingTag(list[1]!)).toBe('Без оплаты');
+    expect(upcomingTag(list[2]!)).toBeNull();
+  });
+  it('нажали «Пришла»: запись остаётся и сразу показывается «Без оплаты», не дожидаясь обновления', () => {
+    const rows = [row({ id: 'r1', startMinutes: 800, status: 'CONFIRMED' })];
+    const list = upcoming(rows, 765, 5, new Set(['r1']));
+    expect(list.map((r) => r.id)).toEqual(['r1']);
+    expect(upcomingTag(list[0]!)).toBe('Без оплаты');
+  });
+  it('записанные, чьё время прошло, тоже висят: не пришли и не оплачены, пока их не отметят', () => {
+    expect(upcoming([row({ id: 'early', startMinutes: 500, status: 'CONFIRMED' })], 765).map((r) => r.id)).toEqual(['early']);
   });
 });
 

@@ -33,6 +33,9 @@ import { Icon } from '../../components/icon';
 import { unstable_rethrow } from 'next/navigation';
 import '../directory.css';
 import { ACTION_RU, actionLabel, entityLabel } from './labels';
+import { JournalPeriod } from './journal-period';
+import { formatMoney } from '../../lib/money';
+import { RISK_TABS, RISK_TAG, RISK_TILES, riskChange, riskComment, type AuditSummary, type RiskKey } from './journal-risk';
 
 interface AuditRow {
   id: string;
@@ -49,6 +52,7 @@ interface AuditRow {
   cursor?: string;
   before?: Record<string, unknown>;
   after?: Record<string, unknown>;
+  risk?: RiskKey | null;
 }
 
 const FILTERS: ReadonlyArray<readonly [type: string | null, label: string]> = [
@@ -97,6 +101,21 @@ export default async function JournalPage({
     },
   );
   const showSystem = system === '1';
+  // сводка рисков периода (владелец 30.10.2026): число и сумма скидок, отмен, удалений, возвратов и входов
+  // без выбранного периода цифры и подпись за текущий месяц: «за всё время» владельцу ничего не говорит
+  const periodFrom = from ?? `${clock.today().slice(0, 8)}01`;
+  const periodTo = to ?? clock.today();
+  const summaryQuery = new URLSearchParams({ timezone: clock.timezone, ...(actor ? { actor } : {}), from: periodFrom, to: periodTo }).toString();
+  const groupHref = (g: string | null) => {
+    const u = new URLSearchParams({
+      ...(actor ? { actor } : {}),
+      ...(from ? { from } : {}),
+      ...(to ? { to } : {}),
+      ...(g ? { group: g } : {}),
+    });
+    const str = u.toString();
+    return str ? `/journal?${str}` : '/journal';
+  };
   const needle = q?.trim() ?? '';
   // Поиск и фильтр выполняются в API по всей истории, наружу возвращается ограниченная выборка.
   const query = new URLSearchParams({
@@ -146,7 +165,13 @@ export default async function JournalPage({
       : '',
     from ? t('с {date}', { date: from }) : '',
     to ? t('по {date}', { date: to }) : '',
-    group === 'finance' ? t('касса и финансы') : group === 'staff' ? t('действия сотрудников') : '',
+    group === 'finance'
+      ? t('касса и финансы')
+      : group === 'staff'
+        ? t('действия сотрудников')
+        : group
+          ? t(RISK_TABS.find((x) => x.key === group)?.label ?? group).toLocaleLowerCase('ru-RU')
+          : '',
     action ? actionLabel(action, t) : '',
   ].filter(Boolean);
   return (
@@ -161,7 +186,25 @@ export default async function JournalPage({
           {t('Не удалось загрузить список сотрудников. Журнал доступен, обновите страницу для выбора сотрудника.')}
         </Notice>
       )}
+      {/* владелец 30.10.2026: компактно и по центру, сверху риски периода, вкладки разделов, период как в Журнале */}
+      <div className="journal-wrap">
+      {/* сводка рисков отдельным потоком: медленный ответ API не держит поиск и переходы (control-design) */}
+      <Suspense key={summaryQuery} fallback={<div className="journal-risk-tiles" aria-busy="true" />}>
+        <RiskTiles query={summaryQuery} hrefFor={RISK_TILES.map((x) => [x.key, groupHref(x.key)] as const)} active={group ?? null} />
+      </Suspense>
+      <div className="journal-toolbar">
+        <nav className="journal-tabs" aria-label={t('Раздел рисков')}>
+          <Link href={groupHref(null)} className={cx(!group && 'is-active')} aria-current={!group ? 'true' : undefined}>{t('Все')}</Link>
+          {RISK_TABS.map((tab) => (
+            <Link key={tab.key} href={groupHref(tab.key)} className={cx(group === tab.key && 'is-active')} aria-current={group === tab.key ? 'true' : undefined}>
+              {t(tab.label)}
+            </Link>
+          ))}
+        </nav>
+        <JournalPeriod from={periodFrom} to={periodTo} today={clock.today()} />
+      </div>
       {/* аудит 21.10.2026 п. 38: поиск по истории виден сразу и ищет только в истории, а не по всему WETOP */}
+      <div className="journal-search-row">
       <form method="get" className="journal-search" role="search" aria-label={t('Искать по истории')}>
         <Field label={t('Поиск в истории')}>
           <Input
@@ -262,6 +305,8 @@ export default async function JournalPage({
           <Button tone="secondary">{t('Найти')}</Button>
         </form>
       </details>
+      </div>
+      {desk.vertical === 'HOSPITALITY' && (
       <nav className="chips" aria-label={t('Раздел истории')}>
         {filters.map(([f, label]) => (
           <Link
@@ -274,6 +319,7 @@ export default async function JournalPage({
           </Link>
         ))}
       </nav>
+      )}
       <Suspense
         key={query.toString()}
         fallback={
@@ -291,6 +337,7 @@ export default async function JournalPage({
           searching={!!needle}
         />
       </Suspense>
+      </div>
     </Page>
   );
 }
@@ -349,6 +396,8 @@ async function JournalEntries({
               {[msg('Когда'), msg('Кто'), msg('Что сделали'), msg('Где')].map((h) => (
                 <th key={h}>{t(h)}</th>
               ))}
+              <th className="num">{t('Было → стало')}</th>
+              <th>{t('Комментарий')}</th>
             </tr>
           </thead>
           <tbody>
@@ -360,7 +409,7 @@ async function JournalEntries({
                 <Fragment key={r.id}>
                   {newDay && (
                     <tr className="journal-day">
-                      <th colSpan={4} scope="colgroup" data-testid="journal-day">
+                      <th colSpan={6} scope="colgroup" data-testid="journal-day">
                         {dayTitle(r.at, today, clock, locale, t)}
                       </th>
                     </tr>
@@ -377,17 +426,24 @@ async function JournalEntries({
                       )}
                     </td>
                     <td>
-                      <div>{actionLabel(r.action, t)}</div>
-                      {(r.after?.amountMinor ?? r.before?.amountMinor) !== undefined && (
+                      <div className="journal-action">
+                        {r.risk && (
+                          <span className={`journal-tag journal-tag--${r.risk}`}>{t(RISK_TAG[r.risk])}</span>
+                        )}
+                        {actionLabel(r.action, t)}
+                      </div>
+                      {!riskChange(r.before, r.after) && (r.after?.amountMinor ?? r.before?.amountMinor) !== undefined && (
                         <strong>
                           {auditValue('amountMinor', r.after?.amountMinor ?? r.before?.amountMinor, t)}
                         </strong>
                       )}
-                      <OperationDetails
-                        {...(r.before ? { before: r.before } : {})}
-                        {...(r.after ? { after: r.after } : {})}
-                        t={t}
-                      />
+                      {!r.risk && (
+                        <OperationDetails
+                          {...(r.before ? { before: r.before } : {})}
+                          {...(r.after ? { after: r.after } : {})}
+                          t={t}
+                        />
+                      )}
                     </td>
                     <td>
                       <span className="muted-2">{entityLabel(r.entityType, t)}</span>
@@ -403,6 +459,27 @@ async function JournalEntries({
                       {r.entityType === 'Reservation' &&
                         r.subject &&
                         r.targetAvailable === false && <span className="muted-2"> {t('(удалена)')}</span>}
+                    </td>
+                    <td className="num journal-change-cell">
+                      {(() => {
+                        const c = riskChange(r.before, r.after);
+                        if (!c) return null;
+                        const m = (v: string) => formatMoney(v, c.currency ?? undefined);
+                        return c.before ? (
+                          <span><s className="muted-2">{m(c.before)}</s> → <b>{m(c.after)}</b></span>
+                        ) : (
+                          <b>{m(c.after)}</b>
+                        );
+                      })()}
+                    </td>
+                    <td className="journal-comment">
+                      {(() => {
+                        const note = riskComment(r.before, r.after);
+                        if (note) return <span title={note}>«{note}»</span>;
+                        return r.risk && r.risk !== 'access' ? (
+                          <span className="journal-no-comment" data-testid="journal-no-comment">{t('Нет комментария')}</span>
+                        ) : null;
+                      })()}
                     </td>
                   </tr>
                 </Fragment>
@@ -449,5 +526,40 @@ async function JournalEntries({
         </EmptyState>
       )}
     </div>
+  );
+}
+
+async function RiskTiles({
+  query,
+  hrefFor,
+  active,
+}: {
+  query: string;
+  hrefFor: ReadonlyArray<readonly [RiskKey, string]>;
+  active: string | null;
+}) {
+  const t = await serverT();
+  const summary = await getJsonPublic<AuditSummary>(`/audit/summary?${query}`).catch((e: unknown) => {
+    unstable_rethrow(e);
+    return null;
+  });
+  if (!summary) return null;
+  const href = new Map(hrefFor);
+  return (
+    <section className="journal-risk-tiles" aria-label={t('Риски за период')} data-testid="journal-risk-tiles">
+      {RISK_TILES.map((tile) => (
+        <Link
+          key={tile.key}
+          href={href.get(tile.key) ?? '/journal'}
+          className={cx('journal-risk-tile', `journal-risk-tile--${tile.tone}`, active === tile.key && 'is-active')}
+          aria-current={active === tile.key ? 'true' : undefined}
+          data-testid={`journal-risk-${tile.key}`}
+        >
+          <span>{t(tile.label)}</span>
+          <b>{summary[tile.key].count}</b>
+          <small>{tile.key === 'access' ? t('событий') : formatMoney(summary[tile.key].minor, summary.currency ?? undefined)}</small>
+        </Link>
+      ))}
+    </section>
   );
 }

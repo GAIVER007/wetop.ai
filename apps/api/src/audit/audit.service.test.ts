@@ -200,3 +200,63 @@ describe('AuditService.list — кто сделал', () => {
     });
   });
 });
+
+/**
+ * Владелец 30.10.2026: «История действий создана для предотвращения краж: сделал скидку, отменил запись, удалил».
+ * Разделы риска считает база одним выражением (riskKind), сводка периода отдаёт число и сумму по каждому.
+ */
+describe('AuditService: разделы риска', () => {
+  it('group=risk отбирает скидки, отмены, удаления и возвраты одним условием', async () => {
+    const { service, queries } = fakePrisma();
+    await service.list({ group: 'risk' } as never);
+    const { sql } = queries[0]!;
+    expect(sql).toContain("'discount'");
+    expect(sql).toContain("'cancel'");
+    expect(sql).toContain("'delete'");
+    expect(sql).toContain("'refund'");
+    expect(sql).toContain('IS NOT NULL');
+  });
+
+  it('group=discount и group=access по отдельности, неизвестный раздел отклоняется', async () => {
+    const { service, queries } = fakePrisma();
+    await service.list({ group: 'discount' } as never);
+    expect(queries[0]!.values).toContain('discount');
+    await service.list({ group: 'access' } as never);
+    expect(queries[1]!.values).toContain('access');
+    await expect(service.list({ group: 'nope' } as never)).rejects.toThrow();
+  });
+
+  it('у записи салона наружу едут статус, цены и причина, а не весь снимок', async () => {
+    const { service, queries } = fakePrisma();
+    await service.list({});
+    const sql = queries[0]!.sql;
+    expect(sql).toContain("a.\"action\" LIKE 'beauty.appointment.%'");
+    const keys = queries[0]!.values.filter(Array.isArray).flat();
+    expect(keys).toEqual(expect.arrayContaining(['priceMinor', 'currency', 'paidMinor', 'reason', 'status']));
+  });
+
+  it('строка несёт свой раздел риска', async () => {
+    const { service } = fakePrisma([row({ action: 'beauty.appointment.price_adjusted', risk: 'discount' })]);
+    const [entry] = await service.list({});
+    expect(entry).toMatchObject({ risk: 'discount' });
+  });
+
+  it('сводка периода: число и сумма по разделам риска, тот же замок организации и пояс', async () => {
+    const { service, queries } = fakePrisma([
+      { risk: 'discount', count: 6n, minor: '42000', currency: 'QAR' },
+      { risk: 'cancel', count: 4n, minor: '150000', currency: null },
+    ]);
+    const summary = await service.summary({ from: '2026-10-01', to: '2026-10-30', timezone: 'Asia/Qatar' } as never);
+    expect(summary).toEqual({
+      discount: { count: 6, minor: '42000' },
+      cancel: { count: 4, minor: '150000' },
+      delete: { count: 0, minor: '0' },
+      refund: { count: 0, minor: '0' },
+      access: { count: 0, minor: '0' },
+      currency: 'QAR',
+    });
+    expect(queries[0]!.sql).toContain('GROUP BY');
+    expect(queries[0]!.sql).toContain('a."created_at" >=');
+  });
+});
+

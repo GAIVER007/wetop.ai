@@ -27,6 +27,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /cash-register/cashiers': 'settings',
   // Owner reporting and existing cash linkage: read reports, mutate only with settings.
   'GET /owner-summary': 'reports',
+  // РНП бизнеса клиента по дням (владелец 30.10.2026)
+  'GET /business-rnp': 'reports',
   'GET /expenses': 'reports',
   'POST /expenses': 'settings',
   'POST /expenses/:id/settlements': 'settings',

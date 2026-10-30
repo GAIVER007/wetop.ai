@@ -1,0 +1,22 @@
+/* РНП бизнеса (владелец 30.10.2026): полоса итогов «B» как в Кабинете WETOP, таблица дней в одну строку */
+.rnp { display: grid; gap: var(--space-2); min-width: 0; }
+.rnp__head { display: flex; justify-content: flex-end; }
+.rnp__strip { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); margin: 0; padding: var(--space-2) 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.rnp__strip > div { display: grid; gap: var(--space-1); padding: 0 var(--space-4); border-left: 1px solid var(--border); min-width: 0; }
+.rnp__strip > div:first-child { border-left: 0; }
+.rnp__strip dt { color: var(--muted); font-size: var(--text-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rnp__strip dd { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1); }
+.rnp__strip b { font-size: var(--text-xl); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rnp__strip small { color: var(--muted); font-size: var(--text-xs); }
+.rnp__table :is(th, td) { white-space: nowrap; }
+.rnp__table td[data-negative] { color: var(--danger); }
+.rnp__table tfoot :is(th, td) { font-weight: 700; border-top: 1px solid var(--border); }
+.rnp__note { margin: var(--space-2) 0 0; font-size: var(--text-xs); }
+@media (max-width: 1279px) {
+  .rnp__strip { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: var(--space-2); }
+  .rnp__strip > div:nth-child(4n + 1) { border-left: 0; }
+}
+@media (max-width: 600px) {
+  .rnp__strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rnp__strip > div:nth-child(odd) { border-left: 0; }
+}

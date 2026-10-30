@@ -132,45 +132,45 @@ export function ServicesBoard({
   const pctText = (pct: number | null) =>
     pct === null ? '' : `${new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'ru-RU', { maximumFractionDigits: 1 }).format(pct)} %`;
   const missing = catalog.filter((row) => row.location?.enabled !== true);
-  const row = (r: BeautyServiceRow, side: 'location' | 'catalog') => {
-    const key = `id:${r.id}`;
-    const price = shownPriceMinor(r);
-    const minutes = side === 'location' && r.effective?.sellable ? r.effective.durationMinutes : r.durationMinutes;
-    const reason = r.effective && !r.effective.sellable && r.effective.reason !== 'NOT_ENABLED' ? r.effective.reason : null;
-    const pct = side === 'location' && maxPopularity > 0 ? popularityPercent(r) : null;
+  const serviceRow = (row: BeautyServiceRow, side: 'location' | 'catalog') => {
+    const key = `id:${row.id}`;
+    const price = shownPriceMinor(row);
+    const minutes = side === 'location' && row.effective?.sellable ? row.effective.durationMinutes : row.durationMinutes;
+    const reason = row.effective && !row.effective.sellable && row.effective.reason !== 'NOT_ENABLED' ? row.effective.reason : null;
+    const pct = side === 'location' && maxPopularity > 0 ? popularityPercent(row) : null;
     return (
-      <li key={r.id} className={`beauty-service-item${side === 'location' ? ' is-on' : ''}${r.active ? '' : ' is-archived'}`} data-service-in-location={side === 'location' ? 'true' : 'false'}>
+      <li key={row.id} className={`beauty-service-item${side === 'location' ? ' is-on' : ''}${row.active ? '' : ' is-archived'}`} data-service-in-location={side === 'location' ? 'true' : 'false'}>
         {canUpdate ? (
           <input
             type="checkbox"
             className="beauty-service-check"
-            aria-label={t('Выбрать: {name}', { name: r.name })}
+            aria-label={t('Выбрать: {name}', { name: row.name })}
             checked={selected.has(key)}
-            disabled={!r.active}
+            disabled={!row.active}
             onChange={(event) => toggle(key, event.target.checked)}
           />
         ) : <span aria-hidden="true" />}
         <span className="beauty-service-row__name">
-          <b>{r.name}</b>
+          <b>{row.name}</b>
           {reason && <small>{NOT_SELLABLE[reason] ? t(NOT_SELLABLE[reason]!) : t('Не продаётся')}</small>}
-          {!r.active && <small>{t('В архиве')}</small>}
+          {!row.active && <small>{t('В архиве')}</small>}
         </span>
         <span className="beauty-service-row__time">{t('{minutes} мин', { minutes })}</span>
         <span className="beauty-service-row__price">
           {price === '0'
             ? <span className="beauty-service-warn">{t('Укажите цену')}</span>
-            : <b>{formatMoney(price, r.effective?.sellable ? r.effective.currency : r.currency)}</b>}
+            : <b>{formatMoney(price, row.effective?.sellable ? row.effective.currency : row.currency)}</b>}
         </span>
         <span className="beauty-service-row__pct" title={t('Доля завершённых визитов')}>{pctText(pct)}</span>
         <span className="beauty-service-row__actions">
           {canUpdate && side === 'location' && (
             <>
-              <button type="button" className="icon-button" aria-label={t('Техкарта услуги: {name}', { name: r.name })} onClick={() => setMaterialService(r)}><Icon name="product" /></button>
-              <button type="button" className="icon-button" aria-label={t('Изменить: {name}', { name: r.name })} onClick={() => setEditing({ mode: 'edit', row: r })}><Icon name="edit" /></button>
+              <button type="button" className="icon-button" aria-label={t('Техкарта услуги: {name}', { name: row.name })} onClick={() => setMaterialService(row)}><Icon name="product" /></button>
+              <button type="button" className="icon-button" aria-label={t('Изменить: {name}', { name: row.name })} onClick={() => setEditing({ mode: 'edit', row })}><Icon name="edit" /></button>
             </>
           )}
           {canUpdate && side === 'catalog' && (
-            <button type="button" className="icon-button" aria-label={t('Изменить: {name}', { name: r.name })} onClick={() => setEditing({ mode: 'edit', row: r })}><Icon name="edit" /></button>
+            <button type="button" className="icon-button" aria-label={t('Изменить: {name}', { name: row.name })} onClick={() => setEditing({ mode: 'edit', row })}><Icon name="edit" /></button>
           )}
         </span>
       </li>
@@ -184,7 +184,7 @@ export function ServicesBoard({
           <span className="beauty-service-group">{group.key ? group.name : t(group.name)} </span>
           <span className="beauty-price-group__meta">{group.rows.length}</span>
         </h3>
-        <ul>{group.rows.map((r) => row(r, side))}</ul>
+        <ul>{group.rows.map((r) => serviceRow(r, side))}</ul>
       </div>
     ));
   return (

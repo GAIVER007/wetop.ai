@@ -3244,6 +3244,8 @@
       width: auto;
       max-width: none;
       max-height: calc(100dvh - 24px);
+      /* лист снизу на телефоне поверх шапки: иначе шапка закрывает верх окна (Главная, 30.10.2026) */
+      z-index: var(--layer-overlay);
     }
     .date-range__body {
       grid-template-columns: minmax(0, 1fr);

@@ -96,7 +96,9 @@ describe('unified owner actual DTO', () => {
     expect(html).toContain('data-series="previous"');
     expect(html).toContain('67,89 ₸');
     expect(html).toContain('role="tablist"');
-    expect(html.indexOf('owner-chart-plot')).toBeLessThan(html.indexOf('<details'));
+    // точные суммы под графиком (свой <details>), окно периода в шапке тоже <details>: ищем после шапки
+    const plot = html.indexOf('owner-chart-plot');
+    expect(plot).toBeLessThan(html.indexOf('<details', html.indexOf('</header>')));
     expect(html.indexOf('owner-chart-plot')).toBeGreaterThan(-1);
   });
   it('shows category bars only for a complete reconciled currency breakdown', () => {
@@ -171,12 +173,52 @@ describe('unified owner actual DTO', () => {
     d.period = { ...d.period, key: 'month:2026-09', fromDate: '2026-09-01', toDate: '2026-09-30' };
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: d }));
     const bar = html.match(/<header class="owner-bar">([\s\S]*?)<\/header>/)?.[1] ?? '';
-    expect(bar).not.toContain('>Сегодня<');
-    expect(bar).not.toContain('>7 дней<');
-    expect(bar).toContain('Сентябрь 2026');
+    // отдельных кнопок «Сегодня» и «7 дней» в шапке нет: готовые периоды только внутри окна периода, как в Журнале
+    const outside = bar.replace(/<div class="date-range__panel"[\s\S]*?<\/details>/, '');
+    expect(outside).not.toContain('>Сегодня<');
+    expect(outside).not.toContain('>7 дней<');
+    // подпись периода как в Финансах и Записях («1–30 сентября 2026»), а не отдельная кнопка месяца
+    expect(bar).toMatch(/1[–-]30 сентября 2026/);
     expect(bar).toContain('href="/today?period=month:2026-08"');
     expect(bar).toContain('href="/today?period=month:2026-10"');
     expect(bar).toContain('data-testid="owner-custom-period"');
+  });
+  it('период Главной тем же окном, что Журнал, Записи и Финансы: календарь с готовыми периодами, а не поля даты браузера', () => {
+    // владелец 30.10.2026 (скрин): «почему такой стрёмный выбор периода, сделай как в других местах, единый стиль»
+    const d = dto('month');
+    d.period = { ...d.period, key: 'range:2026-10-01..2026-10-15', fromDate: '2026-10-01', toDate: '2026-10-15' };
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: d }));
+    const bar = html.match(/<header class="owner-bar">([\s\S]*?)<\/header>/)?.[1] ?? '';
+    expect(bar).toContain('class="date-range');
+    expect(bar).toMatch(/<summary[^>]*data-testid="owner-custom-period"/);
+    expect(bar).toContain('action="/today"');
+    expect(bar).not.toContain('owner-period__form');
+    expect(bar).not.toContain('>Свой период<');
+  });
+  // владелец 30.10.2026: «добавь статистику конверсия из записи в визит, а то бронируют и не доходят»
+  it('салон: «Запись → визит» справа под делами: процент пришедших и разбивка, ссылка на записи «Не пришёл»', () => {
+    const d = dto('month');
+    const visits = { booked: 12, came: 7, noShow: 2, cancelled: 1, unmarked: 2, percent: 58 };
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: d, visits }));
+    const panel = html.match(/<section[^>]*data-testid="owner-visits"[\s\S]*?<\/section>/)?.[0] ?? '';
+    expect(panel).toContain('Запись → визит');
+    expect(panel).toContain('58 %');
+    expect(panel).toContain('Пришли');
+    expect(panel).toContain('Не пришли');
+    expect(panel).toContain('Отменили');
+    expect(panel).toContain('Не отмечены');
+    expect(panel).toContain('href="/appointments?from=2026-10-01&amp;to=2026-10-16&amp;status=NO_SHOW"');
+    expect(html.indexOf('owner-attention-title')).toBeLessThan(html.indexOf('data-testid="owner-visits"'));
+  });
+  it('записей за период нет: блок говорит это словами, без 0 %', () => {
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('month'), visits: { booked: 0, came: 0, noShow: 0, cancelled: 0, unmarked: 0, percent: null } }));
+    const panel = html.match(/<section[^>]*data-testid="owner-visits"[\s\S]*?<\/section>/)?.[0] ?? '';
+    expect(panel).toContain('Прошедших записей за период нет');
+    expect(panel).not.toContain('0 %');
+  });
+  it('без данных конверсии (гостиница, ресторан) блока нет', () => {
+    const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('month') }));
+    expect(html).not.toContain('owner-visits');
   });
   it('unknown vertical is explicit unsupported', () => {
     const d = dto();
@@ -231,9 +273,9 @@ describe('unified owner actual DTO', () => {
     expect(html).not.toContain('Валюты показаны раздельно, без общего итога');
     expect(html).not.toContain('Связи с документами расходов пока не подключены');
   });
-  it('период из нескольких дней: «1-16 октября»', () => {
+  it('период из нескольких дней виден на кнопке периода: «1–16 октября 2026»', () => {
     const html = renderToStaticMarkup(createElement(OwnerSummaryView, { summary: dto('month') }));
-    expect(html).toContain('1-16 октября');
+    expect(html).toContain('1–16 октября 2026');
   });
   // аудит живого сайта 21.10.2026, п. 8: четыре плитки «Нет данных» владелец не хочет
   it('все четыре показателя пусты: одно короткое пустое состояние с записью в Журнал вместо плиток', () => {

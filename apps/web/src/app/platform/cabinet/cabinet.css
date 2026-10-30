@@ -682,6 +682,41 @@
     gap: var(--space-2);
   }
 
+  /* Главная на один экран ноутбука (владелец 30.10.2026: «сделай повыше, чтобы не было обрезанного»): плитки цифр
+     ниже и значок слева, воронка и графики ниже */
+  .cabinet-home-page .stats .stat {
+    min-height: 0;
+    padding: var(--space-2) var(--space-4);
+    text-align: left;
+  }
+  .cabinet-home-page .stats .stat--icon {
+    align-items: center;
+  }
+  .cabinet-home-page .stat__value {
+    font-size: var(--text-2xl);
+  }
+  .cabinet-home-page .stat__hint {
+    margin-top: 0;
+  }
+  .cabinet-home-page .panel {
+    padding-block: var(--space-4);
+  }
+  .cabinet-home-page .cabinet-cone__bar {
+    min-height: var(--space-10);
+    padding-block: var(--space-1);
+  }
+  .cabinet-home-page .cabinet-cone__conv {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+  }
+  .cabinet-home-page .cabinet__bars {
+    block-size: calc(var(--space-16) * 2);
+  }
+  .cabinet-home-page .cabinet-rates > svg {
+    max-block-size: calc(var(--space-16) * 2);
+  }
   /* Главная кабинета, вариант «B» (владелец 30.10.2026): воронка конусом слева, графики справа, три факта о пробном */
   .cabinet-home {
     display: grid;

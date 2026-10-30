@@ -846,6 +846,22 @@
     }
   },
   {
+    "route": "/owner",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/owner",
+    "rule": {
+      "href": "/owner",
+      "label": "Все бизнесы",
+      "requires": "owner"
+    }
+  },
+  {
     "route": "/payroll",
     "vertical": null,
     "features": [

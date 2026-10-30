@@ -10,6 +10,8 @@ import { mkdirSync } from 'node:fs';
 // верхнее меню по решению владельца 17.10.2026 (ADR-TOPNAV-20261017): одна строка разделов у всех направлений,
 // «Продажи» и «Маркетинг» в «Продвижении», экраны бара в «Складе», «Помощь» своим разделом
 const routes = [
+  // «Все бизнесы» владельцу (30.10.2026)
+  '/owner',
   '/today',
   '/chessboard',
   '/team',
@@ -142,7 +144,8 @@ test('меню телефона: вложенные адреса подсвеч�
 });
 
 test('все пункты меню открывают существующие страницы', async ({ page }) => {
-  test.setTimeout(180_000);
+  // пунктов стало больше («Все бизнесы», 30.10.2026): холодная сборка каждой страницы на стенде
+  test.setTimeout(300_000);
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');

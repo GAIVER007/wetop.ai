@@ -3,7 +3,7 @@ import { ApiError, authApi } from '../../../lib/api';
 import { readBoundedText } from '../../../lib/bounded-body';
 import { sessionCookieHeader } from '../../../lib/site-auth';
 import { SESSION_COOKIE } from '../../../lib/session-cookie';
-import { clearScopeCookieHeader, scopeResolvePath } from '../../../lib/scope-pointer';
+import { clearScopeCookieHeader, lastBranchCookieHeader, lastBranchValue, scopeResolvePath } from '../../../lib/scope-pointer';
 import { msg } from '../../../i18n';
 import { serverT } from '../../../i18n/server';
 
@@ -23,7 +23,11 @@ export async function POST(request: Request): Promise<Response> {
     return refuse(msg('Нужна форма'), 415);
   const body = await readBoundedText(request, 1_024);
   if (!body.ok) return refuse(msg('Слишком большой запрос'), 413);
-  const organizationId = (new URLSearchParams(body.text).get('organizationId') ?? '').trim();
+  const form = new URLSearchParams(body.text);
+  const organizationId = (form.get('organizationId') ?? '').trim();
+  // «Кабинет владельца: все бизнесы» (30.10.2026): филиал другой организации сразу. Только подсказка `/scope/resolve`
+  // (та же кука «последний филиал»): филиал выбирается, лишь если сервер отдал его в списке новой сессии
+  const locationId = lastBranchValue((form.get('locationId') ?? '').trim());
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   const back = (reason: string) =>
     new Response(null, {
@@ -32,13 +36,14 @@ export async function POST(request: Request): Promise<Response> {
     });
   if (!token) return back('signin');
   try {
-    const next = await authApi.switchOrganization(token, organizationId, {
+    const session = await authApi.switchOrganization(token, organizationId, {
       ip: request.headers.get('cf-connecting-ip'),
       userAgent: request.headers.get('user-agent'),
     });
     const headers = new Headers({ 'cache-control': 'no-store', location: scopeResolvePath('/today') });
-    headers.append('set-cookie', sessionCookieHeader(next, process.env));
+    headers.append('set-cookie', sessionCookieHeader(session, process.env));
     headers.append('set-cookie', clearScopeCookieHeader(process.env));
+    if (locationId) headers.append('set-cookie', lastBranchCookieHeader(locationId, process.env));
     return new Response(null, { status: 303, headers });
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) return back('signin');

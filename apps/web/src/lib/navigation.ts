@@ -572,6 +572,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         requires: 'platform',
       },
       {
+        // «Кабинет владельца: все бизнесы» (владелец 30.10.2026, вариант C): все свои бизнесы и филиалы и переход в них
+        href: '/owner',
+        requires: 'owner',
+        label: 'Все бизнесы',
+        icon: 'today',
+        description: 'Все ваши бизнесы и филиалы: выручка, расходы, прибыль и переход в любой из них.',
+      },
+      {
         // кабинет компании WETOP (владелец 28.10.2026, вариант «Г»): клиенты, путь клиента, сроки
         href: '/platform/cabinet',
         label: 'Кабинет WETOP',
@@ -746,10 +754,12 @@ const ROW: Array<{
       // хаб со всеми настройками направления карточками (21.10.2026): последним рабочим пунктом, порядок прочих прежний
       { label: 'Все настройки', at: ALL('/settings') },
       // «Кабинет WETOP» и «Организации» только главному администратору (отметка `platform`)
+      // «Все бизнесы» владельцу (30.10.2026): все свои бизнесы и филиалы
+      { label: 'Все бизнесы', at: ALL('/owner') },
       { label: 'Кабинет WETOP', at: ALL('/platform/cabinet') },
       { label: 'Организации', at: ALL('/platform') },
     ],
-    match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/branch-payment-methods', '/connections', '/channel-manager', '/platform'],
+    match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/branch-payment-methods', '/connections', '/channel-manager', '/platform', '/owner'],
   },
   {
     // «Продвижение» (ADR-184): бывшие «Маркетинг» и «Продажи»

@@ -4,6 +4,7 @@ import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-f
 /** Isolated, synthetic API for browser checks. Never connects to a database or provider. */
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { buildGrowth } from '../../apps/api/src/platform/growth';
+import { buildOwnerBusinesses } from '../../apps/api/src/finance/owner-businesses';
 import { buildMoney } from '../../apps/api/src/platform/money';
 import { buildPartners, parsePercentBp } from '../../apps/api/src/platform/partners';
 import { buildSiteReport } from '../../apps/api/src/platform/site-report';
@@ -8348,6 +8349,49 @@ createServer(async (req, res) => {
         id: archived[1],
         status: archived[2] === 'archive' ? 'ARCHIVED' : 'ACTIVE',
       });
+    }
+    // «Все бизнесы» владельца (30.10.2026): свой филиал стенда, филиал второй организации и WETOP (USD)
+    if (path.startsWith('/owner/businesses') && req.method === 'GET') {
+      const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
+      const months = [-5, -4, -3, -2, -1, 0].map((d) => {
+        const [y, m] = month.split('-').map(Number) as [number, number];
+        return new Date(Date.UTC(y, m - 1 + d, 1)).toISOString().slice(0, 7);
+      });
+      const branch = DEFAULT_FIXTURE_BRANCH;
+      return send(
+        200,
+        buildOwnerBusinesses({
+          month,
+          months,
+          branches: [
+            {
+              organizationId: 'ui-org',
+              organizationName: 'Luxx',
+              current: true,
+              businessName: 'Luxx Aparts',
+              vertical: 'HOSPITALITY',
+              locationId: branch.locationId,
+              locationName: 'Luxx Aparts 1',
+              currency: 'QAR',
+              money: months.map((m, i) => ({ month: m, revenueMinor: BigInt(150000 + i * 12000) * 100n, expensesMinor: BigInt(90000 + i * 3000) * 100n })),
+              attention: 2,
+            },
+            {
+              organizationId: 'ui-org-2',
+              organizationName: 'Pearl',
+              current: false,
+              businessName: 'Luxx Aparts',
+              vertical: 'HOSPITALITY',
+              locationId: '44444444-4444-4444-8444-444444444444',
+              locationName: 'Luxx Aparts 2',
+              currency: 'QAR',
+              money: months.map((m, i) => ({ month: m, revenueMinor: BigInt(120000 + i * 9000) * 100n, expensesMinor: BigInt(70000 + i * 2000) * 100n })),
+              attention: 0,
+            },
+          ],
+          platform: { incomeMinor: [0n, 0n, 0n, 120000n, 300000n, 490000n], expensesMinor: [0n, 0n, 0n, 80000n, 150000n, 280000n] },
+        }),
+      );
     }
     if (path === '/branches' || path === '/branches/overview') {
       const branch = DEFAULT_FIXTURE_BRANCH;

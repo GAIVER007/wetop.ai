@@ -5616,6 +5616,31 @@ export interface BeautyInsights {
   /** `returnedToMaster`: были у этого мастера до периода; `ltvMinor`: средняя выручка мастера с одного его клиента за всё время */
   employees: Array<{ employeeId: string; customers: number; returning: number; returnedToMaster?: number; ltvMinor?: string; reviews: number; avgTenths: number | null }>;
 }
+/** «Кабинет владельца: все бизнесы» (`GET /owner/businesses`, 30.10.2026): деньги минорными единицами строкой */
+export interface OwnerBusinesses {
+  month: string;
+  months: string[];
+  totals: Array<{ currency: string; revenueMinor: string; expensesMinor: string; profitMinor: string; previousProfitMinor: string }>;
+  counts: { businesses: number; branches: number };
+  rows: Array<{
+    kind: 'PLATFORM' | 'BRANCH';
+    organizationId: string | null;
+    locationId: string | null;
+    name: string;
+    businessName: string;
+    vertical: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE' | null;
+    currency: string;
+    revenueMinor: string;
+    expensesMinor: string;
+    profitMinor: string;
+    attention: number;
+    current: boolean;
+  }>;
+  chart: Array<{ currency: string; revenueMinor: string[] }>;
+}
+export const ownerBusinessesApi = {
+  read: (month: string) => getJsonPublic<OwnerBusinesses>(`/owner/businesses?${new URLSearchParams({ month })}`),
+};
 /** Главная владельца салона «B» (`GET /beauty/owner-home`, 30.10.2026): деньги минорными единицами строкой */
 export interface BeautyOwnerHome {
   month: string;

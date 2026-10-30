@@ -56,6 +56,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'DELETE /employee-portal/employees/:id/account': 'staff',
   'PUT /employee-portal/employees/:id/pay-settings': 'staff',
   'GET /employee-portal/me': 'self',
+  'GET /owner/businesses': 'self',
   'PATCH /employee-portal/me/profile': 'self',
   'PUT /employee-portal/me/avatar': 'self',
   'DELETE /employee-portal/me/avatar': 'self',

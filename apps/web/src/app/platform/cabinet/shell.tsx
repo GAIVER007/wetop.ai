@@ -36,8 +36,10 @@ export function CabinetShell({
   t,
   clients,
   side,
+  className,
   children,
 }: {
+  className?: string | undefined;
   active: CabinetSection;
   t: Translate;
   clients?: number | undefined;
@@ -45,7 +47,7 @@ export function CabinetShell({
   children: ReactNode;
 }) {
   return (
-    <div className="cabinet" data-testid="cabinet">
+    <div className={className ? `cabinet ${className}` : 'cabinet'} data-testid="cabinet">
       <div className="cabinet__side">
         <nav className="cabinet__menu" aria-label={t('Кабинет WETOP')}>
           {LINKS.map((l) => (

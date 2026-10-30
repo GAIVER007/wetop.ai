@@ -158,6 +158,10 @@
           {
             "href": "/settings",
             "label": "Все настройки"
+          },
+          {
+            "href": "/owner",
+            "label": "Все бизнесы"
           }
         ]
       },
@@ -736,6 +740,10 @@
             "label": "Все настройки"
           },
           {
+            "href": "/owner",
+            "label": "Все бизнесы"
+          },
+          {
             "href": "/platform/cabinet",
             "label": "Кабинет WETOP"
           },
@@ -1134,6 +1142,10 @@
           {
             "href": "/settings",
             "label": "Все настройки"
+          },
+          {
+            "href": "/owner",
+            "label": "Все бизнесы"
           }
         ]
       },
@@ -1582,6 +1594,10 @@
             "label": "Все настройки"
           },
           {
+            "href": "/owner",
+            "label": "Все бизнесы"
+          },
+          {
             "href": "/platform/cabinet",
             "label": "Кабинет WETOP"
           },
@@ -1946,6 +1962,10 @@
           {
             "href": "/settings",
             "label": "Все настройки"
+          },
+          {
+            "href": "/owner",
+            "label": "Все бизнесы"
           }
         ]
       },
@@ -2543,6 +2563,10 @@
           {
             "href": "/settings",
             "label": "Все настройки"
+          },
+          {
+            "href": "/owner",
+            "label": "Все бизнесы"
           },
           {
             "href": "/platform/cabinet",

@@ -20,6 +20,9 @@ export default async function OnboardingPage() {
     onboardingApi.status().catch(() => null),
     deskShell(),
   ]);
+  // учётка компании WETOP (миграция 171, владелец 30.10.2026: «гостиницу к Юрию не добавляй»): вместо формы гостиницы
+  // её кабинет; форма не откроется даже по прямому адресу
+  if (verified?.user?.platformAdmin === true && verified.user.cabinetHome === true) redirect('/platform/cabinet');
   if (status && !status.needed) redirect('/today');
   // Общий экран настройки (MV3) открывается только тем, кто вправе настраивать: после входа филиал выбран сразу
   // (SCOPE-HARDENING), и администратор не должен попадать в форму, которую отклонит API

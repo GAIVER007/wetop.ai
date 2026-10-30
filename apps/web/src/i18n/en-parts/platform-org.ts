@@ -897,7 +897,6 @@ export const platformOrg: Record<string, string> = {
   "Посетитель в заявку": "Visitor to lead",
   "Принесли денег": "Brought in",
   "Принёс всего": "Brought in total",
-  "Принёс денег": "Brought in",
   "РНП": "Pulse",
   "РНП по дням": "Pulse by day",
   "РНП: рука на пульсе": "Pulse: daily numbers",

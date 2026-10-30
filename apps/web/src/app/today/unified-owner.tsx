@@ -6,6 +6,8 @@ import './unified-owner.css';
 import { OwnerDailyChart } from './owner-daily-chart';
 import { intlLocale, translator, type DeskLocale, type Translate } from '../../i18n';
 import { Icon } from '../../components/icon';
+import type { BeautyOwnerHome } from '../../lib/api';
+import { OwnerHomeB } from './owner-home-b';
 /** «сентябрь 2026 г.» → «Сентябрь 2026»: заглавная и без «г.» */
 import { dateFormat } from '../../i18n/dates';
 
@@ -135,8 +137,11 @@ export function OwnerSummaryView({
   summary: s,
   locale = 'ru',
   visits,
+  ownerB,
 }: {
   visits?: OwnerVisits | null;
+  /** Салон: Главная владельца «B» (30.10.2026); без неё прежний вид */
+  ownerB?: BeautyOwnerHome | null;
   summary: OwnerSummaryDto;
   locale?: DeskLocale;
 }) {
@@ -178,6 +183,98 @@ export function OwnerSummaryView({
     href === '/finance' || href === '/restaurant-finance'
       ? financePeriodHref(href, { from: s.period.fromDate, to: s.period.toDate })
       : href;
+  // «Требуют решения» и «Куда уходят деньги» общие для прежнего вида и для Главной владельца салона «B»
+  const attentionPanel = (
+          <section className="owner-panel owner-attention" aria-labelledby="owner-attention-title">
+            <h2 id="owner-attention-title">{t('Требуют решения')}</h2>
+            <ul className="owner-todo">
+              {attention.length ? (
+                attention.map((item) => (
+                  <li key={item.id} data-state={item.tone} data-testid={`owner-attention-${item.id}`}>
+                    <span title={item.text}>{item.text}</span>
+                    <a href={withPeriod(item.href)}>{item.action}</a>
+                  </li>
+                ))
+              ) : (
+                <li data-state="ok" data-testid="owner-attention-unavailable">
+                  <span>{t('Дела дня не загрузились, откройте рабочий день')}</span>
+                  <a href="/today/operations">{t('Открыть день')}</a>
+                </li>
+              )}
+            </ul>
+          </section>
+  );
+  const expensePanel = (
+      <section className="owner-panel owner-expense-panel" aria-labelledby="owner-expense-title">
+        <div className="owner-panel-heading">
+          <h2 id="owner-expense-title">{t('Куда уходят деньги')}</h2>
+          <a href={finance}>{t('Оплаченные расходы')}</a>
+        </div>
+        <div className="owner-expenses">
+          {expenses.currencies?.flatMap((c) => {
+            const complete =
+              expenses.state === 'READY' &&
+              BigInt(c.paidMinor) > 0n &&
+              c.categories.every((category) => BigInt(category.paidMinor) >= 0n) &&
+              c.categories.reduce(
+                (total, category) => total + BigInt(category.paidMinor),
+                0n,
+              ) === BigInt(c.paidMinor);
+            // одна строка внизу экрана: четыре крупные статьи, остальные в «Финансах» (решение 23.10.2026)
+            const top = [...c.categories]
+              .sort((a, b) => (BigInt(b.paidMinor) > BigInt(a.paidMinor) ? 1 : BigInt(b.paidMinor) < BigInt(a.paidMinor) ? -1 : 0))
+              .slice(0, 4);
+            return top.map((category) => {
+              const name = category.categoryId === null ? t('Без статьи') : category.categoryName;
+              // Presentation-only bounded share of this currency, never a cross-currency total.
+              const share = complete
+                ? Number((BigInt(category.paidMinor) * 10000n) / BigInt(c.paidMinor)) / 100
+                : null;
+              return (
+                <div
+                  key={`${c.currency}:${category.categoryId ?? 'unclassified'}`}
+                  className="owner-category"
+                >
+                  <h3>{name}</h3>
+                  <strong>
+                    {formatOwnerMoney(category.paidMinor, c.currency)}
+                    {share !== null && (
+                      <span>
+                        {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(
+                          share,
+                        )}
+                        %
+                      </span>
+                    )}
+                  </strong>
+                  {share !== null && (
+                    <progress
+                      max={100}
+                      value={share}
+                      aria-label={t('Доля расходов: {name}, {currency}', { name, currency: c.currency })}
+                    />
+                  )}
+                </div>
+              );
+            });
+          })}
+        </div>
+        {(() => {
+          const rest = (expenses.currencies ?? []).reduce((n, c) => n + Math.max(0, c.categories.length - 4), 0);
+          return rest > 0 ? (
+            <p className="owner-expense-more">
+              <a href={finance}>{t('Остальные статьи ({rest}) в «Финансах»', { rest })}</a>
+            </p>
+          ) : null;
+        })()}
+        {!expenses.currencies?.length && (
+          <p className="owner-expense-empty">
+            {ownerReason(expenses.reason, t) ||
+              t('Расходов за период пока нет. Добавьте расход в «Финансах», и здесь появятся статьи.')}
+          </p>
+        )}
+      </section>
+  );
   // Главная на одном экране компьютера (решение владельца 21.10.2026): шапка строкой, итоги строкой,
   // ниже график слева и справа «Требуют решения»; «Куда уходят деньги» строкой внизу на всю ширину
   // (решение 23.10.2026: «расходы снизу, в один экран»); листать не нужно
@@ -240,6 +337,10 @@ export function OwnerSummaryView({
           </a>
         </div>
       </header>
+      {ownerB ? (
+        <OwnerHomeB view={ownerB} t={t} locale={locale} attention={attentionPanel} expenses={expensePanel} />
+      ) : (
+        <>
       {empty ? (
         <section
           className="owner-panel owner-empty"
@@ -321,24 +422,7 @@ export function OwnerSummaryView({
           )}
         </section>
         <aside className="owner-side" aria-label={t('Решения')}>
-          <section className="owner-panel owner-attention" aria-labelledby="owner-attention-title">
-            <h2 id="owner-attention-title">{t('Требуют решения')}</h2>
-            <ul className="owner-todo">
-              {attention.length ? (
-                attention.map((item) => (
-                  <li key={item.id} data-state={item.tone} data-testid={`owner-attention-${item.id}`}>
-                    <span title={item.text}>{item.text}</span>
-                    <a href={withPeriod(item.href)}>{item.action}</a>
-                  </li>
-                ))
-              ) : (
-                <li data-state="ok" data-testid="owner-attention-unavailable">
-                  <span>{t('Дела дня не загрузились, откройте рабочий день')}</span>
-                  <a href="/today/operations">{t('Открыть день')}</a>
-                </li>
-              )}
-            </ul>
-          </section>
+          {attentionPanel}
           {/* владелец 30.10.2026: «конверсия из записи в визит, а то бронируют и не доходят, чтобы мы понимали» */}
           {visits && (
             <section className="owner-panel owner-visits" data-testid="owner-visits" aria-labelledby="owner-visits-title">
@@ -368,75 +452,9 @@ export function OwnerSummaryView({
           )}
         </aside>
       </div>
-      <section className="owner-panel owner-expense-panel" aria-labelledby="owner-expense-title">
-        <div className="owner-panel-heading">
-          <h2 id="owner-expense-title">{t('Куда уходят деньги')}</h2>
-          <a href={finance}>{t('Оплаченные расходы')}</a>
-        </div>
-        <div className="owner-expenses">
-          {expenses.currencies?.flatMap((c) => {
-            const complete =
-              expenses.state === 'READY' &&
-              BigInt(c.paidMinor) > 0n &&
-              c.categories.every((category) => BigInt(category.paidMinor) >= 0n) &&
-              c.categories.reduce(
-                (total, category) => total + BigInt(category.paidMinor),
-                0n,
-              ) === BigInt(c.paidMinor);
-            // одна строка внизу экрана: четыре крупные статьи, остальные в «Финансах» (решение 23.10.2026)
-            const top = [...c.categories]
-              .sort((a, b) => (BigInt(b.paidMinor) > BigInt(a.paidMinor) ? 1 : BigInt(b.paidMinor) < BigInt(a.paidMinor) ? -1 : 0))
-              .slice(0, 4);
-            return top.map((category) => {
-              const name = category.categoryId === null ? t('Без статьи') : category.categoryName;
-              // Presentation-only bounded share of this currency, never a cross-currency total.
-              const share = complete
-                ? Number((BigInt(category.paidMinor) * 10000n) / BigInt(c.paidMinor)) / 100
-                : null;
-              return (
-                <div
-                  key={`${c.currency}:${category.categoryId ?? 'unclassified'}`}
-                  className="owner-category"
-                >
-                  <h3>{name}</h3>
-                  <strong>
-                    {formatOwnerMoney(category.paidMinor, c.currency)}
-                    {share !== null && (
-                      <span>
-                        {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(
-                          share,
-                        )}
-                        %
-                      </span>
-                    )}
-                  </strong>
-                  {share !== null && (
-                    <progress
-                      max={100}
-                      value={share}
-                      aria-label={t('Доля расходов: {name}, {currency}', { name, currency: c.currency })}
-                    />
-                  )}
-                </div>
-              );
-            });
-          })}
-        </div>
-        {(() => {
-          const rest = (expenses.currencies ?? []).reduce((n, c) => n + Math.max(0, c.categories.length - 4), 0);
-          return rest > 0 ? (
-            <p className="owner-expense-more">
-              <a href={finance}>{t('Остальные статьи ({rest}) в «Финансах»', { rest })}</a>
-            </p>
-          ) : null;
-        })()}
-        {!expenses.currencies?.length && (
-          <p className="owner-expense-empty">
-            {ownerReason(expenses.reason, t) ||
-              t('Расходов за период пока нет. Добавьте расход в «Финансах», и здесь появятся статьи.')}
-          </p>
-        )}
-      </section>
+      {expensePanel}
+        </>
+      )}
     </main>
   );
 }

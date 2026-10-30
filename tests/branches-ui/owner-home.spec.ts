@@ -67,3 +67,46 @@ test('«Требуют решения» салона: запись без опл
   expect(size.scroll).toBeLessThanOrEqual(size.height);
   expect(size.wide).toBeLessThanOrEqual(0);
 });
+
+/**
+ * Главная владельца салона «B» (владелец 30.10.2026: «Вариант б хочу»): настоящие записи базы через
+ * `GET /beauty/owner-home`. В `seed-today` у салона один клиент: выполненная запись без оплаты (12 000 ₸), неявка,
+ * отмена и будущие записи. Выручка 12 000 ₸, путь клиента 1, 1, 0, 0; мастер Анна; без прокрутки вбок на 1280.
+ */
+test('Главная владельца салона «B»: цифры месяца, путь клиента, мастера, по месяцам', async ({ page, request }) => {
+  test.setTimeout(120_000);
+  const f = await (await request.post(`${api}/__test/reset`)).json();
+  const seeded = await request.post(`${api}/__test/seed-today`, { data: { analyticsStable: true } });
+  expect(seeded.ok(), await seeded.text()).toBe(true);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page
+    .context()
+    .addCookies([
+      { name: 'wetop_scope', value: encodeURIComponent(`business=${f.beauty};location=${f.locations[3]}`), domain: '127.0.0.1', path: '/' },
+    ]);
+  await page.goto('/today');
+  const b = page.getByTestId('owner-b');
+  // дело дня из базы на месте: запись без оплаты
+  await expect(b.getByTestId('owner-attention-unpaid-visits')).toContainText('Не оплачено сегодня: 1 запись');
+  await expect(b).toBeVisible();
+  await expect(b.getByTestId('owner-b-revenue')).toContainText('12 000');
+  await expect(b.getByTestId('owner-b-clients')).toContainText('0');
+  await expect(b.getByTestId('owner-b-step-BOOKED')).toContainText('1');
+  await expect(b.getByTestId('owner-b-step-CAME')).toContainText('100%');
+  await expect(b.getByTestId('owner-b-step-PAID')).toContainText('0%');
+  await expect(b.getByTestId('owner-b-master')).toHaveCount(1);
+  await expect(b.getByTestId('owner-b-masters')).toContainText('нет оценок');
+  await expect(b.getByTestId('owner-b-sources')).toContainText('Оплаченных визитов в этом месяце нет');
+  await expect(b.getByTestId('owner-b-months').locator('.owner-b__chart > div')).toHaveCount(6);
+  // шапка Главной на месте, дела сегодня и расходы прежней Главной тоже (решения 21.10 и 23.10.2026)
+  await expect(page.getByRole('link', { name: 'Рабочий день' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Решения' })).toContainText('Требуют решения');
+  await expect(page.getByRole('region', { name: 'Куда уходят деньги' })).toBeVisible();
+  const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(wide).toBeLessThanOrEqual(0);
+  if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/owner-b-1280.png`, fullPage: true });
+  await page.setViewportSize({ width: 1280, height: 720 });
+  const tall = await page.evaluate(() => document.documentElement.scrollHeight);
+  console.log(`owner-b height at 1280x720: ${tall}`);
+  if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/owner-b-720.png` });
+});

@@ -31,6 +31,7 @@ import { appointmentLineHistorySnapshot } from './appointment-history-snapshot';
 import { syncAppointmentReminders } from './reminders';
 import { checkLoyaltyRefund, prepareLoyaltyPayment, recordLoyaltyPayment, recordLoyaltyRefund } from './loyalty';
 import { assertShiftOpen } from '../finance/shift-guard';
+import { buildOwnerHome, sixMonths } from './owner-home';
 
 /**
  * Журнал записей салона (DATA_MODEL §19.1, срез B5): день филиала столбцами по мастерам.
@@ -510,6 +511,88 @@ export class BeautyAppointmentsService {
         };
       }),
     };
+  }
+
+  /**
+   * Главная владельца салона «B» (владелец 30.10.2026): месяц филиала и пять до него. Источник для `buildOwnerHome`:
+   * записи с источником и оплатой, первый визит клиента, «давно не были», расходы кассы, оценки, имена мастеров.
+   */
+  async ownerHome(rawMonth?: string) {
+    mayBeauty('reports');
+    const scope = await beautyScope(this.prisma, true);
+    if (!scope.locationId || !scope.locationTimezone) throw new ConflictException('Сначала выберите филиал');
+    const tz = scope.locationTimezone;
+    const month = typeof rawMonth === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(rawMonth) ? rawMonth : todayIn(tz).slice(0, 7);
+    const months = sixMonths(month);
+    const lastDay = (m: string) => {
+      const [y, mm] = m.split('-').map(Number) as [number, number];
+      return new Date(Date.UTC(y, mm, 0)).toISOString().slice(0, 10);
+    };
+    const window = timeOffWindow({ dateFrom: `${months[0]}-01`, dateTo: lastDay(month), timezone: tz });
+    const current = timeOffWindow({ dateFrom: `${month}-01`, dateTo: lastDay(month), timezone: tz });
+    const end = lastDay(month);
+    const lapse = timeOffWindow({
+      dateFrom: dayOffsetUtc(end, -(LAPSED_MAX_DAYS - 1)),
+      dateTo: dayOffsetUtc(end, -LAPSED_AFTER_DAYS),
+      timezone: tz,
+    });
+    const db = this.prisma.db;
+    const range = { gte: window.fromUtc, lt: window.toUtcExclusive };
+    const [rows, history, expenses, reviews, location] = await Promise.all([
+      db.appointment.findMany({
+        where: { locationId: scope.locationId, startsAt: range },
+        select: {
+          id: true,
+          customerId: true,
+          employeeId: true,
+          startsAt: true,
+          status: true,
+          price: true,
+          source: true,
+          lines: { select: { employeeId: true, priceMinor: true } },
+          payments: { where: { kind: 'INCOME', status: 'COMPLETED' }, select: { id: true }, take: 1 },
+        },
+      }),
+      db.appointment.groupBy({
+        by: ['customerId'],
+        where: { locationId: scope.locationId, status: 'DONE', startsAt: { lt: window.toUtcExclusive } },
+        _min: { startsAt: true },
+        _max: { startsAt: true },
+      }),
+      // расходы кассы филиала, как «Оплаченные расходы» прежней Главной: без оплат записей и возвратов заказов
+      db.restaurantCashOperation.findMany({
+        where: { locationId: scope.locationId, kind: 'EXPENSE', status: 'COMPLETED', appointmentId: null, orderId: null, occurredAt: range },
+        select: { amount: true, occurredAt: true },
+      }),
+      db.beautyAppointmentReview.findMany({
+        where: { submittedAt: { gte: current.fromUtc, lt: current.toUtcExclusive }, appointment: { locationId: scope.locationId } },
+        select: { employeeId: true, stars: true },
+      }),
+      db.location.findFirst({ where: { id: scope.locationId }, select: { currency: true } }),
+    ]);
+    const monthOf = (at: Date) => localDateOf(at, tz).slice(0, 7);
+    const employeeIds = [...new Set(rows.flatMap((r) => [r.employeeId, ...r.lines.map((l) => l.employeeId)]))];
+    const names = await db.employee.findMany({ where: { id: { in: employeeIds } }, select: { id: true, name: true } });
+    return buildOwnerHome({
+      month,
+      currency: location?.currency ?? '',
+      appointments: rows.map((r) => ({
+        id: r.id,
+        customerId: r.customerId,
+        employeeId: r.employeeId,
+        month: monthOf(r.startsAt),
+        status: r.status,
+        priceMinor: r.price,
+        source: r.source,
+        paid: r.payments.length > 0,
+        lines: r.lines.map((l) => ({ employeeId: l.employeeId, priceMinor: BigInt(l.priceMinor) })),
+      })),
+      firstDone: new Map(history.flatMap((h) => (h._min.startsAt ? [[h.customerId, monthOf(h._min.startsAt)] as const] : []))),
+      lapsed: history.filter((h) => h._max.startsAt && h._max.startsAt >= lapse.fromUtc && h._max.startsAt < lapse.toUtcExclusive).length,
+      expenses: expenses.map((e) => ({ month: monthOf(e.occurredAt), amountMinor: e.amount })),
+      reviews,
+      employees: new Map(names.map((n) => [n.id, n.name])),
+    });
   }
 
   /** Новая запись. Клиент либо выбран, либо заводится вместе с записью: своего экрана у клиентов ещё нет */
@@ -1452,6 +1535,11 @@ function localMinutes(at: Date, timezone: string, date: string): number {
   return Number(parts.get('hour')) * 60 + Number(parts.get('minute')) + days * 1440;
 }
 
+/** Дата `YYYY-MM-DD` момента по часам филиала */
+function localDateOf(at: Date, timezone: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(at);
+}
+
 /** 0 воскресенье, как `Date.getDay()` и как `weekday` в `working_hours` */
 function weekdayOf(date: string): number {
   return new Date(`${date}T00:00:00Z`).getUTCDay();
@@ -1489,6 +1577,11 @@ export class BeautyAppointmentsController {
   @BeautyAccess('journal', 'view')
   @Get('appointments/insights') insights(@Query('from') from?: string, @Query('to') to?: string) {
     return this.service.insights(from, to);
+  }
+  // Главная владельца «B» (30.10.2026): деньги и люди месяца, видит тот, кому открыты отчёты (владелец, управляющий)
+  @BeautyAccess('finance', 'view')
+  @Get('owner-home') ownerHome(@Query('month') month?: string) {
+    return this.service.ownerHome(month);
   }
   @BeautyAccess('appointments', 'view')
   @Get('appointments/period') period(@Query('from') from?: string, @Query('to') to?: string) {

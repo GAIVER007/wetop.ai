@@ -570,6 +570,8 @@ export interface SignedIn {
   role?: MembershipRole;
   /** Главный администратор платформы (§16.2): раздел «Платформа» */
   platformAdmin?: boolean;
+  /** Вход и открытие приложения ведут в Кабинет WETOP (владелец 30.10.2026, миграция 171) */
+  cabinetHome?: boolean;
   /** У человека область доступа (DATA_MODEL §31.1): организационные разделы ему закрыты */
   restricted?: boolean;
 }

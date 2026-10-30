@@ -72,6 +72,8 @@ export interface SignedInUser {
   role: MembershipRole;
   /** Главный администратор платформы (§16.2): раздел «Платформа». Данных чужих гостиниц это не открывает */
   platformAdmin: boolean;
+  /** Главный администратор, которого вход и открытие приложения ведут в Кабинет WETOP (миграция 171) */
+  cabinetHome: boolean;
   /**
    * Назначения по бизнесам и филиалам (DATA_MODEL §31.1). Нет поля: человек работает во всей организации. Есть:
    * только там, где назначен, а `role` это старшая из назначенных; роль в месте даёт `roleAt`.
@@ -153,6 +155,7 @@ const checkPasswordQueued = verifyPasswordQueued;
 interface Access {
   role: MembershipRole;
   platformAdmin: boolean;
+  cabinetHome: boolean;
   scopes: ScopeAssignment[];
 }
 
@@ -167,6 +170,7 @@ const visible = (
   organizationId,
   role: access.role,
   platformAdmin: access.platformAdmin,
+  cabinetHome: access.cabinetHome,
   // назначения только когда они есть: у человека без области ответ прежний
   ...(access.scopes.length > 0 ? { scopes: access.scopes } : {}),
 });
@@ -878,7 +882,7 @@ export class AuthService {
         where: { userId_organizationId: { userId, organizationId } },
         select: { role: true },
       }),
-      this.prisma.db.platformAdmin.findUnique({ where: { userId }, select: { revokedAt: true } }),
+      this.prisma.db.platformAdmin.findUnique({ where: { userId }, select: { revokedAt: true, cabinetHome: true } }),
       this.prisma.db.membershipScope.findMany({
         where: { userId, organizationId },
         orderBy: { createdAt: 'asc' },
@@ -896,6 +900,7 @@ export class AuthService {
       // без членства сессии не бывает (§13.5); если его сняли — прав владельца точно нет
       role: membership?.role ?? 'STAFF',
       platformAdmin: admin !== null && admin.revokedAt === null,
+      cabinetHome: admin !== null && admin.revokedAt === null && admin.cabinetHome === true,
     };
   }
 

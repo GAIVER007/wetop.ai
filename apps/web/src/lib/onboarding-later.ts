@@ -21,6 +21,9 @@ const SKIP = [
   '/password-reset',
   '/profile/access',
   '/status',
+  // Кабинет WETOP (владелец 30.10.2026): учётка компании zapoinov@bk.ru видела «Настройку гостиницы» вместо кабинета,
+  // потому что в её гостинице нет номеров; кабинет живёт вне стойки, и гейт стойки его не трогает
+  '/platform',
 ];
 
 export function needsOnboardingRedirect(input: {

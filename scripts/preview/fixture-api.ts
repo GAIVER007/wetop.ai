@@ -2209,6 +2209,8 @@ function recordPlan(
 const platformTrials = new Map<string, string>();
 const platformJournal = new Map<string, Array<{ at: string; action: string; by: string | null; status: string | null; note: string | null }>>();
 let uiPlatformAdmin = false;
+/** Кабинет WETOP по умолчанию (миграция 171): по умолчанию у главного администратора стенда есть, как у учётки компании */
+let uiCabinetHome = true;
 /**
  * Люди вымышленной организации и её ожидающие приглашения (ADR-107): вошедшая Дана — с ролью `uiRole`, остальные —
  * как в базе после приглашений. Вымышленные (ADR-010), сбрасываются `reset`.
@@ -2428,6 +2430,7 @@ function resetAccess() {
   uiRole = 'OWNER';
   resetTeam();
   uiPlatformAdmin = false;
+  uiCabinetHome = true;
   platformExtensions.clear();
   platformStatuses.clear();
   platformStatusLog.length = 0;
@@ -2452,7 +2455,7 @@ const aiSellerView = (organizationId: string) => {
   };
 };
 /** Вошедший так, как его отдаёт API после ADR-083: с ролью и отметкой главного администратора */
-const signedInView = (who: UiUser) => ({ ...who, role: uiRole, platformAdmin: uiPlatformAdmin });
+const signedInView = (who: UiUser) => ({ ...who, role: uiRole, platformAdmin: uiPlatformAdmin, cabinetHome: uiPlatformAdmin && uiCabinetHome });
 /** Гостиницы платформы глазами главного администратора — вымышленные (ADR-010) */
 const platformOrganizations = () => [
   {
@@ -6915,6 +6918,7 @@ createServer(async (req, res) => {
       uiRole =
         body['role'] === 'STAFF' ? 'STAFF' : body['role'] === 'MANAGER' ? 'MANAGER' : 'OWNER';
       uiPlatformAdmin = body['platformAdmin'] === true;
+      if (typeof body['cabinetHome'] === 'boolean') uiCabinetHome = body['cabinetHome'];
       if ('platformMail' in body) platformMailOn = body['platformMail'] !== 'off';
       if (body['branchWithInventory'] === true)
         for (const branch of fixtureBranches)

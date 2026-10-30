@@ -34,6 +34,8 @@ export interface FakePlatformAdmin {
   userId: string;
   grantedAt: Date;
   revokedAt: Date | null;
+  /** Кабинет WETOP по умолчанию (миграция 171); нет поля: false */
+  cabinetHome?: boolean;
   note: string | null;
 }
 

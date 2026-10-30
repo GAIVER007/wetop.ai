@@ -1549,6 +1549,7 @@ PK составной (`user_id`, `organization_id`). Ролей нет наме
 | `granted_at` | `timestamptz` NOT NULL DEFAULT `now()` | |
 | `revoked_at` | `timestamptz` | NULL — отметка действует |
 | `note` | `varchar(200)` | зачем выдана; без персональных данных |
+| `cabinet_home` | `boolean` NOT NULL DEFAULT `false` | PLATFORM-CABINET-HOME-20261030 (владелец 30.10.2026, миграция 171): при входе и открытии приложения вести в Кабинет WETOP; `false`: в свою стойку |
 
 - Отметка действует, если `revoked_at IS NULL` и человек в статусе `ACTIVE`.
 - Ставит и снимает её только команда на сервере (`npm run accounts -- platform-admin …`). Маршрута API, который

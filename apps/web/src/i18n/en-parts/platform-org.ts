@@ -893,4 +893,7 @@ export const platformOrg: Record<string, string> = {
   "всего {sum}": "total {sum}",
   "начислено {sum}": "accrued {sum}",
   "не действует": "inactive",
+  "% от прошлого шага": "% of previous step",
+  "Визиты": "Visits",
+  "Оценка": "Rating",
 };

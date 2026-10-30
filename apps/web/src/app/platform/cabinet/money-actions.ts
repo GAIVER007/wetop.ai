@@ -12,6 +12,8 @@ export interface MoneyFormResult {
   error: string | null;
   message: string | null;
   attempt: number;
+  /** Номер последней успешной записи: по нему форма очищается, ошибка введённое не стирает */
+  saved?: number;
 }
 
 const field = (form: FormData, name: string) => String(form.get(name) ?? '').trim();
@@ -26,7 +28,7 @@ async function run(
     await work();
     revalidatePath('/platform/cabinet', 'layout');
     const t = await serverT();
-    return { error: null, message: t(done), attempt };
+    return { error: null, message: t(done), attempt, saved: attempt };
   } catch (e) {
     const t = await serverT();
     return {
@@ -36,6 +38,7 @@ async function run(
           : t('Не удалось сохранить, попробуйте ещё раз'),
       message: null,
       attempt,
+      saved: prev?.saved ?? 0,
     };
   }
 }
@@ -137,9 +140,52 @@ export async function saveTeamMemberAction(
         name: field(form, 'name'),
         role: field(form, 'role'),
         email: field(form, 'email'),
+        phone: field(form, 'phone'),
+        kind: field(form, 'kind') === 'DIGITAL' ? 'DIGITAL' : 'PERSON',
         salary: field(form, 'salary'),
         active: field(form, 'active') !== 'false',
       }),
     msg('Сохранено.'),
   );
+}
+
+/** Партнёры WETOP (DATA_MODEL §63.1): добавить или изменить, выплатить, «чей клиент» */
+export async function savePartnerAction(
+  id: string | null,
+  prev: MoneyFormResult | null,
+  form: FormData,
+): Promise<MoneyFormResult> {
+  return run(
+    prev,
+    () =>
+      platformApi.savePartner(id, {
+        name: field(form, 'name'),
+        phone: field(form, 'phone'),
+        email: field(form, 'email'),
+        percent: field(form, 'percent'),
+        active: field(form, 'active') !== 'false',
+      }),
+    msg('Сохранено.'),
+  );
+}
+
+export async function payPartnerAction(
+  id: string,
+  prev: MoneyFormResult | null,
+  form: FormData,
+): Promise<MoneyFormResult> {
+  return run(
+    prev,
+    () => platformApi.payPartner(id, { amount: field(form, 'amount'), spentOn: field(form, 'spentOn'), note: field(form, 'note') }),
+    msg('Выплата записана.'),
+  );
+}
+
+export async function setClientPartnerAction(
+  organizationId: string,
+  prev: MoneyFormResult | null,
+  form: FormData,
+): Promise<MoneyFormResult> {
+  const partner = field(form, 'partnerId');
+  return run(prev, () => platformApi.setClientPartner(organizationId, partner || null), msg('Сохранено.'));
 }

@@ -2697,6 +2697,8 @@ model Organization {
   extensions           OrganizationExtension[]
   /// Кабинет компании WETOP (DATA_MODEL §63): подписка и оплаты клиента компании
   platformSubscription PlatformSubscription?
+  /// Партнёр WETOP, который привёл клиента (миграция 172)
+  platformPartner      PlatformClientPartner?
   platformPayments     PlatformPayment[]
   guests               Guest[]
   auditLogs            AuditLog[]
@@ -5259,8 +5261,10 @@ model PlatformPayment {
 /// Расход компании WETOP по статье (CHECK в миграции); ошибочный отменяется отметкой
 model PlatformExpense {
   id          String    @id @db.Uuid
-  /// SERVER, DOMAINS, ADS, AI, SALARIES, SERVICES, OTHER
+  /// SERVER, DOMAINS, ADS, AI, SALARIES, SERVICES, PARTNERS, OTHER
   category    String    @db.VarChar(20)
+  /// Выплата партнёру (статья PARTNERS, миграция 172): чей партнёр; у других статей пусто (CHECK)
+  partnerId   String?   @map("partner_id") @db.Uuid
   amountCents BigInt    @map("amount_cents")
   spentOn     DateTime  @map("spent_on") @db.Date
   note        String?   @db.VarChar(300)
@@ -5268,6 +5272,8 @@ model PlatformExpense {
   createdBy   String?   @map("created_by") @db.Uuid
   voidedAt    DateTime? @map("voided_at") @db.Timestamptz(6)
   voidedBy    String?   @map("voided_by") @db.Uuid
+
+  partner PlatformPartner? @relation(fields: [partnerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([spentOn(sort: Desc)], map: "platform_expenses_day")
   @@map("platform_expenses")
@@ -5277,12 +5283,49 @@ model PlatformExpense {
 model PlatformTeamMember {
   id                 String   @id @db.Uuid
   name               String   @db.VarChar(200)
-  role               String   @db.VarChar(100)
+  /// Должность; у цифрового сотрудника пусто (миграция 172)
+  role               String?  @db.VarChar(100)
   email              String?  @db.VarChar(320)
+  phone              String?  @db.VarChar(40)
+  /// PERSON человек, DIGITAL цифровой сотрудник (имя и зарплата), CHECK в миграции 172
+  kind               String   @default("PERSON") @db.VarChar(10)
   monthlySalaryCents BigInt?  @map("monthly_salary_cents")
   active             Boolean  @default(true)
   createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
   @@map("platform_team_members")
+}
+
+/// Партнёр WETOP (миграция 172, DATA_MODEL §63.1): приводит клиентов, получает процент от их оплат
+model PlatformPartner {
+  id        String   @id @db.Uuid
+  name      String   @db.VarChar(200)
+  phone     String?  @db.VarChar(40)
+  email     String?  @db.VarChar(320)
+  /// Сотые доли процента: 2000 это 20% (0 до 10000)
+  percentBp Int      @map("percent_bp")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  clients  PlatformClientPartner[]
+  payouts  PlatformExpense[]
+
+  @@map("platform_partners")
+}
+
+/// Чей клиент: партнёр организации-клиента (одна строка на организацию)
+model PlatformClientPartner {
+  organizationId String   @id @map("organization_id") @db.Uuid
+  /// Снятая отметка: NULL (строки не удаляются)
+  partnerId      String?  @map("partner_id") @db.Uuid
+  updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  updatedBy      String?  @map("updated_by") @db.Uuid
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  partner      PlatformPartner? @relation(fields: [partnerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([partnerId], map: "platform_client_partners_partner")
+  @@map("platform_client_partners")
 }

@@ -499,6 +499,32 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
+  /* «Команда» и «Партнёры»: таблица по ширине панели, имя переносится, кнопки строки в одну линию справа */
+  .cabinet-people .tbl {
+    min-width: 0;
+  }
+  .cabinet-people .tbl th,
+  .cabinet-people .tbl td {
+    padding-inline: var(--space-2);
+  }
+  .cabinet-people .tbl th {
+    white-space: normal;
+  }
+  .cabinet-people td:first-child {
+    min-width: calc(var(--space-16) * 2);
+    white-space: normal;
+  }
+  .cabinet-people .num {
+    text-align: end;
+    white-space: nowrap;
+  }
+  .cabinet-people td:last-child {
+    inline-size: 1%;
+  }
+  .cabinet-people td:last-child .cabinet-money__actions {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+  }
   .cabinet-dialog__head {
     display: flex;
     justify-content: space-between;

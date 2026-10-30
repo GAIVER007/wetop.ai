@@ -6,7 +6,7 @@ import { msg, type Translate } from '../../../i18n';
 import './cabinet.css';
 
 /** Разделы кабинета компании WETOP (вариант «Г»): меню слева у всех страниц кабинета */
-export type CabinetSection = 'home' | 'clients' | 'site' | 'countries' | 'money' | 'subscriptions' | 'team';
+export type CabinetSection = 'home' | 'clients' | 'site' | 'countries' | 'money' | 'subscriptions' | 'team' | 'partners';
 
 const LINKS: Array<{
   key: CabinetSection | 'support';
@@ -25,7 +25,8 @@ const LINKS: Array<{
     icon: 'booking',
     label: msg('Подписки'),
   },
-  { key: 'team', href: '/platform/cabinet/team', icon: 'person', label: msg('Сотрудники') },
+  { key: 'team', href: '/platform/cabinet/team', icon: 'person', label: msg('Команда WETOP') },
+  { key: 'partners', href: '/platform/cabinet/partners', icon: 'link', label: msg('Партнёры WETOP') },
   { key: 'support', href: '/platform/support', icon: 'chat', label: msg('Поддержка') },
 ];
 

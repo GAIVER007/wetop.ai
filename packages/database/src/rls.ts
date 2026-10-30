@@ -243,6 +243,9 @@ export const RLS_NO_TENANT_TABLES: readonly string[] = [
   'platform_payments',
   'platform_expenses',
   'platform_team_members',
+  // партнёры WETOP (миграция 172, DATA_MODEL §63.1)
+  'platform_partners',
+  'platform_client_partners',
   'wizard_sessions',
   'wizard_surveys',
   'wizard_events',

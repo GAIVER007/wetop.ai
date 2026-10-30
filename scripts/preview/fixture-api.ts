@@ -5,6 +5,7 @@ import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-f
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { buildGrowth } from '../../apps/api/src/platform/growth';
 import { buildMoney } from '../../apps/api/src/platform/money';
+import { buildPartners, parsePercentBp } from '../../apps/api/src/platform/partners';
 import { buildSiteReport } from '../../apps/api/src/platform/site-report';
 import { buildCountries } from '../../apps/api/src/platform/countries';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
@@ -2500,8 +2501,11 @@ const platformMoney = {
   plans: [] as Array<{ id: string; name: string; priceCents: string; periodMonths: number; active: boolean }>,
   subs: new Map<string, { planId: string | null; monthlyCents: string; paidUntil: string | null; note: string | null }>(),
   payments: [] as Array<{ id: string; organizationId: string; amountCents: string; paidOn: string; note: string | null; voided: boolean }>,
-  expenses: [] as Array<{ id: string; category: string; amountCents: string; spentOn: string; note: string | null; voided: boolean }>,
-  team: [] as Array<{ id: string; name: string; role: string; email: string | null; monthlySalaryCents: string | null; active: boolean }>,
+  expenses: [] as Array<{ id: string; category: string; partnerId?: string; amountCents: string; spentOn: string; note: string | null; voided: boolean }>,
+  team: [] as Array<{ id: string; name: string; role: string | null; email: string | null; phone: string | null; kind: 'PERSON' | 'DIGITAL'; monthlySalaryCents: string | null; active: boolean }>,
+  // партнёры WETOP (миграция 172): процент сотыми долями, выплаты это расходы PARTNERS с partnerId
+  partners: [] as Array<{ id: string; name: string; phone: string | null; email: string | null; percentBp: number; active: boolean }>,
+  clientPartners: new Map<string, string>(),
 };
 const resetPlatformMoney = () => {
   platformMoney.plans = [];
@@ -2509,6 +2513,8 @@ const resetPlatformMoney = () => {
   platformMoney.payments = [];
   platformMoney.expenses = [];
   platformMoney.team = [];
+  platformMoney.partners = [];
+  platformMoney.clientPartners.clear();
 };
 const usdCents = (v: unknown): string | null => {
   if (typeof v !== 'string') return null;
@@ -2568,6 +2574,7 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     return ok(row, 201);
   }
   if (path === '/platform/expenses' && method === 'POST') {
+    if (body['category'] === 'PARTNERS') return ok({ message: 'Выплата партнёру записывается в разделе «Партнёры»' }, 400);
     const amount = usdCents(body['amount']);
     if (!amount || amount === '0') return ok({ message: 'Сумма в долларах: например 49 или 49.50' }, 400);
     const spentOn = isoDay(body['spentOn']);
@@ -2607,9 +2614,68 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
   if ((path === '/platform/team' && method === 'POST') || (/^\/platform\/team\/[^/]+$/.test(path) && method === 'PUT')) {
     const id = path === '/platform/team' ? `team-${platformMoney.team.length + 1}` : decodeURIComponent(path.split('/')[3]!);
     const salary = body['salary'] ? usdCents(body['salary']) : null;
-    const row = { id, name: String(body['name'] ?? ''), role: String(body['role'] ?? ''), email: (body['email'] as string) || null, monthlySalaryCents: salary, active: body['active'] !== false };
+    const kind = body['kind'] === 'DIGITAL' ? ('DIGITAL' as const) : ('PERSON' as const);
+    const row = {
+      id,
+      name: String(body['name'] ?? ''),
+      role: kind === 'DIGITAL' ? null : (body['role'] as string) || null,
+      email: kind === 'DIGITAL' ? null : (body['email'] as string) || null,
+      phone: kind === 'DIGITAL' ? null : (body['phone'] as string) || null,
+      kind,
+      monthlySalaryCents: salary,
+      active: body['active'] !== false,
+    };
     platformMoney.team = [...platformMoney.team.filter((m) => m.id !== id), row];
     return ok(row, path === '/platform/team' ? 201 : 200);
+  }
+  // партнёры: те же расчёты, что у API (buildPartners)
+  if (path === '/platform/partners' && method === 'GET') {
+    const view = buildPartners({
+      partners: platformMoney.partners,
+      links: [...platformMoney.clientPartners].map(([organizationId, partnerId]) => ({ organizationId, partnerId })),
+      payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), voided: p.voided })),
+      payouts: platformMoney.expenses.flatMap((e) =>
+        e.category === 'PARTNERS' && e.partnerId ? [{ partnerId: e.partnerId, amountCents: BigInt(e.amountCents), voided: e.voided }] : [],
+      ),
+    });
+    return ok({
+      ready: true,
+      ...view,
+      clients: [...platformMoney.clientPartners].map(([organizationId, partnerId]) => ({ organizationId, partnerId, name: names.get(organizationId) ?? '' })),
+    });
+  }
+  if ((path === '/platform/partners' && method === 'POST') || (/^\/platform\/partners\/[^/]+$/.test(path) && method === 'PUT')) {
+    const percentBp = parsePercentBp(body['percent']);
+    if (percentBp === null) return ok({ message: 'Процент: число от 0 до 100, например 20 или 12.5' }, 400);
+    const name = String(body['name'] ?? '').trim();
+    if (!name) return ok({ message: 'Имя партнёра: от 1 до 200 знаков' }, 400);
+    const id = path === '/platform/partners' ? `partner-${platformMoney.partners.length + 1}` : decodeURIComponent(path.split('/')[3]!);
+    const row = { id, name, phone: (body['phone'] as string) || null, email: (body['email'] as string) || null, percentBp, active: body['active'] !== false };
+    const at = platformMoney.partners.findIndex((p) => p.id === id);
+    if (at >= 0) platformMoney.partners[at] = row;
+    else platformMoney.partners.push(row);
+    return ok(row, at >= 0 ? 200 : 201);
+  }
+  const payout = /^\/platform\/partners\/([^/]+)\/payouts$/.exec(path);
+  if (payout && method === 'POST') {
+    const partnerId = decodeURIComponent(payout[1]!);
+    if (!platformMoney.partners.some((p) => p.id === partnerId)) return ok({ message: 'Такого партнёра нет' }, 404);
+    const amount = usdCents(body['amount']);
+    if (!amount || amount === '0') return ok({ message: 'Сумма в долларах: например 49 или 49.50' }, 400);
+    const spentOn = isoDay(body['spentOn']);
+    if (!spentOn) return ok({ message: 'Дата: выберите день' }, 400);
+    const row = { id: `exp-${platformMoney.expenses.length + 1}`, category: 'PARTNERS', partnerId, amountCents: amount, spentOn, note: (body['note'] as string) || null, voided: false };
+    platformMoney.expenses.unshift(row);
+    return ok(row, 201);
+  }
+  const clientPartner = /^\/platform\/clients\/([^/]+)\/partner$/.exec(path);
+  if (clientPartner && method === 'PUT') {
+    const org = decodeURIComponent(clientPartner[1]!);
+    const partnerId = typeof body['partnerId'] === 'string' && body['partnerId'] ? String(body['partnerId']) : null;
+    if (partnerId && !platformMoney.partners.some((p) => p.id === partnerId)) return ok({ message: 'Такого партнёра нет' }, 400);
+    if (partnerId) platformMoney.clientPartners.set(org, partnerId);
+    else platformMoney.clientPartners.delete(org);
+    return ok({ organizationId: org, partnerId });
   }
   return null;
 }

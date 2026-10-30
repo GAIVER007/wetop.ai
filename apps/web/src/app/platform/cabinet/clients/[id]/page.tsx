@@ -4,7 +4,8 @@ import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../../../components/page';
 import { LoadError } from '../../../../../components/load-error';
 import { Badge, EmptyState, LoadingState, Panel, Table } from '../../../../../components/ui';
-import { ApiError, platformApi, type PlatformClientCard } from '../../../../../lib/api';
+import { ApiError, platformApi, type PlatformClientCard, type PlatformPartners } from '../../../../../lib/api';
+import { ClientPartnerForm } from '../../money-forms';
 import { loadErrorProps } from '../../../../../lib/load-error';
 import { serverT } from '../../../../../i18n/server';
 import { msg, type Translate } from '../../../../../i18n';
@@ -69,6 +70,8 @@ function statusWord(s: string | null, t: Translate): string {
 async function Card({ id }: { id: string }) {
   const t = await serverT();
   let c: PlatformClientCard;
+  // партнёры для «чей клиент»; до миграции 172 или при сбое просто без выбора партнёра
+  const partners = platformApi.partners().catch(() => ({ ready: false as const }));
   try {
     c = await platformApi.clientCard(id);
   } catch (error) {
@@ -94,6 +97,7 @@ async function Card({ id }: { id: string }) {
           </Link>
         </div>
         <AccessForm organizationId={c.id} status={c.status} />
+        <ClientPartner organizationId={c.id} partners={await partners} t={t} />
       </Panel>
       <div className="cabinet__pair">
         <Panel title={t('Люди: {n}', { n: c.members.length })}>
@@ -162,4 +166,21 @@ async function Card({ id }: { id: string }) {
       </Panel>
     </CabinetShell>
   );
+}
+
+/** Чей клиент (DATA_MODEL §63.1): партнёр, который привёл клиента; выбор только действующих партнёров */
+function ClientPartner({
+  organizationId,
+  partners,
+  t,
+}: {
+  organizationId: string;
+  partners: PlatformPartners;
+  t: Translate;
+}) {
+  if (!partners.ready) return null;
+  const current = partners.clients.find((x) => x.organizationId === organizationId)?.partnerId ?? null;
+  const choices = partners.partners.filter((p) => p.active || p.id === current).map((p) => ({ id: p.id, name: p.name }));
+  if (choices.length === 0) return <p className="muted cabinet__sub">{t('Партнёров пока нет: их добавляют в «Партнёры WETOP».')}</p>;
+  return <ClientPartnerForm organizationId={organizationId} partners={choices} current={current} />;
 }

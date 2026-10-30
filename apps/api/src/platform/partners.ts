@@ -2,7 +2,7 @@
  * Партнёры WETOP (владелец 30.10.2026, PARTNERS-20261030, DATA_MODEL §63.1): партнёр приводит клиентов и получает
  * процент от их оплат. Считается за всё время: заведено на пробный (клиенты партнёра), подключено (клиенты с хотя бы
  * одной оплатой), доход от его клиентов, начислено = разовая выплата за тариф с первого чека (DATA_MODEL §63.2,
- * 30.10.2026) + процент с допов вниз до цента, выплачено (расходы «Партнёрам» с
+ * 30.10.2026) + процент с первого чека допа вниз до цента; следующие чеки партнёру ничего не дают, выплачено (расходы «Партнёрам» с
  * отметкой партнёра), к выплате = начислено − выплачено, не меньше нуля. Деньги центами bigint, процент в сотых
  * долях процента (`2000` это 20%), без плавающей точки (AGENTS §12).
  */
@@ -19,7 +19,7 @@ export interface PartnersSource {
   partners: PartnerRow[];
   links: Array<{ organizationId: string; partnerId: string }>;
   /** `PLAN`: оплата тарифа, `ADDON`: доп (ИИ-продавец, таргетолог, контент, продвижение); старые оплаты без отметки: тариф */
-  payments: Array<{ organizationId: string; amountCents: bigint; voided: boolean; kind?: 'PLAN' | 'ADDON' }>;
+  payments: Array<{ organizationId: string; amountCents: bigint; voided: boolean; kind?: 'PLAN' | 'ADDON'; paidOn?: string }>;
   payouts: Array<{ partnerId: string; amountCents: bigint; voided: boolean }>;
   /** Разовая выплата партнёру за тариф клиента (тариф подписки, `partner_payout_cents`); нет строки: 0 */
   planPayouts?: Array<{ organizationId: string; payoutCents: bigint }>;
@@ -44,8 +44,10 @@ export function buildPartners(src: PartnersSource): PartnersView {
   const income = new Map<string, bigint>();
   for (const p of src.payments) if (!p.voided) income.set(p.organizationId, (income.get(p.organizationId) ?? 0n) + p.amountCents);
   const planPaid = new Set(src.payments.filter((p) => !p.voided && (p.kind ?? 'PLAN') === 'PLAN').map((p) => p.organizationId));
+  // владелец 30.10.2026: «с доп услуг тоже ничего не идёт, только с 1 чека»: процент только с первого чека допа клиента
   const addons = new Map<string, bigint>();
-  for (const p of src.payments) if (!p.voided && p.kind === 'ADDON') addons.set(p.organizationId, (addons.get(p.organizationId) ?? 0n) + p.amountCents);
+  const byDay = src.payments.map((p, i) => ({ p, i })).sort((a, b) => (a.p.paidOn ?? '').localeCompare(b.p.paidOn ?? '') || a.i - b.i);
+  for (const { p } of byDay) if (!p.voided && p.kind === 'ADDON' && !addons.has(p.organizationId)) addons.set(p.organizationId, p.amountCents);
   const payout = new Map((src.planPayouts ?? []).map((x) => [x.organizationId, x.payoutCents]));
   const paid = new Map<string, bigint>();
   for (const p of src.payouts) if (!p.voided) paid.set(p.partnerId, (paid.get(p.partnerId) ?? 0n) + p.amountCents);

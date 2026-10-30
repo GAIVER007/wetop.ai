@@ -2639,7 +2639,7 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     const view = buildPartners({
       partners: platformMoney.partners,
       links: [...platformMoney.clientPartners].map(([organizationId, partnerId]) => ({ organizationId, partnerId })),
-      payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), voided: p.voided, kind: (p as { kind?: 'PLAN' | 'ADDON' }).kind ?? 'PLAN' })),
+      payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), voided: p.voided, kind: (p as { kind?: 'PLAN' | 'ADDON' }).kind ?? 'PLAN', paidOn: p.paidOn })),
       payouts: platformMoney.expenses.flatMap((e) =>
         e.category === 'PARTNERS' && e.partnerId ? [{ partnerId: e.partnerId, amountCents: BigInt(e.amountCents), voided: e.voided }] : [],
       ),

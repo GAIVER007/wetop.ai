@@ -361,7 +361,7 @@ export class PrismaMoneyRepository implements MoneyRepository {
     const [partners, links, payments, payouts, subs] = await Promise.all([
       db.platformPartner.findMany({ orderBy: { createdAt: 'asc' } }),
       db.platformClientPartner.findMany({ select: { organizationId: true, partnerId: true } }),
-      db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, voidedAt: true, kind: true } }),
+      db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, voidedAt: true, kind: true, paidOn: true } }),
       db.platformExpense.findMany({ where: { category: 'PARTNERS' }, select: { partnerId: true, amountCents: true, voidedAt: true } }),
       // разовая выплата партнёру за тариф подписки клиента (DATA_MODEL §63.2)
       db.platformSubscription.findMany({ select: { organizationId: true, plan: { select: { partnerPayoutCents: true } } } }),
@@ -374,6 +374,7 @@ export class PrismaMoneyRepository implements MoneyRepository {
         amountCents: p.amountCents,
         voided: p.voidedAt !== null,
         kind: p.kind === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const),
+        paidOn: day(p.paidOn)!,
       })),
       planPayouts: subs.flatMap((x) => (x.plan?.partnerPayoutCents != null ? [{ organizationId: x.organizationId, payoutCents: x.plan.partnerPayoutCents }] : [])),
       payouts: payouts.flatMap((p) => (p.partnerId ? [{ partnerId: p.partnerId, amountCents: p.amountCents, voided: p.voidedAt !== null }] : [])),

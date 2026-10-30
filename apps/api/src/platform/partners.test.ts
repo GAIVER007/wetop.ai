@@ -101,8 +101,16 @@ describe('выплата партнёру: разово за тариф с пе�
 
   it('$100 за годовой, $10 за месячный разово; 30% с допов вниз до цента; отменённый чек ничего не даёт', () => {
     const p = buildPartners(rule()).partners[0]!;
-    // 10000 + 1000 + 30% × (5000 + 3333) = 11000 + 2499 (2499,9 вниз)
+    // владелец 30.10.2026: «с доп услуг тоже ничего не идёт, только с 1 чека»: 30% с первого чека допа клиента
+    // 10000 + 1000 + 30% × 5000 (month) + 30% × 3333 (year) = 11000 + 1500 + 999 (999,9 вниз)
     expect(p).toMatchObject({ trials: 3, connected: 2, incomeCents: '53833', accruedCents: '13499', dueCents: '13499' });
+  });
+
+  it('второй и следующие чеки допа партнёру ничего не дают: только первый', () => {
+    const src = rule();
+    src.payments.push({ organizationId: 'month', amountCents: 5000n, voided: false, kind: 'ADDON' });
+    src.payments.push({ organizationId: 'month', amountCents: 9000n, voided: false, kind: 'ADDON' });
+    expect(buildPartners(src).partners[0]).toMatchObject({ accruedCents: '13499' });
   });
 
   it('у тарифа клиента нет суммы выплаты: за тариф 0, допы по проценту', () => {

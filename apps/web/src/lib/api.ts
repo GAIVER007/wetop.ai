@@ -5708,6 +5708,21 @@ export interface BeautyOwnerHome {
 export const beautyOwnerHomeApi = {
   read: (month: string) => getJsonPublic<BeautyOwnerHome>(`/beauty/owner-home?${new URLSearchParams({ month })}`),
 };
+/**
+ * Единая Главная «B» ресторана и гостиницы (`GET /owner-home`, владелец 30.10.2026): тот же вид, что у салона.
+ * Ресторан: официанты и бармены (`role`); гостиница: категории номеров вместо мастеров; у источника сумма, если есть.
+ */
+export interface VerticalOwnerHome extends Omit<BeautyOwnerHome, 'masters' | 'sources' | 'funnel'> {
+  vertical: 'FOOD_SERVICE' | 'HOSPITALITY';
+  funnel: BeautyOwnerHome['funnel'];
+  masters: Array<BeautyOwnerHome['masters'][number] & { role: 'WAITER' | 'BARTENDER' }>;
+  rooms: Array<{ typeId: string; name: string; nights: number; guests: number; revenueMinor: string; avgNightMinor: string | null; loadPercent: number | null }>;
+  load: { nights: number; capacity: number; percent: number | null } | null;
+  sources: Array<{ source: string; clients: number; revenueMinor: string | null }>;
+}
+export const ownerHomeApi = {
+  read: (month: string) => getJsonPublic<VerticalOwnerHome>(`/owner-home?${new URLSearchParams({ month })}`),
+};
 /** Сводка салона выбранного филиала (указатель из сессии), например «Запись → визит» на Главной */
 export const beautyInsightsApi = {
   insights: (from: string, to: string) =>

@@ -31,6 +31,30 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await expect(main.getByRole('heading', { level: 1, name: 'Главная' })).toBeVisible();
     await expect(main.getByRole('complementary', { name: 'Решения' })).toBeVisible();
     await expect(main.getByRole('region', { name: 'Куда уходят деньги' })).toBeVisible();
+    // единая Главная «B» у всех трёх направлений (владелец 30.10.2026), ровно на экране 1440x800
+    const b = main.getByTestId('owner-b');
+    await expect(b).toBeVisible();
+    await expect(b.getByTestId('owner-b-masters')).toContainText(
+      { hotel: 'Номера', beauty: 'Мастера', food: 'Официанты и бармены' }[vertical],
+    );
+    await expect(b.getByTestId('owner-b-funnel')).toContainText({ hotel: 'Заехали', beauty: 'Записались', food: 'Забронировали стол' }[vertical]);
+    await page.setViewportSize({ width: 1440, height: 800 });
+    const fit = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollHeight - window.innerHeight,
+      wide: document.documentElement.scrollWidth - window.innerWidth,
+      cols: [...document.querySelectorAll('.owner-b__col')].map((c) => Math.round(c.getBoundingClientRect().bottom)),
+    }));
+    expect(fit.scroll).toBeLessThanOrEqual(0);
+    expect(fit.wide).toBeLessThanOrEqual(0);
+    expect(Math.max(...fit.cols) - Math.min(...fit.cols)).toBeLessThanOrEqual(1);
+    // первый вход открывает обучение поверх Главной: закрываем, как человек
+    const tour = page.getByTestId('product-tour');
+    const shown = await tour.waitFor({ state: 'visible', timeout: 3000 }).then(() => true, () => false);
+    if (shown) {
+      await tour.getByRole('button', { name: 'Пропустить' }).click();
+      await expect(tour).toBeHidden();
+    }
+    if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/home-${vertical}-1440.png` });
     await main.getByRole('link', { name: 'Рабочий день' }).click();
     await expect(page).toHaveURL(/\/today\/operations$/);
     await expect(page.locator('main#main-content h1')).toBeVisible();

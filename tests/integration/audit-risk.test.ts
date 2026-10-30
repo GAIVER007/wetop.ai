@@ -41,7 +41,9 @@ afterAll(async () => {
 
 describe('История действий: разделы риска на Postgres', () => {
   it('скидкой считается только снижение цены, отменой только CANCELLED/NO_SHOW', async () => {
-    const rows = (await svc.list({ limit: 50 })).filter((r) => r.entityType === 'appointment' && r.at.startsWith('2026-10-20'));
+    // общая база CI полна свежих строк: берём только свой день, иначе 50 последних до 20.10 не доходят
+    const day = { from: '2026-10-20', to: '2026-10-20', timezone: 'UTC' };
+    const rows = (await svc.list({ limit: 500, ...day })).filter((r) => r.entityType === 'appointment');
     const mine = rows.filter((r) => r.after['currency'] === 'QAR' || r.after['reason'] || r.after['status'] || r.after['amountMinor']);
     const risk = mine.map((r) => [r.action, r.after['status'] ?? r.after['priceMinor'] ?? r.after['amountMinor'], r.risk]);
     expect(risk).toEqual(expect.arrayContaining([
@@ -57,7 +59,7 @@ describe('История действий: разделы риска на Postgr
   });
 
   it('group=risk отдаёт только рисковые строки', async () => {
-    const rows = await svc.list({ limit: 50, group: 'risk' });
+    const rows = await svc.list({ limit: 500, group: 'risk', from: '2026-10-20', to: '2026-10-20', timezone: 'UTC' });
     expect(rows.length).toBeGreaterThan(0);
     expect(rows.every((r) => r.risk && r.risk !== 'access')).toBe(true);
   });

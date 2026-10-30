@@ -75,7 +75,8 @@ describe('меню по ролям', () => {
 
   it('управляющий и владелец — всё, кроме «Платформы»; «Платформа» — по отметке главного администратора', () => {
     const noPlatform = everything.filter((h) => !h.startsWith('/platform'));
-    expect(hrefs(access('MANAGER'))).toEqual(noPlatform.filter((href) => href !== '/journal'));
+    // «История действий» и «Все бизнесы» (свои бизнесы, 30.10.2026) только владельцу
+    expect(hrefs(access('MANAGER'))).toEqual(noPlatform.filter((href) => href !== '/journal' && href !== '/owner'));
     expect(hrefs(access('OWNER'))).toEqual(noPlatform);
     expect(hrefs(access('STAFF', true))).toContain('/platform');
   });

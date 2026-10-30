@@ -1,0 +1,135 @@
+/* «Кабинет владельца: все бизнесы», вариант C (владелец 30.10.2026) */
+.owner {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.owner__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.owner__totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-4);
+}
+.owner__total {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.owner__total h2 {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+  font-weight: 600;
+}
+.owner__total dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+.owner__total dt {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.owner__total dd {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.owner__up {
+  color: var(--success);
+  font-weight: 600;
+}
+.owner__down {
+  color: var(--danger);
+  font-weight: 600;
+}
+.owner__table {
+  inline-size: 100%;
+}
+.owner__table .num {
+  text-align: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.owner__sub {
+  display: block;
+  font-size: var(--text-xs);
+}
+.owner__go {
+  inline-size: 1%;
+  white-space: nowrap;
+}
+.owner__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+.owner__chart-block h3 {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.owner__chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  block-size: calc(var(--space-16) * 1.5);
+  padding-block: var(--space-2);
+}
+.owner__chart > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  block-size: 100%;
+  min-width: 0;
+}
+.owner__chart i {
+  display: block;
+  inline-size: 100%;
+  min-block-size: 2px;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  background: var(--primary);
+}
+.owner__chart em {
+  font-style: normal;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.owner__todo {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.owner__todo li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+@media (max-width: 960px) {
+  .owner__pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .owner__total dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

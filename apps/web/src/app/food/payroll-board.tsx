@@ -229,14 +229,17 @@ export function PayDrawer({
             </Field>
           )}
         </div>
-        {/* выплаты по дням (владелец 30.10.2026): как часто платим и чем обычно, подсказка окна «Выплатить» */}
-        <div className="pay-fields" data-testid="pay-schedule">
+        {/* выплаты по дням (владелец 30.10.2026): как часто платим своей строкой, ниже день недели и чем обычно платим */}
+        <fieldset className="pay-choices" data-testid="pay-schedule">
+          <legend>{t('Как часто выплачиваем')}</legend>
           <Segmented
             label={t('Как часто выплачиваем')}
             value={frequency}
             options={(['DAILY', 'WEEKLY', 'MONTHLY'] as const).map((f) => ({ value: f, label: t(PAY_FREQUENCY_LABEL[f]) }))}
             onChange={setFrequency}
           />
+        </fieldset>
+        <div className="pay-fields">
           {frequency === 'WEEKLY' && (
             <Field label={t('День выплаты')}>
               <Select value={weekday} onChange={(e) => setWeekday(Number(e.target.value))}>
@@ -706,6 +709,8 @@ export function PayrollBoard({
   const remaining = payroll.rows.reduce((sum, r) => sum + BigInt(r.remainingMinor), 0n).toString();
   const money = (minor: string) => formatMoney(minor, payroll.currency);
   const cell = (minor: string) => (BigInt(minor) === 0n ? <span className="muted">—</span> : money(minor));
+  // премий нет (владелец 30.10.2026): колонки «Премии» и «Удержания» только в месяце, где они начислены
+  const withAdj = payroll.adjustments.length > 0;
   const staffTable = payroll.rows.length === 0 ? (
     <EmptyState title={t('Сотрудников пока нет')} />
   ) : (
@@ -718,7 +723,7 @@ export function PayrollBoard({
           <th>{t('Как платим')}</th>
           <th className="num">{t('Оклад')}</th>
           <th className="num">{t(BASIS[basis].column)}</th>
-          {[msg('Премии'), msg('Удержания'), msg('Начислено'), msg('Выплачено'), msg('Осталось')].map((h) => (
+          {[msg('Премии'), msg('Удержания'), msg('Начислено'), msg('Выплачено'), msg('Осталось')].filter((h) => withAdj || (h !== 'Премии' && h !== 'Удержания')).map((h) => (
             <th key={h} className="num">
               {t(h)}
             </th>
@@ -750,8 +755,8 @@ export function PayrollBoard({
               <td className="num">
                 {cell(r.percentMinor)}
               </td>
-              <td className="num payroll-plus">{cell(r.bonusMinor)}</td>
-              <td className="num payroll-minus">{cell(r.penaltyMinor)}</td>
+              {withAdj && <td className="num payroll-plus">{cell(r.bonusMinor)}</td>}
+              {withAdj && <td className="num payroll-minus">{cell(r.penaltyMinor)}</td>}
               <td className="num">
                 <strong>{cell(r.totalMinor)}</strong>
               </td>
@@ -792,8 +797,8 @@ export function PayrollBoard({
           <td colSpan={3} data-testid="payroll-fund">
             {t('Фонд оплаты {sum}', { sum: money(payroll.totals.fundMinor) })}
           </td>
-          <td className="num" data-testid="payroll-bonus">{money(payroll.totals.bonusMinor)}</td>
-          <td className="num" data-testid="payroll-penalty">{money(payroll.totals.penaltyMinor)}</td>
+          {withAdj && <td className="num" data-testid="payroll-bonus">{money(payroll.totals.bonusMinor)}</td>}
+          {withAdj && <td className="num" data-testid="payroll-penalty">{money(payroll.totals.penaltyMinor)}</td>}
           <td className="num" data-testid="payroll-total">
             <strong>{money(payroll.totals.payoutMinor)}</strong>
           </td>

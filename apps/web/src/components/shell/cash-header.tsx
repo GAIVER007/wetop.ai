@@ -45,6 +45,8 @@ export function CashHeader({
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState('');
   const [failed, setFailed] = useState(false);
+  // «Не забрал» в окне закрытия смены (владелец 30.10.2026): до закрытия смены, переживает пересоздание окна
+  const [leftIds, setLeftIds] = useState<ReadonlySet<string>>(() => new Set());
   // статья расхода: кнопки частых статей и поле ввода пишут одно значение
   const [category, setCategory] = useState('');
   // окно расхода/внесения, вариант A (владелец 29.10.2026): способ кнопками, сумма видна на кнопке подтверждения
@@ -466,6 +468,8 @@ export function CashHeader({
                   }
                   onCancel={() => setPanel(null)}
                   scopeKey={scopeKey}
+                  left={leftIds}
+                  setLeft={setLeftIds}
                   onPaid={() => {
                     void loadCashHeader(scopeKey).then((data) => mounted.current && setCash(data)).catch(() => undefined);
                   }}

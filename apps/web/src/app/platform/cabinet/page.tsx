@@ -66,7 +66,7 @@ async function Cabinet({ month }: { month: string }) {
   const diffInt = (now: number, before: number) => (now === before ? '' : `${now > before ? '+' : '\u2212'}${formatInt(Math.abs(now - before))}`);
   const vsPrev = (d: string) => (d ? t('{d} к прошлому месяцу', { d }) : t('как в прошлом месяце'));
   return (
-    <CabinetShell active="home" t={t} clients={view.totals.clients}>
+    <CabinetShell active="home" t={t} clients={view.totals.clients} className="cabinet-home-page">
       <div className="cabinet__head">
         <MonthPicker month={month} locale={locale} base="/platform/cabinet" />
       </div>

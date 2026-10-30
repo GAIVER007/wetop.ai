@@ -80,13 +80,13 @@ test('O01/O04/O05/O22/O24/O25: real registration, linked Beauty setup, working c
     page.getByText('Выполнено 0 из 4 обязательных шагов', { exact: true }),
   ).toBeVisible();
   await shots(page, 'checklist-empty');
-  // Кто вошёл: своя организация в пробном периоде 7 дней (ADR-TRIAL-7-DAYS-20261017), салон, выбранный филиал
+  // Кто вошёл: своя организация в тестовом месяце, 30 дней (владелец 30.10.2026), салон, выбранный филиал
   const firstHeaders = await apiHeaders(page);
   const me = await (await page.request.get(`${api}/auth/me`, { headers: firstHeaders })).json();
   expect(me.organization.status).toBe('TRIAL');
   const trialLeft = Date.parse(me.organization.trialEndsAt) - Date.now();
-  expect(trialLeft).toBeGreaterThan(7 * DAY - 15 * 60_000);
-  expect(trialLeft).toBeLessThanOrEqual(7 * DAY);
+  expect(trialLeft).toBeGreaterThan(30 * DAY - 15 * 60_000);
+  expect(trialLeft).toBeLessThanOrEqual(30 * DAY);
   expect(me.context.vertical).toBe('BEAUTY');
   expect(me.context.locationId).toBeTruthy();
   await page.getByRole('link', { name: 'Добавить услугу', exact: true }).click();

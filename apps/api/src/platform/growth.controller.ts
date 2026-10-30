@@ -11,12 +11,23 @@ import { buildGrowth, type GrowthSource } from './growth';
 import { buildSiteReport, type SiteReportInput } from './site-report';
 import { buildCountries, type CountriesSource } from './countries';
 import { buildRnp, type RnpSource } from './rnp';
+import { buildCeoOverview, type CeoSource } from './ceo-overview';
+import { buildPartners, type PartnersSource } from './partners';
+import type { ExpenseCategory } from './money';
 
 export const GROWTH_REPOSITORY = Symbol('GROWTH_REPOSITORY');
 
 export interface GrowthRepository {
   /** ownOrganizationId в ответе: кого ещё не считать клиентом (company-scope.ts), уже с учётом записи компании */
   source(ownOrganizationId: string | null, since: Date): Promise<Omit<GrowthSource, 'visitors'>>;
+  /** VTOP Overview: все оплаты и расходы компании, тарифы, подписки; партнёры, если подключены (миграция 172) */
+  ceo(): Promise<{
+    payments: CeoSource['payments'];
+    expenses: CeoSource['expenses'];
+    plans: CeoSource['plans'];
+    subscriptions: CeoSource['subscriptions'];
+    partners: { source: PartnersSource; created: Array<{ active: boolean; createdAt: string }> } | null;
+  }>;
   /** Уникальные посетители сайта с этими адресами за [from, to); сайта со счётчиком нет: `null` */
   visitors(hosts: readonly string[], from: Date, to: Date): Promise<number | null>;
   /** Сессии, события и просмотры сайта с этими адресами за [from, to); сайта нет: `null` */
@@ -52,6 +63,42 @@ const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 @Injectable()
 export class PrismaGrowthRepository implements GrowthRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async ceo() {
+    const db = this.prisma.db;
+    const iso = (d: Date) => d.toISOString().slice(0, 10);
+    const [payments, expenses, plans, subscriptions, ready] = await Promise.all([
+      db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, paidOn: true, voidedAt: true } }),
+      db.platformExpense.findMany({ select: { category: true, amountCents: true, spentOn: true, voidedAt: true } }),
+      db.platformPlan.findMany({ select: { id: true, name: true, priceCents: true, periodMonths: true } }),
+      db.platformSubscription.findMany({ select: { organizationId: true, planId: true, monthlyCents: true, paidUntil: true } }),
+      db.$queryRaw<Array<{ ok: boolean }>>(Prisma.sql`SELECT to_regclass('platform_partners') IS NOT NULL AS ok`),
+    ]);
+    let partners = null;
+    if (ready[0]?.ok === true) {
+      const [rows, links, payouts] = await Promise.all([
+        db.platformPartner.findMany({ select: { id: true, name: true, phone: true, email: true, percentBp: true, active: true, createdAt: true } }),
+        db.platformClientPartner.findMany({ select: { organizationId: true, partnerId: true } }),
+        db.platformExpense.findMany({ where: { category: 'PARTNERS' }, select: { partnerId: true, amountCents: true, voidedAt: true } }),
+      ]);
+      partners = {
+        source: {
+          partners: rows.map((p) => ({ id: p.id, name: p.name, phone: p.phone, email: p.email, percentBp: p.percentBp, active: p.active })),
+          links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId }] : [])),
+          payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, voided: p.voidedAt !== null })),
+          payouts: payouts.flatMap((p) => (p.partnerId ? [{ partnerId: p.partnerId, amountCents: p.amountCents, voided: p.voidedAt !== null }] : [])),
+        },
+        created: rows.map((p) => ({ active: p.active, createdAt: iso(p.createdAt) })),
+      };
+    }
+    return {
+      payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: iso(p.paidOn), voided: p.voidedAt !== null })),
+      expenses: expenses.map((e) => ({ category: e.category as ExpenseCategory, amountCents: e.amountCents, spentOn: iso(e.spentOn), voided: e.voidedAt !== null })),
+      plans,
+      subscriptions: subscriptions.map((s) => ({ organizationId: s.organizationId, planId: s.planId, monthlyCents: s.monthlyCents, paidUntil: s.paidUntil ? iso(s.paidUntil) : null })),
+      partners,
+    };
+  }
 
   async source(own: string | null, since: Date) {
     const db = this.prisma.db;
@@ -257,6 +304,42 @@ export class GrowthController {
     const to = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 1));
     const src = await this.repo.countries(WETOP_SITE_HOSTS, from, to);
     return buildCountries({ ...src, ownOrganizationId: currentOrganizationId() }, month, new Date());
+  }
+
+  /**
+   * VTOP Overview (ТЗ владельца 30.10.2026 «две категории админок», п. 3): Revenue, Clients, Subscriptions, Partners,
+   * Finance одним ответом. Только данные компании WETOP: оплаты, расходы, подписки, тарифы, партнёры.
+   */
+  @Get('ceo-overview')
+  @Header('Cache-Control', 'no-store')
+  async ceoOverview(@Query('month') rawMonth?: string) {
+    requirePlatformAdmin();
+    const month = typeof rawMonth === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(rawMonth) ? rawMonth : thisMonth();
+    const now = new Date();
+    const since = new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)) - 8, 1));
+    const own = currentOrganizationId();
+    const [growthSrc, ceo] = await Promise.all([this.repo.source(own, since), this.repo.ceo()]);
+    const growth = buildGrowth({ ...growthSrc, visitors: null }, month, now);
+    const company = new Set(growthSrc.ownOrganizationId ? [growthSrc.ownOrganizationId] : []);
+    const clientIds = growthSrc.organizations.filter((o) => !company.has(o.id) && o.status !== 'SUSPENDED').map((o) => o.id);
+    const partners = ceo.partners ? buildPartners(ceo.partners.source) : null;
+    return buildCeoOverview({
+      month,
+      today: now.toISOString().slice(0, 10),
+      clientIds,
+      payments: ceo.payments,
+      expenses: ceo.expenses,
+      plans: ceo.plans,
+      subscriptions: ceo.subscriptions,
+      kpi: growth.kpi,
+      registrations: growth.funnel.registrations,
+      churned: growth.churn.count,
+      atRisk: growth.clients.filter((c) => c.atRisk).length,
+      partners: {
+        rows: ceo.partners?.created.map((p) => ({ active: p.active, createdAt: p.createdAt })) ?? [],
+        totals: partners?.totals ?? { trials: 0, incomeCents: '0', accruedCents: '0', paidCents: '0', dueCents: '0' },
+      },
+    });
   }
 
   /** РНП: каждый день месяца строкой и итоги; вкладка «Партнёры» (владелец 30.10.2026) */

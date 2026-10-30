@@ -481,6 +481,8 @@ export interface FoodShiftRow {
   weekRevision: string;
 }
 export type PayModel = 'FIXED' | 'PERCENT' | 'FIXED_PLUS_PERCENT' | 'BONUS_ONLY';
+/** Как часто выплачиваем зарплату (PAYROLL-DAILY-20261030) */
+export type PayFrequency = 'DAILY' | 'WEEKLY' | 'MONTHLY';
 export interface PayrollRow {
   employeeId: string;
   name: string;
@@ -488,6 +490,10 @@ export interface PayrollRow {
   model: PayModel;
   fixedMinor: string;
   percent: number;
+  /** выплаты по дням (миграция 173); у старого API нет: считаем месяц */
+  payFrequency?: PayFrequency;
+  payWeekday?: number | null;
+  payMethod?: FoodPaymentMethod | null;
   salesMinor: string;
   baseMinor: string;
   percentMinor: string;

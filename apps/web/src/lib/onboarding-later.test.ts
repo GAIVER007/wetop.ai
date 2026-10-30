@@ -93,3 +93,12 @@ it('владелец 30.10.2026: Кабинет WETOP не уводит в на�
     for (const extra of [{}, { propertyMissing: true }, { vertical: 'HOSPITALITY' as const }])
       expect(needsOnboardingRedirect({ ...base, ...extra, path })).toBe(false);
 });
+
+it('владелец 30.10.2026: учётке компании с «Кабинетом по умолчанию» гостиницу не предлагаем нигде', () => {
+  for (const path of ['/', '/today', '/calendar', '/hotel-settings'])
+    expect(
+      needsOnboardingRedirect({ path, needsOnboarding: true, postponed: false, propertyMissing: true, cabinetHome: true }),
+    ).toBe(false);
+  // у остальных как было
+  expect(needsOnboardingRedirect({ path: '/today', needsOnboarding: true, postponed: false, propertyMissing: true })).toBe(true);
+});

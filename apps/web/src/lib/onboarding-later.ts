@@ -37,8 +37,14 @@ export function needsOnboardingRedirect(input: {
    * создал бы ему номера, которых в этой вертикали не существует (DATA_MODEL §19), поэтому гейт его не трогает.
    */
   vertical?: WebVertical | undefined;
+  /**
+   * Учётка компании WETOP с «Кабинетом по умолчанию» (миграция 171, владелец 30.10.2026: «гостиницу к Юрию не
+   * добавляй, Юрий чисто владелец WETOP»): своей гостиницы у неё нет и не будет, онбординг ей не предлагаем
+   */
+  cabinetHome?: boolean | undefined;
 }): boolean {
   const { path } = input;
+  if (input.cabinetHome === true) return false;
   if (SKIP.some((p) => path === p || path.startsWith(`${p}/`))) return false;
   if (path.includes('/print')) return false;
   if (input.vertical && input.vertical !== 'HOSPITALITY') return false;

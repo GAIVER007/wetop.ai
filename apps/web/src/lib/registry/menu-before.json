@@ -204,17 +204,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -422,17 +411,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -590,17 +568,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -612,19 +579,7 @@
         ]
       }
     ],
-    "EMPLOYEE": [
-      {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      }
-    ],
+    "EMPLOYEE": [],
     "OWNER+platform": [
       {
         "id": "today",
@@ -837,17 +792,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -1043,17 +987,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -1217,17 +1150,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -1381,17 +1303,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -1523,17 +1434,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -1545,19 +1445,7 @@
         ]
       }
     ],
-    "EMPLOYEE": [
-      {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      }
-    ],
+    "EMPLOYEE": [],
     "OWNER+platform": [
       {
         "id": "today",
@@ -1754,17 +1642,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -1910,17 +1787,6 @@
           {
             "href": "/settings",
             "label": "Все настройки"
-          }
-        ]
-      },
-      {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
           }
         ]
       },
@@ -2138,17 +2004,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -2352,17 +2207,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -2538,17 +2382,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -2568,17 +2401,6 @@
           {
             "href": "/waiter",
             "label": "Принять заказ"
-          }
-        ]
-      },
-      {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
           }
         ]
       }
@@ -2791,17 +2613,6 @@
         ]
       },
       {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
-          }
-        ]
-      },
-      {
         "id": "help",
         "label": "Помощь",
         "direct": true,
@@ -2993,17 +2804,6 @@
           {
             "href": "/marketing/budget",
             "label": "Бюджет и аналитика"
-          }
-        ]
-      },
-      {
-        "id": "learn",
-        "label": "Обучение",
-        "direct": true,
-        "items": [
-          {
-            "href": "/learn",
-            "label": "Обучение"
           }
         ]
       },

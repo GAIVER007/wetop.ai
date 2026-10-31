@@ -783,7 +783,6 @@ const ROW: Array<{
     ],
     match: ['/website', '/ai-seller'],
   },
-  { id: 'learn', label: 'Обучение', icon: 'file', items: [{ label: 'Обучение', at: ALL('/learn') }] },
   { id: 'help', label: 'Помощь', icon: 'help', items: [{ label: 'Помощь', at: ALL('/help') }] },
 ];
 

@@ -21,4 +21,5 @@ export const learn: Record<string, string> = {
   'Как пригласить сотрудника, выбрать должность и права, отправить ссылку «Личный кабинет» и как закрыть доступ.': 'How to invite a staff member, choose the position and rights, send a "Personal cabinet" link and how to close access.',
   'Владелец': 'Owner',
   'Все инструкции WETOP: краткое описание и вся инструкция по нажатию.': 'All WETOP guides: a short description and the full guide on click.',
+  'Открыть инструкции': 'Open guides',
 };

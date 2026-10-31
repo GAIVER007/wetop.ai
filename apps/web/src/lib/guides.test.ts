@@ -1,8 +1,8 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { GUIDES, guideBySlug, guideLang, guidePages } from './guides';
-import { menuSectionsFor, pageOpen, routeRule, type NavigationAccess } from './navigation';
+import { pageOpen, routeRule, type NavigationAccess } from './navigation';
 
 /**
  * «Обучение» (владелец 30.10.2026, вариант B): у каждого клиента WETOP, при любой роли и должности, всегда; у
@@ -43,14 +43,14 @@ describe('Обучение: инструкции', () => {
     expect(guideBySlug('nope')).toBeUndefined();
   });
 
-  it('раздел есть в меню у всех ролей, в том числе «Личный кабинет», у всех направлений', () => {
-    for (const vertical of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)
-      for (const role of roles) {
-        const access = { ...base, role } as unknown as NavigationAccess;
-        const learn = menuSectionsFor(access, vertical).find((s) => s.id === 'learn');
-        expect(learn?.items.map((i) => i.href), `${vertical} ${role}`).toEqual(['/learn']);
-      }
+  it('вход в «Обучение» у всех ролей: меню профиля и «Помощь», адрес открыт правом self', () => {
+    // строка разделов шапки не растёт (1280 px, 11 разделов): «Обучение» в меню профиля и первым блоком «Помощи»
+    const nav = readFileSync(join(__dirname, '../components/top-nav.tsx'), 'utf8');
+    expect(nav).toMatch(/href="\/learn"/);
+    const help = readFileSync(join(__dirname, '../app/help/page.tsx'), 'utf8');
+    expect(help).toMatch(/href="\/learn"/);
     expect(routeRule('/learn/admin')?.requires).toBe('self');
+    for (const role of roles) expect(pageOpen({ ...base, role } as unknown as NavigationAccess, 'self', '/learn'), role).toBe(true);
   });
 
   it('салон с должностями: страницу не закрывает ни одна должность', () => {

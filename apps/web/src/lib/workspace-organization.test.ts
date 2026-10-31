@@ -20,7 +20,6 @@ it('organizes the menu by tasks: one row of sections shared by all verticals', (
       'Продвижение',
       ['/marketing', '/marketing/ads', '/marketing/content', '/marketing/voice', '/ai-agents', '/market', '/sales', '/marketing/budget'],
     ],
-    ['Обучение', ['/learn']],
     ['Помощь', ['/help']],
   ]);
   // «Организации» главного администратора лежат в «Настройках» последним пунктом (ADR-ORG-PAGE)

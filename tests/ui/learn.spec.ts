@@ -19,7 +19,9 @@ test('обучение: список, инструкция, язык', async ({ 
   await page.getByLabel('Пароль', { exact: true }).fill('ui-test-parol');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
   await page.waitForURL('**/today');
-  await page.getByRole('navigation').getByRole('link', { name: 'Обучение', exact: true }).first().click();
+  // вход: «Помощь» → блок «Обучение» (строка разделов шапки не растёт)
+  await page.goto('/help');
+  await page.getByTestId('help-learn').getByRole('link', { name: 'Открыть инструкции', exact: true }).click();
   await page.waitForURL('**/learn');
   const rows = page.getByTestId('learn-row');
   await expect(rows).toHaveCount(4);

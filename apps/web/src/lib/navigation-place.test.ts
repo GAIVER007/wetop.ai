@@ -12,6 +12,10 @@ describe('currentPlace', () => {
   it.each([
     ['/finance', 'Финансы'],
     ['/bar/receipts/new', 'Склад'],
+    // склад вариант C (31.10.2026): адреса вкладок без своего пункта меню всё равно в «Складе»
+    ['/bar/products', 'Склад'],
+    ['/bar/suppliers', 'Склад'],
+    ['/bar/menu', 'Склад'],
     ['/reservations/20260913-TESTAA', 'Клиенты'],
     ['/units/R01', 'Услуги'],
     ['/rooms/categories', 'Услуги'],

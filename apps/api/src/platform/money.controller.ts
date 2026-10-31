@@ -19,7 +19,7 @@ import { currentOrganizationId, currentUserId } from '../auth/request-context';
 import { Access } from '../auth/access.decorator';
 import { requirePlatformAdmin } from './admin';
 import { CABINET_REPOSITORY, type CabinetRepository } from './cabinet.repository';
-import { EXPENSE_CATEGORIES, buildMoney, parseIsoDate, parseUsdCents, type ExpenseCategory } from './money';
+import { EXPENSE_CATEGORIES, MoneyFieldError, buildMoney, parseExpenseExtras, parseIsoDate, parseSubscriptionExtras, parseUsdCents, type ExpenseCategory } from './money';
 import { MONEY_REPOSITORY, type MoneyRepository } from './money.repository';
 import { buildPartners, parsePercentBp } from './partners';
 
@@ -37,6 +37,7 @@ export const PARTNERS_NOT_READY = 'Партнёры ещё не подключе
 export const PARTNER_NAME = 'Имя партнёра: от 1 до 200 знаков';
 export const PARTNER_PERCENT = 'Процент: число от 0 до 100, например 20 или 12.5';
 export const PARTNER_NOT_FOUND = 'Такого партнёра нет';
+export const PARTNER_PAYOUT_OVER = 'Сумма больше, чем партнёру к выплате';
 export const MONEY_PARTNERS_CATEGORY = 'Выплата партнёру записывается в разделе «Партнёры»';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -96,7 +97,7 @@ export class MoneyController {
         overdue: summary.overdue.map((o) => ({ ...o, name: names.get(o.organizationId) ?? '' })),
         upcoming: summary.upcoming.map((o) => ({ ...o, name: names.get(o.organizationId) ?? '' })),
       },
-      plans: plans.map((p) => ({ ...p, priceCents: cents(p.priceCents) })),
+      plans: plans.map((p) => ({ ...p, priceCents: cents(p.priceCents), partnerPayoutCents: p.partnerPayoutCents == null ? null : cents(p.partnerPayoutCents) })),
       clients: clients.map((c) => {
         const s = subs.get(c.id);
         return {
@@ -106,6 +107,9 @@ export class MoneyController {
           monthlyCents: s ? cents(s.monthlyCents) : null,
           paidUntil: s?.paidUntil ?? null,
           note: s?.note ?? null,
+          promoCode: s?.promoCode ?? null,
+          discountPercent: s?.discountPercent ?? null,
+          autoRenew: s?.autoRenew ?? true,
         };
       }),
       payments: payments.map((p) => ({ ...p, amountCents: cents(p.amountCents), name: names.get(p.organizationId) ?? '' })),
@@ -135,8 +139,29 @@ export class MoneyController {
     const price = parseUsdCents(b['price']);
     if (price === null) throw new BadRequestException(MONEY_AMOUNT);
     const periodMonths = b['periodMonths'] === 12 || b['periodMonths'] === '12' ? 12 : 1;
-    const saved = await this.money.savePlan({ id, name, priceCents: price, periodMonths, active: b['active'] !== false && b['active'] !== 'false' });
-    return { ...saved, priceCents: cents(saved.priceCents) };
+    // «Партнёру за первый чек» (DATA_MODEL §63.2): пусто снимает сумму, поле не прислано: не трогаем
+    const rawPayout = b['partnerPayout'];
+    const partnerPayoutCents = rawPayout === undefined ? undefined : rawPayout === null || rawPayout === '' ? null : parseUsdCents(rawPayout);
+    if (partnerPayoutCents === null && rawPayout !== null && rawPayout !== '' && rawPayout !== undefined) throw new BadRequestException(MONEY_AMOUNT);
+    const saved = await this.money.savePlan({
+      id,
+      name,
+      priceCents: price,
+      periodMonths,
+      active: b['active'] !== false && b['active'] !== 'false',
+      ...(partnerPayoutCents !== undefined ? { partnerPayoutCents } : {}),
+    });
+    return { ...saved, priceCents: cents(saved.priceCents), partnerPayoutCents: saved.partnerPayoutCents == null ? null : cents(saved.partnerPayoutCents) };
+  }
+
+  /** Поля миграции 176: ошибка разбора отдаётся текстом 400 */
+  private extras<T>(parse: () => T): T {
+    try {
+      return parse();
+    } catch (error) {
+      if (error instanceof MoneyFieldError) throw new BadRequestException(error.message);
+      throw error;
+    }
   }
 
   @Put('subscriptions/:organizationId')
@@ -152,12 +177,14 @@ export class MoneyController {
     const rawUntil = b['paidUntil'];
     const paidUntil = rawUntil === null || rawUntil === '' || rawUntil === undefined ? null : parseIsoDate(rawUntil);
     if (rawUntil && !paidUntil) throw new BadRequestException(MONEY_DATE);
+    const extras = this.extras(() => parseSubscriptionExtras(b));
     const saved = await this.money.saveSubscription({
       organizationId,
       planId,
       monthlyCents: monthly,
       paidUntil,
       note: text(b['note'], 300),
+      ...extras,
       by: currentUserId(),
     });
     return { ...saved, monthlyCents: cents(saved.monthlyCents) };
@@ -181,7 +208,9 @@ export class MoneyController {
       paidOn,
       note: text(b['note'], 300),
       by: currentUserId(),
-      extendMonths,
+      // доп (ИИ-продавец, таргетолог, контент, продвижение) срок подписки не продлевает
+      extendMonths: b['kind'] === 'ADDON' ? 0 : extendMonths,
+      kind: b['kind'] === 'ADDON' ? 'ADDON' : 'PLAN',
     });
     return { ...saved, amountCents: cents(saved.amountCents) };
   }
@@ -212,6 +241,7 @@ export class MoneyController {
       spentOn,
       note: text(b['note'], 300),
       by: currentUserId(),
+      extras: parseExpenseExtras(b),
     });
     return { ...saved, amountCents: cents(saved.amountCents) };
   }
@@ -301,7 +331,10 @@ export class MoneyController {
     if (amount === null || amount === 0n) throw new BadRequestException(MONEY_AMOUNT);
     const spentOn = parseIsoDate(b['spentOn']);
     if (!spentOn) throw new BadRequestException(MONEY_DATE);
-    const saved = await this.money.payPartner({ partnerId: id, amountCents: amount, spentOn, note: text(b['note'], 300), by: currentUserId() });
+    // больше начисленного не выплачиваем (владелец 31.10.2026): остаток считается тем же расчётом, что в списке
+    const accrued = BigInt(buildPartners(await this.money.partnersSource()).partners.find((p) => p.id === id)?.accruedCents ?? '0');
+    const saved = await this.money.payPartner({ partnerId: id, amountCents: amount, accruedCents: accrued, spentOn, note: text(b['note'], 300), by: currentUserId() });
+    if (!saved) throw new BadRequestException(PARTNER_PAYOUT_OVER);
     return { ...saved, amountCents: cents(saved.amountCents) };
   }
 

@@ -85,6 +85,13 @@ export function PaymentForm({
       <Field label={t('Дата')} required>
         <DateInput name="paidOn" defaultValue={today} />
       </Field>
+      {/* тариф или доп (ИИ-продавец, таргетолог, контент, продвижение): партнёру разово за тариф, 30% с допов (30.10.2026) */}
+      <Field label={t('За что')}>
+        <Select name="kind" defaultValue="PLAN" data-testid="money-payment-kind">
+          <option value="PLAN">{t('Тариф')}</option>
+          <option value="ADDON">{t('Доп: ИИ-продавец, таргет, контент')}</option>
+        </Select>
+      </Field>
       <Field label={t('Продлить подписку')}>
         <Select name="extendMonths" defaultValue="1">
           <option value="1">{t('на месяц')}</option>
@@ -148,6 +155,19 @@ export function ExpenseForm({
       <Field label={t('Заметка')}>
         <Input name="note" maxLength={300} defaultValue={preset?.note ?? ''} />
       </Field>
+      {/* миграция 176: кому заплатили, проект, документ, повторяется каждый месяц */}
+      <Field label={t('Получатель')}>
+        <Input name="payee" maxLength={200} />
+      </Field>
+      <Field label={t('Проект')}>
+        <Input name="project" maxLength={100} />
+      </Field>
+      <Field label={t('Документ')}>
+        <Input name="document" maxLength={200} placeholder={t('Счёт № 17')} />
+      </Field>
+      <label className="cabinet__check">
+        <input type="checkbox" name="recurring" data-testid="money-expense-recurring" /> {t('Повторяется каждый месяц')}
+      </label>
       <Button type="submit" disabled={pending} aria-busy={pending} data-testid="money-expense-save">
         {pending ? t('Сохраняю…') : preset?.category === 'SALARIES' ? t('Выплатить') : t('Записать расход')}
       </Button>
@@ -178,7 +198,7 @@ export function VoidButton({ id, kind }: { id: string; kind: 'payment' | 'expens
   );
 }
 
-export function PlanForm({ plan }: { plan: (PlatformPlan & { priceInput: string }) | null }) {
+export function PlanForm({ plan }: { plan: (PlatformPlan & { priceInput: string; partnerPayoutInput?: string }) | null }) {
   const t = useT();
   const [state, action, pending] = useActionState<MoneyFormResult | null, FormData>(
     savePlanAction.bind(null, plan?.id ?? null),
@@ -202,6 +222,10 @@ export function PlanForm({ plan }: { plan: (PlatformPlan & { priceInput: string 
           <option value="1">{t('в месяц')}</option>
           <option value="12">{t('в год')}</option>
         </Select>
+      </Field>
+      {/* владелец 30.10.2026: месяц $19, партнёру $10; год $199, партнёру $100; разово с первого чека клиента */}
+      <Field label={t('Партнёру за первый чек, $')}>
+        <Input name="partnerPayout" inputMode="decimal" defaultValue={plan?.partnerPayoutInput ?? ''} data-testid="money-plan-payout" />
       </Field>
       {plan && (
         <Field label={t('Состояние')}>
@@ -230,6 +254,9 @@ export function SubscriptionForm({
     monthlyInput: string;
     paidUntil: string | null;
     note: string | null;
+    promoCode?: string | null | undefined;
+    discountPercent?: number | null | undefined;
+    autoRenew?: boolean | undefined;
   };
   plans: PlatformPlan[];
 }) {
@@ -267,6 +294,15 @@ export function SubscriptionForm({
       <Field label={t('Оплачено до')}>
         <DateInput name="paidUntil" defaultValue={client.paidUntil ?? ''} />
       </Field>
+      <Field label={t('Промокод')}>
+        <Input name="promoCode" maxLength={40} defaultValue={client.promoCode ?? ''} />
+      </Field>
+      <Field label={t('Скидка, %')}>
+        <Input name="discountPercent" inputMode="numeric" defaultValue={client.discountPercent?.toString() ?? ''} />
+      </Field>
+      <label className="cabinet__check">
+        <input type="checkbox" name="autoRenew" defaultChecked={client.autoRenew ?? true} /> {t('Автопродление')}
+      </label>
       <Button
         type="submit"
         disabled={pending}
@@ -368,7 +404,7 @@ export function PartnerForm({
       <Field label={t('Почта')}>
         <Input name="email" type="email" maxLength={320} defaultValue={partner?.email ?? ''} />
       </Field>
-      <Field label={t('Процент от оплат клиентов')} required>
+      <Field label={t('Процент с допов')} required>
         <Input name="percent" inputMode="decimal" placeholder="20" defaultValue={partner?.percentInput ?? ''} />
       </Field>
       {partner && (

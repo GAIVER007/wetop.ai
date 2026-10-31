@@ -132,7 +132,7 @@
       "BEAUTY"
     ],
     "branch": "/today",
-    "active": "/bar/menu",
+    "active": "/bar",
     "rule": {
       "href": "/bar/menu",
       "label": "Меню бара",
@@ -164,7 +164,7 @@
       "FOOD_SERVICE"
     ],
     "branch": "/today",
-    "active": "/bar/products",
+    "active": "/bar",
     "rule": {
       "href": "/bar/products",
       "label": "Номенклатура",
@@ -196,7 +196,7 @@
       "FOOD_SERVICE"
     ],
     "branch": "/today",
-    "active": "/bar/suppliers",
+    "active": "/bar/receipts",
     "rule": {
       "href": "/bar/suppliers",
       "label": "Поставщики",

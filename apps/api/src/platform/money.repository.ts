@@ -14,6 +14,8 @@ export interface PlanRow {
   priceCents: bigint;
   periodMonths: number;
   active: boolean;
+  /** Разовая выплата партнёру за первый чек клиента (DATA_MODEL §63.2); не задана: null */
+  partnerPayoutCents?: bigint | null;
 }
 export interface SubscriptionRow {
   organizationId: string;
@@ -21,6 +23,10 @@ export interface SubscriptionRow {
   monthlyCents: bigint;
   paidUntil: string | null;
   note: string | null;
+  /** Миграция 176: промокод, скидка %, автопродление */
+  promoCode?: string | null;
+  discountPercent?: number | null;
+  autoRenew?: boolean;
 }
 export interface PaymentRow {
   id: string;
@@ -29,6 +35,8 @@ export interface PaymentRow {
   paidOn: string;
   note: string | null;
   voided: boolean;
+  /** `PLAN` тариф, `ADDON` доп (ИИ-продавец, таргетолог, контент, продвижение) */
+  kind?: 'PLAN' | 'ADDON';
 }
 export interface ExpenseRow {
   id: string;
@@ -37,6 +45,11 @@ export interface ExpenseRow {
   spentOn: string;
   note: string | null;
   voided: boolean;
+  /** Миграция 176: кому заплатили, проект, повторяется, документ */
+  payee?: string | null;
+  project?: string | null;
+  recurring?: boolean;
+  documentRef?: string | null;
 }
 export interface TeamRow {
   id: string;
@@ -61,12 +74,12 @@ export interface MoneyRepository {
   expenses(month: string): Promise<ExpenseRow[]>;
   team(): Promise<TeamRow[]>;
   organizationExists(id: string): Promise<boolean>;
-  savePlan(input: { id: string | null; name: string; priceCents: bigint; periodMonths: number; active: boolean }): Promise<PlanRow>;
+  savePlan(input: { id: string | null; name: string; priceCents: bigint; periodMonths: number; active: boolean; partnerPayoutCents?: bigint | null }): Promise<PlanRow>;
   planExists(id: string): Promise<boolean>;
   saveSubscription(input: SubscriptionRow & { by: string | null }): Promise<SubscriptionRow>;
-  addPayment(input: { organizationId: string; amountCents: bigint; paidOn: string; note: string | null; by: string | null; extendMonths: number }): Promise<PaymentRow>;
+  addPayment(input: { organizationId: string; amountCents: bigint; paidOn: string; note: string | null; by: string | null; extendMonths: number; kind?: 'PLAN' | 'ADDON' }): Promise<PaymentRow>;
   voidPayment(input: { id: string; by: string | null }): Promise<boolean>;
-  addExpense(input: { category: ExpenseCategory; amountCents: bigint; spentOn: string; note: string | null; by: string | null }): Promise<ExpenseRow>;
+  addExpense(input: { category: ExpenseCategory; amountCents: bigint; spentOn: string; note: string | null; by: string | null; extras?: { payee: string | null; project: string | null; recurring: boolean; documentRef: string | null } }): Promise<ExpenseRow>;
   voidExpense(input: { id: string; by: string | null }): Promise<boolean>;
   saveTeamMember(input: Omit<TeamRow, 'id'> & { id: string | null }): Promise<TeamRow | null>;
   /** Партнёры (миграция 172): таблицы ещё нет, раздел говорит «не подключено» */
@@ -76,7 +89,8 @@ export interface MoneyRepository {
   partnerExists(id: string): Promise<boolean>;
   /** Чей клиент: `partnerId` null снимает отметку */
   setClientPartner(input: { organizationId: string; partnerId: string | null; by: string | null }): Promise<void>;
-  payPartner(input: { partnerId: string; amountCents: bigint; spentOn: string; note: string | null; by: string | null }): Promise<ExpenseRow>;
+  /** `accruedCents`: начислено партнёру всего; выплата сверх `начислено − выплачено` отклоняется под блокировкой партнёра (null) */
+  payPartner(input: { partnerId: string; amountCents: bigint; accruedCents: bigint; spentOn: string; note: string | null; by: string | null }): Promise<ExpenseRow | null>;
 }
 
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
@@ -138,7 +152,7 @@ export class PrismaMoneyRepository implements MoneyRepository {
 
   async plans(): Promise<PlanRow[]> {
     const rows = await this.prisma.db.platformPlan.findMany({ orderBy: [{ active: 'desc' }, { priceCents: 'asc' }] });
-    return rows.map((p) => ({ id: p.id, name: p.name, priceCents: p.priceCents, periodMonths: p.periodMonths, active: p.active }));
+    return rows.map((p) => ({ id: p.id, name: p.name, priceCents: p.priceCents, periodMonths: p.periodMonths, active: p.active, partnerPayoutCents: p.partnerPayoutCents }));
   }
 
   async subscriptions(): Promise<SubscriptionRow[]> {
@@ -149,6 +163,9 @@ export class PrismaMoneyRepository implements MoneyRepository {
       monthlyCents: s.monthlyCents,
       paidUntil: day(s.paidUntil),
       note: s.note,
+      promoCode: s.promoCode,
+      discountPercent: s.discountPercent,
+      autoRenew: s.autoRenew,
     }));
   }
 
@@ -164,6 +181,7 @@ export class PrismaMoneyRepository implements MoneyRepository {
       paidOn: day(p.paidOn)!,
       note: p.note,
       voided: p.voidedAt !== null,
+      kind: p.kind === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const),
     }));
   }
 
@@ -179,6 +197,10 @@ export class PrismaMoneyRepository implements MoneyRepository {
       spentOn: day(e.spentOn)!,
       note: e.note,
       voided: e.voidedAt !== null,
+      payee: e.payee,
+      project: e.project,
+      recurring: e.recurring,
+      documentRef: e.documentRef,
     }));
   }
 
@@ -204,12 +226,19 @@ export class PrismaMoneyRepository implements MoneyRepository {
     return (await this.prisma.db.platformPlan.count({ where: { id } })) === 1;
   }
 
-  async savePlan(input: { id: string | null; name: string; priceCents: bigint; periodMonths: number; active: boolean }) {
-    const data = { name: input.name, priceCents: input.priceCents, periodMonths: input.periodMonths, active: input.active, updatedAt: new Date() };
+  async savePlan(input: { id: string | null; name: string; priceCents: bigint; periodMonths: number; active: boolean; partnerPayoutCents?: bigint | null }) {
+    const data = {
+      name: input.name,
+      priceCents: input.priceCents,
+      periodMonths: input.periodMonths,
+      active: input.active,
+      ...(input.partnerPayoutCents !== undefined ? { partnerPayoutCents: input.partnerPayoutCents } : {}),
+      updatedAt: new Date(),
+    };
     const row = input.id
       ? await this.prisma.db.platformPlan.update({ where: { id: input.id }, data })
       : await this.prisma.db.platformPlan.create({ data: { id: randomUUID(), ...data } });
-    return { id: row.id, name: row.name, priceCents: row.priceCents, periodMonths: row.periodMonths, active: row.active };
+    return { id: row.id, name: row.name, priceCents: row.priceCents, periodMonths: row.periodMonths, active: row.active, partnerPayoutCents: row.partnerPayoutCents };
   }
 
   async saveSubscription(input: SubscriptionRow & { by: string | null }): Promise<SubscriptionRow> {
@@ -218,6 +247,7 @@ export class PrismaMoneyRepository implements MoneyRepository {
       monthlyCents: input.monthlyCents,
       paidUntil: input.paidUntil ? dateOf(input.paidUntil) : null,
       note: input.note,
+      ...(input.autoRenew !== undefined ? { promoCode: input.promoCode ?? null, discountPercent: input.discountPercent ?? null, autoRenew: input.autoRenew } : {}),
       updatedAt: new Date(),
       updatedBy: input.by,
     };
@@ -241,13 +271,14 @@ export class PrismaMoneyRepository implements MoneyRepository {
     return { organizationId: row.organizationId, planId: row.planId, monthlyCents: row.monthlyCents, paidUntil: day(row.paidUntil), note: row.note };
   }
 
-  async addPayment(input: { organizationId: string; amountCents: bigint; paidOn: string; note: string | null; by: string | null; extendMonths: number }) {
+  async addPayment(input: { organizationId: string; amountCents: bigint; paidOn: string; note: string | null; by: string | null; extendMonths: number; kind?: 'PLAN' | 'ADDON' }) {
     return this.prisma.db.$transaction(async (tx) => {
       const row = await tx.platformPayment.create({
         data: {
           id: randomUUID(),
           organizationId: input.organizationId,
           amountCents: input.amountCents,
+          kind: input.kind ?? 'PLAN',
           paidOn: dateOf(input.paidOn),
           note: input.note,
           createdBy: input.by,
@@ -272,7 +303,7 @@ export class PrismaMoneyRepository implements MoneyRepository {
           entityType: 'organization',
           entityId: input.organizationId,
           action: 'platform.payment.added',
-          after: { paymentId: row.id, amountCents: String(input.amountCents), paidOn: input.paidOn },
+          after: { paymentId: row.id, amountCents: String(input.amountCents), paidOn: input.paidOn, kind: input.kind ?? 'PLAN' },
         },
       });
       return {
@@ -294,7 +325,14 @@ export class PrismaMoneyRepository implements MoneyRepository {
     return count === 1;
   }
 
-  async addExpense(input: { category: ExpenseCategory; amountCents: bigint; spentOn: string; note: string | null; by: string | null }) {
+  async addExpense(input: {
+    category: ExpenseCategory;
+    amountCents: bigint;
+    spentOn: string;
+    note: string | null;
+    by: string | null;
+    extras?: { payee: string | null; project: string | null; recurring: boolean; documentRef: string | null };
+  }) {
     const row = await this.prisma.db.platformExpense.create({
       data: {
         id: randomUUID(),
@@ -303,9 +341,21 @@ export class PrismaMoneyRepository implements MoneyRepository {
         spentOn: dateOf(input.spentOn),
         note: input.note,
         createdBy: input.by,
+        ...(input.extras ?? {}),
       },
     });
-    return { id: row.id, category: input.category, amountCents: row.amountCents, spentOn: input.spentOn, note: row.note, voided: false };
+    return {
+      id: row.id,
+      category: input.category,
+      amountCents: row.amountCents,
+      spentOn: input.spentOn,
+      note: row.note,
+      voided: false,
+      payee: row.payee,
+      project: row.project,
+      recurring: row.recurring,
+      documentRef: row.documentRef,
+    };
   }
 
   async voidExpense(input: { id: string; by: string | null }): Promise<boolean> {
@@ -345,16 +395,25 @@ export class PrismaMoneyRepository implements MoneyRepository {
 
   async partnersSource(): Promise<PartnersSource> {
     const db = this.prisma.db;
-    const [partners, links, payments, payouts] = await Promise.all([
+    const [partners, links, payments, payouts, subs] = await Promise.all([
       db.platformPartner.findMany({ orderBy: { createdAt: 'asc' } }),
       db.platformClientPartner.findMany({ select: { organizationId: true, partnerId: true } }),
-      db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, voidedAt: true } }),
+      db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, voidedAt: true, kind: true, paidOn: true } }),
       db.platformExpense.findMany({ where: { category: 'PARTNERS' }, select: { partnerId: true, amountCents: true, voidedAt: true } }),
+      // разовая выплата партнёру за тариф подписки клиента (DATA_MODEL §63.2)
+      db.platformSubscription.findMany({ select: { organizationId: true, plan: { select: { partnerPayoutCents: true } } } }),
     ]);
     return {
       partners: partners.map((p) => ({ id: p.id, name: p.name, phone: p.phone, email: p.email, percentBp: p.percentBp, active: p.active })),
       links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId }] : [])),
-      payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, voided: p.voidedAt !== null })),
+      payments: payments.map((p) => ({
+        organizationId: p.organizationId,
+        amountCents: p.amountCents,
+        voided: p.voidedAt !== null,
+        kind: p.kind === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const),
+        paidOn: day(p.paidOn)!,
+      })),
+      planPayouts: subs.flatMap((x) => (x.plan?.partnerPayoutCents != null ? [{ organizationId: x.organizationId, payoutCents: x.plan.partnerPayoutCents }] : [])),
       payouts: payouts.flatMap((p) => (p.partnerId ? [{ partnerId: p.partnerId, amountCents: p.amountCents, voided: p.voidedAt !== null }] : [])),
     };
   }
@@ -394,18 +453,28 @@ export class PrismaMoneyRepository implements MoneyRepository {
     });
   }
 
-  async payPartner(input: { partnerId: string; amountCents: bigint; spentOn: string; note: string | null; by: string | null }) {
-    const row = await this.prisma.db.platformExpense.create({
-      data: {
-        id: randomUUID(),
-        category: 'PARTNERS',
-        partnerId: input.partnerId,
-        amountCents: input.amountCents,
-        spentOn: dateOf(input.spentOn),
-        note: input.note,
-        createdBy: input.by,
-      },
+  async payPartner(input: { partnerId: string; amountCents: bigint; accruedCents: bigint; spentOn: string; note: string | null; by: string | null }) {
+    // одна выплата партнёра за раз: двойной клик или две вкладки не выплатят остаток дважды (владелец 31.10.2026)
+    return this.prisma.db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`platform.partner.payout:${input.partnerId}`}, 0))::text`;
+      const done = await tx.platformExpense.aggregate({
+        where: { category: 'PARTNERS', partnerId: input.partnerId, voidedAt: null },
+        _sum: { amountCents: true },
+      });
+      if ((done._sum.amountCents ?? 0n) + input.amountCents > input.accruedCents) return null;
+      const row = await tx.platformExpense.create({
+        data: {
+          id: randomUUID(),
+          category: 'PARTNERS',
+          partnerId: input.partnerId,
+          amountCents: input.amountCents,
+          spentOn: dateOf(input.spentOn),
+          note: input.note,
+          createdBy: input.by,
+        },
+      });
+      return { id: row.id, category: 'PARTNERS' as const, amountCents: row.amountCents, spentOn: input.spentOn, note: row.note, voided: false };
     });
-    return { id: row.id, category: 'PARTNERS' as const, amountCents: row.amountCents, spentOn: input.spentOn, note: row.note, voided: false };
   }
+
 }

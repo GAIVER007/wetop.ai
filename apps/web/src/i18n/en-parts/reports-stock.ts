@@ -517,4 +517,6 @@ export const reportsStock: Record<string, string> = {
   'каждая запись': 'every appointment',
   'сравнение': 'comparison',
   'Итого': 'Total',
+  'Закупки': 'Purchases',
+  'Движение': 'Movements',
 };

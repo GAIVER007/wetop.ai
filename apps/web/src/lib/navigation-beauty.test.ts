@@ -47,7 +47,7 @@ describe('меню салона', () => {
       ['Услуги', ['/services']],
       // Отдельные отчёты салона больше не перенаправляют в аналитику.
       ['Статистика', ['/management/analytics', '/rnp', '/reports']],
-      ['Склад', ['/warehouse', '/bar', '/bar/consumables', '/bar/menu', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
+      ['Склад', ['/warehouse', '/bar', '/bar/consumables', '/bar/receipts', '/bar/operations']],
       // касса филиала, общая с рестораном (§48, ADR-178 этап 0)
       // «Сертификаты» салона (решение 21.10.2026 §3)
       // «Сертификаты» салона пока скрыты в меню (запуск первого клиента 25.10.2026)

@@ -100,20 +100,8 @@
             "label": "Кухня"
           },
           {
-            "href": "/bar/menu",
-            "label": "Меню бара"
-          },
-          {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -319,20 +307,8 @@
             "label": "Кухня"
           },
           {
-            "href": "/bar/menu",
-            "label": "Меню бара"
-          },
-          {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -512,20 +488,8 @@
             "label": "Кухня"
           },
           {
-            "href": "/bar/menu",
-            "label": "Меню бара"
-          },
-          {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -692,20 +656,8 @@
             "label": "Кухня"
           },
           {
-            "href": "/bar/menu",
-            "label": "Меню бара"
-          },
-          {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -911,20 +863,8 @@
             "label": "Кухня"
           },
           {
-            "href": "/bar/menu",
-            "label": "Меню бара"
-          },
-          {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -1120,20 +1060,8 @@
             "label": "Кухня"
           },
           {
-            "href": "/bar/menu",
-            "label": "Меню бара"
-          },
-          {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -1285,20 +1213,8 @@
             "label": "Кухня"
           },
           {
-            "href": "/bar/menu",
-            "label": "Меню бара"
-          },
-          {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -1420,20 +1336,8 @@
             "label": "Кухня"
           },
           {
-            "href": "/bar/menu",
-            "label": "Меню бара"
-          },
-          {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -1574,20 +1478,8 @@
             "label": "Кухня"
           },
           {
-            "href": "/bar/menu",
-            "label": "Меню бара"
-          },
-          {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -1781,20 +1673,8 @@
             "label": "Кухня"
           },
           {
-            "href": "/bar/menu",
-            "label": "Меню бара"
-          },
-          {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -1957,15 +1837,7 @@
           },
           {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -2172,15 +2044,7 @@
           },
           {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -2375,15 +2239,7 @@
           },
           {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -2570,15 +2426,7 @@
           },
           {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",
@@ -2789,15 +2637,7 @@
           },
           {
             "href": "/bar/receipts",
-            "label": "Приходы"
-          },
-          {
-            "href": "/bar/products",
-            "label": "Номенклатура"
-          },
-          {
-            "href": "/bar/suppliers",
-            "label": "Поставщики"
+            "label": "Закупки"
           },
           {
             "href": "/bar/operations",

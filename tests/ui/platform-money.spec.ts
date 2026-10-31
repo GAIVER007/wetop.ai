@@ -40,9 +40,17 @@ test('оплата и расход: доход, расходы и прибыль
   await page.getByTestId('money-expense-dialog-open').click();
   const exp = page.getByTestId('money-expense-dialog').getByTestId('money-expense-form');
   await exp.getByLabel('Сумма, $').fill('20');
+  // миграция 176 (владелец 31.10.2026): кому заплатили, документ, повторяется
+  await exp.getByLabel('Получатель').fill('Hetzner');
+  await exp.getByLabel('Документ').fill('Счёт 17');
+  await exp.getByTestId('money-expense-recurring').check();
   await exp.getByTestId('money-expense-save').click();
   await expect(page.getByTestId('money-expenses')).toHaveText('$20');
   await expect(page.getByTestId('money-profit')).toHaveText('$79,50');
+  // поля расхода видны в «Расходах»
+  await page.goto('/platform/cabinet/expenses');
+  await expect(page.getByRole('main')).toContainText('Hetzner, Счёт 17, каждый месяц');
+  await page.goto('/platform/cabinet/money');
   // таблица по месяцам: доход, статья «Сервер», прибыль
   const table = page.getByTestId('money-table');
   await expect(table).toContainText('Доход: оплаты клиентов');
@@ -64,8 +72,11 @@ test('тариф, подписка клиента, команда с цифро�
   const plan = page.getByTestId('money-plans').getByTestId('money-plan-form').last();
   await plan.getByLabel('Тариф').fill('WETOP Core');
   await plan.getByLabel('Цена, $').fill('49');
+  // владелец 30.10.2026: у тарифа разовая выплата партнёру за первый чек клиента
+  await plan.getByLabel('Партнёру за первый чек, $').fill('10');
   await plan.getByTestId('money-plan-save').click();
   await expect(page.getByTestId('money-plans')).toContainText('WETOP Core');
+  await expect(page.getByTestId('money-plans')).toContainText('партнёру $10');
 
   const sub = page.getByTestId('money-subscription-form').first();
   await sub.getByLabel('В месяц, $').fill('49');
@@ -151,12 +162,12 @@ test('партнёры: процент, клиент партнёра, начи�
   await page.getByTestId('partner-add-dialog-open').click();
   const form = page.getByTestId('partner-add-dialog').getByTestId('partner-form');
   await form.getByLabel('Имя или компания').fill('Агентство Тест');
-  await form.getByLabel('Процент от оплат клиентов').fill('120');
+  await form.getByLabel('Процент с допов').fill('120');
   await form.getByTestId('partner-save').click();
   await expect(page.getByTestId('partner-error')).toContainText('Процент');
   // ошибка не стирает введённое: правим только процент
   await expect(form.getByLabel('Имя или компания')).toHaveValue('Агентство Тест');
-  await form.getByLabel('Процент от оплат клиентов').fill('20');
+  await form.getByLabel('Процент с допов').fill('20');
   await form.getByTestId('partner-save').click();
   await expect(page.getByTestId('partner-row')).toContainText('Агентство Тест');
   await expect(page.getByTestId('partner-row')).toContainText('20%');
@@ -167,8 +178,8 @@ test('партнёры: процент, клиент партнёра, начи�
   await pick.getByLabel('Партнёр').selectOption({ label: 'Агентство Тест' });
   await pick.getByTestId('client-partner-save').click();
   await expect(page.getByTestId('client-partner-result')).toBeVisible();
-  // клиент оплатил $50: начислено 20% = $10
-  expect((await request.post(`${FIXTURE_API}/platform/payments`, { ...asAdmin, data: { organizationId: 'ui-org-2', amount: '50', paidOn: new Date().toISOString().slice(0, 10) } })).ok()).toBe(true);
+  // владелец 30.10.2026: процент партнёра только с допов; клиент оплатил доп (ИИ-продавец) $50: начислено 20% = $10
+  expect((await request.post(`${FIXTURE_API}/platform/payments`, { ...asAdmin, data: { organizationId: 'ui-org-2', amount: '50', paidOn: new Date().toISOString().slice(0, 10), kind: 'ADDON' } })).ok()).toBe(true);
   await page.goto('/platform/cabinet/partners');
   const row = page.getByTestId('partner-row').filter({ hasText: 'Агентство Тест' });
   await expect(row).toContainText('Хостел «Пример»');

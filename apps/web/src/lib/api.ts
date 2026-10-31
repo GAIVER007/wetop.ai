@@ -3498,7 +3498,17 @@ export interface PlatformSiteBuilderLocation {
   };
 }
 
+/** VTOP Overview (`GET /platform/ceo-overview`, ТЗ 30.10.2026 п. 3): центы USD строкой, проценты десятыми */
+export interface PlatformCeoOverview {
+  month: string;
+  revenue: { mrrCents: string; arrCents: string; thisMonthCents: string; lastMonthCents: string; ytdCents: string; forecastCents: string; growthTenths: number | null };
+  clients: { total: number; new: number; active: number; trial: number; churned: number; atRisk: number };
+  subscriptions: { active: number; monthly: number; annual: number; byPlan: Array<{ planId: string; name: string; count: number }> };
+  partners: { total: number; active: number; new: number; clients: number; revenueCents: string; commissionsCents: string; dueCents: string };
+  finance: { cashBalanceCents: string; incomeCents: string; expensesCents: string; profitCents: string; receivableCents: string; payableCents: string };
+}
 export const platformApi = {
+  ceoOverview: (month: string) => getJson<PlatformCeoOverview>(`/platform/ceo-overview?month=${encodeURIComponent(month)}`),
   /** Кабинет компании WETOP (вариант «Г», 28.10.2026): только главному администратору */
   cabinet: () => getJson<PlatformCabinet>('/platform/cabinet'),
   growth: (month: string) => getJson<PlatformGrowth>(`/platform/growth?month=${encodeURIComponent(month)}`),

@@ -10,6 +10,7 @@ import { buildPartners, parsePercentBp } from '../../apps/api/src/platform/partn
 import { buildSiteReport } from '../../apps/api/src/platform/site-report';
 import { buildCountries } from '../../apps/api/src/platform/countries';
 import { buildRnp } from '../../apps/api/src/platform/rnp';
+import { buildCeoOverview } from '../../apps/api/src/platform/ceo-overview';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { barFixture, resetBarFixture } from './bar-fixture';
 import {
@@ -2548,6 +2549,36 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
   const clients = platformOrganizations().filter((o) => o.id !== 'ui-org' && o.status !== 'SUSPENDED');
   const names = new Map(platformOrganizations().map((o) => [o.id, o.name]));
   const ok = (data: unknown, status = 200) => ({ status, data });
+  // VTOP Overview на стенде (30.10.2026): тот же расчёт, что API (buildCeoOverview), из денег стенда
+  if (path.startsWith('/platform/ceo-overview') && method === 'GET') {
+    const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
+    const payments = platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), paidOn: p.paidOn, voided: p.voided }));
+    const partners = buildPartners({
+      partners: platformMoney.partners,
+      links: [...platformMoney.clientPartners].map(([organizationId, partnerId]) => ({ organizationId, partnerId })),
+      payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, voided: p.voided })),
+      payouts: platformMoney.expenses.flatMap((e) => (e.partnerId ? [{ partnerId: e.partnerId, amountCents: BigInt(e.amountCents), voided: e.voided }] : [])),
+    });
+    const today = new Date().toISOString().slice(0, 10);
+    const subs = clients.flatMap((c) => (platformMoney.subs.has(c.id) ? [{ organizationId: c.id, ...platformMoney.subs.get(c.id)! }] : []));
+    const mrr = subs.filter((x) => x.paidUntil !== null && x.paidUntil >= today).reduce((n, x) => n + BigInt(x.monthlyCents), 0n);
+    return ok(
+      buildCeoOverview({
+        month,
+        today,
+        clientIds: clients.map((c) => c.id),
+        payments,
+        expenses: platformMoney.expenses.map((e) => ({ category: e.category as 'OTHER', amountCents: BigInt(e.amountCents), spentOn: e.spentOn, voided: e.voided })),
+        plans: platformMoney.plans.map((p) => ({ id: p.id, name: p.name, priceCents: BigInt(p.priceCents), periodMonths: p.periodMonths })),
+        subscriptions: subs.map((x) => ({ organizationId: x.organizationId, planId: x.planId, monthlyCents: BigInt(x.monthlyCents), paidUntil: x.paidUntil })),
+        kpi: { mrrCents: String(mrr), paying: new Set(payments.filter((p) => !p.voided).map((p) => p.organizationId)).size, trial: clients.filter((c) => c.status === 'TRIAL').length },
+        registrations: 0,
+        churned: 0,
+        atRisk: 0,
+        partners: { rows: platformMoney.partners.map((p) => ({ active: p.active, createdAt: today })), totals: partners.totals },
+      }),
+    );
+  }
   if (path.startsWith('/platform/money') && method === 'GET') {
     const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
     const today = new Date().toISOString().slice(0, 10);

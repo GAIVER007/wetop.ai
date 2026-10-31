@@ -46,11 +46,19 @@ export const WETOP_SITE_HOSTS: readonly string[] = ['wetop.ai', 'www.wetop.ai'];
 
 /** Организации, которым принадлежит сайт wetop.ai: это сама компания WETOP, а не клиент */
 export async function companyOrganizationIds(db: PrismaService['db']): Promise<Set<string>> {
-  const rows = await db.trackedSite.findMany({
-    where: { hosts: { hasSome: [...WETOP_SITE_HOSTS] } },
-    select: { location: { select: { business: { select: { organizationId: true } } } } },
-  });
-  return new Set(rows.flatMap((r) => (r.location ? [r.location.business.organizationId] : [])));
+  const [rows, partners] = await Promise.all([
+    db.trackedSite.findMany({
+      where: { hosts: { hasSome: [...WETOP_SITE_HOSTS] } },
+      select: { location: { select: { business: { select: { organizationId: true } } } } },
+    }),
+    // рабочие места партнёров (миграция 178, DATA_MODEL §63.3) тоже не клиенты; до миграции столбца нет
+    (db.platformPartner?.findMany({ where: { organizationId: { not: null } }, select: { organizationId: true } }) ?? Promise.resolve([]))
+      .catch(() => [] as Array<{ organizationId: string | null }>),
+  ]);
+  return new Set([
+    ...rows.flatMap((r) => (r.location ? [r.location.business.organizationId] : [])),
+    ...partners.flatMap((p) => (p.organizationId ? [p.organizationId] : [])),
+  ]);
 }
 
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);

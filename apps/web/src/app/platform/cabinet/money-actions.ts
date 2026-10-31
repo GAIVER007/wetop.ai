@@ -198,3 +198,16 @@ export async function setClientPartnerAction(
   const partner = field(form, 'partnerId');
   return run(prev, () => platformApi.setClientPartner(organizationId, partner || null), msg('Сохранено.'));
 }
+
+/** «Пригласить» партнёра (DATA_MODEL §63.3): одноразовая ссылка в кабинет партнёра; есть почта: и письмо */
+export async function invitePartnerAction(
+  id: string,
+  _prev: { error: string | null; link?: string; sent?: boolean } | null,
+): Promise<{ error: string | null; link?: string; sent?: boolean; code?: string }> {
+  try {
+    const r = await platformApi.invitePartner(id);
+    return { error: null, link: r.link, code: r.code, ...(r.sent !== undefined ? { sent: r.sent } : {}) };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : msg('Не получилось. Повторите.') };
+  }
+}

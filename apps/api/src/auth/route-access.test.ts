@@ -713,6 +713,11 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /platform/partners': 'platform',
   'PUT /platform/partners/:id': 'platform',
   'POST /platform/partners/:id/payouts': 'platform',
+  // кабинет партнёра (DATA_MODEL §63.3): приглашение главным администратором, вход по приглашению, свой кабинет
+  'POST /platform/partners/:id/invite': 'platform',
+  'GET /partner/join/:token': 'public',
+  'POST /partner/join/:token': 'public',
+  'GET /partner/me': 'self',
   'PUT /platform/clients/:organizationId/partner': 'platform',
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор

@@ -7,6 +7,7 @@ import { currentMe, deskShell } from '../lib/desk-shell';
  */
 export default async function Home() {
   const [shell, me] = await Promise.all([deskShell(), currentMe().catch(() => null)]);
+  if (me?.user?.partner === true) redirect('/partner');
   const cabinetHome = me?.user?.platformAdmin === true && me.user.cabinetHome === true;
   redirect(startScreen(shell.vertical, shell.access.role, { cabinetHome }));
 }

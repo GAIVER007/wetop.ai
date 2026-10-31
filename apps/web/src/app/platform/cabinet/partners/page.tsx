@@ -10,7 +10,7 @@ import { formatInt } from '../../../../lib/dashboard-format';
 import { serverT } from '../../../../i18n/server';
 import { CabinetShell, centsToInput, usd } from '../shell';
 import { FormDialog } from '../form-dialog';
-import { PartnerForm, PartnerPayoutForm } from '../money-forms';
+import { PartnerForm, PartnerInviteForm, PartnerPayoutForm } from '../money-forms';
 import { percentText } from '../growth-parts';
 
 /**
@@ -139,6 +139,11 @@ async function Partners() {
                           <PartnerPayoutForm partnerId={p.id} amount={centsToInput(p.dueCents)} today={today} />
                         </FormDialog>
                       )}
+                      {p.active && (
+                        <FormDialog label={t('Пригласить')} title={t('Кабинет партнёра: {name}', { name: p.name })} tone="secondary" testId="partner-invite-dialog">
+                          <PartnerInviteForm partnerId={p.id} />
+                        </FormDialog>
+                      )}
                       <FormDialog label={t('Изменить')} title={p.name} tone="secondary" testId="partner-edit-dialog">
                         <PartnerForm
                           partner={{ id: p.id, name: p.name, phone: p.phone, email: p.email, percentInput: bpInput(p.percentBp), active: p.active }}
@@ -152,7 +157,7 @@ async function Partners() {
           </Table>
         )}
         <p className="muted cabinet__sub">
-          {t('Клиента партнёру назначают в карточке клиента. Начислено: доход от его клиентов, умноженный на процент.')}
+          {t('Клиент по ссылке партнёра становится его сам; вручную клиента назначают в карточке клиента. Начислено: за тариф разово с первой оплаты, с допов процент с первой оплаты допа.')}
         </p>
       </Panel>
     </CabinetShell>

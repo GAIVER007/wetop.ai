@@ -17,6 +17,7 @@ import {
   voidExpenseAction,
   voidPaymentAction,
   type MoneyFormResult,
+  invitePartnerAction,
 } from './money-actions';
 
 /** Формы кабинета WETOP (DATA_MODEL §63): одна кнопка, поля в окне, отказ словами API */
@@ -480,6 +481,27 @@ export function ClientPartnerForm({
         {pending ? t('Сохраняю…') : t('Сохранить')}
       </Button>
       <Result state={state} testId="client-partner" />
+    </form>
+  );
+}
+
+/** «Пригласить» партнёра в его кабинет (DATA_MODEL §63.3): ссылку можно скопировать и отправить в мессенджер */
+export function PartnerInviteForm({ partnerId }: { partnerId: string }) {
+  const t = useT();
+  const [state, action, pending] = useActionState(invitePartnerAction.bind(null, partnerId), null);
+  return (
+    <form action={action} className="cabinet__form" data-testid="partner-invite-form">
+      <p className="muted">{t('Партнёр откроет ссылку, укажет имя, почту и пароль и войдёт в свой кабинет. Ссылка одна, на 7 дней.')}</p>
+      {state?.link && (
+        <Field label={t('Ссылка приглашения')}>
+          <Input readOnly value={state.link} data-testid="partner-invite-link" onFocus={(e) => e.currentTarget.select()} />
+        </Field>
+      )}
+      {state?.link && state.sent === true && <Notice>{t('Письмо со ссылкой отправлено партнёру.')}</Notice>}
+      {state?.error && <Alert tone="warning" role="alert">{t(state.error)}</Alert>}
+      <Button type="submit" disabled={pending} aria-busy={pending} data-testid="partner-invite-save">
+        {pending ? t('Готовим…') : state?.link ? t('Новая ссылка') : t('Получить ссылку')}
+      </Button>
     </form>
   );
 }

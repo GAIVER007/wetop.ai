@@ -5242,6 +5242,8 @@ model PlatformPlan {
   priceCents   BigInt   @map("price_cents")
   /// 1 или 12 месяцев (CHECK в миграции)
   periodMonths Int      @default(1) @map("period_months") @db.SmallInt
+  /// Разовая выплата партнёру за первый чек клиента по тарифу, центы; NULL: 0 (DATA_MODEL §63.2)
+  partnerPayoutCents BigInt? @map("partner_payout_cents")
   active       Boolean  @default(true)
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
@@ -5275,6 +5277,8 @@ model PlatformPayment {
   id             String    @id @db.Uuid
   organizationId String    @map("organization_id") @db.Uuid
   amountCents    BigInt    @map("amount_cents")
+  /// `PLAN` тариф или `ADDON` доп: ИИ-продавец, таргетолог, контент, продвижение (CHECK, DATA_MODEL §63.2)
+  kind           String    @default("PLAN") @db.VarChar(10)
   paidOn         DateTime  @map("paid_on") @db.Date
   note           String?   @db.VarChar(300)
   createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)

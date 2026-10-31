@@ -1743,6 +1743,8 @@ function board(from: string, to: string): Chessboard {
             source: r.source,
             channel: r.channel,
             balanceMinor: finance(r).balanceMinor,
+            // «Быстрый отчёт» как у салона (31.10.2026): начислено и оплаты счёта этого проживания
+            ...stayMoneyOf(r, it.id),
           };
       }
       return { date, state: 'FREE' as const };
@@ -1929,6 +1931,20 @@ const unitBusy = (code: string, from: string, to: string, except?: { id: string 
 const retotal = (r: ReservationCard) => {
   r.totalAmountMinor = r.items.reduce((sum, it) => sum + BigInt(it.priceMinor), 0n).toString();
 };
+function stayMoneyOf(reservation: ReservationCard, itemId: string) {
+  const folio = finance(reservation).folios.find((f) => f.reservationItemId === itemId) as
+    | { chargedMinor?: string; payments: Array<{ method: string; status: string; allocatedMinor: string }> }
+    | undefined;
+  if (!folio) return {};
+  const live = folio.payments.filter((p) => p.status === 'COMPLETED');
+  const cash = live.filter((p) => p.method === 'CASH').reduce((a, p) => a + BigInt(p.allocatedMinor), 0n);
+  const nonCash = live.filter((p) => p.method !== 'CASH').reduce((a, p) => a + BigInt(p.allocatedMinor), 0n);
+  return {
+    ...(folio.chargedMinor !== undefined ? { totalMinor: folio.chargedMinor } : {}),
+    paidCashMinor: cash.toString(),
+    paidNonCashMinor: nonCash.toString(),
+  };
+}
 function finance(reservation: ReservationCard = card): ReservationFinance {
   const folios: ReservationFinance['folios'] = reservation.items.map((it, index) => {
     const id =

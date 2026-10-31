@@ -948,4 +948,6 @@ export const platformOrg: Record<string, string> = {
   "Автопродление": "Auto-renewal",
   "каждый месяц": "every month",
   "Платёж": "Payment",
+  "Сумма броней": "Bookings total",
+  "Оплаты броней, которые живут в выбранные дни, за всё время. Безнал включает карту, переводы, Kaspi и Halyk.": "Payments for bookings staying on the selected days, for all time. Non-cash includes card, transfers, Kaspi and Halyk.",
 };

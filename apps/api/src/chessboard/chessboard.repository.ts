@@ -6,7 +6,8 @@ import type {
   ChessboardUnit,
   UnassignedStay,
 } from '@pms/domain';
-import { folioBalance, LUXX_APARTS_PROPERTY, soldDeparture } from '@pms/domain';
+import { LUXX_APARTS_PROPERTY, soldDeparture } from '@pms/domain';
+import { stayMoney } from './stay-facts';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';
 import { propertyToday, propertyIdRef } from '../database/property-ref';
@@ -175,10 +176,10 @@ export class PrismaChessboardRepository implements ChessboardRepository {
             // Срез 7.1: остаток к оплате — тем же расчётом, что в списке броней и на карточке
             folio: {
               select: {
-                charges: { where: { voidedAt: null }, select: { amount: true } },
+                charges: { where: { voidedAt: null }, select: { amount: true, voidedAt: true } },
                 allocations: {
                   where: { payment: { status: 'COMPLETED' } },
-                  select: { amount: true },
+                  select: { amount: true, payment: { select: { method: true } } },
                 },
                 refunds: { select: { amount: true } },
               },
@@ -189,14 +190,9 @@ export class PrismaChessboardRepository implements ChessboardRepository {
     });
     return rows.map((a) => {
       const folio = a.reservationItem.folio;
-      // остаток = начислено − оплачено + возвращено; `folioBalance` отдаёт разбор, нужен один итог
-      const balance = folio
-        ? folioBalance({
-            charges: folio.charges.map((c) => ({ amountMinor: c.amount, voided: false })),
-            allocations: folio.allocations.map((x) => ({ amountMinor: x.amount })),
-            refunds: folio.refunds.map((x) => ({ amountMinor: x.amount })),
-          }).balanceMinor
-        : 0n;
+      // остаток = начислено − оплачено + возвращено; суммы и способы оплаты для «Быстрого отчёта» (31.10.2026)
+      const money = stayMoney(folio);
+      const balance = money ? BigInt(money.balanceMinor) : 0n;
       return {
         unitId: a.inventoryUnitId,
         startDate: d(a.startDate),
@@ -209,6 +205,7 @@ export class PrismaChessboardRepository implements ChessboardRepository {
         source: a.reservationItem.reservation.source,
         channel: a.reservationItem.reservation.channel,
         balanceMinor: balance.toString(),
+        ...(money ? { totalMinor: money.totalMinor, paidCashMinor: money.paidCashMinor, paidNonCashMinor: money.paidNonCashMinor } : {}),
       };
     });
   }

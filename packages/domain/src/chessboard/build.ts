@@ -38,6 +38,10 @@ export interface ChessboardAllocation {
   channel?: string | null;
   /** Остаток к оплате по счёту проживания, тиыны строкой (ADR-008); «0» — плашки суммы нет */
   balanceMinor?: string;
+  /** «Быстрый отчёт» как у салона (31.10.2026): начислено, оплачено наличными и безналом */
+  totalMinor?: string;
+  paidCashMinor?: string;
+  paidNonCashMinor?: string;
 }
 export interface ChessboardBlock {
   unitId: string;
@@ -89,6 +93,9 @@ export interface ChessboardCell {
   source?: string;
   channel?: string | null;
   balanceMinor?: string;
+  totalMinor?: string;
+  paidCashMinor?: string;
+  paidNonCashMinor?: string;
   blockType?: string;
   blockReason?: string | null;
 }
@@ -193,6 +200,9 @@ export function buildChessboard(input: ChessboardInput): Chessboard {
         ...(a.source === undefined ? {} : { source: a.source }),
         ...(a.channel === undefined ? {} : { channel: a.channel }),
         ...(a.balanceMinor === undefined ? {} : { balanceMinor: a.balanceMinor }),
+        ...(a.totalMinor === undefined ? {} : { totalMinor: a.totalMinor }),
+        ...(a.paidCashMinor === undefined ? {} : { paidCashMinor: a.paidCashMinor }),
+        ...(a.paidNonCashMinor === undefined ? {} : { paidNonCashMinor: a.paidNonCashMinor }),
       });
     }
   }

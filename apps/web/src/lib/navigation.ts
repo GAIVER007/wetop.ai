@@ -1100,6 +1100,9 @@ export function activeMenuRoute(path: string): string | undefined {
   if (!route) return undefined;
   // новый приход подсвечивает пункт «Приходы» (у пункта свой адрес с 19.10.2026)
   if (path.startsWith('/bar/receipts/')) return '/bar/receipts';
+  // склад вариант C (31.10.2026): поставщики во вкладке «Закупок», номенклатура и меню бара во вкладке «Бара»
+  if (route === '/bar/suppliers') return '/bar/receipts';
+  if (route === '/bar/products' || route === '/bar/menu') return '/bar';
   if (route.startsWith('/hotel-settings')) return '/hotel-settings';
   if (route.startsWith('/rooms')) return '/inventory';
   if (route.startsWith('/channels')) return '/channels';

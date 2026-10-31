@@ -1159,3 +1159,10 @@
     }
   }
 }
+
+/* Отзыв гостя после выезда (HOTEL-REVIEWS-20261031) */
+.stay-review { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+.stay-review h3 { margin: 0; font-size: var(--text-md); }
+.stay-review__stars { margin: 0; color: var(--warning); font-size: var(--text-lg); }
+.stay-review__link { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+.stay-review__link .field { flex: 1 1 auto; }

@@ -170,6 +170,7 @@ const authLock = process.env.FIXTURE_AUTH_LOCK === '1';
 /** Пути, открытые и при замке: ими входят, ими управляет сам прогон, их зовёт сайт (ADR-025, ADR-026). */
 const openAtLock = (p: string): boolean =>
   p.startsWith('/__test/') ||
+  p.startsWith('/hotel/reviews/') ||
   p.startsWith('/a/') ||
   p.startsWith('/w/') ||
   p === '/auth/login' ||
@@ -2529,6 +2530,8 @@ const platformMoney = {
   partners: [] as Array<{ id: string; name: string; phone: string | null; email: string | null; percentBp: number; active: boolean }>,
   clientPartners: new Map<string, string>(),
 };
+// Отзыв гостя после выезда на стенде (HOTEL-REVIEWS-20261031): ключ ссылки → бронь; те же отказы, что у API
+const fixtureStayReviews = new Map<string, { token: string; stars: number | null; comment: string | null; submitted: boolean }>();
 const resetPlatformMoney = () => {
   platformMoney.plans = [];
   platformMoney.subs.clear();
@@ -6200,6 +6203,22 @@ createServer(async (req, res) => {
       });
     }
     // приглашения как есть, с сотрудником и областью: проверка формы «Новый сотрудник» (уровни доступа, 20.10.2026)
+    // Отзыв гостя гостиницы (HOTEL-REVIEWS-20261031): карточка брони и публичная форма гостя
+    if (/^\/reservations\/[^/]+\/review$/.test(path) && req.method === 'GET') {
+      const r = fixtureStayReviews.get(decodeURIComponent(path.split('/')[2]!));
+      return send(200, !r ? { status: 'NONE' } : r.submitted ? { status: 'SUBMITTED', stars: r.stars, comment: r.comment, submittedAt: new Date().toISOString() } : { status: 'ISSUED', expiresAt: new Date(Date.now() + 30 * DAY_MS).toISOString() });
+    }
+    if (path.startsWith('/hotel/reviews/')) {
+      const token = decodeURIComponent(path.split('/')[3] ?? '');
+      const r = [...fixtureStayReviews.values()].find((x) => x.token === token);
+      if (!r) return send(404, { message: 'Ссылка недействительна или истекла' });
+      if (req.method === 'GET') return send(200, r.submitted ? { status: 'SUBMITTED' } : { status: 'OPEN', propertyName, expiresAt: new Date(Date.now() + DAY_MS).toISOString() });
+      if (r.submitted) return send(409, { message: 'Отзыв по этой ссылке уже отправлен' });
+      const stars = body['stars'];
+      if (typeof stars !== 'number' || !Number.isInteger(stars) || stars < 1 || stars > 5) return send(400, { message: 'Оценка должна быть от 1 до 5' });
+      Object.assign(r, { stars, comment: typeof body['comment'] === 'string' ? body['comment'] : null, submitted: true });
+      return send(201, { status: 'SUBMITTED' });
+    }
     if (path === '/__test/invites' && req.method === 'GET') return send(200, uiInvites);
     if (path === '/__test/hits')
       return send(200, {
@@ -6728,6 +6747,7 @@ createServer(async (req, res) => {
     }
     if (path === '/__test/reset') {
       resetPlatformMoney();
+      fixtureStayReviews.clear();
       siteNoLocation = false;
       fixtureContentDrafts = [];
       fixtureContentAiDown = false;
@@ -10981,6 +11001,16 @@ createServer(async (req, res) => {
         for (const it of r.items) it.guests = [{ label, isPrimary: true }];
       }
       return send(200, getGuest(id));
+    }
+    if (/^\/reservations\/[^/]+\/review-invitation$/.test(path)) {
+      const number = decodeURIComponent(path.split('/')[2]!);
+      const card = getCard(number);
+      if (!card) return send(404, { message: 'Бронь не найдена' });
+      if (!card.items.some((it) => it.status === 'CHECKED_OUT')) return send(409, { message: 'Ссылка на отзыв доступна после выезда гостя' });
+      if (fixtureStayReviews.get(number)?.submitted) return send(409, { message: 'Гость уже оставил отзыв' });
+      const token = `stay${number.replace(/[^A-Za-z0-9]/g, '')}${'x'.repeat(40)}`.slice(0, 60);
+      fixtureStayReviews.set(number, { token, stars: null, comment: null, submitted: false });
+      return send(201, { reviewPath: `/reviews/stay/${token}`, expiresAt: new Date(Date.now() + 30 * DAY_MS).toISOString() });
     }
     if (path.startsWith('/reservations/')) {
       const [, , number, , itemId, action] = path.split('/');

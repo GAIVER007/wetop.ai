@@ -414,6 +414,10 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /beauty/appointments/:id/review-invitation': 'desk',
   'GET /beauty/reviews/:token': 'public',
   'POST /beauty/reviews/:token': 'public',
+  'GET /reservations/:number/review': 'desk',
+  'POST /reservations/:number/review-invitation': 'desk',
+  'GET /hotel/reviews/:token': 'public',
+  'POST /hotel/reviews/:token': 'public',
   // оплата записи в кассу филиала (§49): принимает смена, как оплату заказа ресторана
   'POST /beauty/appointments/:id/payments': 'desk',
   // возврат по выполненной записи (§54): выделенное право возвратов

@@ -959,4 +959,11 @@ export const platformOrg: Record<string, string> = {
   "Платёж": "Payment",
   "Сумма броней": "Bookings total",
   "Оплаты броней, которые живут в выбранные дни, за всё время. Безнал включает карту, переводы, Kaspi и Halyk.": "Payments for bookings staying on the selected days, for all time. Non-cash includes card, transfers, Kaspi and Halyk.",
+  "Отзыв гостя": "Guest review",
+  "Отзыв о проживании": "Stay review",
+  "Оцените проживание": "Rate your stay",
+  "Оценка проживания": "Stay rating",
+  "Поставьте оценку от 1 до 5.": "Give a rating from 1 to 5.",
+  "Спасибо, что были у нас! Оцените, пожалуйста, проживание: {url}": "Thank you for staying with us! Please rate your stay: {url}",
+  "Ссылка уже выдана. Новая заменит прежнюю.": "A link has already been issued. A new one replaces it.",
 };

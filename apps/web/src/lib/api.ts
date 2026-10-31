@@ -975,7 +975,15 @@ const query = (params: Record<string, string | number | undefined>) => {
   const s = q.toString();
   return s ? `?${s}` : '';
 };
+/** Отзыв гостя после выезда (HOTEL-REVIEWS-20261031) */
+export type StayReview =
+  | { status: 'NONE' }
+  | { status: 'ISSUED'; expiresAt: string }
+  | { status: 'SUBMITTED'; stars: number | null; comment: string | null; submittedAt: string };
 export const reservationsApi = {
+  stayReview: (number: string) => getJson<StayReview>(`/reservations/${encodeURIComponent(number)}/review`),
+  issueStayReview: (number: string) =>
+    sendJson<{ reviewPath: string; expiresAt: string }>('POST', `/reservations/${encodeURIComponent(number)}/review-invitation`, {}),
   ratePlans: () => getJson<RatePlanOption[]>('/rate-plans'),
   availability: (arrival: string, departure: string) =>
     getJson<StayAvailability>(

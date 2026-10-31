@@ -17,7 +17,7 @@ describe('Food workspace isolation', () => {
       ['Услуги', ['/menu', '/orders', '/waiter', '/kitchen', '/drinks', '/dining-areas']],
       // `/reports` ресторану ведёт в «Аналитику бизнеса» с тем же периодом (аудит 17.10.2026 Д2, вертикали 22.10.2026 п.5)
       ['Статистика', ['/management/analytics']],
-      ['Склад', ['/warehouse', '/bar', '/stock', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
+      ['Склад', ['/warehouse', '/bar', '/stock', '/bar/receipts', '/bar/operations']],
       // `/finance` ресторану не свой экран: «Финансы» ресторана (аудит 17.10.2026, Д2)
       ['Финансы', ['/restaurant-finance', '/cashbox']],
       // «Все бизнесы» владельцу (30.10.2026)

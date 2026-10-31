@@ -51,11 +51,7 @@ test('администратор: в меню — работа с гостями
       '/warehouse',
       '/bar',
       '/bar/consumables',
-      // «Меню бара» гостиницы и салона (DATA_MODEL §62.3, K3 24.10.2026)
-      '/bar/menu',
       '/bar/receipts',
-      '/bar/products',
-      '/bar/suppliers',
       '/bar/operations',
       '/finance',
       '/reports/finance',

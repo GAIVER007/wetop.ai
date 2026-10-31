@@ -163,3 +163,12 @@ export function parseExpenseExtras(b: Record<string, unknown>): { payee: string 
   };
 }
 
+/** «Оплачено до» после оплаты: от большего из прежнего срока и дня оплаты, плюс месяцы тарифа */
+export function extendPaidUntil(before: string | null, paidOn: string, months: number): string {
+  const base = before && before > paidOn ? before : paidOn;
+  const d = new Date(`${base}T00:00:00.000Z`);
+  const y = d.getUTCFullYear();
+  const m = d.getUTCMonth() + months;
+  const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  return new Date(Date.UTC(y, m, Math.min(d.getUTCDate(), last))).toISOString().slice(0, 10);
+}

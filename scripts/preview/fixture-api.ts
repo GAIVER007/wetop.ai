@@ -2588,7 +2588,9 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     if (!amount || amount === '0') return ok({ message: 'Сумма в долларах: например 49 или 49.50' }, 400);
     const spentOn = isoDay(body['spentOn']);
     if (!spentOn) return ok({ message: 'Дата: выберите день' }, 400);
-    const row = { id: `exp-${platformMoney.expenses.length + 1}`, category: String(body['category']), amountCents: amount, spentOn, note: (body['note'] as string) || null, voided: false };
+    const opt = (k: string) => (typeof body[k] === 'string' && (body[k] as string).trim() ? (body[k] as string).trim() : null);
+    // миграция 176: получатель, проект, повторяется, документ
+    const row = { id: `exp-${platformMoney.expenses.length + 1}`, category: String(body['category']), amountCents: amount, spentOn, note: (body['note'] as string) || null, voided: false, payee: opt('payee'), project: opt('project'), recurring: body['recurring'] === true, documentRef: opt('document') };
     platformMoney.expenses.unshift(row);
     return ok(row, 201);
   }

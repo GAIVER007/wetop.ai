@@ -178,7 +178,11 @@ function ExpensesTable({ rows, t }: { rows: Ready['expenses']; t: Translate }) {
           <tr key={e.id} className={e.voided ? 'cabinet__voided' : undefined} data-testid="expenses-row">
             <td>{dayText(e.spentOn)}</td>
             <td>{t(CATEGORY_LABEL[e.category])}</td>
-            <td className="muted">{e.voided ? t('отменён') : e.note}</td>
+            <td className="muted">
+              {e.voided
+                ? t('отменён')
+                : [e.payee, e.project, e.documentRef, e.note, e.recurring ? t('каждый месяц') : null].filter(Boolean).join(', ')}
+            </td>
             <td className="num">{usd(e.amountCents)}</td>
             <td>{!e.voided && <VoidButton id={e.id} kind="expense" />}</td>
           </tr>

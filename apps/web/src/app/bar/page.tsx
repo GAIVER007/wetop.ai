@@ -165,7 +165,7 @@ export default async function BarPage({
       width="wide"
       className="bar-page"
       title={sectionName}
-      subtitle={t('Товары, остатки и продажи')}
+      // подзаголовка нет: где вы, говорят вкладки склада (вариант C 31.10.2026); так обзор влезает в 1440×900 (владелец 25.10.2026)
       actions={
         <>
           {rights.receiveStock && (

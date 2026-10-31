@@ -2705,6 +2705,17 @@ const platformCabinet = () => {
     lastLoginAt: login(o.id),
     records30d: o.id === 'ui-org-2' ? 12 : 0,
     trialDaysLeft: o.status === 'TRIAL' ? daysLeft(o.trialEndsAt) : null,
+    // ТЗ «две админки» п. 4: город стенда, тариф и «оплачено до» из денег стенда, партнёр из «Партнёров»
+    city: o.id === 'ui-org-2' ? 'Алматы' : null,
+    plan: (() => {
+      const sub = platformMoney.subs.get(o.id);
+      return sub?.planId ? (platformMoney.plans.find((p) => p.id === sub.planId)?.name ?? null) : null;
+    })(),
+    nextPaymentOn: platformMoney.subs.get(o.id)?.paidUntil ?? null,
+    partner: (() => {
+      const pid = platformMoney.clientPartners.get(o.id);
+      return pid ? (platformMoney.partners.find((p) => p.id === pid)?.name ?? null) : null;
+    })(),
   }));
   return {
     totals: {

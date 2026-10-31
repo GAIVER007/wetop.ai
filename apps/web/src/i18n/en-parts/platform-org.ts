@@ -930,4 +930,5 @@ export const platformOrg: Record<string, string> = {
   "Новые гости": "New guests",
   "Загрузка": "Occupancy",
   "загрузка {percent}%": "occupancy {percent}%",
+  "Платёж": "Payment",
 };

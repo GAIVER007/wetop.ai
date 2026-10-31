@@ -225,6 +225,7 @@ export const ACTION_RU: Record<string, string> = {
   'rate_plan.derived.updated': msg('Производный тариф изменён'),
   'seller.conversation.handling': msg('Диалог передан или возвращён'),
   'platform.payment.added': msg('Оплата клиента записана'),
+  'platform.payment.voided': msg('Оплата клиента отменена'),
   'platform.client.partner_set': msg('Партнёр клиента изменён'),
   'platform.subscription.saved': msg('Подписка клиента изменена'),
   'seller.conversation.note': msg('Заметка к диалогу'),

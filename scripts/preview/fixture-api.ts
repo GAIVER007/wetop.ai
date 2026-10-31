@@ -5,8 +5,8 @@ import { resetSalonLoyaltyFixture, salonLoyaltyFixture } from './salon-loyalty-f
 import { registrationBusiness } from '../../apps/api/src/auth/registration-contract';
 import { buildGrowth } from '../../apps/api/src/platform/growth';
 import { buildOwnerBusinesses } from '../../apps/api/src/finance/owner-businesses';
-import { buildMoney } from '../../apps/api/src/platform/money';
-import { buildPartners, parsePercentBp } from '../../apps/api/src/platform/partners';
+import { buildMoney, extendPaidUntil } from '../../apps/api/src/platform/money';
+import { buildPartners, parsePercentBp, type PartnersSource } from '../../apps/api/src/platform/partners';
 import { buildSiteReport } from '../../apps/api/src/platform/site-report';
 import { buildCountries } from '../../apps/api/src/platform/countries';
 import { buildRnp } from '../../apps/api/src/platform/rnp';
@@ -2524,7 +2524,7 @@ const platformOrganizations = () => [
 const platformMoney = {
   plans: [] as Array<{ id: string; name: string; priceCents: string; periodMonths: number; active: boolean; partnerPayoutCents?: string | null }>,
   subs: new Map<string, { planId: string | null; monthlyCents: string; paidUntil: string | null; note: string | null }>(),
-  payments: [] as Array<{ id: string; organizationId: string; amountCents: string; paidOn: string; note: string | null; voided: boolean }>,
+  payments: [] as Array<{ id: string; organizationId: string; amountCents: string; paidOn: string; note: string | null; voided: boolean; kind?: 'PLAN' | 'ADDON'; paidUntilBefore?: string | null | undefined; paidUntilAfter?: string | undefined }>,
   expenses: [] as Array<{ id: string; category: string; partnerId?: string; amountCents: string; spentOn: string; note: string | null; voided: boolean }>,
   team: [] as Array<{ id: string; name: string; role: string | null; email: string | null; phone: string | null; kind: 'PERSON' | 'DIGITAL'; monthlySalaryCents: string | null; active: boolean }>,
   // партнёры WETOP (миграция 172): процент сотыми долями, выплаты это расходы PARTNERS с partnerId
@@ -2548,6 +2548,23 @@ const usdCents = (v: unknown): string | null => {
   return m ? String(BigInt(m[1]!) * 100n + BigInt((m[2] ?? '').padEnd(2, '0') || '0')) : null;
 };
 const isoDay = (v: unknown) => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
+/** Данные партнёров стенда одним расчётом для «Партнёров» и «Обзора» (как `readPartnersSource` API, 01.11.2026) */
+function fixturePartnersSource(): PartnersSource {
+  return {
+      partners: platformMoney.partners,
+      links: [...platformMoney.clientPartners].map(([organizationId, partnerId]) => ({ organizationId, partnerId })),
+      payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), voided: p.voided, kind: (p as { kind?: 'PLAN' | 'ADDON' }).kind ?? 'PLAN', paidOn: p.paidOn })),
+      payouts: platformMoney.expenses.flatMap((e) =>
+        e.category === 'PARTNERS' && e.partnerId ? [{ partnerId: e.partnerId, amountCents: BigInt(e.amountCents), voided: e.voided }] : [],
+      ),
+      // разовая выплата партнёру за тариф подписки клиента (DATA_MODEL §63.2)
+      planPayouts: [...platformMoney.subs].flatMap(([organizationId, s]) => {
+        const plan = platformMoney.plans.find((p) => p.id === (s as { planId?: string | null }).planId);
+        return plan?.partnerPayoutCents ? [{ organizationId, payoutCents: BigInt(plan.partnerPayoutCents) }] : [];
+      }),
+    };
+}
+
 function platformMoneyFixture(path: string, method: string, body: Record<string, unknown>) {
   const clients = platformOrganizations().filter((o) => o.id !== 'ui-org' && o.status !== 'SUSPENDED');
   const names = new Map(platformOrganizations().map((o) => [o.id, o.name]));
@@ -2556,12 +2573,7 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
   if (path.startsWith('/platform/ceo-overview') && method === 'GET') {
     const month = /month=(\d{4}-\d{2})/.exec(path)?.[1] ?? new Date().toISOString().slice(0, 7);
     const payments = platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), paidOn: p.paidOn, voided: p.voided }));
-    const partners = buildPartners({
-      partners: platformMoney.partners,
-      links: [...platformMoney.clientPartners].map(([organizationId, partnerId]) => ({ organizationId, partnerId })),
-      payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, voided: p.voided })),
-      payouts: platformMoney.expenses.flatMap((e) => (e.partnerId ? [{ partnerId: e.partnerId, amountCents: BigInt(e.amountCents), voided: e.voided }] : [])),
-    });
+    const partners = buildPartners(fixturePartnersSource());
     const today = new Date().toISOString().slice(0, 10);
     const subs = clients.flatMap((c) => (platformMoney.subs.has(c.id) ? [{ organizationId: c.id, ...platformMoney.subs.get(c.id)! }] : []));
     const mrr = subs.filter((x) => x.paidUntil !== null && x.paidUntil >= today).reduce((n, x) => n + BigInt(x.monthlyCents), 0n);
@@ -2625,7 +2637,20 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     if (!amount || amount === '0') return ok({ message: 'Сумма в долларах: например 49 или 49.50' }, 400);
     const paidOn = isoDay(body['paidOn']);
     if (!paidOn) return ok({ message: 'Дата: выберите день' }, 400);
-    const row = { id: `pay-${platformMoney.payments.length + 1}`, organizationId: org, amountCents: amount, paidOn, note: (body['note'] as string) || null, voided: false, kind: body['kind'] === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const) };
+    const kind = body['kind'] === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const);
+    // как API (01.11.2026): оплата тарифа продлевает «оплачено до» и переводит клиента с пробного в «работает»;
+    // прежний срок хранится у оплаты, чтобы отмена вернула его
+    const months = kind === 'ADDON' ? 0 : body['extendMonths'] === 12 || body['extendMonths'] === '12' ? 12 : body['extendMonths'] === 0 || body['extendMonths'] === '0' ? 0 : 1;
+    const sub = platformMoney.subs.get(org);
+    let paidUntilBefore: string | null | undefined;
+    let paidUntilAfter: string | undefined;
+    if (sub && months > 0) {
+      paidUntilBefore = sub.paidUntil;
+      paidUntilAfter = extendPaidUntil(sub.paidUntil, paidOn, months);
+      platformMoney.subs.set(org, { ...sub, paidUntil: paidUntilAfter });
+    }
+    if (kind === 'PLAN' && clients.find((c) => c.id === org)?.status === 'TRIAL') platformStatuses.set(org, 'ACTIVE');
+    const row = { id: `pay-${platformMoney.payments.length + 1}`, organizationId: org, amountCents: amount, paidOn, note: (body['note'] as string) || null, voided: false, kind, paidUntilBefore, paidUntilAfter };
     platformMoney.payments.unshift(row);
     return ok(row, 201);
   }
@@ -2647,6 +2672,11 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     const row = rows.find((r) => r.id === decodeURIComponent(voided[2]!) && !r.voided);
     if (!row) return ok({ message: 'Запись не найдена или уже отменена' }, 404);
     row.voided = true;
+    // отмена оплаты возвращает срок, который она продлила, если его с тех пор не меняли (как API, 01.11.2026)
+    const pay = row as { organizationId?: string; paidUntilBefore?: string | null; paidUntilAfter?: string };
+    const sub = pay.organizationId ? platformMoney.subs.get(pay.organizationId) : undefined;
+    if (sub && pay.paidUntilAfter !== undefined && sub.paidUntil === pay.paidUntilAfter)
+      platformMoney.subs.set(pay.organizationId!, { ...sub, paidUntil: pay.paidUntilBefore ?? null });
     return ok({ ok: true });
   }
   if ((path === '/platform/plans' && method === 'POST') || (/^\/platform\/plans\/[^/]+$/.test(path) && method === 'PUT')) {
@@ -2689,19 +2719,7 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
   }
   // партнёры: те же расчёты, что у API (buildPartners)
   if (path === '/platform/partners' && method === 'GET') {
-    const view = buildPartners({
-      partners: platformMoney.partners,
-      links: [...platformMoney.clientPartners].map(([organizationId, partnerId]) => ({ organizationId, partnerId })),
-      payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), voided: p.voided, kind: (p as { kind?: 'PLAN' | 'ADDON' }).kind ?? 'PLAN', paidOn: p.paidOn })),
-      payouts: platformMoney.expenses.flatMap((e) =>
-        e.category === 'PARTNERS' && e.partnerId ? [{ partnerId: e.partnerId, amountCents: BigInt(e.amountCents), voided: e.voided }] : [],
-      ),
-      // разовая выплата партнёру за тариф подписки клиента (DATA_MODEL §63.2)
-      planPayouts: [...platformMoney.subs].flatMap(([organizationId, s]) => {
-        const plan = platformMoney.plans.find((p) => p.id === (s as { planId?: string | null }).planId);
-        return plan?.partnerPayoutCents ? [{ organizationId, payoutCents: BigInt(plan.partnerPayoutCents) }] : [];
-      }),
-    });
+    const view = buildPartners(fixturePartnersSource());
     return ok({
       ready: true,
       ...view,

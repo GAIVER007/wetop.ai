@@ -5725,6 +5725,16 @@ export interface VerticalOwnerHome extends Omit<BeautyOwnerHome, 'masters' | 'so
   load: { nights: number; capacity: number; percent: number | null } | null;
   sources: Array<{ source: string; clients: number; revenueMinor: string | null }>;
 }
+/** «История изменений» брони (`GET /reservation-history/:number`, 30.10.2026): строки общего журнала по брони */
+export interface ReservationHistory {
+  timezone: string;
+  currency: string;
+  items: Array<{ id: string; at: string; entityType: string; action: string; author: string | null; before: Record<string, unknown>; after: Record<string, unknown> }>;
+  truncated: boolean;
+}
+export const reservationHistoryApi = {
+  read: (number: string) => getJsonPublic<ReservationHistory>(`/reservation-history/${encodeURIComponent(number)}`),
+};
 export const ownerHomeApi = {
   read: (month: string) => getJsonPublic<VerticalOwnerHome>(`/owner-home?${new URLSearchParams({ month })}`),
 };

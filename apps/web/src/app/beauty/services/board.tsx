@@ -316,6 +316,7 @@ export function ServicesBoard({
             serviceId={materialService.id}
             serviceName={materialService.name}
             scopeKey={scopeKey}
+            priceMinor={materialService.priceMinor}
           />
         )}
       </Overlay>

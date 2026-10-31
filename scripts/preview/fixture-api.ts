@@ -11,7 +11,6 @@ import { buildSiteReport } from '../../apps/api/src/platform/site-report';
 import { buildCountries } from '../../apps/api/src/platform/countries';
 import { buildRnp } from '../../apps/api/src/platform/rnp';
 import { buildCeoOverview } from '../../apps/api/src/platform/ceo-overview';
-import { buildPartners } from '../../apps/api/src/platform/partners';
 import { agentFixture, resetAgentFixture } from './fixture-agents';
 import { barFixture, resetBarFixture } from './bar-fixture';
 import {

@@ -6,7 +6,7 @@ import type {
   ChessboardUnit,
   UnassignedStay,
 } from '@pms/domain';
-import { folioBalance, LUXX_APARTS_PROPERTY, soldDeparture } from '@pms/domain';
+import { LUXX_APARTS_PROPERTY, soldDeparture } from '@pms/domain';
 import { stayMoney } from './stay-facts';
 import { PrismaService } from '../database/prisma.provider';
 import { loadReservationCard, type ReservationCard } from '../reservations/reservation-card';

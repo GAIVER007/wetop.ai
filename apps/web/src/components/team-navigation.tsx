@@ -4,11 +4,11 @@ import { useT } from '../i18n/locale-provider';
 
 export function TeamNavigation({
   current,
-  owner,
   teamHref = '/team',
 }: {
   current: 'team' | 'roles' | 'journal';
-  owner: boolean;
+  /** прежний признак владельца; «История действий» с 31.10.2026 только в «Настройках» */
+  owner?: boolean;
   /** у салона и ресторана список людей это общий экран `/employees` (plans/unified-team-screen-2026-10-25.md, U2) */
   teamHref?: string;
 }) {
@@ -25,15 +25,6 @@ export function TeamNavigation({
       >
         {t('Роли и права')}
       </Link>
-      {owner && (
-        <Link
-          href="/journal"
-          prefetch={false}
-          aria-current={current === 'journal' ? 'page' : undefined}
-        >
-          {t('История действий')}
-        </Link>
-      )}
     </nav>
   );
 }

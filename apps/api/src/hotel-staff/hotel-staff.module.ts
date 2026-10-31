@@ -41,10 +41,12 @@ export class HotelStaffController {
   @Post('employees') @Access('staff') createEmployee(@Body() b: unknown) {
     return this.restaurant.createEmployee(b, HOTEL);
   }
-  @Get('shifts') async shifts() {
+  @Get('shifts') async shifts(@Query('week') week?: string) {
     // у гостиницы сотрудники приходят входом из «Персонал → Сотрудники»: карточки для графика заводятся сами
     await this.service.syncMemberEmployees();
-    return this.restaurant.shifts(HOTEL);
+    const base = await this.restaurant.shifts(HOTEL);
+    // выбранная неделя (31.10.2026): у каждого даты отсутствия этой недели поверх обычной недели
+    return this.service.withWeekAbsences(base, week);
   }
   @Put('employees/:id/working-hours') @Access('staff') setShifts(@Param('id') id: string, @Body() b: unknown) {
     return this.restaurant.setShifts(id, b, HOTEL);

@@ -13,8 +13,8 @@ test.beforeEach(async ({ request, page }) => {
 
 test('владелец: вкладка, суммы, было/стало, фильтры и вся история', async ({ page, request }) => {
   await request.post(`${FIXTURE_API}/__test/control`, { data: { journalFinance: true } });
-  await page.goto('/team');
-  await page.getByRole('main').getByRole('link', { name: 'История действий', exact: true }).click();
+  // 31.10.2026: «История действий» убрана из вкладок «Сотрудников», вход из «Настроек»
+  await page.goto('/journal');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('История действий');
   await expect(main.getByTestId('journal-row')).toHaveCount(50);
@@ -59,10 +59,6 @@ test('владелец: вкладка, суммы, было/стало, фил�
 for (const role of ['MANAGER', 'STAFF'] as const) {
   test(`${role}: журнал скрыт и прямой адрес закрыт`, async ({ page, request }) => {
     await request.post(`${FIXTURE_API}/__test/control`, { data: { role } });
-    await page.goto('/team');
-    await expect(
-      page.getByRole('main').getByRole('link', { name: 'История действий', exact: true }),
-    ).toHaveCount(0);
     await page.goto('/journal');
     await expect(page.getByRole('main').getByTestId('journal-table')).toHaveCount(0);
     await expect(page.getByRole('main')).toContainText('владельц');

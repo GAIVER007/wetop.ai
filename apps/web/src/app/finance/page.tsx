@@ -99,8 +99,11 @@ const byAmount = <T extends { amountMinor: string }>(xs: T[]) =>
  */
 export default async function FinanceReportPage({
   searchParams,
+  view,
 }: {
   searchParams: Promise<SearchParams>;
+  /** «Касса» гостиницы (31.10.2026): `/cashbox` открывает эти же «Финансы» сразу на вкладке кассы */
+  view?: 'cash';
 }) {
   const me = await requireFeature('/finance');
   const requested = await searchParams;
@@ -438,7 +441,9 @@ export default async function FinanceReportPage({
       )}
       <FinanceWorkspace
         initialView={
-          sp.show === '1' || sp.op || sp.method || sp.src || sp.ops
+          view === 'cash'
+            ? 'cash'
+            : sp.show === '1' || sp.op || sp.method || sp.src || sp.ops
             ? 'operations'
             : sp.debts || sp.more
               ? 'debts'

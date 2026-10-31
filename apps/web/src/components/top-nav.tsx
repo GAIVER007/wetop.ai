@@ -1,7 +1,7 @@
 'use client';
 import { CashHeader } from './shell/cash-header';
 import { landingForVertical } from '../lib/vertical-landing';
-import { PENDING_ACCESS, allowedItem, mayAccess, routeRule } from '../lib/navigation';
+import { PENDING_ACCESS, mayAccess } from '../lib/navigation';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense, use, useEffect, useRef, useState, type ReactNode, type MouseEvent } from 'react';
@@ -20,6 +20,7 @@ import { DataFreshness, DataFreshnessProvider } from './data-freshness';
 import { ProductTour } from './shell/product-tour';
 import { TOUR_RESTART_EVENT } from './shell/tour-steps';
 import { WhatsNewLink } from './shell/whats-new-link';
+import { profileLinks } from './shell/profile-links';
 import { useT } from '../i18n/locale-provider';
 
 /** UI3.1: одна строка шапки, скрытое меню и отдельная мобильная поверхность. */
@@ -322,23 +323,14 @@ export function TopNav({
                       {/* одинаково у трёх направлений (аудит платформы 17.10.2026, Д4): раньше у гостиницы
                           не было пути к профилю, помощи и филиалам на компьютере, а салону и ресторану
                           «Помощь» и «Профиль» стояли отдельными пунктами меню */}
-                      <Link href="/profile" onClick={() => setProfile(false)}>
-                        <Icon name="person" />
-                        {t('Профиль')}
-                      </Link>
-                      {/* «Моя работа» (личный экран сотрудника) здесь, не в разделах (17.10.2026); у гостиницы с 22.10.2026 */}
-                      {shell?.vertical && (
-                        <Link href="/my-work" onClick={() => setProfile(false)}>
-                          <Icon name="person" />
-                          {t('Моя работа')}
+                      {/* по ролям (владелец 31.10.2026): владелец бизнесы и настройки, управляющий смена и касса,
+                          сотрудник только своё; «Организаций» нет, у владельца «Все бизнесы и филиалы» */}
+                      {profileLinks(shell?.access ?? PENDING_ACCESS, shell?.vertical).map((link) => (
+                        <Link key={link.href} href={link.href} onClick={() => setProfile(false)}>
+                          <Icon name={link.icon} />
+                          {t(link.label)}
                         </Link>
-                      )}
-                      {allowedItem(routeRule('/branches') ?? {}, shell?.access ?? PENDING_ACCESS) && (
-                        <Link href="/branches" onClick={() => setProfile(false)}>
-                          <Icon name="hotel" />
-                          {t('Филиалы')}
-                        </Link>
-                      )}
+                      ))}
                       {beauty && shell?.access.role && !shell.access.unknown && mayAccess(shell.access, 'settings') && (
                         <Link href="/register/setup?entry=reopen" onClick={() => setProfile(false)}>
                           <Icon name="settings" />
@@ -382,9 +374,12 @@ export function TopNav({
                           {shell.trial}
                         </span>
                       )}
-                      <span className="profile-dropdown__note profile-dropdown__note--status">
-                        <DataFreshness />
-                      </span>
+                      {/* строка «Каналы, очередь» владельцу не нужна (31.10.2026): только стойке */}
+                      {shell?.access.role !== 'OWNER' && (
+                        <span className="profile-dropdown__note profile-dropdown__note--status">
+                          <DataFreshness />
+                        </span>
+                      )}
                       {account ?? (
                         <Link href="/login">
                           <Icon name="departure" />

@@ -350,7 +350,8 @@ export function BeautyChecklist({
   return (
     <main
       id="main-content"
-      className="onboarding setup-shell setup-b setup-tiles"
+      // вариант A владельца 31.10.2026: три колонки «Обязательно», «Дальше» и вид для клиента; приветствие плитками
+      className={welcome ? 'onboarding setup-shell setup-b setup-tiles' : 'onboarding setup-shell setup-b setup-a'}
       data-testid="beauty-onboarding"
     >
       <section className="setup-b__region" aria-label={t('Первые шаги')}>

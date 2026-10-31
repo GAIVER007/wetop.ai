@@ -12,7 +12,7 @@ import type {
   BeautyWeekDay,
   BeautyWorkingInterval,
 } from '../../../lib/api';
-import { DEFAULT_SLOT, shiftWeek, weekDates } from './week';
+import { DEFAULT_SLOT, weekDates } from './week';
 import {
   addBeautyTimeOff,
   removeBeautyTimeOff,
@@ -23,6 +23,7 @@ import {
 import { applyWeekPreset, WEEK_PRESETS } from '../../../components/employee-portal/week-presets';
 import { intlLocale, msg } from '../../../i18n';
 import { useLocale, useT } from '../../../i18n/locale-provider';
+import { WeekPicker } from './week-picker';
 import { dateFormat } from '../../../i18n/dates';
 
 /**
@@ -96,8 +97,6 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
   // переключатель отзывается сразу; после ответа сервера правду показывает свежий график страницы
   const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
   const days = weekDates(data.monday);
-  const shift = (n: number) =>
-    `?week=${shiftWeek(data.monday, n)}${data.group ? `&group=${encodeURIComponent(data.group)}` : ''}`;
 
   const toggle = (master: GridMaster, date: string, on: boolean, dayOff?: BeautyTimeOff) => {
     const key = `${master.id}:${date}`;
@@ -136,20 +135,8 @@ export function ScheduleBoard({ data, canEdit }: { data: WeekGridData; canEdit: 
   return (
     <>
       <div className="schedule-toolbar">
-        <nav className="schedule-week" aria-label={t('Неделя')}>
-          <Link className="btn btn--secondary btn--sm schedule-week__step" href={shift(-7)} aria-label={t('Прошлая неделя')}>
-            <span aria-hidden="true">‹</span>
-          </Link>
-          <span className="schedule-week__range" data-testid="beauty-week-range">
-            {label(days[0]!.date)} – {label(days[6]!.date)}
-          </span>
-          <Link className="btn btn--secondary btn--sm schedule-week__step" href={shift(7)} aria-label={t('Следующая неделя')}>
-            <span aria-hidden="true">›</span>
-          </Link>
-          <Link className="btn btn--secondary btn--sm" href={`/beauty/schedule${groupQuery ? `?${groupQuery.slice(1)}` : ''}`}>
-            {t('Сегодня')}
-          </Link>
-        </nav>
+        {/* выбор недели и месяца (31.10.2026), общий с графиком гостиницы */}
+        <WeekPicker base="/beauty/schedule" monday={data.monday} today={data.today ?? data.monday} extra={groupQuery} />
         {(data.groups?.length ?? 0) > 0 && (
           <form className="schedule-filter" method="get" action="/beauty/schedule">
             <input type="hidden" name="week" value={data.monday} />
@@ -703,6 +690,8 @@ export interface TemplateRow {
   id: string;
   name: string;
   week: Array<{ weekday: number; intervals: Array<{ timeFrom: string; timeTo: string }> }>;
+  /** даты отсутствия на выбранной неделе (31.10.2026) */
+  absent?: string[];
 }
 
 const SHORT: Record<number, string> = { 1: msg('Пн'), 2: msg('Вт'), 3: msg('Ср'), 4: msg('Чт'), 5: msg('Пт'), 6: msg('Сб'), 0: msg('Вс') };
@@ -717,15 +706,21 @@ export function WeekTemplateGrid<R extends TemplateRow>({
   write,
   onEdit,
   testId,
+  monday,
 }: {
   rows: R[];
   write: boolean;
   onEdit: (row: R, weekday?: number) => void;
   testId?: string;
+  /** выбранная неделя (31.10.2026): у дня своя дата и отметка отсутствия */
+  monday?: string | undefined;
 }) {
   const t = useT();
+  const locale = intlLocale(useLocale());
   const [menu, setMenu] = useState<{ id: string; weekday: number; rect: DOMRect } | null>(null);
   const days = rows[0]?.week.map((d) => d.weekday) ?? [1, 2, 3, 4, 5, 6, 0];
+  const dates = monday ? new Map(weekDates(monday).map((d) => [d.weekday, d.date])) : null;
+  const dayNum = dateFormat(locale, { day: 'numeric', timeZone: 'UTC' });
   return (
     <>
       <Table className="schedule-grid" data-testid={testId}>
@@ -735,6 +730,7 @@ export function WeekTemplateGrid<R extends TemplateRow>({
             {days.map((d) => (
               <th scope="col" key={d}>
                 {t(SHORT[d] ?? '')}
+                {dates?.get(d) && ` ${dayNum.format(new Date(`${dates.get(d)}T12:00:00Z`))}`}
               </th>
             ))}
           </tr>
@@ -757,23 +753,24 @@ export function WeekTemplateGrid<R extends TemplateRow>({
                 </span>
               </th>
               {r.week.map((day) => {
-                const works = day.intervals.length > 0;
-                const time = day.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ');
+                const away = Boolean(dates && r.absent?.includes(dates.get(day.weekday) ?? ''));
+                const works = day.intervals.length > 0 && !away;
+                const time = works ? day.intervals.map((i) => `${i.timeFrom}–${i.timeTo}`).join(', ') : '';
                 const open = menu?.id === r.id && menu.weekday === day.weekday;
                 const dayName = t(DAYS[day.weekday] ?? '');
                 return (
                   <td key={day.weekday} data-label={t(SHORT[day.weekday] ?? '')}>
                     <button
                       type="button"
-                      className={`schedule-chip schedule-chip--${works ? 'on' : 'rest'}`}
+                      className={`schedule-chip schedule-chip--${works ? 'on' : away ? 'away' : 'rest'}`}
                       aria-haspopup="dialog"
                       aria-expanded={open}
                       disabled={!write}
                       onClick={(e) => setMenu(open ? null : { id: r.id, weekday: day.weekday, rect: e.currentTarget.getBoundingClientRect() })}
                     >
-                      <span aria-hidden="true">{works ? time : t('Выходной')}</span>
+                      <span aria-hidden="true">{works ? time : away ? t('Отсутствует') : t('Выходной')}</span>
                       <span className="sr-only">
-                        {works ? time : t('Выходной')}: {r.name}, {dayName}
+                        {works ? time : away ? t('Отсутствует') : t('Выходной')}: {r.name}, {dayName}
                       </span>
                     </button>
                     {open && (

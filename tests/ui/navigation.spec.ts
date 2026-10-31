@@ -31,13 +31,10 @@ const routes = [
   '/bar/consumables',
   '/bar/operations',
   '/finance',
-  '/reports/finance',
-  '/hotel-settings',
-  '/channels',
-  '/connections',
-  '/incidents',
-  '/journal',
+  // 31.10.2026: «Касса» вместо «Отчётов» в «Финансах»; объект, каналы, подключения и неисправности во «Всех настройках»
+  '/cashbox',
   '/settings',
+  '/journal',
   '/marketing',
   '/marketing/ads',
   '/marketing/content',
@@ -98,18 +95,16 @@ test('меню телефона: работа смены прямыми ссыл
   await page.keyboard.press('Space');
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await expect(menu.locator('.sidebar-section-toggle[aria-expanded="true"]')).toHaveCount(1);
-  await expect(menu.getByRole('link', { name: 'Каналы продаж', exact: true })).toBeVisible();
+  // меню «Настройки» одно у всех (31.10.2026): «Все настройки» первым, объект и каналы внутри
   await page.keyboard.press('Tab');
-  await expect(menu.getByRole('link', { name: 'Объект', exact: true })).toBeFocused();
-  await page.keyboard.press('Tab');
-  await expect(menu.getByRole('link', { name: 'Каналы продаж', exact: true })).toBeFocused();
+  await expect(menu.getByRole('link', { name: 'Все настройки', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/channels$/);
+  await expect(page).toHaveURL(/\/settings$/);
   await expect(menu).not.toBeVisible();
   // открыли снова: раздел текущей страницы раскрыт сам, пункт помечен
   await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Каналы продаж');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Все настройки');
   await expect(menu.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
@@ -124,7 +119,7 @@ test('меню телефона: вложенные адреса подсвеч�
     'aria-expanded',
     'true',
   );
-  await expect(menu.locator('[aria-current="page"]')).toHaveText('Объект');
+  await expect(menu.locator('[aria-current="page"]')).toHaveText('Все настройки');
   // номерной фонд гостиницы это «Каталог» раздела «Услуги» (одно меню у всех направлений, 17.10.2026)
   await menu.getByRole('button', { name: 'Услуги', exact: true }).click();
   await menu.getByRole('link', { name: 'Каталог', exact: true }).click();
@@ -223,7 +218,8 @@ for (const theme of ['light', 'dark'] as const) {
         await menu.screenshot({ path: `reports/navigation-2026-09-20/menu-${theme}-${width}.png` });
       }
       await menu.getByRole('button', { name: 'Настройки', exact: true }).click();
-      await menu.getByRole('link', { name: 'Подключения', exact: true }).scrollIntoViewIfNeeded();
+      // меню «Настройки» одно у всех (31.10.2026): последним пунктом «Все бизнесы»
+      await menu.getByRole('link', { name: 'Все бизнесы', exact: true }).scrollIntoViewIfNeeded();
       const close = menu.getByRole('button', { name: 'Закрыть: Навигация', exact: true });
       const rect = await close.boundingBox();
       expect(rect!.y).toBeGreaterThanOrEqual(0);

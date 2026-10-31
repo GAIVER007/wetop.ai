@@ -31,7 +31,8 @@
 }
 .owner__total dl {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* суммы целиком (владелец 31.10.2026: «текст обрезается»): узкая карточка переносит сумму на новую строку */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
   gap: var(--space-4);
   margin: 0;
 }
@@ -41,7 +42,7 @@
 }
 .owner__total dd {
   margin: 0;
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -130,6 +131,49 @@
 }
 @media (max-width: 600px) {
   .owner__total dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* «Все бизнесы» без обрезанного текста (владелец 31.10.2026): длинное название переносится, на телефоне строка
+   бизнеса карточкой (подпись колонки слева, значение справа), без горизонтальной прокрутки */
+.owner__table td:first-child {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .owner__table thead {
+    display: none;
+  }
+  .owner__table,
+  .owner__table tbody,
+  .owner__table tr,
+  .owner__table td {
+    display: block;
+    inline-size: 100%;
+  }
+  .owner__table tr {
+    padding-block: var(--space-2);
+    border-block-end: 1px solid var(--border);
+  }
+  .owner__table td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-block: var(--space-1);
+    border: 0;
+  }
+  .owner__table td[data-label]::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+  .owner__table td:first-child {
+    display: block;
+  }
+  .owner__go {
+    inline-size: 100%;
+  }
+  .owner__pair {
     grid-template-columns: minmax(0, 1fr);
   }
 }

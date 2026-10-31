@@ -89,7 +89,8 @@ export interface MoneyRepository {
   partnerExists(id: string): Promise<boolean>;
   /** Чей клиент: `partnerId` null снимает отметку */
   setClientPartner(input: { organizationId: string; partnerId: string | null; by: string | null }): Promise<void>;
-  payPartner(input: { partnerId: string; amountCents: bigint; spentOn: string; note: string | null; by: string | null }): Promise<ExpenseRow>;
+  /** `accruedCents`: начислено партнёру всего; выплата сверх `начислено − выплачено` отклоняется под блокировкой партнёра (null) */
+  payPartner(input: { partnerId: string; amountCents: bigint; accruedCents: bigint; spentOn: string; note: string | null; by: string | null }): Promise<ExpenseRow | null>;
 }
 
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
@@ -452,18 +453,28 @@ export class PrismaMoneyRepository implements MoneyRepository {
     });
   }
 
-  async payPartner(input: { partnerId: string; amountCents: bigint; spentOn: string; note: string | null; by: string | null }) {
-    const row = await this.prisma.db.platformExpense.create({
-      data: {
-        id: randomUUID(),
-        category: 'PARTNERS',
-        partnerId: input.partnerId,
-        amountCents: input.amountCents,
-        spentOn: dateOf(input.spentOn),
-        note: input.note,
-        createdBy: input.by,
-      },
+  async payPartner(input: { partnerId: string; amountCents: bigint; accruedCents: bigint; spentOn: string; note: string | null; by: string | null }) {
+    // одна выплата партнёра за раз: двойной клик или две вкладки не выплатят остаток дважды (владелец 31.10.2026)
+    return this.prisma.db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`platform.partner.payout:${input.partnerId}`}, 0))::text`;
+      const done = await tx.platformExpense.aggregate({
+        where: { category: 'PARTNERS', partnerId: input.partnerId, voidedAt: null },
+        _sum: { amountCents: true },
+      });
+      if ((done._sum.amountCents ?? 0n) + input.amountCents > input.accruedCents) return null;
+      const row = await tx.platformExpense.create({
+        data: {
+          id: randomUUID(),
+          category: 'PARTNERS',
+          partnerId: input.partnerId,
+          amountCents: input.amountCents,
+          spentOn: dateOf(input.spentOn),
+          note: input.note,
+          createdBy: input.by,
+        },
+      });
+      return { id: row.id, category: 'PARTNERS' as const, amountCents: row.amountCents, spentOn: input.spentOn, note: row.note, voided: false };
     });
-    return { id: row.id, category: 'PARTNERS' as const, amountCents: row.amountCents, spentOn: input.spentOn, note: row.note, voided: false };
   }
+
 }

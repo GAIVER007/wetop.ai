@@ -996,3 +996,24 @@
     }
   }
 }
+
+/* VTOP Overview (ТЗ 30.10.2026 п. 3): пять блоков в ряд на ноутбуке, цифра справа в одну строку */
+.ceo-overview { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-2); align-items: start; }
+.ceo-overview__title { margin: 0 0 var(--space-2); font-size: var(--text-md); }
+.ceo-overview__title a { color: inherit; text-decoration: none; }
+.ceo-overview__rows { display: grid; gap: 0; margin: 0; align-content: start; }
+.ceo-overview__rows > div { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); padding-block: var(--space-1); border-bottom: 1px solid var(--border-soft); }
+.ceo-overview__rows > div:last-child { border-bottom: 0; }
+.ceo-overview__rows dt { color: var(--muted); font-size: var(--text-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ceo-overview__rows dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ceo-overview__rows dd[data-tone='danger'] { color: var(--danger); }
+.ceo-overview__rows dd[data-tone='success'] { color: var(--success); }
+@media (max-width: 1279px) {
+  .ceo-overview { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 960px) {
+  .ceo-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .ceo-overview { grid-template-columns: minmax(0, 1fr); }
+}

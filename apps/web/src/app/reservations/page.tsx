@@ -174,16 +174,6 @@ export default async function ReservationsPage({
     <Page
       title={t('Записи')}
       width="full"
-      actions={
-        <>
-          {!readOnly && (
-            <Link href="/reservations/new" className="btn">
-              <Icon name="plus" />
-              {t('Новая бронь')}
-            </Link>
-          )}
-        </>
-      }
     >
       {/* вкладки раздела вместо кнопки «Гости», как «Клиенты | Записи» салона (эталон 25.10.2026) */}
       <CustomerSectionTabs access={shell.access} vertical={shell.vertical} current="/reservations" t={t} />
@@ -368,6 +358,13 @@ export default async function ReservationsPage({
                     {t('Скачать CSV')}
                   </a>
                 )}
+                {/* «Новая бронь» в одной строке с отбором, как «Новая запись» салона (31.10.2026) */}
+                {!readOnly && (
+                  <Link href="/reservations/new" className="btn reservations-new" aria-label={t('Новая бронь')}>
+                    <Icon name="plus" />
+                    <span className="reservations-new__label">{t('Новая бронь')}</span>
+                  </Link>
+                )}
               </>
             }
           />
@@ -413,12 +410,16 @@ export default async function ReservationsPage({
               >
                 <thead>
                   <tr>
-                    <th>{t('Бронь / гость')}</th>
-                    <th>{t('Проживание')}</th>
+                    {/* «Записи» гостиницы как у салона (владелец 31.10.2026): дата, клиент, телефон, что и где, статус,
+                        источник, стоимость, действие; деньги одной колонкой «Финансы» (§66.8) */}
+                    <th>{t('Даты')}</th>
+                    <th>{t('Гость')}</th>
+                    <th>{t('Телефон')}</th>
                     <th>{t('Размещение')}</th>
+                    <th>{t('Статус')}</th>
                     <th>{t('Источник')}</th>
                     <th className="num">{t('Финансы')}</th>
-                    <th>{t('Статус')}</th>
+                    <th>{t('Действия')}</th>
                   </tr>
                 </thead>
                 <PreviewRows>
@@ -433,6 +434,22 @@ export default async function ReservationsPage({
                     const departsToday = r.departureDate === today && r.status === 'CHECKED_IN';
                     return (
                       <tr key={r.confirmationNumber}>
+                        <td className="dir-stay">
+                          <span className="reservations-stay-dates">
+                            <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate, 'short', il)}</time>
+                            {' – '}
+                            <time dateTime={r.departureDate}>{displayDate(r.departureDate, 'short', il)}</time>
+                          </span>
+                          {nights > 0 && (
+                            <small>{countLabel(locale, t, nights, [msg('ночь'), 'ночи', msg('ночей')]) /* kk-allow: форма склонения */}</small>
+                          )}
+                          {arrivesToday && (
+                            <small className="reservations-flag">{t('заезд сегодня')}</small>
+                          )}
+                          {departsToday && (
+                            <small className="reservations-flag">{t('выезд сегодня')}</small>
+                          )}
+                        </td>
                         <td>
                           {/* Одна ссылка на всю ячейку: два мелких якоря впритык не проходят по размеру цели (axe target-size) */}
                           <Link
@@ -445,20 +462,11 @@ export default async function ReservationsPage({
                             <span className="dir-number">{r.confirmationNumber}</span>
                           </Link>
                         </td>
-                        <td className="dir-stay">
-                          <span className="reservations-stay-dates">
-                            <time dateTime={r.arrivalDate}>{displayDate(r.arrivalDate, 'short', il)}</time>
-                            {' → '}
-                            <time dateTime={r.departureDate}>{displayDate(r.departureDate, 'short', il)}</time>
-                          </span>
-                          {nights > 0 && (
-                            <small>{countLabel(locale, t, nights, [msg('ночь'), 'ночи', msg('ночей')]) /* kk-allow: форма склонения */}</small>
-                          )}
-                          {arrivesToday && (
-                            <small className="reservations-flag">{t('заезд сегодня')}</small>
-                          )}
-                          {departsToday && (
-                            <small className="reservations-flag">{t('выезд сегодня')}</small>
+                        <td className="nowrap">
+                          {r.primaryGuest?.phone ? (
+                            <a href={`tel:${r.primaryGuest.phone}`}>{r.primaryGuest.phone}</a>
+                          ) : (
+                            <span className="muted">{t('Не указан')}</span>
                           )}
                         </td>
                         <td>
@@ -487,6 +495,9 @@ export default async function ReservationsPage({
                           )}
                         </td>
                         <td>
+                          <StatusBadge kind="hospitality" value={r.status} />
+                        </td>
+                        <td>
                           <span className="source-tag">
                             {r.channel || t(sourceNames[r.source] || r.source)}
                           </span>
@@ -498,7 +509,14 @@ export default async function ReservationsPage({
                           <FinanceLine row={r} />
                         </td>
                         <td>
-                          <StatusBadge kind="hospitality" value={r.status} />
+                          <Link
+                            className="btn btn--secondary btn--sm"
+                            prefetch={false}
+                            href={`/reservations/${encodeURIComponent(r.confirmationNumber)}`}
+                          >
+                            {t('Открыть')}
+                            <span className="sr-only"> {r.confirmationNumber}</span>
+                          </Link>
                         </td>
                       </tr>
                     );

@@ -117,12 +117,12 @@ async function Businesses({ month }: { month: string }) {
                           .join(', ')}
                   </span>
                 </td>
-                <td className="num">{money(r.revenueMinor, r.currency)}</td>
-                <td className="num">{money(r.expensesMinor, r.currency)}</td>
-                <td className="num">
+                <td className="num" data-label={t('Выручка')}>{money(r.revenueMinor, r.currency)}</td>
+                <td className="num" data-label={t('Расходы')}>{money(r.expensesMinor, r.currency)}</td>
+                <td className="num" data-label={t('Прибыль')}>
                   <b className={BigInt(r.profitMinor) < 0n ? 'owner__down' : undefined}>{money(r.profitMinor, r.currency)}</b>
                 </td>
-                <td>
+                <td data-label={t('Сегодня')}>
                   {r.attention > 0 ? (
                     <Badge tone="warn">{t('дел: {n}', { n: r.attention })}</Badge>
                   ) : (

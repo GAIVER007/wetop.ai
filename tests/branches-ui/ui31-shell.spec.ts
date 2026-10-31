@@ -111,7 +111,7 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
   });
 }
 
-// Д4: «Профиль», «Филиалы» и «Помощь» в профиле у всех направлений;
+// Д4: «Профиль», «Все бизнесы и филиалы» и «Помощь» в профиле у всех направлений;
 // «Помощь» также остаётся отдельным разделом навигации (#655).
 for (const vertical of ['hotel', 'beauty', 'food'] as const) {
   test(`Д4: ${vertical} профиль, филиалы и помощь в профиле, помощь также в навигации`, async ({ page, request }) => {
@@ -131,7 +131,8 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     const profileHelp = dropdown.getByRole('link', { name: 'Помощь', exact: true });
     await expect(profileHelp).toBeVisible();
     await expect(profileHelp).toHaveAttribute('href', '/help');
-    await expect(dropdown.getByRole('link', { name: 'Филиалы', exact: true })).toHaveAttribute('href', '/branches');
+    // меню профиля по ролям (31.10.2026): владельцу «Все бизнесы и филиалы» вместо «Филиалов»
+    await expect(dropdown.getByRole('link', { name: 'Все бизнесы и филиалы', exact: true })).toHaveAttribute('href', '/owner');
     await page.keyboard.press('Escape');
     await expect(dropdown).toBeHidden();
     await expect(page.locator('.profile-trigger')).toBeFocused();

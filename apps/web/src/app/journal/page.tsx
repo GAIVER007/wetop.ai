@@ -2,7 +2,6 @@ import { normalizeSearchParams, type SearchParams } from '../../lib/search-param
 import { Fragment } from 'react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { TeamNavigation } from '../../components/team-navigation';
 import { deskShell } from '../../lib/desk-shell';
 import { mayAccess } from '../../lib/navigation';
 import { OperationDetails, auditValue } from './operation-details';
@@ -180,7 +179,6 @@ export default async function JournalPage({
       subtitle={t('Действия сотрудников и изменения денег. Время: {zone}.', { zone: zoneLabel(clock.timezone, t) })}
       actions={<RefreshButton />}
     >
-      {desk.vertical !== 'BEAUTY' && <TeamNavigation current="journal" owner />}
       {actorResult.failed && (
         <Notice>
           {t('Не удалось загрузить список сотрудников. Журнал доступен, обновите страницу для выбора сотрудника.')}

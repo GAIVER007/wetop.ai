@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Overlay } from '../../components/overlay';
 import { Alert, Button, EmptyState, Field, Input, Table } from '../../components/ui';
 import { ActionMenu } from '../../components/action-menu';
+import { Tabs } from '../../components/tabs';
 import { Icon } from '../../components/icon';
 import { Segmented } from '../../components/segmented';
 import { currencySign, formatMoney } from '../../lib/money';
@@ -173,53 +174,68 @@ function AdjustmentDrawer({ scopeKey, month, currency, row, close }: { scopeKey:
  * «Зарплата» гостиницы (решение 22.10.2026): тот же расчёт, что у салона и ресторана; база гостиницы: оклад и уборки
  * сдельно. Выплаты из кассы у гостиницы пока нет, экран только начисляет; итоги одной строкой под таблицей.
  */
+/**
+ * «Зарплата» гостиницы ровно как у салона (владелец 31.10.2026): итоги месяца строкой, вкладки «Сотрудники» и
+ * «Начисления», та же плотная таблица (база оплаты первой, как платим, оклад, сдельно, премии и удержания только в
+ * месяце с ними, начислено, выплачено, осталось), ноль прочерком, итог внизу. База оплаты гостиницы это уборки.
+ */
 export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: string; write: boolean; payroll: HotelPayrollView }) {
   const t = useT();
   const [settings, setSettings] = useState<HotelPayrollRow | null>(null);
   const [adjust, setAdjust] = useState<HotelPayrollRow | null>(null);
+  const names = new Map(payroll.rows.map((r) => [r.employeeId, r.name]));
   const money = (minor: string) => formatMoney(minor, payroll.currency);
+  const cell = (minor: string) => (BigInt(minor) === 0n ? <span className="muted">—</span> : money(minor));
   const cleanings = payroll.rows.reduce((sum, r) => sum + r.cleanings, 0);
-  return (
-    <div className="food-workspace" data-testid="payroll-board">
-      <p className="hint" data-testid="hotel-payroll-note">
-        {t('Начисления за месяц. Выплату проведите в кассе объекта: выплата из этого экрана у гостиницы пока не подключена.')}
-      </p>
-      {payroll.rows.length === 0 ? (
-        <EmptyState title={t('Сотрудников пока нет')} details={t('Пригласите горничную или администратора в разделе «Персонал → Сотрудники».')} />
-      ) : (
-        <Table>
-          <thead>
-            <tr>
-              {['Сотрудник', 'Уборок', 'За уборки', 'Модель', 'Премии', 'Удержания', 'Начислено'].map((h) => ( // kk-allow: payroll-wording.test.ts сверяет эту строку исходника, перевод t(h) при показе
-                <th key={h} scope="col">
-                  {t(h)}
-                </th>
-              ))}
-              <th scope="col">
-                <span className="sr-only">{t('Действия')}</span>
+  const remaining = payroll.rows.reduce((sum, r) => sum + BigInt(r.remainingMinor), 0n).toString();
+  const withAdj = payroll.adjustments.length > 0;
+  const heads = [msg('Сотрудник'), msg('Уборок'), msg('Как платим'), msg('Оклад'), msg('За уборки')];
+  const tail = [msg('Премии'), msg('Удержания'), msg('Начислено'), msg('Выплачено'), msg('Осталось')].filter((_, i) => withAdj || i > 1);
+  const staffTable =
+    payroll.rows.length === 0 ? (
+      <EmptyState title={t('Сотрудников пока нет')} details={t('Пригласите горничную или администратора в разделе «Персонал → Сотрудники».')} />
+    ) : (
+      <Table className="payroll-table">
+        <thead>
+          <tr>
+            {heads.map((h, i) => (
+              <th key={h} scope="col" className={i === 1 || i > 2 ? 'num' : undefined}>
+                {t(h)}
               </th>
-            </tr>
-          </thead>
-          <tbody>
-            {payroll.rows.map((r) => (
+            ))}
+            {tail.map((h) => (
+              <th key={h} scope="col" className="num">
+                {t(h)}
+              </th>
+            ))}
+            <th scope="col">
+              <span className="sr-only">{t('Действия')}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {payroll.rows.map((r) => {
+            const due = BigInt(r.remainingMinor) > 0n;
+            return (
               <tr key={r.employeeId} data-testid="hotel-payroll-row">
                 <th scope="row">{r.name}</th>
-                {/* база оплаты первой, как «Выручка» у салона и ресторана (владелец 26.10.2026) */}
-                <td>
-                  <strong>{r.cleanings}</strong>
+                <td className="num">
+                  <strong>{r.cleanings || <span className="muted">—</span>}</strong>
                 </td>
-                <td>
-                  {money(r.pieceMinor)}
-                  {BigInt(r.perCleaningMinor) > 0n && <small> {t('по {amount}', { amount: money(r.perCleaningMinor) })}</small>}
-                </td>
-                <td>
+                <td className="rest-pay-model">
                   {t(modelLabel(r.model))}
-                  {r.model === 'FIXED' && <small> {money(r.fixedMinor)}</small>}
+                  {BigInt(r.perCleaningMinor) > 0n && <small>{t('уборка {amount}', { amount: money(r.perCleaningMinor) })}</small>}
                 </td>
-                <td>{money(r.bonusMinor)}</td>
-                <td>{money(r.penaltyMinor)}</td>
-                <td data-testid="payroll-remaining">
-                  <strong>{money(r.totalMinor)}</strong>
+                <td className="num">{cell(r.model === 'FIXED' ? r.fixedMinor : '0')}</td>
+                <td className="num">{cell(r.pieceMinor)}</td>
+                {withAdj && <td className="num payroll-plus">{cell(r.bonusMinor)}</td>}
+                {withAdj && <td className="num payroll-minus">{cell(r.penaltyMinor)}</td>}
+                <td className="num">
+                  <strong>{cell(r.totalMinor)}</strong>
+                </td>
+                <td className="num">{cell(r.paidMinor)}</td>
+                <td className="num" data-testid="payroll-remaining">
+                  {due ? <strong className="payroll-due">{money(r.remainingMinor)}</strong> : <span className="muted">—</span>}
                 </td>
                 <td>
                   {write && (
@@ -234,26 +250,62 @@ export function HotelPayrollBoard({ scopeKey, write, payroll }: { scopeKey: stri
                   )}
                 </td>
               </tr>
+            );
+          })}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">{t('Итого')}</th>
+            <td className="num">
+              <strong>{cleanings}</strong>
+            </td>
+            <td colSpan={3} data-testid="payroll-fund">
+              {t('Фонд оплаты {sum}', { sum: money(payroll.totals.fundMinor) })}
+            </td>
+            {withAdj && <td className="num" data-testid="payroll-bonus">{money(payroll.totals.bonusMinor)}</td>}
+            {withAdj && <td className="num" data-testid="payroll-penalty">{money(payroll.totals.penaltyMinor)}</td>}
+            <td className="num" data-testid="payroll-total">
+              <strong>{money(payroll.totals.payoutMinor)}</strong>
+            </td>
+            <td className="num" data-testid="payroll-paid">{money(payroll.totals.paidMinor)}</td>
+            <td className="num">{money(remaining)}</td>
+            <td />
+          </tr>
+        </tfoot>
+      </Table>
+    );
+  const adjustments =
+    payroll.adjustments.length === 0 ? (
+      <EmptyState title={t('Начислений в этом месяце нет')} />
+    ) : (
+      <Table>
+        <thead>
+          <tr>
+            {[msg('Сотрудник'), msg('Сумма'), msg('Причина')].map((h) => (
+              <th key={h}>{t(h)}</th>
             ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <th scope="row">{t('Итого')}</th>
-              <td>
-                <strong>{cleanings}</strong>
-              </td>
-              <td />
-              <td />
-              <td data-testid="payroll-bonus">{money(payroll.totals.bonusMinor)}</td>
-              <td data-testid="payroll-penalty">{money(payroll.totals.penaltyMinor)}</td>
-              <td data-testid="payroll-total">
-                <strong>{money(payroll.totals.payoutMinor)}</strong>
-              </td>
-              <td />
+          </tr>
+        </thead>
+        <tbody>
+          {payroll.adjustments.map((a) => (
+            <tr key={a.id}>
+              <td>{names.get(a.employeeId) ?? '—'}</td>
+              <td>{formatMoney(a.amountMinor, payroll.currency)}</td>
+              <td>{a.reason}</td>
             </tr>
-          </tfoot>
-        </Table>
-      )}
+          ))}
+        </tbody>
+      </Table>
+    );
+  return (
+    <div className="food-workspace payroll-workspace" data-testid="payroll-board">
+      <Tabs
+        label={t('Зарплата')}
+        panels={[
+          { id: 'staff', label: t('Сотрудники'), content: staffTable },
+          { id: 'adjustments', label: t('Начисления'), content: adjustments },
+        ]}
+      />
       {settings && <HotelPayDrawer scopeKey={scopeKey} row={settings} currency={payroll.currency} close={() => setSettings(null)} />}
       {adjust && <AdjustmentDrawer scopeKey={scopeKey} month={payroll.month} currency={payroll.currency} row={adjust} close={() => setAdjust(null)} />}
     </div>

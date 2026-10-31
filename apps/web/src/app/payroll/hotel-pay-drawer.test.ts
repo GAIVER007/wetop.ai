@@ -38,23 +38,25 @@ describe('окно оплаты гостиницы: вариант B', () => {
   });
 });
 
-/** База оплаты первой (как «Доход» у салона и ресторана): «Уборок» и «За уборки» сразу после имени, итог под ними */
-describe('зарплата гостиницы: уборки первыми', () => {
+/** «Зарплата» гостиницы как у салона (владелец 31.10.2026): уборки сразу после имени, дальше колонки салона, итог под ними */
+describe('зарплата гостиницы: уборки первыми, колонки салона', () => {
   const payroll = {
+    month: '2026-10',
     currency: 'KZT',
-    rows: [{ employeeId: 'e1', name: 'Горничная Пример', model: 'PIECE', fixedMinor: '0', perCleaningMinor: '50000', cleanings: 7, pieceMinor: '350000', bonusMinor: '0', penaltyMinor: '0', totalMinor: '350000' }],
-    totals: { bonusMinor: '0', penaltyMinor: '0', payoutMinor: '350000' },
+    adjustments: [],
+    rows: [{ employeeId: 'e1', name: 'Горничная Пример', model: 'BONUS_ONLY', fixedMinor: '0', perCleaningMinor: '50000', cleanings: 7, pieceMinor: '350000', bonusMinor: '0', penaltyMinor: '0', totalMinor: '350000', paidMinor: '0', remainingMinor: '350000' }],
+    totals: { fundMinor: '350000', bonusMinor: '0', penaltyMinor: '0', payoutMinor: '350000', paidMinor: '0' },
   } as never;
   const html = renderToStaticMarkup(h(HotelPayrollBoard, { scopeKey: 'b:l', write: false, payroll })).replace(/<!-- -->/g, '');
   const cells = (row: string) => [...row.matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/g)].map((m) => m[1]!.replace(/<[^>]+>/g, '').trim());
-  it('шапка: Сотрудник, Уборок, За уборки, Модель', () => {
+  it('шапка: Сотрудник, Уборок, Как платим, Оклад, За уборки, Начислено, Выплачено, Осталось', () => {
     const head = cells(html.slice(html.indexOf('<thead'), html.indexOf('</thead>')));
-    expect(head.slice(0, 4)).toEqual(['Сотрудник', 'Уборок', 'За уборки', 'Модель']);
+    expect(head.slice(0, 8)).toEqual(['Сотрудник', 'Уборок', 'Как платим', 'Оклад', 'За уборки', 'Начислено', 'Выплачено', 'Осталось']);
   });
   it('строка и итог в том же порядке', () => {
     const body = cells(html.slice(html.indexOf('<tbody'), html.indexOf('</tbody>')));
     expect(body[1]).toBe('7');
-    expect(body[2]).toMatch(/^3\s?500/);
+    expect(body[4]).toMatch(/^3\s?500/);
     const foot = cells(html.slice(html.indexOf('<tfoot'), html.indexOf('</tfoot>')));
     expect(foot[1]).toBe('7');
   });

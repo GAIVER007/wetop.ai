@@ -6,7 +6,7 @@ import { msg, type Translate } from '../../../i18n';
 import './cabinet.css';
 
 /** Разделы кабинета компании WETOP (вариант «Г»): меню слева у всех страниц кабинета */
-export type CabinetSection = 'home' | 'clients' | 'site' | 'rnp' | 'countries' | 'money' | 'subscriptions' | 'team' | 'partners' | 'expenses';
+export type CabinetSection = 'home' | 'overview' | 'clients' | 'site' | 'rnp' | 'countries' | 'money' | 'subscriptions' | 'team' | 'partners' | 'expenses';
 
 const LINKS: Array<{
   key: CabinetSection | 'support';
@@ -15,6 +15,8 @@ const LINKS: Array<{
   label: string;
 }> = [
   { key: 'home', href: '/platform/cabinet', icon: 'today', label: msg('Главная') },
+  // VTOP Overview (ТЗ владельца 30.10.2026 «две категории админок», п. 3): весь бизнес WETOP пятью блоками
+  { key: 'overview', href: '/platform/cabinet/overview', icon: 'analytics', label: msg('Обзор WETOP') },
   { key: 'clients', href: '/platform/cabinet/clients', icon: 'guests', label: msg('Клиенты') },
   { key: 'site', href: '/platform/cabinet/site', icon: 'globe', label: msg('Сайт wetop.ai') },
   { key: 'rnp', href: '/platform/cabinet/rnp', icon: 'chart', label: msg('РНП') },

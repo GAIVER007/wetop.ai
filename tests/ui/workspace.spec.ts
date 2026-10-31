@@ -148,7 +148,8 @@ test('вложенные разделы: раскрытие, один актив
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Обзор');
   await page.goto('/connections');
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Подключения');
+  // 31.10.2026: экраны из «Всех настроек» подсвечивают «Все настройки»
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Все настройки');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });
@@ -156,7 +157,8 @@ test('вложенные разделы: раскрытие, один актив
     'aria-expanded',
     'true',
   );
-  await menu.getByRole('link', { name: 'Объект', exact: true }).click();
+  await menu.getByRole('link', { name: 'Все настройки', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Карточка объекта', exact: true }).click();
   await page
     .getByRole('navigation', { name: 'Настройки объекта' })
     .getByRole('link', { name: 'Услуги', exact: true })
@@ -521,8 +523,10 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/finance');
-  // «Неисправности» лежат в разделе «Настройки» левого меню (ADR-161): панель, затем подраздел
-  await goViaMenu(page, 'Настройки', 'Неисправности');
+  // «Неисправности» карточкой во «Всех настройках» (меню «Настройки» одно у всех, 31.10.2026)
+  await goViaMenu(page, 'Настройки', 'Все настройки');
+  await page.getByRole('main').getByRole('link', { name: /Неисправности/ }).first().click();
+  await expect(page).toHaveURL(/\/incidents/);
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');
   await page.getByTestId('incident-resolve').click();

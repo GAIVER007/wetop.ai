@@ -69,7 +69,8 @@ const FEATURES: Readonly<Record<string, readonly WebVertical[]>> = {
   '/customers': BF,
   '/employees': BF,
   '/employees/shifts': F,
-  '/cashbox': BF,
+  // гостиница (31.10.2026): пункт «Касса» ведёт на вкладку кассы её «Финансов»
+  '/cashbox': ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'],
   // способы оплаты филиала (DATA_MODEL §21.7): салон и ресторан
   '/branch-payment-methods': BF,
   // зарплата у всех трёх направлений (кабинет горничной 22.10.2026); у гостиницы без выплат из кассы

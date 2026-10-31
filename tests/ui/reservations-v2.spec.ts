@@ -91,8 +91,8 @@ test('R1: панель в две строки, таблица в первом э
 
   // §66.8: финансы — одна колонка; отдельных «Стоимость» и «К оплате» больше нет
   const headers = table.locator('thead th');
-  await expect(headers).toHaveCount(6);
-  await expect(headers.nth(4)).toHaveText('Финансы');
+  // «Записи» гостиницы как у салона (31.10.2026): восемь колонок, «Финансы» седьмой
+  await expect(headers).toHaveText(['Даты', 'Гость', 'Телефон', 'Размещение', 'Статус', 'Источник', 'Финансы', 'Действия']);
   await expect(headers.filter({ hasText: 'К оплате' })).toHaveCount(0);
 
   // статус: слово реестра `lib/status/hospitality` (DS1a); отбор держит группы во множественном

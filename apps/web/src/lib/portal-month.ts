@@ -39,7 +39,8 @@ export function portalMonthParts(s: PortalMonthStats, t: Translate = translator(
   if (s.guests !== null) parts.push(count(s.guests, [msg('гость'), 'гостя', msg('гостей')])); // kk-allow: форма склонения
   if (s.revenueMinor !== null) parts.push(t('выручка {sum}', { sum: formatMoney(s.revenueMinor, s.currency) }));
   if (s.percent !== null) parts.push(t('мой процент {n}%', { n: s.percent }));
-  if (s.bonusMinor !== null) parts.push(t('бонусы {sum}', { sum: formatMoney(s.bonusMinor, s.currency) }));
+  // премий нет (владелец 30.10.2026): «бонусы» в строке месяца только если они начислены
+  if (s.bonusMinor !== null && BigInt(s.bonusMinor) !== 0n) parts.push(t('бонусы {sum}', { sum: formatMoney(s.bonusMinor, s.currency) }));
   return parts;
 }
 

@@ -260,7 +260,7 @@ test('master sees one month summary line, own absences, weekly days off and a mo
  expect(data.monthStats).toMatchObject({status:'AVAILABLE',appointmentsDone:1,servicesDone:1});expect(data.monthStats.shifts).toBeGreaterThan(0);
  const c=await context(browser,f,'staffA');const page=await c.newPage();await page.goto('/my-work');
  const line=page.getByTestId('portal-month-line');await expect(line).toBeVisible();
- await expect(line).toContainText(`${data.monthStats.shifts} смен`);await expect(line).toContainText('выходн');await expect(line).toContainText('1 услуга');await expect(line).toContainText('выручка');await expect(line).toContainText('бонусы');
+ await expect(line).toContainText(`${data.monthStats.shifts} смен`);await expect(line).toContainText('выходн');await expect(line).toContainText('1 услуга');await expect(line).toContainText('выручка');/* премий нет (владелец 30.10.2026): нулевые бонусы в строке месяца не пишутся */await expect(line).not.toContainText('бонусы');
  await expect(page.getByTestId('portal-month').locator('article')).toHaveCount(0);
  await cabShots(page,'salon-month');
  await select(page,'График');await expect(page.getByTestId('portal-week-day').filter({hasText:'Суббота'})).toContainText('Выходной');await expect(page.getByTestId('portal-week-day').filter({hasText:'Понедельник'})).toContainText('10:00–19:00');

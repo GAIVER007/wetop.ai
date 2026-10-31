@@ -20,7 +20,7 @@ import { FoodToday } from './food-today';
 import { HospitalityToday } from './hospitality-today';
 import { TodayScopeContent } from './scope-content';
 import { Page } from '../../components/page';
-import { beautyInsightsApi, beautyOwnerHomeApi } from '../../lib/api';
+import { beautyInsightsApi, beautyOwnerHomeApi, ownerHomeApi } from '../../lib/api';
 import { Alert } from '../../components/ui';
 import { translator } from '../../i18n';
 import { currentLocale } from '../../i18n/server';
@@ -76,16 +76,19 @@ export default async function TodayPage({
               },
             )
           : null;
-      // Главная владельца «B» (владелец 30.10.2026): месяц шапки; сбой не ломает Главную, остаётся прежний вид
+      // Главная владельца «B» (владелец 30.10.2026), единая для салона, ресторана и гостиницы: месяц шапки;
+      // сбой не ломает Главную, остаётся прежний вид
+      const month = ownerMonth(owner.summary.period.fromDate, owner.summary.period.key);
+      const keep = (error: unknown) => {
+        unstable_rethrow(error);
+        return null;
+      };
       const ownerB =
         c.vertical === 'BEAUTY'
-          ? await beautyOwnerHomeApi.read(ownerMonth(owner.summary.period.fromDate, owner.summary.period.key)).catch(
-              (error: unknown) => {
-                unstable_rethrow(error);
-                return null;
-              },
-            )
-          : null;
+          ? await beautyOwnerHomeApi.read(month).catch(keep)
+          : c.vertical === 'FOOD_SERVICE' || c.vertical === 'HOSPITALITY'
+            ? await ownerHomeApi.read(month).catch(keep)
+            : null;
       return (
         <TodayScopeContent key={`${c.businessId}:${c.locationId}`}>
           <OwnerSummaryView summary={owner.summary} locale={locale} visits={visits} ownerB={ownerB} />

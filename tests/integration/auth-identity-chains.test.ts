@@ -175,8 +175,9 @@ describe.skipIf(!process.env.DATABASE_URL)('auth identity chains (integration)',
     expect(await chain()).toEqual(before);
   });
 
-  // Пробный период 7 дней (решение владельца 17.10.2026): срок ставится один раз при создании организации
+  // Тестовый месяц 30 дней (владелец 30.10.2026, было 7 дней с 17.10.2026): срок ставится один раз при создании организации
   const DAY = 86_400_000;
+  const TRIAL = 30;
   it.each(['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)(
     '%s: new trial is exactly 7 days from the registration moment',
     async (vertical) => {
@@ -190,18 +191,18 @@ describe.skipIf(!process.env.DATABASE_URL)('auth identity chains (integration)',
       const user = await db.user.findUniqueOrThrow({ where: { email }, include: { memberships: { include: { organization: true } } } });
       const org = user.memberships[0]!.organization;
       expect(org.status).toBe('TRIAL');
-      expect(org.trialEndsAt!.getTime() - now.getTime()).toBe(7 * DAY);
+      expect(org.trialEndsAt!.getTime() - now.getTime()).toBe(TRIAL * DAY);
     },
   );
 
-  it('platform-created organization also gets 7 days', async () => {
+  it('platform-created organization also gets the trial month (30 days)', async () => {
     const now = new Date('2026-10-17T08:00:00.000Z');
     const ownerEmail = `authid-platform-${randomUUID()}@example.invalid`;
     emails.push(ownerEmail);
     const creation = new OrganizationCreation({ db } as never, null, 'https://app.example.invalid');
     const made = await creation.create({ name: `${prefix}-platform-trial`, ownerEmail, vertical: 'BEAUTY', by: null }, now);
     const org = await db.organization.findUniqueOrThrow({ where: { id: made.organizationId } });
-    expect(org.trialEndsAt!.getTime() - now.getTime()).toBe(7 * DAY);
+    expect(org.trialEndsAt!.getTime() - now.getTime()).toBe(TRIAL * DAY);
   });
 
   it('a trial issued earlier for 14 days keeps its end date through login, repeat registration, invite, switch and reset', async () => {
@@ -231,8 +232,8 @@ describe.skipIf(!process.env.DATABASE_URL)('auth identity chains (integration)',
     expect(await end()).toBe(legacyEnd.toISOString());
     // запущенный срок другой организации тоже не сдвинулся от её входа и приглашения сотрудника в чужую
     const otherOrg = await db.organization.findUniqueOrThrow({ where: { id: other.organizationId } });
-    expect(otherOrg.trialEndsAt!.getTime() - otherOrg.createdAt.getTime()).toBeGreaterThanOrEqual(7 * DAY - 5_000);
-    expect(otherOrg.trialEndsAt!.getTime() - otherOrg.createdAt.getTime()).toBeLessThanOrEqual(7 * DAY + 5_000);
+    expect(otherOrg.trialEndsAt!.getTime() - otherOrg.createdAt.getTime()).toBeGreaterThanOrEqual(TRIAL * DAY - 5_000);
+    expect(otherOrg.trialEndsAt!.getTime() - otherOrg.createdAt.getTime()).toBeLessThanOrEqual(TRIAL * DAY + 5_000);
   });
 
   // Б: повтор регистрации, вход и сброс не заводят новых организаций, людей и бизнесов

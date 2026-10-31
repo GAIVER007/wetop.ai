@@ -15,6 +15,7 @@ vi.mock('../ui', () => ({
   Badge: ({ children }: { children: ReactNode }) => createElement('span', null, children),
   Field: ({ label, children }: { label: ReactNode; children: ReactNode }) => createElement('label', null, label, children),
   Input: (props: Record<string, unknown>) => createElement('input', props),
+  cx: (...v: unknown[]) => v.filter(Boolean).join(' '),
 }));
 vi.mock('./forms', () => ({
   PortalForm: ({ children, command }: { children: ReactNode; command: string }) => createElement('form', { 'data-command': command }, children),

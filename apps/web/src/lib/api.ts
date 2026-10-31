@@ -3203,6 +3203,10 @@ export type PlatformMoney =
         monthlyCents: string | null;
         paidUntil: string | null;
         note: string | null;
+        /** Миграция 176; старый API без полей */
+        promoCode?: string | null;
+        discountPercent?: number | null;
+        autoRenew?: boolean;
       }>;
       payments: Array<{
         id: string;
@@ -3220,6 +3224,11 @@ export type PlatformMoney =
         spentOn: string;
         note: string | null;
         voided: boolean;
+        /** Миграция 176; старый API без полей */
+        payee?: string | null;
+        project?: string | null;
+        recurring?: boolean;
+        documentRef?: string | null;
       }>;
       team: Array<{
         id: string;
@@ -3500,12 +3509,12 @@ export const platformApi = {
     sendJson<PlatformPlan>(id ? 'PUT' : 'POST', id ? `/platform/plans/${encodeURIComponent(id)}` : '/platform/plans', body),
   saveSubscription: (
     organizationId: string,
-    body: { planId: string | null; monthly: string; paidUntil: string | null; note: string },
+    body: { planId: string | null; monthly: string; paidUntil: string | null; note: string; promoCode?: string; discountPercent?: string; autoRenew?: boolean },
   ) => sendJson<unknown>('PUT', `/platform/subscriptions/${encodeURIComponent(organizationId)}`, body),
   addPayment: (body: { organizationId: string; amount: string; paidOn: string; note: string; extendMonths: number }) =>
     sendJson<unknown>('POST', '/platform/payments', body),
   voidPayment: (id: string) => sendJson<unknown>('POST', `/platform/payments/${encodeURIComponent(id)}/void`, {}),
-  addExpense: (body: { category: string; amount: string; spentOn: string; note: string }) =>
+  addExpense: (body: { category: string; amount: string; spentOn: string; note: string; payee?: string; project?: string; recurring?: boolean; document?: string }) =>
     sendJson<unknown>('POST', '/platform/expenses', body),
   voidExpense: (id: string) => sendJson<unknown>('POST', `/platform/expenses/${encodeURIComponent(id)}/void`, {}),
   saveTeamMember: (

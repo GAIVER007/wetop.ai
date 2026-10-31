@@ -20,10 +20,10 @@ const coffee = {
 
 /** «Меню бара» (DATA_MODEL §62.3): вкладка у гостиницы и салона, форма продажи с кассой и счётом гостя */
 describe('меню бара', () => {
-  it('вкладка «Меню бара» у гостиницы и салона после «Кухни», у ресторана её нет (меню в «Услугах»)', () => {
+  it('вкладка «Меню бара» у гостиницы и салона внутри «Бара» сразу после товаров, у ресторана её нет (меню в «Услугах»)', () => {
     for (const v of ['HOSPITALITY', 'BEAUTY'] as const) {
       const tabs = barSectionsFor(v).map((t) => [t.href, t.label]);
-      expect(tabs.findIndex(([h]) => h === '/bar/menu')).toBe(tabs.findIndex(([h]) => h === '/bar/consumables') + 1);
+      expect(tabs.findIndex(([h]) => h === '/bar/menu')).toBe(tabs.findIndex(([h]) => h === '/bar') + 1);
       expect(tabs).toContainEqual(['/bar/menu', 'Меню бара']);
     }
     expect(barSectionsFor('FOOD_SERVICE').some((t) => t.href === '/bar/menu')).toBe(false);

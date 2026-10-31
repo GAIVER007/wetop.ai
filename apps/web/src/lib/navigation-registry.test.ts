@@ -76,6 +76,12 @@ describe('подсветка раздела у салона и ресторан�
       for (const path of ['/team', '/staff']) expect(at(vertical, path), `${vertical} ${path}`).toBe('staff');
   });
 
+  it('внутренние вкладки склада (вариант C 31.10.2026) подсвечивают «Склад», а не «Разделы»', () => {
+    for (const vertical of ['BEAUTY', 'FOOD_SERVICE', 'HOSPITALITY'] as const)
+      for (const path of ['/bar/products', '/bar/menu', '/bar/suppliers', '/bar/receipts/new', '/bar/consumables'])
+        expect(at(vertical, path), `${vertical} ${path}`).toBe('stock');
+  });
+
   it('прежние адреса салона подсвечивают свой раздел', () => {
     expect(at('BEAUTY', '/beauty')).toBe('journal');
     expect(at('BEAUTY', '/beauty/masters')).toBe('staff');

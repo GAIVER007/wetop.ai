@@ -182,6 +182,22 @@
   .alert--warning {
     color: var(--warning);
   }
+  /* подсказка гейта салона под шапкой (аудит кабинета 31.10.2026): одна строка, текст и кнопка */
+  .gate-notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: var(--surface-solid);
+    font-size: var(--text-sm);
+  }
+  .gate-notice p {
+    margin: 0;
+  }
   .alert--success {
     color: var(--success-2);
   }

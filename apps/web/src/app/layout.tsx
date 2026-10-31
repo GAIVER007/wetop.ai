@@ -197,9 +197,6 @@ export default async function RootLayout({
           <Suspense fallback={null}>
             <ScopeGate />
           </Suspense>
-          <Suspense fallback={null}>
-            <OnboardingGate />
-          </Suspense>
           <LocaleProvider locale={locale}>
           <ThemeProvider>
             <PropertyTimeProvider timezone={timezone}>
@@ -230,6 +227,10 @@ export default async function RootLayout({
                       ),
                     }}
                   >
+                    {/* подсказка гейта под шапкой, в рабочей области (аудит кабинета 31.10.2026): раньше висела над шапкой */}
+                    <Suspense fallback={null}>
+                      <OnboardingGate />
+                    </Suspense>
                     <AccessGate>{children}</AccessGate>
                   </TopNav>
                   {drawer}

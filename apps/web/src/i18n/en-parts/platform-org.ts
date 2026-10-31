@@ -930,4 +930,10 @@ export const platformOrg: Record<string, string> = {
   "Новые гости": "New guests",
   "Загрузка": "Occupancy",
   "загрузка {percent}%": "occupancy {percent}%",
+  "Изменений по брони пока нет": "No changes to this booking yet",
+  "Система": "System",
+  "Комментарий: {text}": "Comment: {text}",
+  "Подробнее": "Details",
+  "Показаны последние 100 изменений, остальные в «Истории действий»": "Showing the last 100 changes, the rest are in “Action history”",
+  "Историю не удалось загрузить": "History could not be loaded",
 };

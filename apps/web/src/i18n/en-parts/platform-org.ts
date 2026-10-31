@@ -937,4 +937,10 @@ export const platformOrg: Record<string, string> = {
   "Показаны последние 100 изменений, остальные в «Истории действий»": "Showing the last 100 changes, the rest are in “Action history”",
   "Историю не удалось загрузить": "History could not be loaded",
   "Маржа с услуги": "Service margin",
+  "Получатель": "Payee",
+  "Проект": "Project",
+  "Счёт № 17": "Invoice No. 17",
+  "Повторяется каждый месяц": "Repeats every month",
+  "Автопродление": "Auto-renewal",
+  "каждый месяц": "every month",
 };

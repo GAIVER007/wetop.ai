@@ -148,6 +148,19 @@ export function ExpenseForm({
       <Field label={t('Заметка')}>
         <Input name="note" maxLength={300} defaultValue={preset?.note ?? ''} />
       </Field>
+      {/* миграция 176: кому заплатили, проект, документ, повторяется каждый месяц */}
+      <Field label={t('Получатель')}>
+        <Input name="payee" maxLength={200} />
+      </Field>
+      <Field label={t('Проект')}>
+        <Input name="project" maxLength={100} />
+      </Field>
+      <Field label={t('Документ')}>
+        <Input name="document" maxLength={200} placeholder={t('Счёт № 17')} />
+      </Field>
+      <label className="cabinet__check">
+        <input type="checkbox" name="recurring" data-testid="money-expense-recurring" /> {t('Повторяется каждый месяц')}
+      </label>
       <Button type="submit" disabled={pending} aria-busy={pending} data-testid="money-expense-save">
         {pending ? t('Сохраняю…') : preset?.category === 'SALARIES' ? t('Выплатить') : t('Записать расход')}
       </Button>
@@ -230,6 +243,9 @@ export function SubscriptionForm({
     monthlyInput: string;
     paidUntil: string | null;
     note: string | null;
+    promoCode?: string | null | undefined;
+    discountPercent?: number | null | undefined;
+    autoRenew?: boolean | undefined;
   };
   plans: PlatformPlan[];
 }) {
@@ -267,6 +283,15 @@ export function SubscriptionForm({
       <Field label={t('Оплачено до')}>
         <DateInput name="paidUntil" defaultValue={client.paidUntil ?? ''} />
       </Field>
+      <Field label={t('Промокод')}>
+        <Input name="promoCode" maxLength={40} defaultValue={client.promoCode ?? ''} />
+      </Field>
+      <Field label={t('Скидка, %')}>
+        <Input name="discountPercent" inputMode="numeric" defaultValue={client.discountPercent?.toString() ?? ''} />
+      </Field>
+      <label className="cabinet__check">
+        <input type="checkbox" name="autoRenew" defaultChecked={client.autoRenew ?? true} /> {t('Автопродление')}
+      </label>
       <Button
         type="submit"
         disabled={pending}

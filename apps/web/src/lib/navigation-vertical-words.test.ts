@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { CLOSED_ACCESS, helpSteps, menuSectionsFor } from './navigation';
+import { CLOSED_ACCESS, helpSteps, menuSectionsFor, routeRule } from './navigation';
 import { settingsGroupsFor } from './settings-hub';
-import { barSectionsFor } from '../app/bar/tabs';
+import { stockGroupsFor } from '../app/bar/tabs';
 
 /**
  * Подписи меню словами направления (аудит живого сайта 22.10.2026, салон P1 и ресторан P2): разделы и порядок одни,
@@ -40,9 +40,11 @@ describe('меню словами направления', () => {
     expect(label('FOOD_SERVICE', '/bar')).toBe('Бар');
   });
 
-  it('вкладки склада называются как пункты меню', () => {
+  it('верхние вкладки склада ведут на пункты меню «Склад» (вариант C владельца 31.10.2026)', () => {
     for (const v of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const)
-      for (const tab of barSectionsFor(v)) expect(tab.label, `${v} ${tab.href}`).toBe(label(v, tab.href));
+      for (const g of stockGroupsFor(v)) expect(label(v, g.tabs[0]!.href), `${v} ${g.label}`).toBeTruthy();
+    // внутренние вкладки (меню бара, номенклатура, поставщики) открываются правом раздела
+    for (const href of ['/bar/menu', '/bar/products', '/bar/suppliers']) expect(routeRule(href)?.requires, href).toBeTruthy();
   });
 
   it('шаги «Помощи» находят пункты под словами направления', () => {

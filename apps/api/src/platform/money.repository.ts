@@ -23,6 +23,10 @@ export interface SubscriptionRow {
   monthlyCents: bigint;
   paidUntil: string | null;
   note: string | null;
+  /** Миграция 176: промокод, скидка %, автопродление */
+  promoCode?: string | null;
+  discountPercent?: number | null;
+  autoRenew?: boolean;
 }
 export interface PaymentRow {
   id: string;
@@ -41,6 +45,11 @@ export interface ExpenseRow {
   spentOn: string;
   note: string | null;
   voided: boolean;
+  /** Миграция 176: кому заплатили, проект, повторяется, документ */
+  payee?: string | null;
+  project?: string | null;
+  recurring?: boolean;
+  documentRef?: string | null;
 }
 export interface TeamRow {
   id: string;
@@ -70,7 +79,7 @@ export interface MoneyRepository {
   saveSubscription(input: SubscriptionRow & { by: string | null }): Promise<SubscriptionRow>;
   addPayment(input: { organizationId: string; amountCents: bigint; paidOn: string; note: string | null; by: string | null; extendMonths: number; kind?: 'PLAN' | 'ADDON' }): Promise<PaymentRow>;
   voidPayment(input: { id: string; by: string | null }): Promise<boolean>;
-  addExpense(input: { category: ExpenseCategory; amountCents: bigint; spentOn: string; note: string | null; by: string | null }): Promise<ExpenseRow>;
+  addExpense(input: { category: ExpenseCategory; amountCents: bigint; spentOn: string; note: string | null; by: string | null; extras?: { payee: string | null; project: string | null; recurring: boolean; documentRef: string | null } }): Promise<ExpenseRow>;
   voidExpense(input: { id: string; by: string | null }): Promise<boolean>;
   saveTeamMember(input: Omit<TeamRow, 'id'> & { id: string | null }): Promise<TeamRow | null>;
   /** Партнёры (миграция 172): таблицы ещё нет, раздел говорит «не подключено» */
@@ -153,6 +162,9 @@ export class PrismaMoneyRepository implements MoneyRepository {
       monthlyCents: s.monthlyCents,
       paidUntil: day(s.paidUntil),
       note: s.note,
+      promoCode: s.promoCode,
+      discountPercent: s.discountPercent,
+      autoRenew: s.autoRenew,
     }));
   }
 
@@ -184,6 +196,10 @@ export class PrismaMoneyRepository implements MoneyRepository {
       spentOn: day(e.spentOn)!,
       note: e.note,
       voided: e.voidedAt !== null,
+      payee: e.payee,
+      project: e.project,
+      recurring: e.recurring,
+      documentRef: e.documentRef,
     }));
   }
 
@@ -230,6 +246,7 @@ export class PrismaMoneyRepository implements MoneyRepository {
       monthlyCents: input.monthlyCents,
       paidUntil: input.paidUntil ? dateOf(input.paidUntil) : null,
       note: input.note,
+      ...(input.autoRenew !== undefined ? { promoCode: input.promoCode ?? null, discountPercent: input.discountPercent ?? null, autoRenew: input.autoRenew } : {}),
       updatedAt: new Date(),
       updatedBy: input.by,
     };
@@ -307,7 +324,14 @@ export class PrismaMoneyRepository implements MoneyRepository {
     return count === 1;
   }
 
-  async addExpense(input: { category: ExpenseCategory; amountCents: bigint; spentOn: string; note: string | null; by: string | null }) {
+  async addExpense(input: {
+    category: ExpenseCategory;
+    amountCents: bigint;
+    spentOn: string;
+    note: string | null;
+    by: string | null;
+    extras?: { payee: string | null; project: string | null; recurring: boolean; documentRef: string | null };
+  }) {
     const row = await this.prisma.db.platformExpense.create({
       data: {
         id: randomUUID(),
@@ -316,9 +340,21 @@ export class PrismaMoneyRepository implements MoneyRepository {
         spentOn: dateOf(input.spentOn),
         note: input.note,
         createdBy: input.by,
+        ...(input.extras ?? {}),
       },
     });
-    return { id: row.id, category: input.category, amountCents: row.amountCents, spentOn: input.spentOn, note: row.note, voided: false };
+    return {
+      id: row.id,
+      category: input.category,
+      amountCents: row.amountCents,
+      spentOn: input.spentOn,
+      note: row.note,
+      voided: false,
+      payee: row.payee,
+      project: row.project,
+      recurring: row.recurring,
+      documentRef: row.documentRef,
+    };
   }
 
   async voidExpense(input: { id: string; by: string | null }): Promise<boolean> {

@@ -40,9 +40,17 @@ test('оплата и расход: доход, расходы и прибыль
   await page.getByTestId('money-expense-dialog-open').click();
   const exp = page.getByTestId('money-expense-dialog').getByTestId('money-expense-form');
   await exp.getByLabel('Сумма, $').fill('20');
+  // миграция 176 (владелец 31.10.2026): кому заплатили, документ, повторяется
+  await exp.getByLabel('Получатель').fill('Hetzner');
+  await exp.getByLabel('Документ').fill('Счёт 17');
+  await exp.getByTestId('money-expense-recurring').check();
   await exp.getByTestId('money-expense-save').click();
   await expect(page.getByTestId('money-expenses')).toHaveText('$20');
   await expect(page.getByTestId('money-profit')).toHaveText('$79,50');
+  // поля расхода видны в «Расходах»
+  await page.goto('/platform/cabinet/expenses');
+  await expect(page.getByRole('main')).toContainText('Hetzner, Счёт 17, каждый месяц');
+  await page.goto('/platform/cabinet/money');
   // таблица по месяцам: доход, статья «Сервер», прибыль
   const table = page.getByTestId('money-table');
   await expect(table).toContainText('Доход: оплаты клиентов');

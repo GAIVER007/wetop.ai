@@ -81,6 +81,10 @@ export async function addExpenseAction(
         amount: field(form, 'amount'),
         spentOn: field(form, 'spentOn'),
         note: field(form, 'note'),
+        payee: field(form, 'payee'),
+        project: field(form, 'project'),
+        recurring: form.get('recurring') === 'on',
+        document: field(form, 'document'),
       }),
     msg('Расход записан.'),
   );
@@ -125,6 +129,9 @@ export async function saveSubscriptionAction(
         monthly: field(form, 'monthly'),
         paidUntil: field(form, 'paidUntil') || null,
         note: field(form, 'note'),
+        promoCode: field(form, 'promoCode'),
+        discountPercent: field(form, 'discountPercent'),
+        autoRenew: form.get('autoRenew') === 'on',
       }),
     msg('Подписка сохранена.'),
   );

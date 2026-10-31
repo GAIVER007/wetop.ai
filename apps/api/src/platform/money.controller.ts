@@ -19,7 +19,7 @@ import { currentOrganizationId, currentUserId } from '../auth/request-context';
 import { Access } from '../auth/access.decorator';
 import { requirePlatformAdmin } from './admin';
 import { CABINET_REPOSITORY, type CabinetRepository } from './cabinet.repository';
-import { EXPENSE_CATEGORIES, buildMoney, parseIsoDate, parseUsdCents, type ExpenseCategory } from './money';
+import { EXPENSE_CATEGORIES, MoneyFieldError, buildMoney, parseExpenseExtras, parseIsoDate, parseSubscriptionExtras, parseUsdCents, type ExpenseCategory } from './money';
 import { MONEY_REPOSITORY, type MoneyRepository } from './money.repository';
 import { buildPartners, parsePercentBp } from './partners';
 
@@ -106,6 +106,9 @@ export class MoneyController {
           monthlyCents: s ? cents(s.monthlyCents) : null,
           paidUntil: s?.paidUntil ?? null,
           note: s?.note ?? null,
+          promoCode: s?.promoCode ?? null,
+          discountPercent: s?.discountPercent ?? null,
+          autoRenew: s?.autoRenew ?? true,
         };
       }),
       payments: payments.map((p) => ({ ...p, amountCents: cents(p.amountCents), name: names.get(p.organizationId) ?? '' })),
@@ -150,6 +153,16 @@ export class MoneyController {
     return { ...saved, priceCents: cents(saved.priceCents), partnerPayoutCents: saved.partnerPayoutCents == null ? null : cents(saved.partnerPayoutCents) };
   }
 
+  /** Поля миграции 176: ошибка разбора отдаётся текстом 400 */
+  private extras<T>(parse: () => T): T {
+    try {
+      return parse();
+    } catch (error) {
+      if (error instanceof MoneyFieldError) throw new BadRequestException(error.message);
+      throw error;
+    }
+  }
+
   @Put('subscriptions/:organizationId')
   async saveSubscription(@Param('organizationId') organizationId: string, @Body() body: unknown) {
     await this.ready();
@@ -163,12 +176,14 @@ export class MoneyController {
     const rawUntil = b['paidUntil'];
     const paidUntil = rawUntil === null || rawUntil === '' || rawUntil === undefined ? null : parseIsoDate(rawUntil);
     if (rawUntil && !paidUntil) throw new BadRequestException(MONEY_DATE);
+    const extras = this.extras(() => parseSubscriptionExtras(b));
     const saved = await this.money.saveSubscription({
       organizationId,
       planId,
       monthlyCents: monthly,
       paidUntil,
       note: text(b['note'], 300),
+      ...extras,
       by: currentUserId(),
     });
     return { ...saved, monthlyCents: cents(saved.monthlyCents) };
@@ -225,6 +240,7 @@ export class MoneyController {
       spentOn,
       note: text(b['note'], 300),
       by: currentUserId(),
+      extras: parseExpenseExtras(b),
     });
     return { ...saved, amountCents: cents(saved.amountCents) };
   }

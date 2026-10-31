@@ -5260,6 +5260,9 @@ model PlatformSubscription {
   monthlyCents   BigInt    @map("monthly_cents")
   paidUntil      DateTime? @map("paid_until") @db.Date
   note           String?   @db.VarChar(300)
+  promoCode       String?   @map("promo_code") @db.VarChar(40)
+  discountPercent Int?      @map("discount_percent") @db.SmallInt
+  autoRenew       Boolean   @default(true) @map("auto_renew")
   updatedAt      DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
   updatedBy      String?   @map("updated_by") @db.Uuid
 
@@ -5300,6 +5303,10 @@ model PlatformExpense {
   amountCents BigInt    @map("amount_cents")
   spentOn     DateTime  @map("spent_on") @db.Date
   note        String?   @db.VarChar(300)
+  payee       String?   @db.VarChar(200)
+  project     String?   @db.VarChar(100)
+  recurring   Boolean   @default(false)
+  documentRef String?   @map("document_ref") @db.VarChar(200)
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   createdBy   String?   @map("created_by") @db.Uuid
   voidedAt    DateTime? @map("voided_at") @db.Timestamptz(6)

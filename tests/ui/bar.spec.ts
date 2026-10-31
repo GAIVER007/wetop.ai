@@ -32,10 +32,11 @@ test('обзор как на макете: пять KPI, графики, ком�
   await expect(m.getByRole('link', { name: 'Приход', exact: true })).toHaveAttribute('href', '/bar/receipts/new');
   await expect(m.getByRole('link', { name: 'Продажа', exact: true })).toBeVisible();
   await expect(m.getByRole('link', { name: 'Инвентаризация', exact: true })).toBeVisible();
-  // на широком экране те же пункты открывает меню «Склад», второго ряда вкладок нет (21.10.2026)
-  await expect(m.getByRole('navigation',{name:'Разделы склада'})).toBeHidden();
-  // 8 пунктов: «Меню бара» гостиницы и салона (DATA_MODEL §62.3, K3 24.10.2026)
-  await expect(m.locator('.bar-tabs a')).toHaveCount(8);
+  // склад вариант C (владелец 31.10.2026): пять разделов стеклом, у «Бара» внутри «Товары / Меню бара / Номенклатура»
+  const sections = m.getByRole('navigation',{name:'Разделы склада'});
+  await expect(sections.getByRole('link')).toHaveText(['Обзор', 'Бар', 'Кухня', 'Закупки', 'Движение']);
+  await expect(sections.getByRole('link',{name:'Бар',exact:true})).toHaveAttribute('aria-current','page');
+  await expect(m.getByRole('navigation',{name:'Бар',exact:true}).getByRole('link')).toHaveText(['Товары', 'Меню бара', 'Номенклатура']);
   // Без плиток над списком (аудит 21.10.2026 п.7): итоги месяца строкой под доской, нехватка строкой-предупреждением
   await expect(m.locator('.bar-kpi')).toHaveCount(0);
   const totals = m.getByTestId('bar-totals');
@@ -221,13 +222,13 @@ test('меню: экраны бара в разделе «Склад», адре
   await expect(nav.locator('.sidenav__current')).toHaveText('Склад');
   await expect(nav.locator('.sidenav__section', { hasText: /^Бар$/ })).toHaveCount(0);
   const items = await openSection(page, 'Склад');
-  // пункты в порядке вкладок экрана склада (19.10.2026)
-  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Бар', 'Кухня', 'Меню бара', 'Приходы', 'Номенклатура', 'Поставщики', 'Движение товаров']);
-  await expect(items.getByRole('link', { name: 'Номенклатура', exact: true })).toHaveAttribute('aria-current', 'page');
-  // у приходов свой пункт
-  await page.goto('/bar/receipts');
+  // склад вариант C (владелец 31.10.2026): пять разделов, номенклатура во вкладке «Бара»
+  await expect(items.locator('a')).toHaveText(['Обзор склада', 'Бар', 'Кухня', 'Закупки', 'Движение товаров']);
+  await expect(items.getByRole('link', { name: 'Бар', exact: true })).toHaveAttribute('aria-current', 'page');
+  // поставщики во вкладке «Закупок»
+  await page.goto('/bar/suppliers');
   await expect(nav.locator('.sidenav__current')).toHaveText('Склад');
-  await expect(nav.locator('.sidenav__items [aria-current="page"]')).toHaveText('Приходы');
+  await expect(nav.locator('.sidenav__items [aria-current="page"]')).toHaveText('Закупки');
 });
 
 test('новый приход: ИИ-скан заполняет строки, новый товар создаётся вместе с приходом', async ({ page }) => {

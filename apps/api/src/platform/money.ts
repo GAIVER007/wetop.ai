@@ -126,3 +126,40 @@ export function parseIsoDate(input: unknown): string | null {
   const d = new Date(`${input}T00:00:00Z`);
   return Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== input ? null : input;
 }
+
+/** Ошибка разбора дополнительных полей: контроллер отдаёт её текст как 400 */
+export class MoneyFieldError extends Error {}
+const optText = (v: unknown, max: number): string | null => {
+  if (typeof v !== 'string') return null;
+  const t = v.trim();
+  return t ? t.slice(0, max) : null;
+};
+const flag = (v: unknown, fallback: boolean) => (v === true || v === 'true' ? true : v === false || v === 'false' ? false : fallback);
+
+/**
+ * Подписка (DATA_MODEL PLATFORM-FIELDS-20261031, миграция 176): промокод (латиница, цифры, «-», до 40 знаков, хранится
+ * заглавными), скидка целым процентом 0–100, автопродление (по умолчанию да).
+ */
+export function parseSubscriptionExtras(b: Record<string, unknown>): { promoCode: string | null; discountPercent: number | null; autoRenew: boolean } {
+  const rawPromo = typeof b['promoCode'] === 'string' ? b['promoCode'].trim().toUpperCase() : '';
+  if (rawPromo && !/^[A-Z0-9_-]{1,40}$/.test(rawPromo)) throw new MoneyFieldError('Промокод: латиница, цифры и «-», до 40 знаков');
+  const rawDiscount = b['discountPercent'];
+  let discountPercent: number | null = null;
+  if (rawDiscount !== undefined && rawDiscount !== null && rawDiscount !== '') {
+    const n = Number(rawDiscount);
+    if (!Number.isInteger(n) || n < 0 || n > 100) throw new MoneyFieldError('Скидка: целое число от 0 до 100');
+    discountPercent = n;
+  }
+  return { promoCode: rawPromo || null, discountPercent, autoRenew: flag(b['autoRenew'], true) };
+}
+
+/** Расход WETOP (миграция 176): кому заплатили, проект, повторяется ли, номер документа */
+export function parseExpenseExtras(b: Record<string, unknown>): { payee: string | null; project: string | null; recurring: boolean; documentRef: string | null } {
+  return {
+    payee: optText(b['payee'], 200),
+    project: optText(b['project'], 100),
+    recurring: flag(b['recurring'], false),
+    documentRef: optText(b['document'], 200),
+  };
+}
+

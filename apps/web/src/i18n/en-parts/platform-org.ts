@@ -941,4 +941,10 @@ export const platformOrg: Record<string, string> = {
   "Партнёру за первый чек, $": "Partner payout for first check, $",
   "партнёру {sum}": "partner {sum}",
   "За что": "What for",
+  "Получатель": "Payee",
+  "Проект": "Project",
+  "Счёт № 17": "Invoice No. 17",
+  "Повторяется каждый месяц": "Repeats every month",
+  "Автопродление": "Auto-renewal",
+  "каждый месяц": "every month",
 };

@@ -80,15 +80,20 @@ export async function seedPortalFixture(db: Db, vertical: PortalVertical = 'BEAU
       } });
       const customer = await tx.customer.create({ data: { organizationId: a.id, firstName: 'Synthetic reviewer' } });
       await tx.customerBusiness.create({ data: { customerId: customer.id, businessId: ba.id } });
-      const completedAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
+      // выполненная запись в сегодняшнем дне филиала (Asia/Almaty, UTC+5): «2 часа назад» в первые часы суток по
+      // Алматы уходило во вчера, а 1-го числа в прошлый месяц, и итоги месяца мастера были 0 (гейт main 31.10.2026)
+      const nowMs = Date.now();
+      const almatyMidnight = Math.floor((nowMs + 5 * 3_600_000) / 86_400_000) * 86_400_000 - 5 * 3_600_000;
+      const completedAt = new Date(Math.max(nowMs - 2 * 60 * 60 * 1000, almatyMidnight));
+      const doneMs = Math.max(60_000, Math.min(45 * 60 * 1000, nowMs - completedAt.getTime() - 60_000));
       const appointmentA = await tx.appointment.create({ data: {
         locationId: locations[0]!.id, customerId: customer.id, employeeId: ea.id, serviceId,
-        startsAt: completedAt, endsAt: new Date(completedAt.getTime() + 45 * 60 * 1000),
+        startsAt: completedAt, endsAt: new Date(completedAt.getTime() + doneMs),
         status: 'DONE', price: 6500n, currency: 'KZT', createdById: actors.ownerA.id,
       } });
       const appointmentB = await tx.appointment.create({ data: {
         locationId: locations[0]!.id, customerId: customer.id, employeeId: eb.id, serviceId,
-        startsAt: completedAt, endsAt: new Date(completedAt.getTime() + 45 * 60 * 1000),
+        startsAt: completedAt, endsAt: new Date(completedAt.getTime() + doneMs),
         status: 'DONE', price: 6500n, currency: 'KZT', createdById: actors.ownerA.id,
       } });
       await tx.beautyAppointmentReview.createMany({ data: [

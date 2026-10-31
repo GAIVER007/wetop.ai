@@ -122,7 +122,7 @@ export class HotelReviewsService {
           data: {
             organizationId: reservation.property.organizationId,
             userId,
-            entityType: 'reservation',
+            entityType: 'Reservation',
             entityId: reservation.id,
             action: decision.rotated ? 'hotel.review_invitation.rotated' : 'hotel.review_invitation.issued',
             after: { expiresAt: decision.expiresAt.toISOString() },

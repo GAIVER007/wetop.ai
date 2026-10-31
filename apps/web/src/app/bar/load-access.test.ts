@@ -69,7 +69,8 @@ describe('Beauty goods loader', () => {
   it('loads stock method labels but never hotel folios for a read-only stock position', async () => {
     const html = renderToStaticMarkup(await BarPage({ searchParams: Promise.resolve({}) }));
 
-    expect(html).toContain('Товары, остатки и продажи');
+    // вкладки склада вместо подзаголовка (вариант C владельца 31.10.2026): обзор влезает в 1440×900
+    expect(html).not.toContain('Товары, остатки и продажи');
     // решение владельца 24.10.2026: у салона, как у всех, «Склад: бар»
     expect(html).toContain('Склад: бар');
     expect(html).not.toContain('Склад: товары');

@@ -45,7 +45,7 @@ describe('меню по ролям', () => {
       ['clients', ['/guests', '/reservations']],
       ['stats', ['/management/analytics', '/reports']],
       // склад на экранах бара: администратор смотрит, как все отчёты (право `reports`)
-      ['stock', ['/warehouse', '/bar', '/bar/consumables', '/bar/menu', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
+      ['stock', ['/warehouse', '/bar', '/bar/consumables', '/bar/receipts', '/bar/operations']],
       ['money', ['/finance', '/reports/finance']],
       // право `desk`: хаб «Все настройки» (в нём только открытые ему ссылки) и неисправности; остальные настройки закрыты
       ['settings', ['/incidents', '/settings']],
@@ -60,15 +60,12 @@ describe('меню по ролям', () => {
     expect(stock?.label).toBe('Склад');
     expect(stock?.direct).toBeUndefined();
     expect(stock?.items.map((i) => [i.href, i.label])).toEqual([
-      // в порядке вкладок экрана склада (19.10.2026)
+      // пять разделов, как верхние вкладки склада (вариант C владельца 31.10.2026); меню бара, номенклатура,
+      // поставщики во вкладках внутри разделов
       ['/warehouse', 'Обзор склада'],
       ['/bar', 'Бар'],
       ['/bar/consumables', 'Кухня'],
-      // «Меню бара» (§62.3): кофе и закуски гостиницы и салона
-      ['/bar/menu', 'Меню бара'],
-      ['/bar/receipts', 'Приходы'],
-      ['/bar/products', 'Номенклатура'],
-      ['/bar/suppliers', 'Поставщики'],
+      ['/bar/receipts', 'Закупки'],
       ['/bar/operations', 'Движение товаров'],
     ]);
   });

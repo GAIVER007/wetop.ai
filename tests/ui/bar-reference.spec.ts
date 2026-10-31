@@ -46,7 +46,8 @@ test('mobile quick actions open the existing forms',async({page})=>{
  await expect(page.getByRole('button',{name:'Продать',exact:true})).toBeVisible();
  // продажа теперь окно (аудит 21.10.2026 п.13): закрываем, чтобы перейти по вкладкам
  await page.keyboard.press('Escape');
- await page.getByRole('navigation',{name:'Разделы склада'}).getByRole('link',{name:'Поставщики',exact:true}).click();
+ await page.getByRole('navigation',{name:'Разделы склада'}).getByRole('link',{name:'Закупки',exact:true}).click();
+ await page.getByRole('navigation',{name:'Закупки',exact:true}).getByRole('link',{name:'Поставщики',exact:true}).click();
  await expect(page.getByRole('heading',{level:1})).toHaveText('Склад: поставщики');
 });
 

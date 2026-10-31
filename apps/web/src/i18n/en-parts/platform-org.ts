@@ -988,4 +988,11 @@ export const platformOrg: Record<string, string> = {
   "Считаем бизнес WETOP…": "Calculating WETOP business…",
   "Ушли за месяц": "Churned this month",
   "Всего": "Total",
+  "Отзыв гостя": "Guest review",
+  "Отзыв о проживании": "Stay review",
+  "Оцените проживание": "Rate your stay",
+  "Оценка проживания": "Stay rating",
+  "Поставьте оценку от 1 до 5.": "Give a rating from 1 to 5.",
+  "Спасибо, что были у нас! Оцените, пожалуйста, проживание: {url}": "Thank you for staying with us! Please rate your stay: {url}",
+  "Ссылка уже выдана. Новая заменит прежнюю.": "A link has already been issued. A new one replaces it.",
 };

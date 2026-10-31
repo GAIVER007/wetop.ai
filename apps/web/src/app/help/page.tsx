@@ -23,8 +23,17 @@ async function branchName(vertical: string): Promise<string | null> {
 export default async function HelpPage() {
   const { vertical, scopeKey, access } = await deskShell();
   const t = await serverT();
+  // «Обучение» (владелец 30.10.2026): первым блоком «Помощи» у всех, с филиалом и без
+  const learn = (
+    <section className="panel help-learn" aria-labelledby="help-learn-title" data-testid="help-learn">
+      <h2 id="help-learn-title" className="panel__title">{t('Обучение')}</h2>
+      <p>{t('Все инструкции WETOP: краткое описание и вся инструкция по нажатию.')}</p>
+      <Link className="btn btn--primary" href="/learn">{t('Открыть инструкции')}</Link>
+    </section>
+  );
   if (!scopeKey) return (
     <Page title={t('Помощь')} subtitle={t('Выберите филиал')}>
+      {learn}
       <p>{t('Выберите филиал, чтобы открыть инструкции для его направления.')}</p>
       <Link href="/branches">{t('Выбрать филиал')}</Link>
       <p>{t('Вход и выход доступны через меню профиля.')}</p>
@@ -42,6 +51,7 @@ export default async function HelpPage() {
   // аудит 21.10.2026 пп. 13, 39: заголовок блока без дубля в подзаголовке, шаги и поддержка в две колонки
   return (
     <Page title={t('Помощь')}>
+      {learn}
       <div className="help-columns">
         <section className="panel" aria-labelledby="help-steps-title">
           <h2 id="help-steps-title" className="panel__title">{t('Начало работы')}</h2>

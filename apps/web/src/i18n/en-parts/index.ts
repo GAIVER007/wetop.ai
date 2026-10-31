@@ -19,6 +19,7 @@ import { sellerSite } from './seller-site';
 import { analyticsEntry } from './analytics-entry';
 import { libSellerSite } from './lib-seller-site';
 import { libOps } from './lib-ops';
+import { learn } from './learn';
 
 /** Английские части словаря EN1: те же области, что kk-parts, каждая фраза в одной части */
 export const EN_PARTS: Record<string, Record<string, string>> = {
@@ -43,4 +44,5 @@ export const EN_PARTS: Record<string, Record<string, string>> = {
   "analytics-entry": analyticsEntry,
   "lib-seller-site": libSellerSite,
   "lib-ops": libOps,
+  "learn": learn,
 };

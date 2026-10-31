@@ -712,18 +712,14 @@ const ROW: Array<{
     label: 'Склад',
     icon: 'stock',
     items: [
-      // пункты в порядке вкладок экрана склада (решение владельца 19.10.2026): одно название в меню и на вкладке
+      // пять разделов, как вкладки экрана склада (вариант C владельца 31.10.2026): меню бара и номенклатура внутри
+      // «Бара», приходы и поставщики внутри «Закупок»; у ресторана «Кухня» это склад кухни `/stock`
       { label: 'Обзор склада', at: ALL('/warehouse') },
       { label: { word: 'goods' }, at: ALL('/bar') },
-      // у ресторана «Кухня» уже раздел «Услуги»: склад кухни называется целиком
+      // у ресторана «Кухня» в «Услугах» уже экран заказов: в меню «Склад кухни», вкладка на складе «Кухня»
       { label: 'Склад кухни', at: { FOOD_SERVICE: '/stock' } },
-      // решение владельца 24.10.2026: «Кухня» на складе у салона и гостиницы (у ресторана выше «Склад кухни»)
       { label: 'Кухня', at: { HOSPITALITY: '/bar/consumables', BEAUTY: '/bar/consumables' } },
-      // §62.3: у ресторана своё «Меню» в «Услугах»
-      { label: 'Меню бара', at: { HOSPITALITY: '/bar/menu', BEAUTY: '/bar/menu' } },
-      { label: 'Приходы', at: ALL('/bar/receipts') },
-      { label: 'Номенклатура', at: ALL('/bar/products') },
-      { label: 'Поставщики', at: ALL('/bar/suppliers') },
+      { label: 'Закупки', at: ALL('/bar/receipts') },
       { label: 'Движение товаров', at: ALL('/bar/operations') },
     ],
   },
@@ -1101,6 +1097,9 @@ export function activeMenuRoute(path: string): string | undefined {
   if (!route) return undefined;
   // новый приход подсвечивает пункт «Приходы» (у пункта свой адрес с 19.10.2026)
   if (path.startsWith('/bar/receipts/')) return '/bar/receipts';
+  // склад вариант C (31.10.2026): поставщики во вкладке «Закупок», номенклатура и меню бара во вкладке «Бара»
+  if (route === '/bar/suppliers') return '/bar/receipts';
+  if (route === '/bar/products' || route === '/bar/menu') return '/bar';
   if (route.startsWith('/rooms')) return '/inventory';
   // меню «Настройки» одно у всех (31.10.2026): экраны из «Всех настроек» подсвечивают «Все настройки»
   if (SETTINGS_SCREENS.some((h) => route === h || route.startsWith(`${h}/`))) return '/settings';

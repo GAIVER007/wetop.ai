@@ -20,15 +20,11 @@ const routes = [
   '/inventory',
   '/reports',
   '/management/analytics',
-  '/bar/products',
   '/bar/receipts',
   '/warehouse',
   '/bar',
   '/bar/consumables',
-  // «Меню бара» (§62.3, K3 24.10.2026)
-  '/bar/menu',
   '/bar/operations',
-  '/bar/suppliers',
   '/finance',
   // 31.10.2026: «Касса» вместо «Отчётов»; объект, каналы, подключения и неисправности во «Всех настройках»
   '/cashbox',

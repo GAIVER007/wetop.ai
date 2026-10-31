@@ -936,4 +936,5 @@ export const platformOrg: Record<string, string> = {
   "Подробнее": "Details",
   "Показаны последние 100 изменений, остальные в «Истории действий»": "Showing the last 100 changes, the rest are in “Action history”",
   "Историю не удалось загрузить": "History could not be loaded",
+  "Маржа с услуги": "Service margin",
 };

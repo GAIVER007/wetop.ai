@@ -111,4 +111,17 @@ describe('кабинет компании: срез 1', () => {
     const view = buildCabinet(src([org('luxx')]), NOW);
     expect(JSON.stringify(view)).not.toMatch(/mrr|revenue|income|amount/i);
   });
+
+  it('карточка в списке (ТЗ «две админки» п. 4, 30.10.2026): город, тариф, следующий платёж, партнёр', () => {
+    const view = buildCabinet(
+      src([org('kyial', { city: 'Алматы' }), org('luxx')], {
+        subscriptions: [{ organizationId: 'kyial', planName: 'Месяц', paidUntil: '2026-11-05' }],
+        partners: [{ organizationId: 'kyial', partnerName: 'Айдар' }],
+      }),
+      NOW,
+    );
+    expect(view.clients.find((c) => c.id === 'kyial')).toMatchObject({ city: 'Алматы', plan: 'Месяц', nextPaymentOn: '2026-11-05', partner: 'Айдар' });
+    // без данных: пусто, не выдумываем
+    expect(view.clients.find((c) => c.id === 'luxx')).toMatchObject({ city: null, plan: null, nextPaymentOn: null, partner: null });
+  });
 });

@@ -943,4 +943,5 @@ export const platformOrg: Record<string, string> = {
   "Повторяется каждый месяц": "Repeats every month",
   "Автопродление": "Auto-renewal",
   "каждый месяц": "every month",
+  "Платёж": "Payment",
 };

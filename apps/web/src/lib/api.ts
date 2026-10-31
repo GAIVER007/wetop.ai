@@ -3439,6 +3439,11 @@ export interface PlatformCabinet {
     lastLoginAt: string | null;
     records30d: number;
     trialDaysLeft: number | null;
+    /** ТЗ «две админки» п. 4 (30.10.2026): город, тариф, следующий платёж, партнёр */
+    city?: string | null;
+    plan?: string | null;
+    nextPaymentOn?: string | null;
+    partner?: string | null;
   }>;
   deadlines: Array<{ id: string; name: string; kind: 'trial' | 'unpaid'; daysLeft: number | null; date: string | null }>;
 }

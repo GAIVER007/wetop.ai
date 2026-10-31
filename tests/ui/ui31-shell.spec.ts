@@ -32,7 +32,7 @@ test('UI3.1: одна кнопка, стабильная ширина и кла�
   await expect(sales).toHaveAttribute('aria-expanded', 'true');
   await page.screenshot({ path: `${shots}/after-desktop-menu-subsections.png` });
   await page.keyboard.press('ArrowRight');
-  await expect(panel.getByRole('link', { name: 'Объект', exact: true })).toBeFocused();
+  await expect(panel.getByRole('link', { name: 'Все настройки', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(sales).toBeFocused();
   await page.mouse.move(1400, 880);
@@ -69,12 +69,12 @@ test('UI3.1: переход закрывает меню, active route сохра
   const panel = page.locator('.sidenav__panel');
   // компактный список (#501): группа раскрывается щелчком, а не наведением
   await panel.getByRole('button', { name: 'Настройки', exact: true }).click();
-  await panel.getByRole('link', { name: 'Объект', exact: true }).click();
-  await expect(page).toHaveURL(/\/hotel-settings$/);
+  await panel.getByRole('link', { name: 'Все настройки', exact: true }).click();
+  await expect(page).toHaveURL(/\/settings$/);
   await expect(panel).toBeHidden();
   await expect(page.locator('#main-content')).toBeFocused();
   await trigger.click();
-  await expect(panel.locator('[aria-current="page"]')).toHaveText('Объект');
+  await expect(panel.locator('[aria-current="page"]')).toHaveText('Все настройки');
   await page.goBack();
   await expect(page).toHaveURL(/\/chessboard$/);
   await expect(panel).toBeHidden();

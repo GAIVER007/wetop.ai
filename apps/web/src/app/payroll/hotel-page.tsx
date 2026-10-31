@@ -5,7 +5,7 @@ import { loadErrorProps } from '../../lib/load-error';
 import { hotelShell } from '../../lib/hotel-staff-shell';
 import { hotelStaffApi } from '../../lib/hotel-staff-api';
 import { HotelPayrollBoard } from './hotel-payroll';
-import { PayrollMonthNav } from '../food/payroll-board';
+import { PayrollMonthNav, PayrollTotals } from '../food/payroll-board';
 import '../food/food.css';
 import '../food/restaurant.css';
 import { serverT } from '../../i18n/server';
@@ -18,7 +18,17 @@ export async function HotelPayrollPage({ month }: { month?: string | undefined }
     const chosen = month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month) ? month : shell.date.slice(0, 7);
     const payroll = await hotelStaffApi.payroll(chosen);
     return (
-      <Page className="payroll-page" title={t('Зарплата')} actions={<PayrollMonthNav month={payroll.month} />}>
+      // итоги месяца строкой в заголовке, как у салона (владелец 31.10.2026: «ровно так же»)
+      <Page
+        className="payroll-page"
+        title={t('Зарплата')}
+        actions={
+          <>
+            <PayrollTotals payroll={payroll} />
+            <PayrollMonthNav month={payroll.month} />
+          </>
+        }
+      >
         <div key={shell.scopeKey}>
           <HotelPayrollBoard scopeKey={shell.scopeKey} write={shell.canStaff && !shell.readOnly} payroll={payroll} />
         </div>

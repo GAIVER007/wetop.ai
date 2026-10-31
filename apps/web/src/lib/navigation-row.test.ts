@@ -99,8 +99,9 @@ describe('одно меню для всех направлений', () => {
       '/employees/shifts',
     ]);
     expect(VERTICALS.map((v) => screen(v, 'Персонал', 'Зарплата'))).toEqual(['/payroll', '/payroll', '/payroll']);
+    // владелец 31.10.2026: «в финансах обзор и касса», у гостиницы «Отчёт» заменить на «Кассу»
     expect(VERTICALS.map((v) => screen(v, 'Финансы', 'Касса'))).toEqual([
-      undefined,
+      '/cashbox',
       '/cashbox',
       '/cashbox',
     ]);
@@ -111,15 +112,13 @@ describe('одно меню для всех направлений', () => {
     ]);
   });
 
-  it('в «Финансах» обзор стоит первым, отчёты последними, у всех направлений', () => {
+  it('в «Финансах» у всех: «Обзор финансов» первым, «Касса» вторым, без «Отчётов»', () => {
     for (const v of VERTICALS) {
       const labels = (row(v).find(([label]) => label === 'Финансы')?.[1] ?? []).map(
         ([label]) => label,
       );
-      expect(labels[0], v).toBe('Обзор финансов');
-      expect(labels.filter((l) => l === 'Отчёты').length ? labels.at(-1) : 'Отчёты', v).toBe(
-        'Отчёты',
-      );
+      expect(labels.slice(0, 2), v).toEqual(['Обзор финансов', 'Касса']);
+      expect(labels, v).not.toContain('Отчёты');
     }
   });
 });

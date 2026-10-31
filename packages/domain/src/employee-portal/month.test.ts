@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { monthBounds, monthShiftDays, shiftMonth } from './month';
+import { monthBounds, monthShiftDays, shiftMonth, weekAbsentDates } from './month';
 
 describe('«Мой месяц»: смены по недельному графику минус отсутствия', () => {
   it('границы месяца и соседние месяцы', () => {
@@ -32,5 +32,18 @@ describe('«Мой месяц»: смены по недельному графи
 
   it('пустой график: ни одной смены', () => {
     expect(monthShiftDays({ month: '2026-02', workingWeekdays: [], timeOffs: [] })).toEqual({ shifts: 0, daysOff: 28, absenceDays: 0 });
+  });
+});
+
+// «График работы» гостиницы по неделям (владелец 31.10.2026): отсутствие сотрудника на выбранной неделе
+describe('weekAbsentDates', () => {
+  it('даты недели, попавшие в отсутствие, остальные нет', () => {
+    expect(
+      weekAbsentDates('2026-11-02', [
+        { dateFrom: '2026-10-30', dateTo: '2026-11-03' },
+        { dateFrom: '2026-11-08', dateTo: '2026-11-20' },
+      ]),
+    ).toEqual(['2026-11-02', '2026-11-03', '2026-11-08']);
+    expect(weekAbsentDates('2026-11-09', [])).toEqual([]);
   });
 });

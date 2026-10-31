@@ -62,7 +62,7 @@ test('один заголовок на всех вкладках, без «Об�
     await expect(main.getByRole('button', { name: 'Обновить' })).toHaveCount(0);
     await expect(main.locator('.page__crumbs')).toContainText('Настройки объекта');
   }
-  await expect(page.locator('.sidenav__items [aria-current="page"]')).toHaveText('Объект');
+  await expect(page.locator('.sidenav__items [aria-current="page"]')).toHaveText('Все настройки');
 
   await tabs.getByRole('link', { name: 'Основное', exact: true }).click();
   const general = main.getByTestId('stored-property');

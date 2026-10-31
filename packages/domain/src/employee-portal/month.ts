@@ -39,3 +39,13 @@ export function monthShiftDays(input: {
   }
   return { shifts, daysOff: total - shifts, absenceDays };
 }
+
+/** Даты недели (от понедельника), когда сотрудник отсутствует (TimeOff): для графика по неделям (31.10.2026) */
+export function weekAbsentDates(monday: string, timeOffs: ReadonlyArray<{ dateFrom: string; dateTo: string }>): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < 7; i += 1) {
+    const date = iso(at(monday) + i * DAY);
+    if (timeOffs.some((o) => o.dateFrom <= date && date <= o.dateTo)) out.push(date);
+  }
+  return out;
+}

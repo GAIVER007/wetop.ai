@@ -46,9 +46,10 @@ describe('меню по ролям', () => {
       ['stats', ['/management/analytics', '/rnp', '/reports']],
       // склад на экранах бара: администратор смотрит, как все отчёты (право `reports`)
       ['stock', ['/warehouse', '/bar', '/bar/consumables', '/bar/receipts', '/bar/operations']],
-      ['money', ['/finance', '/reports/finance']],
+      ['money', ['/finance', '/cashbox']],
       // право `desk`: хаб «Все настройки» (в нём только открытые ему ссылки) и неисправности; остальные настройки закрыты
-      ['settings', ['/incidents', '/settings']],
+      // 31.10.2026: «Неисправности» карточкой в «Всех настройках», меню у всех одно
+      ['settings', ['/settings']],
       // «Продвижение» по праву marketing закрыто, а продавец (диалоги) и конкуренты (право `reports`) открыты
       ['marketing', ['/ai-agents', '/market', '/sales']],
       ['help', ['/help']],

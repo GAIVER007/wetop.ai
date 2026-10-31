@@ -623,3 +623,77 @@
     }
   }
 }
+@layer sections {
+  /* Окно настройки, вариант A владельца 31.10.2026: «Обязательно» списком с галочками, «Дальше» списком и вид
+     онлайн-записи справа; три колонки на одном экране ноутбука, без плиток и пустых полос. */
+  .setup-a .setup-b__region {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(260px, 340px);
+    align-items: start;
+    gap: var(--space-4);
+  }
+  .setup-a .setup-b__region > * {
+    grid-column: 1 / -1;
+  }
+  .setup-a .setup-b__grid,
+  .setup-a .setup-b__main {
+    display: contents;
+  }
+  .setup-a .setup-b__region > .setup-path {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 0;
+  }
+  .setup-a .setup-next {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+  }
+  .setup-a .setup-preview {
+    grid-column: 3;
+    grid-row: 2;
+    position: static;
+  }
+  .setup-a .setup-b__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+  }
+  .setup-a .setup-b__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+  }
+  .setup-a .setup-tiles__head-actions .onboarding__actions {
+    margin: 0;
+  }
+  .setup-a .setup-tiles__step {
+    display: none;
+  }
+  .setup-a .setup-preview__foot {
+    display: none;
+  }
+  @media (max-width: 1279px) {
+    .setup-a .setup-b__region {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .setup-a .setup-preview {
+      grid-column: 1 / -1;
+      grid-row: 3;
+    }
+  }
+  @media (max-width: 960px) {
+    .setup-a .setup-b__region {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .setup-a .setup-b__region > .setup-path,
+    .setup-a .setup-next,
+    .setup-a .setup-preview {
+      grid-column: 1;
+      grid-row: auto;
+    }
+  }
+}

@@ -14,10 +14,12 @@ const label = (v: 'HOSPITALITY' | 'BEAUTY' | 'FOOD_SERVICE', href: string) =>
     .find((i) => i.href === href)?.label;
 
 describe('меню словами направления', () => {
-  it('настройки места: «Объект» только у гостиницы', () => {
-    expect(label('HOSPITALITY', '/hotel-settings')).toBe('Объект');
-    expect(label('BEAUTY', '/beauty-settings')).toBeUndefined();
-    expect(label('FOOD_SERVICE', '/restaurant-settings')).toBe('Ресторан');
+  it('меню «Настройки» одно у всех (31.10.2026): карточка объекта и ресторана внутри «Всех настроек»', () => {
+    for (const v of ['HOSPITALITY', 'BEAUTY', 'FOOD_SERVICE'] as const) {
+      expect(label(v, '/hotel-settings'), v).toBeUndefined();
+      expect(label(v, '/restaurant-settings'), v).toBeUndefined();
+      expect(label(v, '/settings'), v).toBe('Все настройки');
+    }
   });
 
   it('ресторан: меню, брони столов и сотрудники вместо слов салона', () => {
@@ -52,7 +54,7 @@ describe('меню словами направления', () => {
       'Услуги → Меню',
       'Персонал → Сотрудники',
       'Журнал',
-      'Настройки → Ресторан',
+      'Настройки → Все настройки',
     ]);
     expect(helpSteps(menuSectionsFor(owner, 'BEAUTY'), 'BEAUTY').map((s) => s.path)).toEqual([
       'Услуги → Каталог',

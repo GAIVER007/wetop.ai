@@ -118,8 +118,8 @@
             "label": "Обзор финансов"
           },
           {
-            "href": "/reports/finance",
-            "label": "Отчёты"
+            "href": "/cashbox",
+            "label": "Касса"
           }
         ]
       },
@@ -128,28 +128,12 @@
         "label": "Настройки",
         "items": [
           {
-            "href": "/hotel-settings",
-            "label": "Объект"
-          },
-          {
-            "href": "/channels",
-            "label": "Каналы продаж"
-          },
-          {
-            "href": "/connections",
-            "label": "Подключения"
-          },
-          {
-            "href": "/incidents",
-            "label": "Неисправности"
+            "href": "/settings",
+            "label": "Все настройки"
           },
           {
             "href": "/journal",
             "label": "История действий"
-          },
-          {
-            "href": "/settings",
-            "label": "Все настройки"
           },
           {
             "href": "/owner",
@@ -325,8 +309,8 @@
             "label": "Обзор финансов"
           },
           {
-            "href": "/reports/finance",
-            "label": "Отчёты"
+            "href": "/cashbox",
+            "label": "Касса"
           }
         ]
       },
@@ -334,22 +318,6 @@
         "id": "settings",
         "label": "Настройки",
         "items": [
-          {
-            "href": "/hotel-settings",
-            "label": "Объект"
-          },
-          {
-            "href": "/channels",
-            "label": "Каналы продаж"
-          },
-          {
-            "href": "/connections",
-            "label": "Подключения"
-          },
-          {
-            "href": "/incidents",
-            "label": "Неисправности"
-          },
           {
             "href": "/settings",
             "label": "Все настройки"
@@ -506,8 +474,8 @@
             "label": "Обзор финансов"
           },
           {
-            "href": "/reports/finance",
-            "label": "Отчёты"
+            "href": "/cashbox",
+            "label": "Касса"
           }
         ]
       },
@@ -515,10 +483,6 @@
         "id": "settings",
         "label": "Настройки",
         "items": [
-          {
-            "href": "/incidents",
-            "label": "Неисправности"
-          },
           {
             "href": "/settings",
             "label": "Все настройки"
@@ -674,8 +638,8 @@
             "label": "Обзор финансов"
           },
           {
-            "href": "/reports/finance",
-            "label": "Отчёты"
+            "href": "/cashbox",
+            "label": "Касса"
           }
         ]
       },
@@ -684,28 +648,12 @@
         "label": "Настройки",
         "items": [
           {
-            "href": "/hotel-settings",
-            "label": "Объект"
-          },
-          {
-            "href": "/channels",
-            "label": "Каналы продаж"
-          },
-          {
-            "href": "/connections",
-            "label": "Подключения"
-          },
-          {
-            "href": "/incidents",
-            "label": "Неисправности"
+            "href": "/settings",
+            "label": "Все настройки"
           },
           {
             "href": "/journal",
             "label": "История действий"
-          },
-          {
-            "href": "/settings",
-            "label": "Все настройки"
           },
           {
             "href": "/owner",
@@ -881,8 +829,8 @@
             "label": "Обзор финансов"
           },
           {
-            "href": "/reports/finance",
-            "label": "Отчёты"
+            "href": "/cashbox",
+            "label": "Касса"
           }
         ]
       },
@@ -890,22 +838,6 @@
         "id": "settings",
         "label": "Настройки",
         "items": [
-          {
-            "href": "/hotel-settings",
-            "label": "Объект"
-          },
-          {
-            "href": "/channels",
-            "label": "Каналы продаж"
-          },
-          {
-            "href": "/connections",
-            "label": "Подключения"
-          },
-          {
-            "href": "/incidents",
-            "label": "Неисправности"
-          },
           {
             "href": "/settings",
             "label": "Все настройки"
@@ -1088,12 +1020,12 @@
         "label": "Настройки",
         "items": [
           {
-            "href": "/journal",
-            "label": "История действий"
-          },
-          {
             "href": "/settings",
             "label": "Все настройки"
+          },
+          {
+            "href": "/journal",
+            "label": "История действий"
           },
           {
             "href": "/owner",
@@ -1510,12 +1442,12 @@
         "label": "Настройки",
         "items": [
           {
-            "href": "/journal",
-            "label": "История действий"
-          },
-          {
             "href": "/settings",
             "label": "Все настройки"
+          },
+          {
+            "href": "/journal",
+            "label": "История действий"
           },
           {
             "href": "/owner",
@@ -1864,16 +1796,12 @@
         "label": "Настройки",
         "items": [
           {
-            "href": "/restaurant-settings",
-            "label": "Ресторан"
+            "href": "/settings",
+            "label": "Все настройки"
           },
           {
             "href": "/journal",
             "label": "История действий"
-          },
-          {
-            "href": "/settings",
-            "label": "Все настройки"
           },
           {
             "href": "/owner",
@@ -2070,10 +1998,6 @@
         "id": "settings",
         "label": "Настройки",
         "items": [
-          {
-            "href": "/restaurant-settings",
-            "label": "Ресторан"
-          },
           {
             "href": "/settings",
             "label": "Все настройки"
@@ -2453,16 +2377,12 @@
         "label": "Настройки",
         "items": [
           {
-            "href": "/restaurant-settings",
-            "label": "Ресторан"
+            "href": "/settings",
+            "label": "Все настройки"
           },
           {
             "href": "/journal",
             "label": "История действий"
-          },
-          {
-            "href": "/settings",
-            "label": "Все настройки"
           },
           {
             "href": "/owner",
@@ -2663,10 +2583,6 @@
         "id": "settings",
         "label": "Настройки",
         "items": [
-          {
-            "href": "/restaurant-settings",
-            "label": "Ресторан"
-          },
           {
             "href": "/settings",
             "label": "Все настройки"

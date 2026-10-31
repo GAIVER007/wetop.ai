@@ -51,23 +51,20 @@ test('наведение открывает список, щелчок ведё�
   }).toPass({ timeout: 15_000 });
   const list = page.locator(`[id="${await settings.getAttribute('aria-controls')}"]`);
   await expect(list.getByRole('link')).toHaveText([
-    'Объект',
-    'Каналы продаж',
-    'Подключения',
-    'Неисправности',
-    'История действий',
+    // меню «Настройки» одно у всех направлений (31.10.2026)
     'Все настройки',
+    'История действий',
     // «Все бизнесы» владельцу (30.10.2026)
     'Все бизнесы',
   ]);
   // щелчок мышью по открытому наведением разделу список не закрывает
   await settings.click();
   await expect(list).toBeVisible();
-  await list.getByRole('link', { name: 'Подключения', exact: true }).click();
-  await expect(page).toHaveURL(/\/connections$/);
+  await list.getByRole('link', { name: 'Все настройки', exact: true }).click();
+  await expect(page).toHaveURL(/\/settings$/);
   await expect(list).toBeHidden();
   await expect(nav.locator('.tabnav__tab.is-current')).toHaveText('Настройки');
-  await expect(nav.locator('.tabnav__link[aria-current="page"]')).toHaveText('Подключения');
+  await expect(nav.locator('.tabnav__link[aria-current="page"]')).toHaveText('Все настройки');
   // прямой раздел ведёт сразу на страницу
   await nav.getByRole('link', { name: 'Журнал', exact: true }).click();
   await expect(page).toHaveURL(/\/chessboard$/);

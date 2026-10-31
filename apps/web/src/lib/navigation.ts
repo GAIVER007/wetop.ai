@@ -744,10 +744,10 @@ const ROW: Array<{
       // ресторана; «Финансы» каждого направления; у гостиницы касса внутри её «Финансов»
       // порядок у всех одинаков (20.10.2026): обзор первым, рабочий экран кассы, отчёты последними
       { label: 'Обзор финансов', at: { HOSPITALITY: '/finance', BEAUTY: '/finance', FOOD_SERVICE: '/restaurant-finance' } },
-      { label: 'Касса', at: { BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
+      // 31.10.2026: у всех «Обзор финансов» и «Касса»; у гостиницы касса вкладкой своих «Финансов», «Отчёты» в «Статистике»
+      { label: 'Касса', at: { HOSPITALITY: '/cashbox', BEAUTY: '/cashbox', FOOD_SERVICE: '/cashbox' } },
       // подарочные сертификаты салона (решение 21.10.2026 §3)
       { label: 'Сертификаты', at: { BEAUTY: '/finance/certificates' } },
-      { label: 'Отчёты', at: { HOSPITALITY: '/reports/finance' } },
     ],
   },
   {
@@ -755,21 +755,17 @@ const ROW: Array<{
     label: 'Настройки',
     icon: 'settings',
     items: [
-      { label: { word: 'place' }, at: { HOSPITALITY: '/hotel-settings', FOOD_SERVICE: '/restaurant-settings' } },
-      { label: 'Каналы продаж', at: { HOSPITALITY: '/channels' } },
-      { label: 'Подключения', at: { HOSPITALITY: '/connections' } },
-      // право `desk`: администратор видит неисправности (ADR-107)
-      { label: 'Неисправности', at: { HOSPITALITY: '/incidents' } },
-      { label: 'История действий', at: ALL('/journal') },
-      // хаб со всеми настройками направления карточками (21.10.2026): последним рабочим пунктом, порядок прочих прежний
+      // владелец 31.10.2026: «наведи порядок для всех вертикалей»: в меню у всех одно и то же, «Все настройки» первым,
+      // объект, каналы, подключения и неисправности гостиницы живут карточками в «Всех настройках» (settings-hub.ts)
       { label: 'Все настройки', at: ALL('/settings') },
+      { label: 'История действий', at: ALL('/journal') },
       // «Кабинет WETOP» и «Организации» только главному администратору (отметка `platform`)
       // «Все бизнесы» владельцу (30.10.2026): все свои бизнесы и филиалы
       { label: 'Все бизнесы', at: ALL('/owner') },
       { label: 'Кабинет WETOP', at: ALL('/platform/cabinet') },
       { label: 'Организации', at: ALL('/platform') },
     ],
-    match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/branch-payment-methods', '/connections', '/channel-manager', '/platform', '/owner'],
+    match: ['/settings', '/branches', '/beauty-settings', '/hotel-settings', '/restaurant-settings', '/channels', '/incidents', '/branch-payment-methods', '/connections', '/channel-manager', '/platform', '/owner'],
   },
   {
     // «Продвижение» (ADR-184): бывшие «Маркетинг» и «Продажи»
@@ -877,7 +873,7 @@ export function helpSteps(
     if (!section) return [];
     if (section.direct) return [{ path: t(section.label), href: section.items[0]!.href, text: step.text(words) }];
     // слово пункта своё у направления (`vertical-copy.ts`), как в меню этого направления
-    const item = section.items.find((i) => i.label === (vertical === 'BEAUTY' && step.section === 'settings' ? 'Все настройки' : wordOf(step.item, vertical)));
+    const item = section.items.find((i) => i.label === (step.section === 'settings' ? 'Все настройки' : wordOf(step.item, vertical)));
     return item ? [{ path: `${t(section.label)} → ${t(item.label)}`, href: item.href, text: step.text(words) }] : [];
   });
 }
@@ -1108,6 +1104,7 @@ function normalizeBeautyAccess(raw: unknown): BeautyPositionAccess | undefined {
  * Какой пункт меню подсвечен на этом адресе: вкладки модулей не пункты меню, активен их корень
  * («Настройки объекта» ADR-115, «Номерной фонд» ADR-108, «Каналы продаж» ADR-112, «Сайт и SEO» MKT2)
  */
+const SETTINGS_SCREENS = ['/hotel-settings', '/restaurant-settings', '/beauty-settings', '/channels', '/channel-manager', '/connections', '/incidents', '/branch-payment-methods'];
 export function activeMenuRoute(path: string): string | undefined {
   const route = activeNavigation(path)?.href;
   if (!route) return undefined;
@@ -1116,9 +1113,9 @@ export function activeMenuRoute(path: string): string | undefined {
   // склад вариант C (31.10.2026): поставщики во вкладке «Закупок», номенклатура и меню бара во вкладке «Бара»
   if (route === '/bar/suppliers') return '/bar/receipts';
   if (route === '/bar/products' || route === '/bar/menu') return '/bar';
-  if (route.startsWith('/hotel-settings')) return '/hotel-settings';
   if (route.startsWith('/rooms')) return '/inventory';
-  if (route.startsWith('/channels')) return '/channels';
+  // меню «Настройки» одно у всех (31.10.2026): экраны из «Всех настроек» подсвечивают «Все настройки»
+  if (SETTINGS_SCREENS.some((h) => route === h || route.startsWith(`${h}/`))) return '/settings';
   // сайт объекта, продукт «Маркетинга»: в меню один пункт «Сайт и SEO» (MKT2)
   if (route === '/website') return '/marketing';
   // «Аналитика маркетинга» вкладка «Бюджета и аналитики» (20.10.2026): пункт меню один

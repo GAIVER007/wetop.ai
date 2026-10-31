@@ -1156,11 +1156,12 @@ test('навигация ресторана: пункты макета на ме
 }) => {
   await seed(page, request);
   await page.goto('/today');
-  // левая навигация (ADR-161): пункты закрытой панели лежат в разметке скрытыми
+  // левая навигация (ADR-161): пункты закрытой панели лежат в разметке скрытыми;
+  // «Настройки» одно у всех (31.10.2026): настройки ресторана карточкой во «Всех настройках»
   const hrefs = await page
     .locator('.sidenav a')
     .evaluateAll((items) => items.map((item) => item.getAttribute('href')));
-  for (const path of ['/orders', '/kitchen', '/drinks', '/menu', '/customers', '/employees', '/payroll', '/restaurant-finance', '/restaurant-settings'])
+  for (const path of ['/orders', '/kitchen', '/drinks', '/menu', '/customers', '/employees', '/payroll', '/restaurant-finance', '/settings'])
     expect(hrefs, path).toContain(path);
 });
 

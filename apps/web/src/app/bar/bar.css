@@ -1544,18 +1544,19 @@
 
 @layer sections {
   /* вкладки склада «стекло» (вариант C владельца 31.10.2026): пять разделов, ниже вкладки раздела; на всех ширинах */
+  /* разделы и подвкладки одной строкой: обзор бара по-прежнему влезает в экран 1440×900 (владелец 25.10.2026) */
   .stock-tabs {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-2);
-    margin-bottom: var(--space-4);
+    margin-bottom: 0;
   }
   .stock-tabs > .glass-tabs {
     display: inline-flex;
     flex-wrap: wrap;
     gap: var(--space-1);
-    padding: var(--space-1);
+    padding: calc(var(--space-1) / 2);
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-control);
     background: var(--surface-muted);
@@ -1563,7 +1564,7 @@
   .stock-tabs > .glass-tabs > a {
     display: inline-flex;
     align-items: center;
-    min-height: var(--control-h);
+    min-height: var(--control-h-sm);
     padding: 0 var(--space-4);
     border: 1px solid transparent;
     border-radius: var(--radius-sm);

@@ -19,6 +19,7 @@ export const restaurantOps: Record<string, string> = {
   'По системе': 'Per system',
   'Разница': 'Difference',
   'Остатки по способам оплаты': 'Balances by payment method',
+  'Действия кассы': 'Cash desk actions',
   'Операция кассы': 'Cash desk transaction',
   'Вид операции': 'Transaction type',
   'Пересчитайте деньги одного способа: WETOP покажет разницу с остатком.': 'Count the money for one method: WETOP will show the difference from the balance.',

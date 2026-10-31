@@ -59,6 +59,14 @@ test('30 дней: день не уже 72 px, сетка прокручивае
   await page.goto('/chessboard');
   // 30 дней выбираются в едином контроле периода.
   await chooseBoardPeriod(page, '30 дней');
+  // 1-го числа 30-дневного месяца «30 дней» совпадают с календарным месяцем, и шахматка верно показывает месяц,
+  // вписанный в окно (гейт main 1.11.2026). Тогда тот же отрезок со сдвигом на день: 30 дней, но не месяц.
+  const url = new URL(page.url());
+  const from = url.searchParams.get('from');
+  if (from && from.endsWith('-01')) {
+    const shift = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+    await page.goto(`/chessboard?from=${shift(from, 1)}&to=${shift(from, 30)}`);
+  }
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   const width = await page
     .getByTestId('date-col')

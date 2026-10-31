@@ -159,15 +159,20 @@ for (const width of [1440, 390]) {
       await expect(method).toHaveValue('CASH');
       await method.selectOption('');
       await page.getByRole('button', { name: 'Показать', exact: true }).click();
+      // переход формы дожидаемся целиком: «Назад» во время незавершённой навигации рвал вкладку на раннере
+      // («Not attached to an active page», #999 и #1001 31.10.2026)
+      await expect(page).toHaveURL(/[?&]method=(?:&|#|$)/);
+      await page.waitForLoadState('load');
+      await expect(method).toHaveValue('');
       const q = new URL(page.url()).searchParams;
       expect(q.get('method')).toBe('');
       expect(q.get('op')).toBe('refund');
       expect(q.get('src')).toBe('cash');
       expect(q.get('from')).toBe('2026-10-05');
       expect(q.get('to')).toBe('2026-10-05');
-      await page.goBack();
+      await page.goBack({ waitUntil: 'load' });
       await expect(method).toHaveValue('CASH');
-      await page.goForward();
+      await page.goForward({ waitUntil: 'load' });
       await expect(method).toHaveValue('');
     });
 

@@ -77,6 +77,11 @@
   gap: var(--space-4);
   align-items: start;
 }
+.owner__charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-16) * 3)), 1fr));
+  gap: var(--space-4);
+}
 .owner__chart-block h3 {
   margin: 0;
   font-size: var(--text-xs);
@@ -130,6 +135,9 @@
   }
 }
 @media (max-width: 600px) {
+  .owner__charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .owner__total dl {
     grid-template-columns: minmax(0, 1fr);
   }

@@ -2827,3 +2827,8 @@
 .beauty-tag { flex: none; align-self: center; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); font-size: var(--text-xs); font-weight: 600; white-space: nowrap; }
 .beauty-tag--unpaid { background: var(--warning-soft); color: var(--warning); }
 .beauty-tag--debt { background: var(--danger-soft); color: var(--danger); }
+
+/* Карточка записи: «Позвонить» и WhatsApp круглыми кнопками, как у брони гостиницы (30.10.2026) */
+.appointment-card-contacts { display: inline-flex; gap: var(--space-1); }
+.appointment-card-round { display: inline-grid; place-items: center; inline-size: var(--control-h-sm); block-size: var(--control-h-sm); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); background: var(--surface); }
+.appointment-card-round:hover { background: var(--surface-muted); }

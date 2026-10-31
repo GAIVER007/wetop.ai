@@ -930,4 +930,6 @@ export const platformOrg: Record<string, string> = {
   "Новые гости": "New guests",
   "Загрузка": "Occupancy",
   "загрузка {percent}%": "occupancy {percent}%",
+  "Позвонить клиенту": "Call the client",
+  "Написать клиенту в WhatsApp": "Message the client on WhatsApp",
 };

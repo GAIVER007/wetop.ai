@@ -11,10 +11,13 @@ export interface RnpSource {
   /** Отправленные формы регистрации: день и посетитель */
   leads: Array<{ day: string; visitorKey: string }>;
   organizations: Array<{ id: string; createdAt: Date }>;
-  payments: Array<{ organizationId: string; amountCents: bigint; paidOn: string; voided: boolean }>;
+  /** `kind`: `PLAN` тариф, `ADDON` доп; без отметки тариф (DATA_MODEL §63.3) */
+  payments: Array<{ organizationId: string; amountCents: bigint; paidOn: string; voided: boolean; kind?: 'PLAN' | 'ADDON' }>;
   expenses: Array<{ amountCents: bigint; spentOn: string; voided: boolean; partnerId: string | null }>;
   partners: Array<{ id: string; name: string; percentBp: number; active: boolean }>;
   links: Array<{ organizationId: string; partnerId: string }>;
+  /** Разовая выплата партнёру за тариф клиента (`partner_payout_cents` тарифа подписки); нет строки: 0 */
+  planPayouts?: Array<{ organizationId: string; payoutCents: bigint }>;
 }
 
 export interface RnpDay {
@@ -92,6 +95,28 @@ export function buildRnp(src: RnpSource, month: string): RnpView {
   const t = row(null);
   const spentTotal = BigInt(t.expensesCents);
 
+  // начислено партнёру (владелец 30.10.2026, DATA_MODEL §63.3): за тариф разово в день первого неотменённого чека
+  // тарифа, с допа процент только с первого неотменённого чека допа; повторные чеки ничего не дают
+  const payout = new Map((src.planPayouts ?? []).map((x) => [x.organizationId, x.payoutCents]));
+  const firstOf = (kind: 'PLAN' | 'ADDON') => {
+    const out = new Map<string, { paidOn: string; amountCents: bigint }>();
+    for (const x of [...paid].sort((a, b) => a.paidOn.localeCompare(b.paidOn)))
+      if ((x.kind ?? 'PLAN') === kind && !out.has(x.organizationId)) out.set(x.organizationId, x);
+    return out;
+  };
+  const firstPlan = firstOf('PLAN');
+  const firstAddon = firstOf('ADDON');
+  const accruedIn = (orgs: Set<string>, percentBp: number) => {
+    let n = 0n;
+    for (const id of orgs) {
+      const plan = firstPlan.get(id);
+      if (plan && inMonth(plan.paidOn)) n += payout.get(id) ?? 0n;
+      const addon = firstAddon.get(id);
+      if (addon && inMonth(addon.paidOn)) n += (addon.amountCents * BigInt(percentBp)) / 10000n;
+    }
+    return n;
+  };
+
   // партнёры: клиенты по отметке, деньги их клиентов за месяц и за всё время, выплаты партнёру за месяц
   const rows = src.partners.map((p): RnpPartnerRow => {
     const orgs = new Set(src.links.filter((l) => l.partnerId === p.id).map((l) => l.organizationId));
@@ -105,7 +130,7 @@ export function buildRnp(src: RnpSource, month: string): RnpView {
       registrations: [...orgs].filter((id) => inMonth(regDay.get(id) ?? '')).length,
       firstPayments: [...orgs].filter((id) => inMonth(first.get(id) ?? '')).length,
       broughtCents: String(brought),
-      accruedCents: String((brought * BigInt(p.percentBp)) / 10000n),
+      accruedCents: String(accruedIn(orgs, p.percentBp)),
       paidCents: String(sum(spent.filter((e) => e.partnerId === p.id && inMonth(e.spentOn)).map((e) => e.amountCents))),
       broughtAllTimeCents: String(sum(theirs.map((x) => x.amountCents))),
     };

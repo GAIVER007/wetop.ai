@@ -17,7 +17,13 @@ export interface CabinetSource {
     verticals: BusinessVertical[];
     locations: number;
     members: Array<{ email: string; owner: boolean; lastLoginAt: Date | null }>;
+    /** Город первого объекта клиента (реквизиты), если указан */
+    city?: string | null;
   }>;
+  /** Подписка клиента: название тарифа и «оплачено до» (следующий платёж) */
+  subscriptions?: Array<{ organizationId: string; planName: string | null; paidUntil: string | null }>;
+  /** Чей клиент: имя партнёра */
+  partners?: Array<{ organizationId: string; partnerName: string }>;
   /** Броней, записей и броней столов, внесённых за 30 дней, по организации */
   records30d: Array<{ organizationId: string; count: number }>;
   /** Своя организация главного администратора: она не клиент и в кабинет не попадает */
@@ -37,6 +43,10 @@ export interface CabinetClient {
   records30d: number;
   /** Пробный период: сколько дней осталось (0, если кончился); у остальных null */
   trialDaysLeft: number | null;
+  city: string | null;
+  plan: string | null;
+  nextPaymentOn: string | null;
+  partner: string | null;
 }
 
 export interface CabinetView {
@@ -66,6 +76,8 @@ export function buildCabinet(src: CabinetSource, now: Date): CabinetView {
       null,
     );
   const live = orgs.filter((o) => o.status !== 'SUSPENDED');
+  const subs = new Map((src.subscriptions ?? []).map((s) => [s.organizationId, s]));
+  const partners = new Map((src.partners ?? []).map((p) => [p.organizationId, p.partnerName]));
 
   const clients: CabinetClient[] = live
     .map((o) => {
@@ -82,6 +94,10 @@ export function buildCabinet(src: CabinetSource, now: Date): CabinetView {
         lastLoginAt: last?.toISOString() ?? null,
         records30d: records.get(o.id) ?? 0,
         trialDaysLeft: o.status === 'TRIAL' ? trialDaysLeft(o.trialEndsAt, now) : null,
+        city: o.city ?? null,
+        plan: subs.get(o.id)?.planName ?? null,
+        nextPaymentOn: subs.get(o.id)?.paidUntil ?? null,
+        partner: partners.get(o.id) ?? null,
       };
     })
     // кто работает, выше: свежий вход первым, без входов в конце

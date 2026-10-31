@@ -82,7 +82,7 @@ export class PrismaGrowthRepository implements GrowthRepository {
       ownOrganizationId: viewerExclusion(company, own),
       organizations,
       registrations: users.filter((u) => u.memberships.length === 0 || u.memberships.some((m) => m.role === 'OWNER')).map((u) => u.createdAt),
-      payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn)!, voided: p.voidedAt !== null })),
+      payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn)!, voided: p.voidedAt !== null, kind: p.kind === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const) })),
       subscriptions: subscriptions.map((s) => ({ organizationId: s.organizationId, monthlyCents: s.monthlyCents, paidUntil: day(s.paidUntil) })),
       activity: activity.map((r) => ({ organizationId: r.organization_id, day: r.day })),
       statusChanges: statusLog.flatMap((r) => {
@@ -176,16 +176,18 @@ export async function rnpSource(db: PrismaService['db'], hosts: readonly string[
     tableExists(db, 'platform_expenses'),
     tableExists(db, 'platform_partners'),
   ]);
-  const [orgs, company, payments, spent, partners, links, sites] = await Promise.all([
+  const [orgs, company, payments, spent, partners, links, sites, subs] = await Promise.all([
     db.organization.findMany({ select: { id: true, createdAt: true } }),
     companyOrganizationIds(db),
-    money ? db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, paidOn: true, voidedAt: true } }) : Promise.resolve([]),
+    money ? db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, paidOn: true, voidedAt: true, kind: true } }) : Promise.resolve([]),
     expenses
       ? db.platformExpense.findMany({ where: { spentOn: { gte: from, lt: to } }, select: { amountCents: true, spentOn: true, voidedAt: true, partnerId: true } })
       : Promise.resolve([]),
     partnersOn ? db.platformPartner.findMany({ orderBy: { createdAt: 'asc' }, select: { id: true, name: true, percentBp: true, active: true } }) : Promise.resolve([]),
     partnersOn ? db.platformClientPartner.findMany({ select: { organizationId: true, partnerId: true } }) : Promise.resolve([]),
     db.trackedSite.findMany({ where: { hosts: { hasSome: [...hosts] } }, select: { id: true } }),
+    // тариф подписки клиента: разовая выплата партнёру за первый чек (DATA_MODEL §63.3)
+    partnersOn ? db.platformSubscription.findMany({ select: { organizationId: true, plan: { select: { partnerPayoutCents: true } } } }) : Promise.resolve([]),
   ]);
   const siteIds = sites.map((x) => x.id);
   const [sessions, sent] = siteIds.length
@@ -207,6 +209,7 @@ export async function rnpSource(db: PrismaService['db'], hosts: readonly string[
     expenses: spent.map((e) => ({ amountCents: e.amountCents, spentOn: day(e.spentOn)!, voided: e.voidedAt !== null, partnerId: e.partnerId })),
     partners,
     links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId }] : [])),
+    planPayouts: subs.flatMap((x) => (x.plan?.partnerPayoutCents != null ? [{ organizationId: x.organizationId, payoutCents: x.plan.partnerPayoutCents }] : [])),
   };
 }
 

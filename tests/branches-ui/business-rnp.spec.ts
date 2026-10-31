@@ -23,9 +23,11 @@ test('РНП салона: дни месяца, сегодняшняя выру�
   await page.goto('/rnp');
   const rnp = page.getByTestId('business-rnp');
   await expect(rnp).toBeVisible();
-  const day = Number(new Date().toISOString().slice(8, 10));
-  // строк не меньше, чем прошло дней по UTC минус один (часовой пояс филиала может отставать на сутки)
-  expect(await rnp.getByTestId('rnp-day').count()).toBeGreaterThanOrEqual(Math.max(1, day - 1));
+  // дни месяца по поясу филиала (Алматы, UTC+5): вечером последнего дня месяца по UTC там уже новый месяц
+  const local = new Date(Date.now() + 5 * 3600_000).toISOString();
+  const utc = new Date().toISOString();
+  const day = local.slice(0, 7) === utc.slice(0, 7) ? Number(utc.slice(8, 10)) - 1 : Number(local.slice(8, 10));
+  expect(await rnp.getByTestId('rnp-day').count()).toBeGreaterThanOrEqual(Math.max(1, day));
   await expect(rnp.getByTestId('rnp-revenue')).toContainText('12 000');
   await expect(rnp.getByTestId('rnp-total')).toContainText('12 000');
   await expect(rnp.locator('thead')).toContainText('Новые записи');

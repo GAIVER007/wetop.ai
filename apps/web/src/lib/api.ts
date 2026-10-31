@@ -384,6 +384,10 @@ export interface ChessboardCell {
   source?: string;
   channel?: string | null;
   balanceMinor?: string;
+  /** «Быстрый отчёт» как у салона (31.10.2026): начислено, оплачено наличными и безналом */
+  totalMinor?: string;
+  paidCashMinor?: string;
+  paidNonCashMinor?: string;
   blockType?: string;
   /** причина блокировки («ремонт: кондиционер») — показывается подсказкой на клетке */
   blockReason?: string | null;

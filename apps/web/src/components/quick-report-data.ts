@@ -15,7 +15,18 @@ export interface QuickReportData {
   statuses: Array<{ key: string; label: string; count: number; tone: string }>;
   money: Array<{ label: string; values: Record<string, string>; hint: string }>;
   note: string;
-  reference?: { totalPrices: Record<string, string>; statuses: QuickReportData['statuses'] };
+  reference?: {
+    totalPrices: Record<string, string>;
+    statuses: QuickReportData['statuses'];
+    /** гостиница (31.10.2026): та же карточка, свои подписи и цветные точки статусов вместо значков салона */
+    statusTitle?: string;
+    dots?: boolean;
+    totalLabel?: string;
+    revenue?: Record<string, string>;
+    average?: Record<string, string>;
+    /** блок «Лояльность и WETOP»: у салона да, у гостиницы нет */
+    loyalty?: boolean;
+  };
 }
 
 function statuses(registry: Record<string, StatusPresentation>, counts: Record<string, number>) {
@@ -232,6 +243,9 @@ type HotelCell = {
   isArrival?: boolean;
   isLastNight?: boolean;
   balanceMinor?: string;
+  totalMinor?: string;
+  paidCashMinor?: string;
+  paidNonCashMinor?: string;
 };
 
 /**
@@ -243,7 +257,7 @@ export function hotelQuickReport(
   rows: Array<{ cells: HotelCell[] }>,
   period: { from: string; to: string; currency: string },
 ): QuickReportData {
-  const stays = new Map<string, { status: string; arrival: boolean; leaving: boolean; balance: string; guest: string }>();
+  const stays = new Map<string, { status: string; arrival: boolean; leaving: boolean; balance: string; guest: string; total?: string; cash?: string; nonCash?: string }>();
   for (const row of rows)
     for (const cell of row.cells) {
       if (cell.date < period.from || cell.date > period.to || cell.state !== 'OCCUPIED' || !cell.itemId) continue;
@@ -254,31 +268,55 @@ export function hotelQuickReport(
         leaving: (seen?.leaving ?? false) || !!cell.isLastNight,
         balance: cell.balanceMinor && /^\d+$/.test(cell.balanceMinor) ? cell.balanceMinor : (seen?.balance ?? '0'),
         guest: cell.guestLabel ?? seen?.guest ?? '',
+        ...(cell.totalMinor !== undefined ? { total: cell.totalMinor } : seen?.total !== undefined ? { total: seen.total } : {}),
+        ...(cell.paidCashMinor !== undefined ? { cash: cell.paidCashMinor } : seen?.cash !== undefined ? { cash: seen.cash } : {}),
+        ...(cell.paidNonCashMinor !== undefined ? { nonCash: cell.paidNonCashMinor } : seen?.nonCash !== undefined ? { nonCash: seen.nonCash } : {}),
       });
     }
   const counts: Record<string, number> = {};
-  let arrivals = 0;
-  let departures = 0;
   let debt = 0n;
-  for (const stay of stays.values()) {
+  const list = [...stays.values()];
+  for (const stay of list) {
     counts[stay.status] = (counts[stay.status] ?? 0) + 1;
-    if (stay.arrival) arrivals += 1;
-    if (stay.leaving) departures += 1;
     debt += BigInt(stay.balance);
   }
+  // владелец 31.10.2026: «сделай как под салоны», статусы оставить; деньги по счёту брони (начислено, оплачено)
+  const cur = period.currency;
+  const sum = (pick: (s: (typeof list)[number]) => string | undefined) => {
+    const known = list.map(pick).filter((v): v is string => v !== undefined && /^\d+$/.test(v));
+    return known.length ? { [cur]: known.reduce((a, v) => a + BigInt(v), 0n).toString() } : {};
+  };
+  const cash = sum((s) => s.cash);
+  const nonCash = sum((s) => s.nonCash);
+  const paid = cash[cur] !== undefined || nonCash[cur] !== undefined
+    ? { [cur]: (BigInt(cash[cur] ?? '0') + BigInt(nonCash[cur] ?? '0')).toString() }
+    : {};
+  const totals = sum((s) => s.total);
+  // средний чек: сумма броней / число броней, вниз до тиына
+  const average = totals[cur] !== undefined && list.length ? { [cur]: (BigInt(totals[cur]) / BigInt(list.length)).toString() } : {};
+  const hint = msg('Оплаты броней, которые живут в выбранные дни, за всё время. Безнал включает карту, переводы, Kaspi и Halyk.');
+  const statusList = statuses(hospitalityStatus, counts);
   return {
     total: stays.size,
-    clients: new Set([...stays.values()].map((s) => s.guest).filter(Boolean)).size,
+    clients: new Set(list.map((s) => s.guest).filter(Boolean)).size,
     itemLabel: msg('Броней'),
-    counts: [
-      { label: msg('Заездов'), value: arrivals },
-      { label: msg('Выездов'), value: departures },
-    ],
-    statuses: statuses(hospitalityStatus, counts),
+    statuses: statusList,
+    reference: {
+      statusTitle: msg('Статусы'),
+      dots: true,
+      statuses: statusList,
+      totalLabel: msg('Сумма броней'),
+      totalPrices: totals,
+      revenue: paid,
+      average,
+      loyalty: false,
+    },
     money: [
+      { label: msg('Оплата наличными'), values: cash, hint },
+      { label: msg('Оплата безналом'), values: nonCash, hint },
       {
         label: msg('Не оплачено по броням'),
-        values: debt > 0n ? { [period.currency]: debt.toString() } : {},
+        values: debt > 0n ? { [cur]: debt.toString() } : {},
         hint: msg('Остаток к оплате по броням, которые живут в выбранные дни, как плашка суммы на календаре.'),
       },
     ],

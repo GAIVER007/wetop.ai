@@ -31,6 +31,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /reservation-history/:number': 'desk',
   // единая Главная «B» ресторана и гостиницы (владелец 30.10.2026)
   'GET /owner-home': 'reports',
+  // РНП бизнеса клиента по дням (владелец 30.10.2026)
+  'GET /business-rnp': 'reports',
   'GET /expenses': 'reports',
   'POST /expenses': 'settings',
   'POST /expenses/:id/settlements': 'settings',

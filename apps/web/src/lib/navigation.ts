@@ -276,6 +276,14 @@ export const navigation: Array<{ label: string; items: NavigationItem[] }> = [
         description: 'Загрузка, выручка, брони, отмены и категории за период со сравнением.',
       },
       {
+        // РНП бизнеса по дням (владелец 30.10.2026: «рнп должна быть у клиентов тоже и заполняться каждый день»)
+        href: '/rnp',
+        requires: 'reports',
+        label: 'РНП',
+        icon: 'chart',
+        description: 'Рука на пульсе: каждый день месяца строкой, сайт, брони, приходы, деньги и расходы.',
+      },
+      {
         href: '/finance',
         requires: 'reports',
         label: 'Финансы',
@@ -702,10 +710,12 @@ const ROW: Array<{
     icon: 'chart',
     items: [
       { label: 'Аналитика бизнеса', at: ALL('/management/analytics') },
+      // РНП бизнеса по дням (владелец 30.10.2026: «рнп должна быть у клиентов тоже»)
+      { label: 'РНП', at: ALL('/rnp') },
       // Отчёты салона теперь отдельный рабочий экран, не редирект в аналитику.
       { label: 'Все отчёты', at: { HOSPITALITY: '/reports', BEAUTY: '/reports' } },
     ],
-    match: ['/management', '/reports'],
+    match: ['/management', '/reports', '/rnp'],
   },
   {
     id: 'stock',
@@ -916,6 +926,7 @@ const BEAUTY_ROUTES: Array<{ href: string; access: BeautyRouteAccess }> = [
   { href: '/branch-payment-methods', access: { section: 'finance', legacy: 'desk' } },
   { href: '/finance/certificates', access: { section: 'finance', legacy: 'desk' } },
   { href: '/finance', access: { section: 'finance', legacy: 'reports' } },
+  { href: '/rnp', access: { section: 'finance', legacy: 'reports' } },
   { href: '/journal', access: { section: 'settings', legacy: 'journal' } },
   { href: '/warehouse', access: { section: 'stock', legacy: 'reports' } },
   { href: '/bar', access: { section: 'stock', legacy: 'reports' } },
@@ -1025,7 +1036,7 @@ export function routeRule(
  */
 const BEAUTY_NOT_READY = ['/marketing', '/ai-agents', '/sales', '/finance/certificates'];
 /** Выручка салона за период: только владелец и управляющий; администратор работает с кассой, не с итогами */
-const BEAUTY_OWNER_TOTALS = ['/finance', '/management/analytics', '/reports'];
+const BEAUTY_OWNER_TOTALS = ['/finance', '/management/analytics', '/reports', '/rnp'];
 
 /** Видит ли вошедший итоги салона за период (сводка «Главной», финансы, аналитика) */
 export function beautyTotalsVisible(access: NavigationAccess): boolean {

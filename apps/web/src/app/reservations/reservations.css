@@ -312,6 +312,10 @@
     }
   }
   @media (max-width: 600px) {
+    /* «Новая бронь» в строке отбора на телефоне одним значком: подпись не переносит строку (31.10.2026) */
+    .reservations-new__label {
+      display: none;
+    }
     /* 17 px, иначе iOS зумит страницу при фокусе поиска и выбора статуса и не возвращает (DESIGN.md) */
     .reservations-toolbar .inp {
       font-size: var(--text-lg);

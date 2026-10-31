@@ -360,9 +360,9 @@ export default async function ReservationsPage({
                 )}
                 {/* «Новая бронь» в одной строке с отбором, как «Новая запись» салона (31.10.2026) */}
                 {!readOnly && (
-                  <Link href="/reservations/new" className="btn reservations-new">
+                  <Link href="/reservations/new" className="btn reservations-new" aria-label={t('Новая бронь')}>
                     <Icon name="plus" />
-                    {t('Новая бронь')}
+                    <span className="reservations-new__label">{t('Новая бронь')}</span>
                   </Link>
                 )}
               </>

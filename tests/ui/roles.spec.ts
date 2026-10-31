@@ -53,9 +53,9 @@ test('администратор: в меню — работа с гостями
       '/bar/consumables',
       '/bar/receipts',
       '/bar/operations',
+      // «Касса» в «Финансах», отчёты в «Статистике»; «Неисправности» карточкой во «Всех настройках» (31.10.2026)
       '/finance',
-      '/reports/finance',
-      '/incidents',
+      '/cashbox',
       // хаб «Все настройки» (21.10.2026): ему открыт, внутри только его ссылки
       '/settings',
       // «Продвижение»: администратору продавец, конкуренты (право `reports`) и обзор продаж
@@ -239,7 +239,8 @@ test('управляющий: журнал и платформа закрыты;
   await page.goto('/finance');
   await expect.poll(() => menuLinks(page)).toContain('/market');
   const links = await menuLinks(page);
-  for (const href of ['/channels', '/hotel-settings', '/team', '/connections'])
+  // меню «Настройки» одно у всех (31.10.2026): каналы, объект и подключения карточками во «Всех настройках»
+  for (const href of ['/settings', '/team'])
     expect(links).toContain(href);
   expect(links).not.toContain('/platform');
   expect(links).not.toContain('/journal');

@@ -523,8 +523,10 @@ test('неисправности из обновлённого main: приня�
   page,
 }) => {
   await page.goto('/finance');
-  // «Неисправности» лежат в разделе «Настройки» левого меню (ADR-161): панель, затем подраздел
-  await goViaMenu(page, 'Настройки', 'Неисправности');
+  // «Неисправности» карточкой во «Всех настройках» (меню «Настройки» одно у всех, 31.10.2026)
+  await goViaMenu(page, 'Настройки', 'Все настройки');
+  await page.getByRole('main').getByRole('link', { name: /Неисправности/ }).first().click();
+  await expect(page).toHaveURL(/\/incidents/);
   await page.getByTestId('incident-acknowledge').click();
   await expect(page.getByTestId('incident-status')).toHaveText('принято');
   await page.getByTestId('incident-resolve').click();

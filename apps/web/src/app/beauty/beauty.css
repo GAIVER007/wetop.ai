@@ -2830,5 +2830,5 @@
 
 /* Карточка записи: «Позвонить» и WhatsApp круглыми кнопками, как у брони гостиницы (30.10.2026) */
 .appointment-card-contacts { display: inline-flex; gap: var(--space-1); }
-.appointment-card-round { display: inline-grid; place-items: center; inline-size: var(--control-h-sm); block-size: var(--control-h-sm); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); background: var(--surface); }
+.appointment-card-round { display: inline-grid; place-items: center; inline-size: var(--control-h-sm); block-size: var(--control-h-sm); border: 1px solid var(--border); border-radius: var(--radius-control); color: var(--text); background: var(--surface); }
 .appointment-card-round:hover { background: var(--surface-muted); }

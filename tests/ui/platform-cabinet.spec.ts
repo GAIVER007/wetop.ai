@@ -25,7 +25,8 @@ test('главная «B»: 4 цифры, воронка продаж из 6 ш�
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await signIn(page, request, true);
-  // клиент платит: подписка $49 оплачена на месяц вперёд и одна оплата
+  // клиент платит: подписка $49 оплачена на месяц вперёд и одна оплата допа. Оплата тарифа с 01.11.2026 переводит
+  // клиента с пробного в «работает» (#1010); здесь нужен клиент ещё на пробном, «под риском», поэтому оплата допа
   const ahead = new Date(Date.now() + 20 * 86_400_000).toISOString().slice(0, 10);
   const today = new Date().toISOString().slice(0, 10);
   // подставной API пускает в «Платформу» только с сессией: запросы с куками вошедшей страницы
@@ -33,7 +34,7 @@ test('главная «B»: 4 цифры, воронка продаж из 6 ш�
   expect(token).toBeTruthy();
   const asAdmin = { headers: { 'x-wetop-test-client': '1', 'x-wetop-session': token! } };
   expect((await request.put(`${FIXTURE_API}/platform/subscriptions/ui-org-2`, { ...asAdmin, data: { monthly: '49', paidUntil: ahead } })).ok()).toBe(true);
-  expect((await request.post(`${FIXTURE_API}/platform/payments`, { ...asAdmin, data: { organizationId: 'ui-org-2', amount: '49', paidOn: today } })).ok()).toBe(true);
+  expect((await request.post(`${FIXTURE_API}/platform/payments`, { ...asAdmin, data: { organizationId: 'ui-org-2', amount: '49', paidOn: today, kind: 'ADDON' } })).ok()).toBe(true);
   await page.goto('/platform/cabinet');
   const cabinet = page.getByTestId('cabinet');
   await expect(cabinet.getByRole('navigation', { name: 'Кабинет WETOP' })).toBeVisible();

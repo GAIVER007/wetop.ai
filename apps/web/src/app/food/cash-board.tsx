@@ -268,87 +268,93 @@ export function CashBoard({
     <div className="food-workspace" data-testid="cash-board">
       {dialog}
       {error && <Alert>{error}</Alert>}
-      {/* аудит 21.10.2026 п. 26: вместо ряда плиток итог строкой и остатки по способам в таблице */}
-      <dl className="money-summary">
-        <div>
-          <dt>{t('Всего в кассе')}</dt>
-          <dd data-testid="cash-total">{wholeTenge(String(total), cash.currency)}</dd>
+      {/* вариант А (аудит кабинета 31.10.2026): на компьютере всё на одном экране, слева деньги и движение за день,
+          справа приход, расход, перевод и сверка; без права записи движение на всю ширину */}
+      <div className={write ? 'cash-a' : 'cash-a cash-a--read'}>
+        <div className="cash-a__main">
+          {/* аудит 21.10.2026 п. 26: вместо ряда плиток итог строкой и остатки по способам в таблице */}
+          <dl className="money-summary">
+            <div>
+              <dt>{t('Всего в кассе')}</dt>
+              <dd data-testid="cash-total">{wholeTenge(String(total), cash.currency)}</dd>
+            </div>
+          </dl>
+          {shownBalances.length > 0 && (
+            <Table aria-label={t('Остатки по способам оплаты')} data-testid="cash-balances">
+              <thead>
+                <tr>
+                  <th>{t('Способ оплаты')}</th>
+                  <th>{t('Остаток')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shownBalances.map((b) => (
+                  <tr key={b.method}>
+                    <td>{methodName(t, b.method)}</td>
+                    <td data-testid={`cash-${b.method}`}>{wholeTenge(b.balanceMinor, cash.currency)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+          <Tabs
+            label={t('Касса')}
+            panels={[
+              { id: 'operations', label: t('Операции'), content: operations },
+              ...(orders ? [{ id: 'payments', label: t('Оплаты заказов'), content: payments }] : []),
+              { id: 'checks', label: t('Сверки'), content: checks },
+            ]}
+          />
         </div>
-      </dl>
-      {shownBalances.length > 0 && (
-        <Table aria-label={t('Остатки по способам оплаты')} data-testid="cash-balances">
-          <thead>
-            <tr>
-              <th>{t('Способ оплаты')}</th>
-              <th>{t('Остаток')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shownBalances.map((b) => (
-              <tr key={b.method}>
-                <td>{methodName(t, b.method)}</td>
-                <td data-testid={`cash-${b.method}`}>{wholeTenge(b.balanceMinor, cash.currency)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
-      {write && (
-        <div className="rest-cash-forms">
-          <section className="panel food-form" aria-labelledby="cash-op-title">
-            <h2 id="cash-op-title" className="panel__title">{t('Операция кассы')}</h2>
-            <Segmented
-              label={t('Вид операции')}
-              value={kind}
-              options={(Object.keys(KIND_LABEL) as Kind[]).map((k) => ({ value: k, label: t(KIND_LABEL[k]) }))}
-              onChange={setKind}
-            />
-            <div className="food-form-row">
-              <MethodSelect
-                label={kind === 'TRANSFER' ? t('Откуда') : t('Способ')}
-                value={method}
-                onChange={setMethod}
-                methods={kind === 'INCOME' ? accepted : cashMethods}
+        {write && (
+          <aside className="cash-a__side" aria-label={t('Действия кассы')}>
+            <section className="panel food-form" aria-labelledby="cash-op-title">
+              <h2 id="cash-op-title" className="panel__title">{t('Операция кассы')}</h2>
+              <Segmented
+                label={t('Вид операции')}
+                value={kind}
+                options={(Object.keys(KIND_LABEL) as Kind[]).map((k) => ({ value: k, label: t(KIND_LABEL[k]) }))}
+                onChange={setKind}
               />
-              {kind === 'TRANSFER' && <MethodSelect label={t('Куда')} value={methodTo} onChange={setMethodTo} methods={accepted} />}
-              <Field label={t('Сумма, {currency}', { currency: currencySign(cash.currency) })}>
-                <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} />
+              <div className="food-form-row">
+                <MethodSelect
+                  label={kind === 'TRANSFER' ? t('Откуда') : t('Способ')}
+                  value={method}
+                  onChange={setMethod}
+                  methods={kind === 'INCOME' ? accepted : cashMethods}
+                />
+                {kind === 'TRANSFER' && <MethodSelect label={t('Куда')} value={methodTo} onChange={setMethodTo} methods={accepted} />}
+                <Field label={t('Сумма, {currency}', { currency: currencySign(cash.currency) })}>
+                  <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))} />
+                </Field>
+              </div>
+              <Field label={t('Комментарий')}>
+                <Input value={note} onChange={(e) => setNote(e.target.value)} />
               </Field>
-            </div>
-            <Field label={t('Комментарий')}>
-              <Input value={note} onChange={(e) => setNote(e.target.value)} />
-            </Field>
-            <div className="food-actions">
-              <Button disabled={pending} onClick={operation}>
-                {t('Провести')}
-              </Button>
-            </div>
-          </section>
-          <section className="panel food-form" aria-labelledby="cash-check-title">
-            <h2 id="cash-check-title" className="panel__title">{t('Сверка кассы')}</h2>
-            <p className="muted">{t('Пересчитайте деньги одного способа: WETOP покажет разницу с остатком.')}</p>
-            <div className="food-form-row">
-              <MethodSelect label={t('Способ')} value={checkMethod} onChange={setCheckMethod} methods={cashMethods} />
-              <Field label={t('Пересчитано, {currency}', { currency: currencySign(cash.currency) })}>
-                <Input inputMode="numeric" value={counted} onChange={(e) => setCounted(e.target.value.replace(/\D/g, ''))} />
-              </Field>
-            </div>
-            <div className="food-actions">
-              <Button tone="secondary" disabled={pending} onClick={reconcile}>
-                {t('Сверить')}
-              </Button>
-            </div>
-          </section>
-        </div>
-      )}
-      <Tabs
-        label={t('Касса')}
-        panels={[
-          { id: 'operations', label: t('Операции'), content: operations },
-          ...(orders ? [{ id: 'payments', label: t('Оплаты заказов'), content: payments }] : []),
-          { id: 'checks', label: t('Сверки'), content: checks },
-        ]}
-      />
+              <div className="food-actions">
+                <Button disabled={pending} onClick={operation}>
+                  {t('Провести')}
+                </Button>
+              </div>
+            </section>
+            <section className="panel food-form" aria-labelledby="cash-check-title">
+              <h2 id="cash-check-title" className="panel__title">{t('Сверка кассы')}</h2>
+              <p className="muted">{t('Пересчитайте деньги одного способа: WETOP покажет разницу с остатком.')}</p>
+              <div className="food-form-row">
+                <MethodSelect label={t('Способ')} value={checkMethod} onChange={setCheckMethod} methods={cashMethods} />
+                <Field label={t('Пересчитано, {currency}', { currency: currencySign(cash.currency) })}>
+                  <Input inputMode="numeric" value={counted} onChange={(e) => setCounted(e.target.value.replace(/\D/g, ''))} />
+                </Field>
+              </div>
+              <div className="food-actions">
+                <Button tone="secondary" disabled={pending} onClick={reconcile}>
+                  {t('Сверить')}
+                </Button>
+              </div>
+            </section>
+          </aside>
+        )}
+      </div>
     </div>
   );
 }

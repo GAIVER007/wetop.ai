@@ -384,6 +384,10 @@ export interface ChessboardCell {
   source?: string;
   channel?: string | null;
   balanceMinor?: string;
+  /** «Быстрый отчёт» как у салона (31.10.2026): начислено, оплачено наличными и безналом */
+  totalMinor?: string;
+  paidCashMinor?: string;
+  paidNonCashMinor?: string;
   blockType?: string;
   /** причина блокировки («ремонт: кондиционер») — показывается подсказкой на клетке */
   blockReason?: string | null;
@@ -5708,6 +5712,29 @@ export interface OwnerBusinesses {
   }>;
   chart: Array<{ currency: string; revenueMinor: string[] }>;
 }
+/** РНП бизнеса по дням (`GET /business-rnp`, владелец 30.10.2026): деньги минорными единицами строкой */
+export interface BusinessRnpRow {
+  visitors: number;
+  leads: number;
+  bookings: number;
+  visits: number;
+  noShows: number;
+  revenueMinor: string;
+  receiptsMinor: string;
+  expensesMinor: string;
+  profitMinor: string;
+  averageMinor: string | null;
+}
+export interface BusinessRnp {
+  month: string;
+  currency: string;
+  vertical: 'BEAUTY' | 'FOOD_SERVICE' | 'HOSPITALITY';
+  days: Array<BusinessRnpRow & { day: string }>;
+  total: BusinessRnpRow & { visitorToLead: number | null; cameRate: number | null };
+}
+export const businessRnpApi = {
+  read: (month: string) => getJsonPublic<BusinessRnp>(`/business-rnp?${new URLSearchParams({ month })}`),
+};
 export const ownerBusinessesApi = {
   read: (month: string) => getJsonPublic<OwnerBusinesses>(`/owner/businesses?${new URLSearchParams({ month })}`),
 };

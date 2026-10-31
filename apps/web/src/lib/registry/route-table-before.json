@@ -1078,6 +1078,22 @@
     }
   },
   {
+    "route": "/rnp",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/rnp",
+    "rule": {
+      "href": "/rnp",
+      "label": "РНП",
+      "requires": "reports"
+    }
+  },
+  {
     "route": "/rooms",
     "vertical": "HOSPITALITY",
     "features": [

@@ -57,6 +57,23 @@ describe('Касса (аудит 21.10.2026, пп. 20, 26, 27)', () => {
     expect(withOps.match(/−600 ₸/g)).toHaveLength(2);
     expect(withOps).toMatch(/>600 ₸</);
   });
+  it('вариант А (аудит кабинета 31.10.2026): слева итог, остатки и движение денег, справа приход, расход, перевод и сверка', () => {
+    const main = html.slice(html.indexOf('class="cash-a__main"'), html.indexOf('class="cash-a__side"'));
+    const side = html.slice(html.indexOf('class="cash-a__side"'));
+    expect(main).toContain('data-testid="cash-total"');
+    expect(main).toContain('data-testid="cash-balances"');
+    expect(main).toContain('role="tablist"');
+    expect(side).toContain('>Операция кассы</h2>');
+    expect(side).toContain('>Сверка кассы</h2>');
+    expect(side).not.toContain('data-testid="cash-balances"');
+  });
+  it('без права записи нет правой колонки: движение денег на всю ширину', () => {
+    const readOnly = renderToStaticMarkup(
+      createElement(CashBoard, { scopeKey: 'b:l', timezone: 'Asia/Almaty', write: false, refunds: false, cash, orders: false }),
+    );
+    expect(readOnly).toContain('class="cash-a__main"');
+    expect(readOnly).not.toContain('cash-a__side');
+  });
   it('пустая сумма: понятная подсказка «Введите сумму»', () => {
     const source = readFileSync(new URL('./cash-board.tsx', import.meta.url), 'utf8');
     expect(source).toContain("'Введите сумму'");

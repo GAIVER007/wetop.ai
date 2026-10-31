@@ -74,6 +74,10 @@
             "label": "Аналитика бизнеса"
           },
           {
+            "href": "/rnp",
+            "label": "РНП"
+          },
+          {
             "href": "/reports",
             "label": "Все отчёты"
           }
@@ -277,6 +281,10 @@
             "label": "Аналитика бизнеса"
           },
           {
+            "href": "/rnp",
+            "label": "РНП"
+          },
+          {
             "href": "/reports",
             "label": "Все отчёты"
           }
@@ -454,6 +462,10 @@
             "label": "Аналитика бизнеса"
           },
           {
+            "href": "/rnp",
+            "label": "РНП"
+          },
+          {
             "href": "/reports",
             "label": "Все отчёты"
           }
@@ -616,6 +628,10 @@
           {
             "href": "/management/analytics",
             "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/rnp",
+            "label": "РНП"
           },
           {
             "href": "/reports",
@@ -819,6 +835,10 @@
           {
             "href": "/management/analytics",
             "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/rnp",
+            "label": "РНП"
           },
           {
             "href": "/reports",
@@ -1014,6 +1034,10 @@
             "label": "Аналитика бизнеса"
           },
           {
+            "href": "/rnp",
+            "label": "РНП"
+          },
+          {
             "href": "/reports",
             "label": "Все отчёты"
           }
@@ -1161,6 +1185,10 @@
           {
             "href": "/management/analytics",
             "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/rnp",
+            "label": "РНП"
           },
           {
             "href": "/reports",
@@ -1424,6 +1452,10 @@
             "label": "Аналитика бизнеса"
           },
           {
+            "href": "/rnp",
+            "label": "РНП"
+          },
+          {
             "href": "/reports",
             "label": "Все отчёты"
           }
@@ -1615,6 +1647,10 @@
             "label": "Аналитика бизнеса"
           },
           {
+            "href": "/rnp",
+            "label": "РНП"
+          },
+          {
             "href": "/reports",
             "label": "Все отчёты"
           }
@@ -1776,6 +1812,10 @@
           {
             "href": "/management/analytics",
             "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/rnp",
+            "label": "РНП"
           }
         ]
       },
@@ -1979,6 +2019,10 @@
           {
             "href": "/management/analytics",
             "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/rnp",
+            "label": "РНП"
           }
         ]
       },
@@ -2170,6 +2214,10 @@
           {
             "href": "/management/analytics",
             "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/rnp",
+            "label": "РНП"
           }
         ]
       },
@@ -2353,6 +2401,10 @@
           {
             "href": "/management/analytics",
             "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/rnp",
+            "label": "РНП"
           }
         ]
       },
@@ -2560,6 +2612,10 @@
           {
             "href": "/management/analytics",
             "label": "Аналитика бизнеса"
+          },
+          {
+            "href": "/rnp",
+            "label": "РНП"
           }
         ]
       },

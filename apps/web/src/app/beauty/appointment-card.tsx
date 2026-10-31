@@ -26,6 +26,8 @@ import { NO_SHOW_BEFORE_START_MESSAGE, maxRedeem, normalizeCertificateCode } fro
 import { AppointmentMoneyOperation, type PreparedMoneyRequest } from './appointment-money-operation';
 import type { JournalResult } from './journal-actions';
 import { formatPhone } from '../../lib/phone';
+import { Icon } from '../../components/icon';
+import { messengerLinks } from '../../lib/format';
 import { useBranchPaymentMethods } from '../branch-payment-methods/use-branch-methods';
 import { branchMethodsAll, branchMethodsShown } from '../branch-payment-methods/shown';
 import { useLocale, useT } from '../../i18n/locale-provider';
@@ -288,6 +290,33 @@ function AppointmentCardBody({
           <a className="appointment-card-phone" href={`tel:${row.customer.phone}`}>
             {formatPhone(row.customer.phone)}
           </a>
+        )}
+        {/* связь с клиентом одной кнопкой, как у брони гостиницы (единая система, владелец 30.10.2026) */}
+        {row.customer.phone && (
+          <span className="appointment-card-contacts">
+            <a
+              className="appointment-card-round"
+              href={`tel:${row.customer.phone.replace(/[^\d+]/g, '')}`}
+              aria-label={t('Позвонить клиенту')}
+              title={t('Позвонить клиенту')}
+              data-testid="beauty-card-call"
+            >
+              <Icon name="phone" />
+            </a>
+            {messengerLinks(row.customer.phone) && (
+              <a
+                className="appointment-card-round"
+                href={messengerLinks(row.customer.phone)!.whatsapp}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={t('Написать клиенту в WhatsApp')}
+                title={t('Написать клиенту в WhatsApp')}
+                data-testid="beauty-card-whatsapp"
+              >
+                <Icon name="chat" />
+              </a>
+            )}
+          </span>
         )}
         <StatusBadge kind="beauty" value={row.status} data-testid="beauty-card-status" />
       </header>

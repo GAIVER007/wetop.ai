@@ -26,17 +26,21 @@ export async function OnboardingGate() {
       const state = await sharedOnboardingApi.status();
       if (state.completedAt && !state.readiness?.ready)
         return (
-          <div className="alert" role="status">
+          <div className="gate-notice" role="status">
             <p>{t('Настройка салона требует проверки. Рабочее пространство доступно.')}</p>
-            <a href="/register/setup">{t('Проверить услуги, мастеров и график')}</a>
+            <a className="btn btn--secondary btn--sm" href="/register/setup">
+              {t('Проверить услуги, мастеров и график')}
+            </a>
           </div>
         );
     } catch (error) {
       if (!(error instanceof ApiError)) throw error;
       return (
-        <div className="alert" role="status">
+        <div className="gate-notice" role="status">
           <p>{t('Не удалось проверить готовность салона.')}</p>
-          <a href="/register/setup">{t('Повторить проверку')}</a>
+          <a className="btn btn--secondary btn--sm" href="/register/setup">
+            {t('Повторить проверку')}
+          </a>
         </div>
       );
     }

@@ -43,7 +43,7 @@ describe('меню по ролям', () => {
       // «График работы» горничных и ресепшена смотрит смена (право `desk`), как у ресторана (22.10.2026)
       ['staff', ['/staff-schedule']],
       ['clients', ['/guests', '/reservations']],
-      ['stats', ['/management/analytics', '/reports']],
+      ['stats', ['/management/analytics', '/rnp', '/reports']],
       // склад на экранах бара: администратор смотрит, как все отчёты (право `reports`)
       ['stock', ['/warehouse', '/bar', '/bar/consumables', '/bar/receipts', '/bar/operations']],
       ['money', ['/finance', '/reports/finance']],

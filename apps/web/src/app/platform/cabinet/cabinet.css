@@ -294,6 +294,14 @@
     grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
     align-items: end;
   }
+  /* миграция 176: промокод, скидка, автопродление вторым рядом формы подписки */
+  .cabinet__check {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-block-size: var(--control-h);
+    white-space: nowrap;
+  }
   .cabinet__form--wide {
     grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
     align-items: end;

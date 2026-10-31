@@ -27,6 +27,8 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'POST /cash-register/cashiers': 'settings',
   // Owner reporting and existing cash linkage: read reports, mutate only with settings.
   'GET /owner-summary': 'reports',
+  // единая Главная «B» ресторана и гостиницы (владелец 30.10.2026)
+  'GET /owner-home': 'reports',
   // РНП бизнеса клиента по дням (владелец 30.10.2026)
   'GET /business-rnp': 'reports',
   'GET /expenses': 'reports',
@@ -330,6 +332,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'PATCH /food-service/employees/:id': 'staff',
   'PATCH /food-service/employees/:id/personnel-kind': 'staff',
   'GET /food-service/payroll': 'staff',
+  'GET /food-service/payroll/day': 'staff',
   'PUT /food-service/employees/:id/pay-settings': 'staff',
   'POST /food-service/employees/:id/pay-adjustments': 'staff',
   'POST /food-service/employees/:id/payouts': 'staff',

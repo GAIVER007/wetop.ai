@@ -101,6 +101,7 @@ describe('разбор запросов кассы', () => {
   it('выплата: месяц ГГГГ-ММ хранится первым числом', () => {
     expect(parseFoodPayout({ period: '2026-10', method: 'CASH', amount: 30000 })).toEqual({
       period: '2026-10-01',
+      payDate: null,
       method: 'CASH',
       amount: 30000n,
     });

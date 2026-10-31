@@ -21,6 +21,7 @@ import type {
   OrderStatus,
   OrderToken,
   OrderView,
+  PayFrequency,
   PayModel,
 } from '../../lib/food-types';
 
@@ -90,7 +91,14 @@ type StaffCommand =
   | {
       kind: 'pay-settings';
       id: string;
-      body: { model: PayModel; fixedMinor: number; percent: number };
+      body: {
+        model: PayModel;
+        fixedMinor: number;
+        percent: number;
+        payFrequency?: PayFrequency;
+        payWeekday?: number | null;
+        payMethod?: FoodPaymentMethod | null;
+      };
     }
   | {
       kind: 'adjustment';
@@ -100,7 +108,7 @@ type StaffCommand =
   | {
       kind: 'payout';
       id: string;
-      body: { period: string; method: FoodPaymentMethod; amount: number; idempotencyKey: string };
+      body: { period: string; method: FoodPaymentMethod; amount: number; idempotencyKey: string; payDate?: string };
     };
 
 /** §62.3: меню (категории, позиции, техкарты, добавки) у всех трёх направлений, остальное только у ресторана */

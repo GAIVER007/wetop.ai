@@ -21,6 +21,7 @@ import { assertWeekRevision, hoursRevision, hoursRowsRevision } from '../beauty/
 import { StockService } from './stock.service';
 import { branchStaffRevenue } from './staff-revenue';
 import { monthPayrollRows, type MonthPayrollDb } from './month-payroll';
+import { dayPayrollRows } from './day-payroll';
 import { reverseLoyaltyForVoid } from '../beauty/loyalty';
 import { topByStation } from './station-top';
 import { assertShiftOpen } from '../finance/shift-guard';
@@ -1782,14 +1783,15 @@ export class RestaurantService {
     }
     return this.write('staff', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
-      const request = parsed(() => foodObject(raw, ['period', 'method', 'amount', 'idempotencyKey']));
-      const b = parsed(() => parseFoodPayout({period:request.period,method:request.method,amount:request.amount}));
+      const request = parsed(() => foodObject(raw, ['period', 'payDate', 'method', 'amount', 'idempotencyKey']));
+      const b = parsed(() => parseFoodPayout({period:request.period,payDate:request.payDate,method:request.method,amount:request.amount}));
       // §21.7: выплата зарплаты выключенным способом не проводится (раньше суммы: причина отказа в способе)
       await assertBranchMethodsOpen(tx, s.locationId, b.method);
       const enabled = process.env.EXPENSE_LINKS_ENABLED === '1';
       const key = request.idempotencyKey;
       if (enabled && (typeof key !== 'string' || !/^[\x21-\x7e]{1,200}$/.test(key))) throw new BadRequestException('Нужен ключ намерения оплаты');
-      const hash = createHash('sha256').update(JSON.stringify(['PAYROLL_PAYMENT',id,b.period,b.method,b.amount.toString(),s.currency])).digest('hex');
+      // день выплаты входит в отпечаток только если прислан: прежние ключи без него совпадают как раньше
+      const hash = createHash('sha256').update(JSON.stringify(['PAYROLL_PAYMENT',id,b.period,b.method,b.amount.toString(),s.currency,...(b.payDate ? [b.payDate] : [])])).digest('hex');
       // Shared location serialization is acquired by write()/foodTransaction before any effect.
       if (enabled) {
         const old = await tx.$queryRaw<Array<{action:string;normalized_payload_hash:string;result_id:string}>>`SELECT action,normalized_payload_hash,result_id FROM payment_write_intents WHERE location_id=${s.locationId}::uuid AND intent_key=${key as string}`;
@@ -1821,6 +1823,7 @@ export class RestaurantService {
           note: 'Зарплата',
           employeeId: id,
           period: new Date(`${b.period}T00:00:00Z`),
+          payDate: b.payDate ? new Date(`${b.payDate}T00:00:00Z`) : null,
           createdById: currentUserId(),
         },
       });
@@ -1838,6 +1841,7 @@ export class RestaurantService {
         operationId: row.id,
         remainingMinor,
         period: b.period,
+        ...(b.payDate ? { payDate: b.payDate } : {}),
         method: row.method,
         amountMinor: row.amount.toString(),
       });
@@ -2052,6 +2056,9 @@ export class RestaurantService {
           model: setting.model,
           fixedMinor: setting.fixedMinor.toString(),
           percent: setting.percent,
+          payFrequency: setting.payFrequency,
+          payWeekday: setting.payWeekday,
+          payMethod: setting.payMethod,
           salesMinor: sales.toString(),
           perCleaningMinor: perCleaningMinor.toString(),
           cleanings,
@@ -2089,6 +2096,42 @@ export class RestaurantService {
     };
   }
 
+  /** Выплаты по дням (PAYROLL-DAILY-20261030): ничего не хранит, считает день по часам филиала */
+  async payrollDay(query: unknown) {
+    foodMay('staff');
+    const s = await foodScope(this.prisma.db, BRANCH_PAYROLL_VERTICALS);
+    const q = parsed(() => foodObject(query, ['date']));
+    // без даты сегодня по часам филиала: окно закрытия смены спрашивает свой день
+    const day = q.date === undefined ? new Intl.DateTimeFormat('en-CA', { timeZone: s.timezone }).format(new Date()) : dayParam(q.date);
+    const rows = await dayPayrollRows(this.prisma.db, s, day);
+    let accrued = 0n, paid = 0n, remaining = 0n;
+    const out = rows.map((r) => {
+      accrued += r.accruedMinor; paid += r.paidMinor; remaining += r.remainingMinor;
+      return {
+        employeeId: r.e.id,
+        name: r.e.name,
+        status: r.e.status,
+        payFrequency: r.setting.payFrequency,
+        payWeekday: r.setting.payWeekday,
+        payMethod: r.setting.payMethod,
+        salesMinor: r.salesMinor.toString(),
+        clients: r.clients,
+        percent: r.setting.percent,
+        accruedMinor: r.accruedMinor.toString(),
+        paidMinor: r.paidMinor.toString(),
+        remainingMinor: r.remainingMinor.toString(),
+        due: r.due,
+      };
+    });
+    return {
+      date: day,
+      currency: s.currency,
+      payouts: s.vertical !== 'HOSPITALITY',
+      totals: { accruedMinor: accrued.toString(), paidMinor: paid.toString(), remainingMinor: remaining.toString() },
+      rows: out,
+    };
+  }
+
   async setPaySettings(idRaw: string, raw: unknown) {
     return this.write('staff', async (tx, s) => {
       const id = parsed(() => foodId(idRaw));
@@ -2104,6 +2147,7 @@ export class RestaurantService {
           fixedMinor: b.fixedMinor,
           percent: b.percent,
           perCleaningMinor: b.perCleaningMinor ?? 0n,
+          ...(b.payFrequency === undefined ? {} : { payFrequency: b.payFrequency, payWeekday: b.payWeekday ?? null, payMethod: b.payMethod ?? null }),
           currency: s.currency,
           updatedById: currentUserId(),
         },
@@ -2112,6 +2156,8 @@ export class RestaurantService {
           fixedMinor: b.fixedMinor,
           percent: b.percent,
           ...(b.perCleaningMinor === undefined ? {} : { perCleaningMinor: b.perCleaningMinor }),
+          // PAYROLL-DAILY-20261030: старые окна частоту не присылают, она не меняется
+          ...(b.payFrequency === undefined ? {} : { payFrequency: b.payFrequency, payWeekday: b.payWeekday ?? null, payMethod: b.payMethod ?? null }),
           updatedById: currentUserId(),
         },
       });
@@ -2121,9 +2167,11 @@ export class RestaurantService {
         'employee_pay',
         id,
         'food.pay_settings.saved',
-        { model: row.model, fixedMinor: row.fixedMinor.toString(), percent: row.percent, perCleaningMinor: row.perCleaningMinor.toString() },
+        { model: row.model, fixedMinor: row.fixedMinor.toString(), percent: row.percent, perCleaningMinor: row.perCleaningMinor.toString(),
+          payFrequency: row.payFrequency, payWeekday: row.payWeekday, payMethod: row.payMethod },
         old
-          ? { model: old.model, fixedMinor: old.fixedMinor.toString(), percent: old.percent, perCleaningMinor: old.perCleaningMinor.toString() }
+          ? { model: old.model, fixedMinor: old.fixedMinor.toString(), percent: old.percent, perCleaningMinor: old.perCleaningMinor.toString(),
+              payFrequency: old.payFrequency, payWeekday: old.payWeekday, payMethod: old.payMethod }
           : undefined,
       );
       return { ...row, fixedMinor: row.fixedMinor.toString(), perCleaningMinor: row.perCleaningMinor.toString() };

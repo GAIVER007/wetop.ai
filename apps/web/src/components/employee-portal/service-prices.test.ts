@@ -9,6 +9,7 @@ vi.mock('react', async (original) => ({
   useTransition: () => [false, (action: () => void) => action()],
 }));
 vi.mock('../ui', () => ({
+  cx: (...v: unknown[]) => v.filter(Boolean).join(' '),
   Alert: ({ children }: { children: ReactNode }) => createElement('div', { role: 'alert' }, children),
   Badge: ({ children }: { children: ReactNode }) => createElement('span', null, children),
   Button: ({ children, ...props }: { children: ReactNode }) => createElement('button', props, children),

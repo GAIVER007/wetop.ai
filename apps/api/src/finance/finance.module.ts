@@ -15,16 +15,18 @@ import { PaymentRequestsService } from './payment-requests.service';
 import { UnitsModule } from '../units/units.module';
 import { ExpenseDocumentsController } from './expense-documents';
 import { OwnerSummaryController, OwnerSummaryService } from './owner-summary';
+import { OwnerHomeController, OwnerHomeService } from './owner-home';
 import { BusinessRnpController, BusinessRnpService } from './business-rnp';
 
 @Module({
   imports: [UnitsModule],
-  controllers: [CashShiftsController, FinanceController, PaymentRequestsController, OwnerSummaryController, BusinessRnpController, ExpenseDocumentsController],
+  controllers: [CashShiftsController, FinanceController, PaymentRequestsController, OwnerSummaryController, OwnerHomeController, BusinessRnpController, ExpenseDocumentsController],
   providers: [
     PrismaService,
     CashShiftsService,
     FinanceService,
     OwnerSummaryService,
+    OwnerHomeService,
     BusinessRnpService,
     { provide: FINANCE_REPOSITORY, useClass: PrismaFinanceRepository },
     // Запросы оплаты (DATA_MODEL §24, ADR-144)

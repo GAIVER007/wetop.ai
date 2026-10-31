@@ -542,6 +542,40 @@
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: var(--space-4);
   }
+  /* «Касса» вариант А (аудит кабинета 31.10.2026): на компьютере деньги и движение слева, действия справа */
+  .cash-a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .cash-a__main,
+  .cash-a__side {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+  @media (min-width: 961px) {
+    .cash-a:not(.cash-a--read) {
+      grid-template-columns: minmax(0, 1fr) calc(var(--space-16) * 6);
+    }
+    /* правая колонка в один экран: способ и сумма рядом, плотные карточки */
+    .cash-a__side .food-form-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2);
+    }
+    .cash-a__side .panel {
+      padding: var(--space-4);
+      gap: var(--space-2);
+    }
+    .cash-a__side .panel__title {
+      margin: 0;
+    }
+    .cash-a__side .muted {
+      margin: 0;
+      font-size: var(--text-xs);
+    }
+  }
   @media (max-width: 960px) {
     .rest-dash-grid {
       grid-template-columns: 1fr;

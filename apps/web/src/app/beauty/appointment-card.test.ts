@@ -85,3 +85,18 @@ describe('выезд на дом в карточке записи (владел�
     expect(render()).not.toContain('Выезд на дом');
   });
 });
+
+describe('Связь с клиентом из карточки (единая система с гостиницей, владелец 30.10.2026)', () => {
+  it('есть телефон: «Позвонить» и «WhatsApp» одной кнопкой', () => {
+    const html = render({ ...row, customer: { ...row.customer, phone: '+77011234567' } });
+    expect(html).toContain('href="tel:+77011234567"');
+    expect(html).toContain('href="https://wa.me/77011234567"');
+    expect(html).toContain('aria-label="Позвонить клиенту"');
+    expect(html).toContain('aria-label="Написать клиенту в WhatsApp"');
+  });
+  it('без телефона кнопок нет', () => {
+    const html = render();
+    expect(html).not.toContain('wa.me');
+    expect(html).not.toContain('tel:');
+  });
+});

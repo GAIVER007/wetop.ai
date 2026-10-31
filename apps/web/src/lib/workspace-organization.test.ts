@@ -10,7 +10,7 @@ it('organizes the menu by tasks: one row of sections shared by all verticals', (
     ['Персонал', ['/team', '/staff-schedule', '/payroll']],
     ['Клиенты', ['/guests', '/reservations']],
     ['Услуги', ['/inventory']],
-    ['Статистика', ['/management/analytics', '/reports']],
+    ['Статистика', ['/management/analytics', '/rnp', '/reports']],
     // «Бар» (ADR-157) стал разделом «Склад»
     ['Склад', ['/warehouse', '/bar', '/bar/consumables', '/bar/receipts', '/bar/operations']],
     ['Финансы', ['/finance', '/cashbox']],

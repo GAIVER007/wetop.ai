@@ -48,8 +48,10 @@ function ReportRow({
 export function ReferenceReport({ data, scope }: { data: QuickReportData; scope: string[] }) {
   const t = useT();
   const reference = data.reference!;
-  const states = reference.statuses.filter((s) => s.key !== 'NO_SHOW' || s.count > 0);
+  // гостиница (31.10.2026): все статусы календаря, даже нулевые; салон прячет пустые «Не пришли»
+  const states = reference.dots ? reference.statuses : reference.statuses.filter((s) => s.key !== 'NO_SHOW' || s.count > 0);
   const metric = (label: string) => data.money.find((m) => m.label === label);
+  const debt = metric('Не оплачено по броням'); // kk-allow: сверка с подписью показателя из quick-report-data (русский ключ данных)
   const revenue = metric('Сумма завершённых услуг'); // kk-allow: сверка с подписью показателя из quick-report-data (русский ключ данных)
   const average = metric('Средняя стоимость завершённой записи'); // kk-allow: сверка с подписью показателя из quick-report-data (русский ключ данных)
   const refunds = metric('Возвращено по записям'); // kk-allow: сверка с подписью показателя из quick-report-data (русский ключ данных)
@@ -78,15 +80,18 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
               <dd>{data.clients}</dd>
             </div>
             <div>
-              <dt>{t('Записей')}</dt>
+              <dt>{t(data.itemLabel)}</dt>
               <dd>{data.total}</dd>
             </div>
           </dl>
-          <h3>{t('Статус записи:')}</h3>
+          <h3>{reference.statusTitle ? t(reference.statusTitle) : t('Статус записи:')}</h3>
           <dl className="quick-report-statuses">
             {states.map((s) => (
               <div key={s.key}>
                 <dt>
+                  {reference.dots ? (
+                    <i className={`quick-report-dot--${s.tone}`} aria-hidden="true" />
+                  ) : (
                   <span
                     className={`reference-status reference-status--${s.tone}`}
                     aria-hidden="true"
@@ -99,6 +104,7 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
                       <CircleMinus />
                     )}
                   </span>
+                  )}
                   {t(s.label)}
                 </dt>
                 <dd>{s.count}</dd>
@@ -134,13 +140,13 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
           </svg>
           <div>
             <strong>{data.total}</strong>
-            <span>{t('Записей')}</span>
+            <span>{t(data.itemLabel)}</span>
           </div>
         </div>
       </div>
       <dl className="reference-kpis" aria-label={t('Итоги')}>
         <div>
-          <dt>{t('Сумма записей')}</dt>
+          <dt>{reference.totalLabel ? t(reference.totalLabel) : t('Сумма записей')}</dt>
           <dd>
             <Money values={reference.totalPrices} />
           </dd>
@@ -148,13 +154,13 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
         <div>
           <dt>{t('Выручка')}</dt>
           <dd>
-            <Money values={revenue?.values} />
+            <Money values={reference.revenue ?? revenue?.values} />
           </dd>
         </div>
         <div>
           <dt>{t('Средний чек')}</dt>
           <dd>
-            <Money values={average?.values} />
+            <Money values={reference.average ?? average?.values} />
           </dd>
         </div>
       </dl>
@@ -181,8 +187,10 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
               hint={refunds.hint}
             />
           )}
+          {debt && <ReportRow label={debt.label} values={debt.values} hint={debt.hint} />}
         </dl>
       </section>
+      {reference.loyalty !== false && (
       <details className="reference-more">
         <summary>{t('Лояльность и WETOP')}</summary>
       <section className="reference-section" aria-label={t('Лояльность')}>
@@ -211,6 +219,7 @@ export function ReferenceReport({ data, scope }: { data: QuickReportData; scope:
         </dl>
       </section>
       </details>
+      )}
       {data.total === 0 && (
         <p role="status" className="sr-only">
           {t('За выбранный период по этим фильтрам записей нет.')}

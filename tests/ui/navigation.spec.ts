@@ -23,6 +23,8 @@ const routes = [
   '/inventory',
   '/reports',
   '/management/analytics',
+  // РНП бизнеса по дням (владелец 30.10.2026)
+  '/rnp',
   '/bar/receipts',
   '/warehouse',
   '/bar',

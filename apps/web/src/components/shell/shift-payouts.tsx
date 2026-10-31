@@ -58,6 +58,8 @@ export function ShiftPayouts({
   disabled,
   onPaid,
   onLeft,
+  left,
+  setLeft,
 }: {
   scopeKey: string;
   money: (minor: string) => string;
@@ -66,10 +68,15 @@ export function ShiftPayouts({
   onPaid: () => void;
   /** кто сегодня не забрал: строка в окне закрытия */
   onLeft: (rows: Array<{ name: string; amountMinor: string }>) => void;
+  /**
+   * Отметки «Не забрал» живут в шапке кассы: окно закрытия пересоздаётся после каждой выплаты (касса изменилась),
+   * и отметки не должны теряться
+   */
+  left: ReadonlySet<string>;
+  setLeft: (update: (s: ReadonlySet<string>) => ReadonlySet<string>) => void;
 }) {
   const t = useT();
   const [day, setDay] = useState<PayrollDayView | null>(null);
-  const [left, setLeft] = useState<Set<string>>(new Set());
   const [error, setError] = useState('');
   const [pending, start] = useTransition();
   const [keys] = useState(() => new Map<string, string>());

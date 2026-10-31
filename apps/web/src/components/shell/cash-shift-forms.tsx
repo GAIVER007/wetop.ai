@@ -154,6 +154,8 @@ export function CloseShiftForm({
   onExpense,
   scopeKey,
   onPaid,
+  left,
+  setLeft,
 }: {
   cash: CashRegisterView;
   busy: boolean;
@@ -167,6 +169,9 @@ export function CloseShiftForm({
   scopeKey?: string;
   /** выплата прошла: касса перечитывается, «должно быть в кассе» уменьшается */
   onPaid?: () => void;
+  /** отметки «Не забрал» из шапки кассы: переживают пересоздание окна */
+  left?: ReadonlySet<string>;
+  setLeft?: (update: (s: ReadonlySet<string>) => ReadonlySet<string>) => void;
 }) {
   const t = useT();
   const [unpaid, setUnpaid] = useState<Array<{ name: string; amountMinor: string }>>([]);
@@ -213,8 +218,8 @@ export function CloseShiftForm({
       }}
     >
       {/* сначала выплаты мастерам дня: раздела нет, если сегодня никому не платить (владелец 30.10.2026) */}
-      {scopeKey && (
-        <ShiftPayouts scopeKey={scopeKey} money={money} disabled={busy || disabled} onPaid={() => onPaid?.()} onLeft={setUnpaid} />
+      {scopeKey && left && setLeft && (
+        <ShiftPayouts scopeKey={scopeKey} money={money} disabled={busy || disabled} onPaid={() => onPaid?.()} onLeft={setUnpaid} left={left} setLeft={setLeft} />
       )}
       <section className="cash-shift-calc" aria-label={t('Расчёт наличных за смену')}>
         {row(msg('Было на открытии'), opened)}

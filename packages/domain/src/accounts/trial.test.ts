@@ -4,12 +4,12 @@ import { TRIAL_DAYS, canWrite, daysLeft, statusAfterTrial, trialEndsAt, writeBlo
 const t = (iso: string) => new Date(iso);
 
 describe('trialEndsAt', () => {
-  it('семь суток от создания (решение владельца 17.10.2026, ADR-TRIAL-7-DAYS-20261017)', () => {
-    expect(trialEndsAt(t('2026-09-15T12:00:00Z')).toISOString()).toBe('2026-09-22T12:00:00.000Z');
-    expect(TRIAL_DAYS).toBe(7);
+  it('тестовый месяц: 30 суток от создания (владелец 30.10.2026: «тестовый месяц будет, а не 7 дней»)', () => {
+    expect(trialEndsAt(t('2026-09-15T12:00:00Z')).toISOString()).toBe('2026-10-15T12:00:00.000Z');
+    expect(TRIAL_DAYS).toBe(30);
   });
-  it('ровно 7 × 24 часа в UTC: переход через полночь Алматы и конец месяца не сдвигают срок', () => {
-    expect(trialEndsAt(t('2026-10-28T19:30:00Z')).toISOString()).toBe('2026-11-04T19:30:00.000Z');
+  it('ровно 30 × 24 часа в UTC: переход через полночь Алматы и конец месяца не сдвигают срок', () => {
+    expect(trialEndsAt(t('2026-10-28T19:30:00Z')).toISOString()).toBe('2026-11-27T19:30:00.000Z');
   });
 });
 
@@ -20,10 +20,10 @@ describe('daysLeft', () => {
   it('за час до конца показывает один день, а не ноль', () => {
     expect(daysLeft(t('2026-09-22T12:00:00Z'), t('2026-09-22T11:00:00Z'))).toBe(1);
   });
-  it('новый срок: сразу после регистрации семь дней, в момент конца ноль', () => {
+  it('новый срок: сразу после регистрации 30 дней, в момент конца ноль', () => {
     const start = t('2026-10-17T08:00:00Z');
     const end = trialEndsAt(start);
-    expect(daysLeft(end, start)).toBe(7);
+    expect(daysLeft(end, start)).toBe(30);
     expect(daysLeft(end, new Date(end.getTime() - 1))).toBe(1);
     expect(daysLeft(end, end)).toBe(0);
   });

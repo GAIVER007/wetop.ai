@@ -166,7 +166,7 @@ export class HotelReviewsService {
         data: {
           organizationId: row.reservation.property.organizationId,
           userId: null,
-          entityType: 'reservation',
+          entityType: 'Reservation',
           entityId: row.reservationId,
           action: 'hotel.review.submitted',
           after: { stars: review.stars },

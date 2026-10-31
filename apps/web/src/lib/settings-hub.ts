@@ -33,6 +33,8 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     icon: 'settings',
     links: [
       { label: 'Карточка объекта', at: { HOSPITALITY: '/hotel-settings' } },
+      // 31.10.2026: карточка ресторана ушла из меню «Настройки» сюда, как у гостиницы
+      { label: 'Карточка ресторана', at: { FOOD_SERVICE: '/restaurant-settings' } },
       { label: 'Филиалы и реквизиты', at: ALL('/branches') },
       { label: 'Режим работы', at: { HOSPITALITY: '/hotel-settings/stay', BEAUTY: '/beauty-settings?section=hours', FOOD_SERVICE: '/restaurant-settings?section=hours' } },
       { label: 'Сотрудники и доступ', at: ALL('/team') },
@@ -48,7 +50,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
     links: [
       { label: 'Номера', at: { HOSPITALITY: '/inventory' } },
       { label: { word: 'specialists' }, at: { BEAUTY: '/employees', FOOD_SERVICE: '/employees' } },
-      { label: 'График работы', at: { BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
+      { label: 'График работы', at: { HOSPITALITY: '/staff-schedule', BEAUTY: '/beauty/schedule', FOOD_SERVICE: '/employees/shifts' } },
       { label: 'Залы и столы', at: { FOOD_SERVICE: '/dining-areas' } },
       { label: 'Правила бронирования', at: { FOOD_SERVICE: '/restaurant-settings?section=bookings' } },
       { label: { word: 'catalogSettings' }, at: { HOSPITALITY: '/hotel-settings/services', BEAUTY: '/services', FOOD_SERVICE: '/menu' } },

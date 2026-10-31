@@ -148,7 +148,8 @@ test('вложенные разделы: раскрытие, один актив
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Обзор');
   await page.goto('/connections');
   await expect(menuPanel.locator('[aria-current="page"]')).toHaveCount(1);
-  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Подключения');
+  // 31.10.2026: экраны из «Всех настроек» подсвечивают «Все настройки»
+  await expect(menuPanel.locator('[aria-current="page"]')).toHaveText('Все настройки');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Открыть меню' }).click();
   const menu = page.getByRole('dialog', { name: 'Навигация' });
@@ -156,7 +157,8 @@ test('вложенные разделы: раскрытие, один актив
     'aria-expanded',
     'true',
   );
-  await menu.getByRole('link', { name: 'Объект', exact: true }).click();
+  await menu.getByRole('link', { name: 'Все настройки', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Карточка объекта', exact: true }).click();
   await page
     .getByRole('navigation', { name: 'Настройки объекта' })
     .getByRole('link', { name: 'Услуги', exact: true })

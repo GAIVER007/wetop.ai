@@ -86,7 +86,8 @@ export const CAPABILITIES: readonly Capability[] = [
   // ── деньги филиала ────────────────────────────────────────────────────
   cap('finance', ['/finance'], 'reports', ALL, 'LOCATION'),
   cap('restaurant-finance', ['/restaurant-finance'], 'reports', F, 'LOCATION'),
-  cap('cashbox', ['/cashbox'], 'desk', BF, 'LOCATION'),
+  // гостиница (31.10.2026): пункт «Касса» ведёт на вкладку кассы её «Финансов»
+  cap('cashbox', ['/cashbox'], 'desk', ALL, 'LOCATION'),
   cap('payroll', ['/payroll'], 'staff', ALL, 'ORGANIZATION'),
   // сертификат продаётся в филиале, действует на бизнес: у `GiftCertificate` ключ бизнеса (§ миграции №141)
   cap('certificates', ['/finance/certificates'], 'desk', B, 'BUSINESS'),

@@ -7578,6 +7578,44 @@ createServer(async (req, res) => {
       });
     }
     // способы оплаты объекта и справочник статей (ADR-185): право settings, как у API
+    // «Зарплата» гостиницы как у салона (31.10.2026): два сотрудника, оклад и уборки, без премий
+    if (path === '/food-service/payroll' && req.method === 'GET') {
+      const month = url.searchParams.get('month') ?? '2026-10';
+      const row = (employeeId: string, name: string, model: 'FIXED' | 'BONUS_ONLY', fixed: number, cleanings: number, per: number, paid: number) => {
+        const piece = cleanings * per;
+        const total = (model === 'FIXED' ? fixed : 0) + piece;
+        return {
+          employeeId, name, status: 'ACTIVE', model, fixedMinor: String(fixed), percent: 0, payFrequency: 'MONTHLY', payWeekday: null, payMethod: null,
+          salesMinor: '0', baseMinor: String(model === 'FIXED' ? fixed : 0), percentMinor: '0', bonusMinor: '0', penaltyMinor: '0',
+          totalMinor: String(total), paidMinor: String(paid), remainingMinor: String(total - paid),
+          perCleaningMinor: String(per), cleanings, pieceMinor: String(piece),
+        };
+      };
+      const rows = [
+        row('00000000-0000-4000-8000-0000000000a1', 'Айгерим Тестовая', 'FIXED', 15_000_000, 42, 100_000, 10_000_000),
+        row('00000000-0000-4000-8000-0000000000a2', 'Бекзат Тестовый', 'BONUS_ONLY', 0, 18, 150_000, 0),
+      ];
+      const sum = (k: 'totalMinor' | 'paidMinor') => String(rows.reduce((t, r) => t + Number(r[k]), 0));
+      return send(200, {
+        month, currency: 'KZT', adjustments: [], payouts: false,
+        totals: { fundMinor: sum('totalMinor'), bonusMinor: '0', penaltyMinor: '0', payoutMinor: sum('totalMinor'), paidMinor: sum('paidMinor') },
+        rows,
+      });
+    }
+    // «График работы» гостиницы (31.10.2026): обычная неделя двух сотрудников и отсутствие на выбранной неделе
+    if (path === '/hotel-staff/shifts' && req.method === 'GET') {
+      const week = url.searchParams.get('week');
+      const work = (days: number[]) =>
+        [1, 2, 3, 4, 5, 6, 0].map((weekday) => ({ weekday, intervals: days.includes(weekday) ? [{ timeFrom: '09:00', timeTo: '18:00' }] : [] }));
+      const plus = (n: number) => (week ? new Date(Date.parse(`${week}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10) : '');
+      return send(200, {
+        week,
+        employees: [
+          { id: '00000000-0000-4000-8000-0000000000a1', name: 'Айгерим Тестовая', week: work([1, 2, 3, 4, 5]), weekRevision: 'r1', absent: week ? [plus(2)] : [] },
+          { id: '00000000-0000-4000-8000-0000000000a2', name: 'Бекзат Тестовый', week: work([3, 4, 5, 6, 0]), weekRevision: 'r1', absent: [] },
+        ],
+      });
+    }
     if (path === '/hotel/payment-methods' && req.method === 'GET') {
       if (!can(uiRole, 'settings')) return send(403, { message: accessDeniedMessage('settings') });
       return send(200, { methods: resolvePaymentMethodSettings(paymentMethodRows) });

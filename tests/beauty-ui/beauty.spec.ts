@@ -607,6 +607,17 @@ test('Beauty onboarding v2 completes a ready branch and resumes Today', async ({
   await expect(main.getByRole('status').filter({ hasText: 'Выполнено' })).toContainText('Выполнено 4 из 4');
   await main.getByRole('button', { name: 'Завершить настройку' }).click();
   await expect(main.getByRole('heading', { name: 'Салон готов к работе', exact: true })).toBeVisible();
+  // вариант A (31.10.2026): «Обязательно», «Дальше» и вид онлайн-записи тремя колонками на одном экране
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(page.locator('.setup-a')).toBeVisible();
+  const [steps, next, preview] = await Promise.all(
+    ['.setup-path', '.setup-next', '.setup-preview'].map((sel) => page.locator(`.setup-a ${sel}`).boundingBox()),
+  );
+  expect(steps!.x).toBeLessThan(next!.x);
+  expect(next!.x).toBeLessThan(preview!.x);
+  expect(Math.abs(steps!.y - next!.y)).toBeLessThan(4);
+  if (process.env.SETUP_SHOTS) await page.screenshot({ path: `${process.env.SETUP_SHOTS}/setup-a-1280.png` });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await main.getByRole('link', { name: 'Перейти к работе', exact: true }).click();
   await expect(page).toHaveURL(/\/today$/);
   await expect(page.getByTestId('beauty-today')).toBeVisible();

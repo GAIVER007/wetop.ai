@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { Db, DbTx } from '@pms/database';
-import { hotelTaskOrder, hotelUnitOrder, localDate, monthBounds, monthShiftDays, timeOffWindow, weekTemplate, type HotelStaffCabinetDto, type HotelStaffTask, type HotelStaffUnit, endClockOf } from '@pms/domain';
+import { hotelTaskOrder, hotelUnitOrder, localDate, monthBounds, monthShiftDays, timeOffWindow, weekAbsentDates, weekTemplate, type HotelStaffCabinetDto, type HotelStaffTask, type HotelStaffUnit, endClockOf } from '@pms/domain';
 import { actorMay, currentUserId } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 import { monthPayrollRows } from '../food-service/month-payroll';
@@ -205,6 +205,24 @@ export class HotelStaffService {
    * руководитель всей организации, назначение на бизнес или на этот филиал), заводится карточка, привязанная ко входу,
    * и место работы в филиале. Уже привязанная карточка не дублируется; архивная не возвращается.
    */
+  /** Неделя графика (`?week=` понедельник, 31.10.2026): даты отсутствия каждого сотрудника на этой неделе */
+  async withWeekAbsences<E extends { id: string }>(base: { employees: E[] }, week?: string): Promise<{ week: string | null; employees: Array<E & { absent: string[] }> }> {
+    if (week === undefined) return { week: null, employees: base.employees.map((e) => ({ ...e, absent: [] })) };
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(week) || Number.isNaN(Date.parse(`${week}T00:00:00Z`))) throw new BadRequestException('Неделя в формате ГГГГ-ММ-ДД');
+    const sunday = new Date(Date.parse(`${week}T00:00:00Z`) + 6 * 86_400_000);
+    const offs = await this.prisma.db.timeOff.findMany({
+      where: { employeeId: { in: base.employees.map((e) => e.id) }, dateFrom: { lte: sunday }, dateTo: { gte: new Date(`${week}T00:00:00Z`) } },
+      select: { employeeId: true, dateFrom: true, dateTo: true },
+    });
+    return {
+      week,
+      employees: base.employees.map((e) => ({
+        ...e,
+        absent: weekAbsentDates(week, offs.filter((o) => o.employeeId === e.id).map((o) => ({ dateFrom: day(o.dateFrom), dateTo: day(o.dateTo) }))),
+      })),
+    };
+  }
+
   async syncMemberEmployees() {
     foodMay('desk');
     if (!actorMay('staff')) return;

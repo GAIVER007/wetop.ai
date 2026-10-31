@@ -16,12 +16,9 @@ test('короткое меню настроек ведёт в единый об
   // Сайт объекта в «Маркетинг → Сайт и SEO» (MKT2; до 06.10 в «Продажах», ADR-117), в «Настройках» его больше нет
   // верхнее меню 17.10.2026: сотрудники в «Персонале», «Каналы продаж» из «Продаж» здесь
   await expect(group.locator('a')).toHaveText([
-    'Объект',
-    'Каналы продаж',
-    'Подключения',
-    'Неисправности',
-    'История действий',
+    // меню «Настройки» одно у всех направлений (31.10.2026)
     'Все настройки',
+    'История действий',
     // «Все бизнесы» владельцу (30.10.2026)
     'Все бизнесы',
   ]);
@@ -31,7 +28,7 @@ test('короткое меню настроек ведёт в единый об
   const tabs = page.getByRole('navigation', { name: 'Настройки объекта', exact: true });
   await tabs.getByRole('link', { name: 'Услуги', exact: true }).click();
   await expect(page.getByTestId('services-table')).toBeVisible();
-  await expect(sidebar.locator('.sidenav__items [aria-current="page"]')).toHaveText('Объект');
+  await expect(sidebar.locator('.sidenav__items [aria-current="page"]')).toHaveText('Все настройки');
   // часы заезда и выезда — своей вкладкой (ADR-115), правила отмены — у тарифов
   await tabs.getByRole('link', { name: 'Проживание', exact: true }).click();
   await expect(page.getByTestId('stay-settings').getByLabel('Заезд с')).toHaveValue('14:00');

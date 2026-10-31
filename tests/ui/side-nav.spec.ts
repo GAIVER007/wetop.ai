@@ -30,13 +30,10 @@ const routes = [
   '/bar/operations',
   '/bar/suppliers',
   '/finance',
-  '/reports/finance',
-  '/hotel-settings',
-  '/channels',
-  '/connections',
-  '/incidents',
-  '/journal',
+  // 31.10.2026: «Касса» вместо «Отчётов»; объект, каналы, подключения и неисправности во «Всех настройках»
+  '/cashbox',
   '/settings',
+  '/journal',
   '/marketing',
   '/marketing/ads',
   '/marketing/content',
@@ -98,18 +95,15 @@ test('UI3.1: кнопка открывает разделы, наведение 
   // 3. наведение на раздел: его подразделы справа
   await expect(items).toHaveAttribute('aria-label', 'Настройки');
   await expect(items.locator('a')).toHaveText([
-    'Объект',
-    'Каналы продаж',
-    'Подключения',
-    'Неисправности',
-    'История действий',
+    // меню «Настройки» одно у всех направлений (31.10.2026)
     'Все настройки',
+    'История действий',
     // «Все бизнесы» владельцу (30.10.2026)
     'Все бизнесы',
   ]);
   // 4. щелчок: переход на страницу, панель закрыта
-  await items.getByRole('link', { name: 'Каналы продаж', exact: true }).click();
-  await expect(page).toHaveURL(/\/channels$/);
+  await items.getByRole('link', { name: 'Все настройки', exact: true }).click();
+  await expect(page).toHaveURL(/\/settings$/);
   await expect(panel).toBeHidden();
   // 5. меню слева обновилось: новый раздел и его подразделы
   await expect(trigger).toHaveText('Настройки');
@@ -151,9 +145,9 @@ test('ТЗ §9: клавиатура, ↓ открывает, ↑↓ по раз
   await page.keyboard.press('ArrowRight');
   await expect(nav.locator('.sidenav__items:not([hidden])')).toHaveAttribute('aria-label', 'Настройки');
   const items = nav.locator('.sidenav__items:not([hidden])');
-  await expect(items.getByRole('link', { name: 'Объект', exact: true })).toBeFocused();
+  await expect(items.getByRole('link', { name: 'Все настройки', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowDown');
-  await expect(items.getByRole('link', { name: 'Каналы продаж', exact: true })).toBeFocused();
+  await expect(items.getByRole('link', { name: 'История действий', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowLeft');
   await expect(section('Настройки')).toBeFocused();
   await page.keyboard.press('Escape');
@@ -163,9 +157,10 @@ test('ТЗ §9: клавиатура, ↓ открывает, ↑↓ по раз
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('ArrowDown');
-  await expect(items.getByRole('link', { name: 'Отчёты', exact: true })).toBeFocused();
+  // 31.10.2026: вторым пунктом «Финансов» у гостиницы «Касса» (вкладка кассы её «Финансов»)
+  await expect(items.getByRole('link', { name: 'Касса', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/reports\/finance$/, { timeout: 30_000 });
+  await expect(page).toHaveURL(/\/cashbox$/, { timeout: 30_000 });
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
 });
 
@@ -176,7 +171,7 @@ test('вложенные адреса показывают свой раздел
   const current = nav.locator('[aria-current="page"]');
   await page.goto('/hotel-settings/services');
   await expect(trigger).toHaveText('Настройки');
-  await expect(current).toHaveText('Объект');
+  await expect(current).toHaveText('Все настройки');
   // номерной фонд это «Каталог» раздела «Услуги»
   await page.goto('/rooms/categories');
   await expect(trigger).toHaveText('Услуги');
@@ -190,7 +185,8 @@ test('вложенные адреса показывают свой раздел
   await expect(current).toHaveText('ИИ-продавец');
   await page.goto('/connections');
   await expect(trigger).toHaveText('Настройки');
-  await expect(current).toHaveText('Подключения');
+  // 31.10.2026: экраны из «Всех настроек» подсвечивают «Все настройки»
+  await expect(current).toHaveText('Все настройки');
   // адреса вне пунктов меню называют свой раздел, а не «Разделы» (мастер-проход UI 11.10.2026)
   await page.goto('/units/R01');
   await expect(trigger).toHaveText('Услуги');

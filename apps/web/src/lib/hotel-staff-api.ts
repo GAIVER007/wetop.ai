@@ -25,7 +25,8 @@ export const hotelStaffApi = {
   employees: () => getJsonPublic<{ canManage: boolean; items: HotelEmployeeRow[] }>('/hotel-staff/employees'),
   createEmployee: (body: { name: string; phone?: string | null; email?: string | null; personnelKind: 'OTHER_EMPLOYEE' }) =>
     sendJson<{ id: string; name: string }>('POST', '/hotel-staff/employees', body),
-  shifts: () => getJsonPublic<{ employees: FoodShiftRow[] }>('/hotel-staff/shifts'),
+  shifts: (week?: string) =>
+    getJsonPublic<{ employees: Array<FoodShiftRow & { absent?: string[] }> }>(`/hotel-staff/shifts${week ? `?week=${encodeURIComponent(week)}` : ''}`),
   setShifts: (employeeId: string, intervals: Array<{ weekday: number; timeFrom: string; timeTo: string }>, expectedRevision: string) =>
     sendJson<{ week: FoodShiftWeekDay[]; weekRevision: string }>('PUT', `/hotel-staff/employees/${id(employeeId)}/working-hours`, { intervals, expectedRevision }),
   assignHousekeeper: (code: string, employeeId: string | null) =>

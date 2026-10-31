@@ -1,4 +1,7 @@
 import { unstable_rethrow } from 'next/navigation';
+import type { SearchParams } from '../../lib/search-params';
+import FinanceReportPage from '../finance/page';
+import { requireFeature } from '../../lib/vertical-guard';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
 import { loadErrorProps } from '../../lib/load-error';
@@ -11,8 +14,13 @@ import '../finance/summary.css';
 import { serverT } from '../../i18n/server';
 
 /** «Касса» филиала ресторана и салона (DATA_MODEL §35.2, §48, ADR-165): остатки по способам, операции и сверка */
-export default async function CashboxPage() {
+export default async function CashboxPage({
+  searchParams = Promise.resolve({}),
+}: { searchParams?: Promise<SearchParams> } = {}) {
   const t = await serverT();
+  // гостиница (31.10.2026, «в финансах обзор и касса»): касса вкладкой её «Финансов», пункт меню «Касса» свой
+  if ((await requireFeature('/cashbox')).context?.vertical === 'HOSPITALITY')
+    return <FinanceReportPage searchParams={searchParams} view="cash" />;
   try {
     const shell = await restaurantShell(undefined, ['FOOD_SERVICE', 'BEAUTY']);
     const cash = await restaurantApi.cash();

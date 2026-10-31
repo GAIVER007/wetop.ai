@@ -943,4 +943,12 @@ export const platformOrg: Record<string, string> = {
   "Повторяется каждый месяц": "Repeats every month",
   "Автопродление": "Auto-renewal",
   "каждый месяц": "every month",
+  "Карточка ресторана": "Restaurant profile",
+  "Все бизнесы и филиалы": "All businesses and branches",
+  "Моя работа: записи, график, зарплата": "My work: bookings, schedule, pay",
+  "Смена и касса": "Shift and cash desk",
+  "Мой филиал": "My branch",
+  "Следующая": "Next",
+  "Неделя горничных и ресепшена": "Housekeeping and front desk week",
+  "уборка {amount}": "cleaning {amount}",
 };

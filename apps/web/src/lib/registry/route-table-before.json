@@ -224,7 +224,7 @@
       "BEAUTY"
     ],
     "branch": "/today",
-    "active": "/beauty-settings",
+    "active": "/settings",
     "rule": {
       "href": "/beauty-settings",
       "label": "Настройки салона",
@@ -281,7 +281,7 @@
       "FOOD_SERVICE"
     ],
     "branch": "/today",
-    "active": "/branch-payment-methods",
+    "active": "/settings",
     "rule": {
       "href": "/branch-payment-methods",
       "label": "Способы оплаты",
@@ -306,6 +306,7 @@
     "route": "/cashbox",
     "vertical": null,
     "features": [
+      "HOSPITALITY",
       "BEAUTY",
       "FOOD_SERVICE"
     ],
@@ -324,7 +325,7 @@
       "HOSPITALITY"
     ],
     "branch": "/channels",
-    "active": "/channels",
+    "active": "/settings",
     "rule": {
       "href": "/channels",
       "label": "Каналы продаж",
@@ -338,7 +339,7 @@
       "HOSPITALITY"
     ],
     "branch": "/channels/connections",
-    "active": "/channels",
+    "active": "/settings",
     "rule": {
       "href": "/channels/connections",
       "label": "Подключения",
@@ -352,7 +353,7 @@
       "HOSPITALITY"
     ],
     "branch": "/channels/events",
-    "active": "/channels",
+    "active": "/settings",
     "rule": {
       "href": "/channels/events",
       "label": "События",
@@ -366,7 +367,7 @@
       "HOSPITALITY"
     ],
     "branch": "/channels/mapping",
-    "active": "/channels",
+    "active": "/settings",
     "rule": {
       "href": "/channels/mapping",
       "label": "Сопоставление",
@@ -380,7 +381,7 @@
       "HOSPITALITY"
     ],
     "branch": "/channels/sync",
-    "active": "/channels",
+    "active": "/settings",
     "rule": {
       "href": "/channels/sync",
       "label": "Синхронизация",
@@ -408,7 +409,7 @@
       "HOSPITALITY"
     ],
     "branch": "/connections",
-    "active": "/connections",
+    "active": "/settings",
     "rule": {
       "href": "/connections",
       "label": "Подключения",
@@ -568,7 +569,7 @@
       "HOSPITALITY"
     ],
     "branch": "/hotel-settings",
-    "active": "/hotel-settings",
+    "active": "/settings",
     "rule": {
       "href": "/hotel-settings",
       "label": "Настройки объекта",
@@ -582,7 +583,7 @@
       "HOSPITALITY"
     ],
     "branch": "/hotel-settings/directories",
-    "active": "/hotel-settings",
+    "active": "/settings",
     "rule": {
       "href": "/hotel-settings/directories",
       "label": "Справочники",
@@ -596,7 +597,7 @@
       "HOSPITALITY"
     ],
     "branch": "/hotel-settings/services",
-    "active": "/hotel-settings",
+    "active": "/settings",
     "rule": {
       "href": "/hotel-settings/services",
       "label": "Услуги",
@@ -610,7 +611,7 @@
       "HOSPITALITY"
     ],
     "branch": "/hotel-settings/stay",
-    "active": "/hotel-settings",
+    "active": "/settings",
     "rule": {
       "href": "/hotel-settings/stay",
       "label": "Проживание",
@@ -624,7 +625,7 @@
       "HOSPITALITY"
     ],
     "branch": "/incidents",
-    "active": "/incidents",
+    "active": "/settings",
     "rule": {
       "href": "/incidents",
       "label": "Неисправности",
@@ -1070,7 +1071,7 @@
       "FOOD_SERVICE"
     ],
     "branch": "/today",
-    "active": "/restaurant-settings",
+    "active": "/settings",
     "rule": {
       "href": "/restaurant-settings",
       "label": "Настройки",

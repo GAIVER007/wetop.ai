@@ -16,14 +16,14 @@ describe('хаб «Настройки» одной таблицей для вс�
       ['Система', ['Способы оплаты /branch-payment-methods', 'История действий /journal']],
     ]);
     expect(flat(settingsGroupsFor(owner, 'FOOD_SERVICE'))).toEqual([
-      ['Основные', ['Филиалы и реквизиты /branches', 'Режим работы /restaurant-settings?section=hours', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
+      ['Основные', ['Карточка ресторана /restaurant-settings', 'Филиалы и реквизиты /branches', 'Режим работы /restaurant-settings?section=hours', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
       ['Журнал', ['Сотрудники /employees', 'График работы /employees/shifts', 'Залы и столы /dining-areas', 'Правила бронирования /restaurant-settings?section=bookings', 'Меню /menu']],
       ['Клиенты и продажи', ['Напоминания клиентам /restaurant-settings?section=reminders', 'Сайт и онлайн-бронь /marketing/site/editor', 'ИИ-продавец /ai-agents']],
       ['Система', ['Способы оплаты /branch-payment-methods', 'История действий /journal']],
     ]);
     expect(flat(settingsGroupsFor(owner, 'HOSPITALITY'))).toEqual([
       ['Основные', ['Карточка объекта /hotel-settings', 'Филиалы и реквизиты /branches', 'Режим работы /hotel-settings/stay', 'Сотрудники и доступ /team', 'Права ролей /team/roles', 'Мой профиль /profile']],
-      ['Журнал', ['Номера /inventory', 'Каталог услуг /hotel-settings/services']],
+      ['Журнал', ['Номера /inventory', 'График работы /staff-schedule', 'Каталог услуг /hotel-settings/services']],
       ['Клиенты и продажи', ['Каналы продаж /channels', 'Сайт и онлайн-запись /website', 'ИИ-продавец /ai-agents']],
       ['Система', ['Способы оплаты и статьи кассы /hotel-settings/directories', 'Документы и договор /hotel-settings/documents', 'Подключения /connections', 'Неисправности /incidents', 'История действий /journal']],
     ]);

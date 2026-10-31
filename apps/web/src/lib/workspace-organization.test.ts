@@ -13,8 +13,8 @@ it('organizes the menu by tasks: one row of sections shared by all verticals', (
     ['Статистика', ['/management/analytics', '/reports']],
     // «Бар» (ADR-157) стал разделом «Склад»
     ['Склад', ['/warehouse', '/bar', '/bar/consumables', '/bar/menu', '/bar/receipts', '/bar/products', '/bar/suppliers', '/bar/operations']],
-    ['Финансы', ['/finance', '/reports/finance']],
-    ['Настройки', ['/hotel-settings', '/channels', '/connections', '/incidents', '/journal', '/settings', '/owner', '/platform/cabinet', '/platform']],
+    ['Финансы', ['/finance', '/cashbox']],
+    ['Настройки', ['/settings', '/journal', '/owner', '/platform/cabinet', '/platform']],
     // «Продвижение» (ADR-184) вместе с бывшими «Продажами»
     [
       'Продвижение',

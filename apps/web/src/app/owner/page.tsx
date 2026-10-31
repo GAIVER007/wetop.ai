@@ -139,6 +139,8 @@ async function Businesses({ month }: { month: string }) {
       </Panel>
       <div className="owner__pair">
         <Panel title={t('Выручка за 6 месяцев')}>
+          {/* валюты рядом, а не друг под другом: страница в один экран 1440×900 (аудит кабинета 31.10.2026) */}
+          <div className="owner__charts">
           {view.chart.map((c) => {
             const max = top(c);
             return (
@@ -157,6 +159,7 @@ async function Businesses({ month }: { month: string }) {
               </div>
             );
           })}
+          </div>
         </Panel>
         <Panel title={t('Требуют решения сегодня')}>
           {busy.length === 0 ? (

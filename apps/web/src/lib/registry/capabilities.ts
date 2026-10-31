@@ -93,6 +93,8 @@ export const CAPABILITIES: readonly Capability[] = [
   cap('finance-report', ['/reports/finance'], 'reports', H, 'LOCATION'),
   cap('reports', ['/reports'], 'reports', ALL, 'LOCATION'),
   cap('analytics', ['/management/analytics'], 'reports', ALL, 'LOCATION'),
+  // РНП бизнеса по дням (владелец 30.10.2026)
+  cap('rnp', ['/rnp'], 'reports', ALL, 'LOCATION'),
 
   // ── склад ─────────────────────────────────────────────────────────────
   cap('warehouse', ['/warehouse'], 'reports', ALL, 'LOCATION'),

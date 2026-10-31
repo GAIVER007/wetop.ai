@@ -298,4 +298,21 @@
   .journal-search-row .journal-filter-panel[open] {
     flex-basis: 100%;
   }
+  /* компьютер: поиск, кнопка и «Фильтры истории» одной строкой (аудит кабинета 31.10.2026) */
+  @media (min-width: 961px) {
+    .journal-search-row .journal-search {
+      flex-wrap: nowrap;
+    }
+    .journal-search-row .journal-filter-panel:not([open]) > summary {
+      min-height: var(--control-h, var(--touch-target));
+      padding-block: 0;
+      display: flex;
+      align-items: center;
+    }
+    /* окно периода справа не выходит за край страницы */
+    .journal-toolbar .date-range__panel {
+      left: auto;
+      right: 0;
+    }
+  }
 }

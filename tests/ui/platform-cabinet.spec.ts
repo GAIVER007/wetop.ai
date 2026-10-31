@@ -89,6 +89,11 @@ test('главная «B»: 4 цифры, воронка продаж из 6 ш�
   await expect(page.getByText('MRR, в месяц')).toHaveCount(0);
   await expect(table.getByRole('columnheader', { name: 'Принёс денег' })).toBeVisible();
   await expect(table.getByRole('columnheader', { name: 'Партнёр' })).toHaveCount(0);
+  // ТЗ «две админки» п. 4 (30.10.2026): город, тариф и следующий платёж в строке; партнёр в карточке клиента
+  await expect(table.getByRole('columnheader', { name: 'Город' })).toBeVisible();
+  await expect(table.getByRole('columnheader', { name: 'Тариф' })).toBeVisible();
+  await expect(table.getByRole('columnheader', { name: 'Платёж' })).toBeVisible();
+  await expect(first.getByTestId('client-city')).toHaveText('Алматы');
   // фильтр страны и поиск: адрес хранит выбор
   await page.getByTestId('clients-search').fill('Пример');
   await page.getByRole('button', { name: 'Показать' }).click();

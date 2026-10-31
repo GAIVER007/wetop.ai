@@ -3161,6 +3161,8 @@ export interface PlatformPlan {
   priceCents: string;
   periodMonths: number;
   active: boolean;
+  /** Разовая выплата партнёру за первый чек клиента, центы; не задана: null (старый API без поля) */
+  partnerPayoutCents?: string | null;
 }
 export type PlatformExpenseCategory = 'SERVER' | 'DOMAINS' | 'ADS' | 'AI' | 'SALARIES' | 'SERVICES' | 'PARTNERS' | 'OTHER';
 export interface PlatformMoneyMonth {
@@ -3439,6 +3441,11 @@ export interface PlatformCabinet {
     lastLoginAt: string | null;
     records30d: number;
     trialDaysLeft: number | null;
+    /** ТЗ «две админки» п. 4 (30.10.2026): город, тариф, следующий платёж, партнёр */
+    city?: string | null;
+    plan?: string | null;
+    nextPaymentOn?: string | null;
+    partner?: string | null;
   }>;
   deadlines: Array<{ id: string; name: string; kind: 'trial' | 'unpaid'; daysLeft: number | null; date: string | null }>;
 }
@@ -3501,13 +3508,13 @@ export const platformApi = {
     sendJson<PlatformClientCard>('PUT', `/platform/organizations/${encodeURIComponent(organizationId)}/trial`, { days }),
   /** Деньги компании WETOP за месяц `ГГГГ-ММ` (DATA_MODEL §63): центы USD строкой; ready=false до миграции 166 */
   money: (month: string) => getJson<PlatformMoney>(`/platform/money?month=${encodeURIComponent(month)}`),
-  savePlan: (id: string | null, body: { name: string; price: string; periodMonths: number; active: boolean }) =>
+  savePlan: (id: string | null, body: { name: string; price: string; periodMonths: number; active: boolean; partnerPayout?: string }) =>
     sendJson<PlatformPlan>(id ? 'PUT' : 'POST', id ? `/platform/plans/${encodeURIComponent(id)}` : '/platform/plans', body),
   saveSubscription: (
     organizationId: string,
     body: { planId: string | null; monthly: string; paidUntil: string | null; note: string; promoCode?: string; discountPercent?: string; autoRenew?: boolean },
   ) => sendJson<unknown>('PUT', `/platform/subscriptions/${encodeURIComponent(organizationId)}`, body),
-  addPayment: (body: { organizationId: string; amount: string; paidOn: string; note: string; extendMonths: number }) =>
+  addPayment: (body: { organizationId: string; amount: string; paidOn: string; note: string; extendMonths: number; kind?: 'PLAN' | 'ADDON' }) =>
     sendJson<unknown>('POST', '/platform/payments', body),
   voidPayment: (id: string) => sendJson<unknown>('POST', `/platform/payments/${encodeURIComponent(id)}/void`, {}),
   addExpense: (body: { category: string; amount: string; spentOn: string; note: string; payee?: string; project?: string; recurring?: boolean; document?: string }) =>

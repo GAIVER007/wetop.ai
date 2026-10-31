@@ -79,10 +79,49 @@ describe('РНП по партнёрам', () => {
   it('за месяц: регистрации, первые оплаты, принесли денег, начислено, выплачено; за всё время отдельно', () => {
     const p = buildRnp(src(), '2026-10').partners;
     const aidar = p.rows.find((r) => r.id === 'p1')!;
-    expect(aidar).toMatchObject({ clients: 1, registrations: 1, firstPayments: 1, broughtCents: '39800', accruedCents: '7960', paidCents: '4000', broughtAllTimeCents: '39800' });
+    // у тарифа клиента не задана выплата партнёру, допов нет: начислять нечего (процента со всех оплат больше нет, §63.3)
+    expect(aidar).toMatchObject({ clients: 1, registrations: 1, firstPayments: 1, broughtCents: '39800', accruedCents: '0', paidCents: '4000', broughtAllTimeCents: '39800' });
     const dina = p.rows.find((r) => r.id === 'p2')!;
     // клиент заведён в августе: в месяце нет регистрации, но его оплата октября идёт в «принесли»
     expect(dina).toMatchObject({ clients: 1, registrations: 0, firstPayments: 0, broughtCents: '1900', broughtAllTimeCents: '3800' });
     expect(p.total).toMatchObject({ partners: 2, active: 2, registrations: 1, firstPayments: 1, broughtCents: '41700', paidCents: '4000', broughtAllTimeCents: '43600' });
+  });
+});
+
+describe('РНП партнёров: начислено по правилу первого чека (DATA_MODEL §63.3, владелец 30.10.2026)', () => {
+  const firstCheck = (): RnpSource => ({
+    ...src(),
+    payments: [
+      // клиент «a»: два чека тарифа в октябре и два чека допа; «old» платил тариф ещё в августе
+      { organizationId: 'a', amountCents: 19900n, paidOn: '2026-10-02', voided: false, kind: 'PLAN' },
+      { organizationId: 'a', amountCents: 19900n, paidOn: '2026-10-03', voided: false, kind: 'PLAN' },
+      { organizationId: 'a', amountCents: 9900n, paidOn: '2026-10-04', voided: false, kind: 'ADDON' },
+      { organizationId: 'a', amountCents: 9900n, paidOn: '2026-10-06', voided: false, kind: 'ADDON' },
+      { organizationId: 'old', amountCents: 1900n, paidOn: '2026-08-05', voided: false, kind: 'PLAN' },
+      { organizationId: 'old', amountCents: 1900n, paidOn: '2026-10-05', voided: false, kind: 'PLAN' },
+    ],
+    planPayouts: [
+      { organizationId: 'a', payoutCents: 10000n },
+      { organizationId: 'old', payoutCents: 1000n },
+    ],
+  });
+
+  it('за тариф разово $100 в месяц первого чека, с допа процент только с первого чека; повторные ничего не дают', () => {
+    const p = buildRnp(firstCheck(), '2026-10').partners;
+    // Айдар 20%: $100 за тариф + 20% от $99 первого допа = $119,80; второй чек тарифа и второй доп не начисляются
+    expect(p.rows.find((r) => r.id === 'p1')).toMatchObject({ accruedCents: '11980' });
+    // у Дины первый чек клиента был в августе: в октябре начислять нечего, хотя клиент заплатил снова
+    expect(p.rows.find((r) => r.id === 'p2')).toMatchObject({ accruedCents: '0' });
+    expect(buildRnp(firstCheck(), '2026-08').partners.rows.find((r) => r.id === 'p2')).toMatchObject({ accruedCents: '1000' });
+  });
+
+  it('отменённый первый чек не считается: первым становится следующий неотменённый', () => {
+    const s = firstCheck();
+    s.payments = [
+      { organizationId: 'a', amountCents: 19900n, paidOn: '2026-09-28', voided: true, kind: 'PLAN' },
+      { organizationId: 'a', amountCents: 19900n, paidOn: '2026-10-02', voided: false, kind: 'PLAN' },
+    ];
+    expect(buildRnp(s, '2026-10').partners.rows.find((r) => r.id === 'p1')).toMatchObject({ accruedCents: '10000' });
+    expect(buildRnp(s, '2026-09').partners.rows.find((r) => r.id === 'p1')).toMatchObject({ accruedCents: '0' });
   });
 });

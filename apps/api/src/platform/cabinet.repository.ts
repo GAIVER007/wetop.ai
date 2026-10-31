@@ -22,7 +22,7 @@ export class PrismaCabinetRepository implements CabinetRepository {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async source(input: { since30d: Date; ownOrganizationId: string | null }): Promise<CabinetSource> {
-    const [all, company, records] = await Promise.all([
+    const [all, company, records, extra] = await Promise.all([
       this.prisma.db.organization.findMany({
         orderBy: { createdAt: 'asc' },
         select: {
@@ -56,6 +56,7 @@ export class PrismaCabinetRepository implements CabinetRepository {
             JOIN locations l ON l.id = t.location_id JOIN businesses b ON b.id = l.business_id
             WHERE t.created_at >= ${input.since30d}
         ) x GROUP BY org_id`),
+      this.extra(),
     ]);
     // запись компании WETOP (владелец сайта wetop.ai) не клиент
     const rows = all.filter((o) => !company.has(o.id));
@@ -73,10 +74,37 @@ export class PrismaCabinetRepository implements CabinetRepository {
           owner: m.role === 'OWNER',
           lastLoginAt: m.user.lastLoginAt,
         })),
+        city: extra.cities.get(o.id) ?? null,
       })),
+      subscriptions: extra.subscriptions,
+      partners: extra.partners,
       records30d: records.map((r) => ({ organizationId: r.organization_id, count: Number(r.count) })),
       // запись компании есть: смотрящий не исключается, список клиентов одинаковый у всех главных администраторов
       ownOrganizationId: viewerExclusion(company, input.ownOrganizationId),
     };
+  }
+
+  /**
+   * Колонки «Клиентов» по ТЗ «две админки» п. 4 (30.10.2026): город первого объекта, тариф и «оплачено до»,
+   * партнёр. Таблицы денег и партнёров могут быть ещё не заведены (миграции 166, 172): тогда пусто.
+   */
+  private async extra() {
+    const db = this.prisma.db;
+    const has = async (t: string) =>
+      (await db.$queryRaw<Array<{ ok: boolean }>>(Prisma.sql`SELECT to_regclass(${t}) IS NOT NULL AS ok`))[0]?.ok === true;
+    const cities = new Map<string, string>();
+    for (const p of await db.property.findMany({ where: { city: { not: null } }, orderBy: { createdAt: 'asc' }, select: { organizationId: true, city: true } }))
+      if (p.city && !cities.has(p.organizationId)) cities.set(p.organizationId, p.city);
+    const subscriptions = (await has('platform_subscriptions'))
+      ? (
+          await db.platformSubscription.findMany({ select: { organizationId: true, paidUntil: true, plan: { select: { name: true } } } })
+        ).map((s) => ({ organizationId: s.organizationId, planName: s.plan?.name ?? null, paidUntil: s.paidUntil ? s.paidUntil.toISOString().slice(0, 10) : null }))
+      : [];
+    const partners = (await has('platform_partners'))
+      ? (await db.platformClientPartner.findMany({ select: { organizationId: true, partner: { select: { name: true } } } })).flatMap((l) =>
+          l.partner ? [{ organizationId: l.organizationId, partnerName: l.partner.name }] : [],
+        )
+      : [];
+    return { cities, subscriptions, partners };
   }
 }

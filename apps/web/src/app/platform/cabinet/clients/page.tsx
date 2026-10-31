@@ -197,12 +197,15 @@ async function Clients({ filter, country, vertical, search }: { filter: Filter; 
               <tr>
                 <th>{t('Клиент')}</th>
                 <th>{t('Страна')}</th>
+                <th>{t('Город')}</th>
                 <th>{t('Вид')}</th>
                 <th>{t('Статус')}</th>
                 <th title={t('Сколько дней из последних 7 работали в системе')}>{t('Работа 7 дн.')}</th>
                 <th>{t('Входили')}</th>
                 <th title={t('Брони и записи за 30 дней')}>{t('За 30 дней')}</th>
                 <th title={t('Сколько клиент заплатил WETOP за всё время')}>{t('Принёс денег')}</th>
+                <th>{t('Тариф')}</th>
+                <th title={t('Оплачено до')}>{t('Платёж')}</th>
                 <th>
                   <span className="sr-only">{t('Действия')}</span>
                 </th>
@@ -226,6 +229,7 @@ async function Clients({ filter, country, vertical, search }: { filter: Filter; 
                     <td title={c.country ? countryName(c.country, locale, t) : t('Страна не указана')}>
                       {c.country ? flag(c.country) : t('нет')}
                     </td>
+                    <td data-testid="client-city">{w?.city ?? ''}</td>
                     <td className="cabinet__wrap">{(w?.verticals ?? []).map((v) => t(PLATFORM_VERTICAL_LABEL[v])).join(', ') || t('нет')}</td>
                     <td className="cabinet__status-cell">
                       <ClientStatus client={c} t={t} />
@@ -240,6 +244,10 @@ async function Clients({ filter, country, vertical, search }: { filter: Filter; 
                     <td className="cabinet__num">{formatInt(w?.records30d ?? 0)}</td>
                     <td className="cabinet__num" data-testid="client-brought">
                       <b>{usd(c.ltvCents)}</b>
+                    </td>
+                    <td data-testid="client-plan">{w?.plan ?? ''}</td>
+                    <td className="cabinet__num" data-testid="client-next-payment">
+                      {w?.nextPaymentOn ? `${w.nextPaymentOn.slice(8, 10)}.${w.nextPaymentOn.slice(5, 7)}` : ''}
                     </td>
                     <td>
                       {w?.owner ? (

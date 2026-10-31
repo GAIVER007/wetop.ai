@@ -722,6 +722,8 @@ const ROW: Array<{
       { label: 'Закупки', at: ALL('/bar/receipts') },
       { label: 'Движение товаров', at: ALL('/bar/operations') },
     ],
+    // у ресторана кухня склада это /stock: прежний адрес кухни бара /bar/consumables без своего пункта горит в «Складе»
+    match: ['/bar', '/warehouse'],
   },
   {
     id: 'money',

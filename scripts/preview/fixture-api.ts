@@ -2520,7 +2520,7 @@ const platformOrganizations = () => [
 ];
 /** Деньги компании WETOP на стенде: тариф, подписка клиента, оплаты, расходы и команда (DATA_MODEL §63) */
 const platformMoney = {
-  plans: [] as Array<{ id: string; name: string; priceCents: string; periodMonths: number; active: boolean }>,
+  plans: [] as Array<{ id: string; name: string; priceCents: string; periodMonths: number; active: boolean; partnerPayoutCents?: string | null }>,
   subs: new Map<string, { planId: string | null; monthlyCents: string; paidUntil: string | null; note: string | null }>(),
   payments: [] as Array<{ id: string; organizationId: string; amountCents: string; paidOn: string; note: string | null; voided: boolean }>,
   expenses: [] as Array<{ id: string; category: string; partnerId?: string; amountCents: string; spentOn: string; note: string | null; voided: boolean }>,
@@ -2591,7 +2591,7 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     if (!amount || amount === '0') return ok({ message: 'Сумма в долларах: например 49 или 49.50' }, 400);
     const paidOn = isoDay(body['paidOn']);
     if (!paidOn) return ok({ message: 'Дата: выберите день' }, 400);
-    const row = { id: `pay-${platformMoney.payments.length + 1}`, organizationId: org, amountCents: amount, paidOn, note: (body['note'] as string) || null, voided: false };
+    const row = { id: `pay-${platformMoney.payments.length + 1}`, organizationId: org, amountCents: amount, paidOn, note: (body['note'] as string) || null, voided: false, kind: body['kind'] === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const) };
     platformMoney.payments.unshift(row);
     return ok(row, 201);
   }
@@ -2619,7 +2619,8 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     const price = usdCents(body['price']);
     if (!price) return ok({ message: 'Сумма в долларах: например 49 или 49.50' }, 400);
     const id = path === '/platform/plans' ? `plan-${platformMoney.plans.length + 1}` : decodeURIComponent(path.split('/')[3]!);
-    const row = { id, name: String(body['name'] ?? ''), priceCents: price, periodMonths: body['periodMonths'] === 12 ? 12 : 1, active: body['active'] !== false };
+    const payout = body['partnerPayout'] ? usdCents(body['partnerPayout']) : null;
+    const row = { id, name: String(body['name'] ?? ''), priceCents: price, periodMonths: body['periodMonths'] === 12 ? 12 : 1, active: body['active'] !== false, partnerPayoutCents: payout };
     platformMoney.plans = [...platformMoney.plans.filter((p) => p.id !== id), row];
     return ok(row, path === '/platform/plans' ? 201 : 200);
   }
@@ -2657,10 +2658,15 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     const view = buildPartners({
       partners: platformMoney.partners,
       links: [...platformMoney.clientPartners].map(([organizationId, partnerId]) => ({ organizationId, partnerId })),
-      payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), voided: p.voided })),
+      payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), voided: p.voided, kind: (p as { kind?: 'PLAN' | 'ADDON' }).kind ?? 'PLAN', paidOn: p.paidOn })),
       payouts: platformMoney.expenses.flatMap((e) =>
         e.category === 'PARTNERS' && e.partnerId ? [{ partnerId: e.partnerId, amountCents: BigInt(e.amountCents), voided: e.voided }] : [],
       ),
+      // разовая выплата партнёру за тариф подписки клиента (DATA_MODEL §63.2)
+      planPayouts: [...platformMoney.subs].flatMap(([organizationId, s]) => {
+        const plan = platformMoney.plans.find((p) => p.id === (s as { planId?: string | null }).planId);
+        return plan?.partnerPayoutCents ? [{ organizationId, payoutCents: BigInt(plan.partnerPayoutCents) }] : [];
+      }),
     });
     return ok({
       ready: true,
@@ -2723,6 +2729,17 @@ const platformCabinet = () => {
     lastLoginAt: login(o.id),
     records30d: o.id === 'ui-org-2' ? 12 : 0,
     trialDaysLeft: o.status === 'TRIAL' ? daysLeft(o.trialEndsAt) : null,
+    // ТЗ «две админки» п. 4: город стенда, тариф и «оплачено до» из денег стенда, партнёр из «Партнёров»
+    city: o.id === 'ui-org-2' ? 'Алматы' : null,
+    plan: (() => {
+      const sub = platformMoney.subs.get(o.id);
+      return sub?.planId ? (platformMoney.plans.find((p) => p.id === sub.planId)?.name ?? null) : null;
+    })(),
+    nextPaymentOn: platformMoney.subs.get(o.id)?.paidUntil ?? null,
+    partner: (() => {
+      const pid = platformMoney.clientPartners.get(o.id);
+      return pid ? (platformMoney.partners.find((p) => p.id === pid)?.name ?? null) : null;
+    })(),
   }));
   return {
     totals: {

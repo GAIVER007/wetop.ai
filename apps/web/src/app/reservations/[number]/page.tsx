@@ -18,6 +18,7 @@ import { Alert, SectionTitle, StatusBadge, Table } from '../../../components/ui'
 import { ReservationActions } from './actions-panel';
 import { FinancePanel } from './finance-panel';
 import { PaymentRequestsPanel } from './payment-requests';
+import { StayReviewPanel } from './stay-review';
 import { maskPhone } from './phone-mask';
 import { OpenFullCard } from './open-full-card';
 import { BookingGuestEditor } from './guest-editor';
@@ -65,7 +66,7 @@ export default async function ReservationPage({
   // предупреждают (волна 3: раньше сбой справочника заменял всю карточку экраном ошибки)
   // журнал — владельцу и управляющему (ADR-107): администратору ссылки туда не даём; тот же `/auth/me`, что у меню
   const access = deskShell();
-  const [ratePlans, finance, services, summary, periodResults, piiStorage, paymentRequests] =
+  const [ratePlans, finance, services, summary, periodResults, piiStorage, paymentRequests, stayReview] =
     await Promise.all([
       reservationsApi.ratePlans().catch(() => null),
       financeApi.reservation(r.confirmationNumber).catch(() => null),
@@ -82,6 +83,8 @@ export default async function ReservationPage({
       api.piiStorage(),
       // запросы оплаты (DATA_MODEL §24, ADR-144): отказ гасит только свой блок
       financeApi.paymentRequests(r.confirmationNumber).catch(() => null),
+      // отзыв гостя после выезда (HOTEL-REVIEWS-20261031): отказ гасит только свой блок
+      reservationsApi.stayReview(r.confirmationNumber).catch(() => null),
     ]);
   const desk = await access;
   const canMutate = mayAccess(desk.access, 'desk') && !desk.readOnly;
@@ -394,6 +397,13 @@ export default async function ReservationPage({
                       requests={paymentRequests?.requests ?? null}
                       folios={finance.folios}
                       canMutate={canMutate}
+                    />
+                    <StayReviewPanel
+                      number={r.confirmationNumber}
+                      review={stayReview}
+                      checkedOut={r.items.some((it) => it.status === 'CHECKED_OUT')}
+                      canMutate={canMutate}
+                      phone={r.primaryGuest?.phone ?? null}
                     />
                   </>
                 ) : (

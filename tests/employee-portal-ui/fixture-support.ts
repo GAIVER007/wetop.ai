@@ -102,7 +102,10 @@ export async function seedPortalFixture(db: Db, vertical: PortalVertical = 'BEAU
       ] });
     }
     const now = new Date();
-    const period = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    // месяц расчёта в поясе филиала (Asia/Almaty): с 00:00 до 05:00 1-го числа по Алматы UTC ещё в прошлом месяце,
+    // и бонус официанта уходил в него (гейт 1.11.2026)
+    const almatyMonth = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(now).slice(0, 7);
+    const period = new Date(`${almatyMonth}-01T00:00:00.000Z`);
     if (vertical === 'FOOD_SERVICE') {
       await tx.employeePaySetting.create({ data: { employeeId: ea.id, model: 'FIXED_PLUS_PERCENT', fixedMinor: 150000n, percent: 15, currency: 'KZT', updatedById: actors.ownerA.id } });
       await tx.employeePayAdjustment.create({ data: { employeeId: ea.id, period, amountMinor: 5000n, reason: 'Synthetic bonus', createdById: actors.ownerA.id } });

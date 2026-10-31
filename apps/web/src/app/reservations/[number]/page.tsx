@@ -6,7 +6,8 @@ import { deskShell } from '../../../lib/desk-shell';
 import { mayAccess } from '../../../lib/navigation';
 import { Icon } from '../../../components/icon';
 import { notFoundOn404 } from '../../../lib/page-error';
-import { api, chessboardApi, financeApi, messengerLinks, reservationsApi } from '../../../lib/api';
+import { api, chessboardApi, financeApi, messengerLinks, reservationHistoryApi, reservationsApi } from '../../../lib/api';
+import { BookingHistory } from './booking-history';
 import { formatMoney } from '../../../lib/money';
 import { displayDate } from '../../../lib/display-date';
 import { MAX_CHESSBOARD_DAYS, citizenshipLabel } from '@pms/domain';
@@ -52,6 +53,8 @@ export default async function ReservationPage({
   const il = intlLocale(locale);
   const { number } = await params;
   const r = await chessboardApi.reservation(decodeURIComponent(number)).catch(notFoundOn404);
+  // «История изменений» брони у стойки, как у записи салона (30.10.2026); сбой не ломает карточку
+  const history = await reservationHistoryApi.read(r.confirmationNumber).catch(() => null);
   const today = await hotelToday();
   // Одна группа может иметь 36 проживаний на одни даты: запрашиваем период один раз.
   const periods = new Map(r.items.map((it) => [`${it.arrivalDate}/${it.departureDate}`, it]));
@@ -507,10 +510,11 @@ export default async function ReservationPage({
             label: t('История'),
             content: (
               <section className="panel">
-                <h2 className="section-title">{t('Журнал бронирования')}</h2>
+                <h2 className="section-title">{t('История изменений')}</h2>
                 <p className="muted">
                   {t('Операции и изменения по бронированию {number}.', { number: r.confirmationNumber })}
                 </p>
+                {history ? <BookingHistory history={history} t={t} locale={il} /> : <p className="muted">{t('Историю не удалось загрузить')}</p>}
                 {mayAccess(desk.access, 'journal') ? (
                   <Link
                     className="btn btn--secondary"

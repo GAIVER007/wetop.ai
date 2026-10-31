@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { FIXTURE_API, expect, test } from './fixtures';
+import { FIXTURE_API, expect, hydrated, test } from './fixtures';
 
 test('drawer text retains AA contrast at the start of its opening animation', async ({
   page,
@@ -8,9 +8,13 @@ test('drawer text retains AA contrast at the start of its opening animation', as
   await request.post(`${FIXTURE_API}/__test/reset`);
   await page.goto('/rooms/categories', { waitUntil: 'domcontentloaded' });
   const category = page.getByTestId('fund-category-row').filter({ hasText: 'Мужской общий номер' });
-  await category
-    .getByRole('button', { name: 'Изменить категорию Мужской общий номер', exact: true })
-    .click();
+  const edit = category.getByRole('button', {
+    name: 'Изменить категорию Мужской общий номер',
+    exact: true,
+  });
+  // Клик до оживления React пропадает (release-checks 41162061607, 41165286981): ждать обработчик.
+  await hydrated(edit);
+  await edit.click();
   const drawer = page.getByRole('dialog', { name: 'Редактировать категорию', exact: true });
   await expect(drawer).toBeVisible();
   await drawer.evaluate((element) => {

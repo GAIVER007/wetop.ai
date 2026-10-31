@@ -85,3 +85,19 @@ describe('техкарта услуги салона', () => {
     expect(html).toContain('Себестоимость не рассчитана');
   });
 });
+
+describe('маржа услуги (владелец 31.10.2026 «Да делай»: себестоимость и маржа)', () => {
+  const withPrice = (initial: BeautyServiceMaterials, priceMinor: string) => renderToStaticMarkup(createElement(ServiceMaterials, {
+    serviceId: initial.serviceId, serviceName: 'Синтетический уход', scopeKey: initial.locationId, initial, priceMinor,
+  }));
+  it('цена минус себестоимость и процент от цены, целыми', () => {
+    const html = withPrice(view({ totalCostMinor: '150000' }), '500000');
+    expect(html).toContain('data-testid="service-margin"');
+    expect(html).toMatch(/3\s?500/);
+    expect(html).toContain('70%');
+  });
+  it('себестоимость не рассчитана: маржу не выдумываем', () => {
+    expect(withPrice(view({ totalCostMinor: null }), '500000')).not.toContain('data-testid="service-margin"');
+  });
+});
+

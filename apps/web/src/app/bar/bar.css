@@ -1185,7 +1185,6 @@
  .bar-page .bar-tabs { display:flex; flex-wrap:wrap; gap:var(--space-1); margin-bottom:var(--space-2); }
  .bar-page .bar-tabs .tabs__item { min-height:44px; padding-inline:var(--space-4); }
  /* от 961 px те же пункты уже есть в выпадающем списке «Склад» верхнего меню: второй ряд не показываем */
- @media (min-width:961px) { .bar-page .bar-tabs, .bar-subpage .bar-tabs { display:none; } }
  .bar-warehouses { display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,1fr)); gap:var(--space-4); margin-bottom:var(--space-4); }
  .bar-warehouse { display:flex; flex-direction:column; gap:var(--space-2); min-height:44px; padding:var(--space-4); border:1px solid var(--border); border-radius:var(--radius); background:var(--surface); text-decoration:none; color:inherit; }
  .bar-warehouse:hover { border-color:var(--primary); }
@@ -1539,6 +1538,53 @@
       flex: 1 1 auto;
       min-height: 0;
       overflow: auto;
+    }
+  }
+}
+
+@layer sections {
+  /* вкладки склада «стекло» (вариант C владельца 31.10.2026): пять разделов, ниже вкладки раздела; на всех ширинах */
+  .stock-tabs {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+  .stock-tabs > .glass-tabs {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-control);
+    background: var(--surface-muted);
+  }
+  .stock-tabs > .glass-tabs > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-h);
+    padding: 0 var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .stock-tabs > .glass-tabs > a:hover {
+    color: var(--text);
+  }
+  .stock-tabs > .glass-tabs > a[aria-current='page'] {
+    border-color: var(--border);
+    background: var(--surface-solid);
+    color: var(--primary);
+  }
+  .stock-tabs > .glass-tabs--sub > a {
+    min-height: var(--control-h-sm);
+  }
+  @media (max-width: 600px) {
+    .stock-tabs > .glass-tabs > a {
+      padding: 0 var(--space-2);
     }
   }
 }

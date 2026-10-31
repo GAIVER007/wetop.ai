@@ -14,6 +14,7 @@ import { restaurantShell } from '../food/restaurant-load';
 import '../food/food.css';
 import '../food/restaurant.css';
 import '../bar/bar.css';
+import { BarTabs } from '../bar/tabs';
 
 /** «Склад» кухни FS2 (DATA_MODEL §34, ADR-KITCHEN-FS): ингредиенты, приход, списание, инвентаризация */
 export default async function StockPage() {
@@ -30,6 +31,7 @@ export default async function StockPage() {
     const currency = branch?.currency ?? 'KZT';
     return (
       <Page width="wide" className="bar-subpage" title={t('Склад')}>
+        <BarTabs current="consumables" />
         <div key={shell.scopeKey}>
           <StockInsightsView insights={buildStockInsights(products.items, dishes)} currency={currency} menuHref="/menu" />
           <StockBoard

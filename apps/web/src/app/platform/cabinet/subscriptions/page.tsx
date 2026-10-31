@@ -69,8 +69,11 @@ async function Subscriptions() {
                       <b>{p.name}</b> {usd(p.priceCents)}{' '}
                       {p.periodMonths === 12 ? t('в год') : t('в месяц')}
                       {!p.active && <span className="muted"> {t('скрыт')}</span>}
+                      {p.partnerPayoutCents && (
+                        <span className="muted cabinet__sub">{t('партнёру {sum}', { sum: usd(p.partnerPayoutCents) })}</span>
+                      )}
                     </summary>
-                    <PlanForm plan={{ ...p, priceInput: centsToInput(p.priceCents) }} />
+                    <PlanForm plan={{ ...p, priceInput: centsToInput(p.priceCents), partnerPayoutInput: p.partnerPayoutCents ? centsToInput(p.partnerPayoutCents) : '' }} />
                   </details>
                 </li>
               ))}

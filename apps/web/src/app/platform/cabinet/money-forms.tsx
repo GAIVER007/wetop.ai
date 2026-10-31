@@ -85,6 +85,13 @@ export function PaymentForm({
       <Field label={t('Дата')} required>
         <DateInput name="paidOn" defaultValue={today} />
       </Field>
+      {/* тариф или доп (ИИ-продавец, таргетолог, контент, продвижение): партнёру разово за тариф, 30% с допов (30.10.2026) */}
+      <Field label={t('За что')}>
+        <Select name="kind" defaultValue="PLAN" data-testid="money-payment-kind">
+          <option value="PLAN">{t('Тариф')}</option>
+          <option value="ADDON">{t('Доп: ИИ-продавец, таргет, контент')}</option>
+        </Select>
+      </Field>
       <Field label={t('Продлить подписку')}>
         <Select name="extendMonths" defaultValue="1">
           <option value="1">{t('на месяц')}</option>
@@ -191,7 +198,7 @@ export function VoidButton({ id, kind }: { id: string; kind: 'payment' | 'expens
   );
 }
 
-export function PlanForm({ plan }: { plan: (PlatformPlan & { priceInput: string }) | null }) {
+export function PlanForm({ plan }: { plan: (PlatformPlan & { priceInput: string; partnerPayoutInput?: string }) | null }) {
   const t = useT();
   const [state, action, pending] = useActionState<MoneyFormResult | null, FormData>(
     savePlanAction.bind(null, plan?.id ?? null),
@@ -215,6 +222,10 @@ export function PlanForm({ plan }: { plan: (PlatformPlan & { priceInput: string 
           <option value="1">{t('в месяц')}</option>
           <option value="12">{t('в год')}</option>
         </Select>
+      </Field>
+      {/* владелец 30.10.2026: месяц $19, партнёру $10; год $199, партнёру $100; разово с первого чека клиента */}
+      <Field label={t('Партнёру за первый чек, $')}>
+        <Input name="partnerPayout" inputMode="decimal" defaultValue={plan?.partnerPayoutInput ?? ''} data-testid="money-plan-payout" />
       </Field>
       {plan && (
         <Field label={t('Состояние')}>
@@ -393,7 +404,7 @@ export function PartnerForm({
       <Field label={t('Почта')}>
         <Input name="email" type="email" maxLength={320} defaultValue={partner?.email ?? ''} />
       </Field>
-      <Field label={t('Процент от оплат клиентов')} required>
+      <Field label={t('Процент с допов')} required>
         <Input name="percent" inputMode="decimal" placeholder="20" defaultValue={partner?.percentInput ?? ''} />
       </Field>
       {partner && (

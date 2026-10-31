@@ -20,6 +20,7 @@ import {
   PARTNER_NAME,
   PARTNER_PERCENT,
   PARTNERS_NOT_READY,
+  PARTNER_PAYOUT_OVER,
 } from './money.controller';
 import { MONEY_REPOSITORY, extendPaidUntil, type MoneyRepository } from './money.repository';
 
@@ -74,6 +75,8 @@ const money: Partial<MoneyRepository> = {
     added.push(input);
   },
   payPartner: async (input) => {
+    // как в базе: сверх начисленного (без прежних выплат в подставке) не пишем
+    if (input.amountCents > input.accruedCents) return null;
     added.push(input);
     return { id: 'e2', category: 'PARTNERS', amountCents: input.amountCents, spentOn: input.spentOn, note: input.note, voided: false };
   },
@@ -209,6 +212,10 @@ describe('команда: цифровой сотрудник; партнёры'
     const pay = await api().post(`/platform/partners/${PARTNER}/payouts`).set(admin).send({ amount: '19.80', spentOn: '2026-10-30' }).expect(201);
     expect(pay.body).toMatchObject({ category: 'PARTNERS', amountCents: '1980' });
     expect(added[1]).toMatchObject({ partnerId: PARTNER, amountCents: 1980n, by: ADMIN });
+    // к выплате $19,80: больше начисленного выплатить нельзя, расход не пишется (владелец 31.10.2026)
+    const over = await api().post(`/platform/partners/${PARTNER}/payouts`).set(admin).send({ amount: '19.81', spentOn: '2026-10-30' }).expect(400);
+    expect(over.body.message).toBe(PARTNER_PAYOUT_OVER);
+    expect(added).toHaveLength(2);
     await api().post('/platform/partners/7f4b3c1a-0e9d-4a5c-b3b2-000000000000/payouts').set(admin).send({ amount: '1', spentOn: '2026-10-30' }).expect(404);
     await api().put(`/platform/clients/${LUXX}/partner`).set(admin).send({ partnerId: PARTNER }).expect(200);
     await api().put(`/platform/clients/${LUXX}/partner`).set(admin).send({ partnerId: '' }).expect(200);

@@ -37,6 +37,7 @@ export const PARTNERS_NOT_READY = 'Партнёры ещё не подключе
 export const PARTNER_NAME = 'Имя партнёра: от 1 до 200 знаков';
 export const PARTNER_PERCENT = 'Процент: число от 0 до 100, например 20 или 12.5';
 export const PARTNER_NOT_FOUND = 'Такого партнёра нет';
+export const PARTNER_PAYOUT_OVER = 'Сумма больше, чем партнёру к выплате';
 export const MONEY_PARTNERS_CATEGORY = 'Выплата партнёру записывается в разделе «Партнёры»';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -330,7 +331,10 @@ export class MoneyController {
     if (amount === null || amount === 0n) throw new BadRequestException(MONEY_AMOUNT);
     const spentOn = parseIsoDate(b['spentOn']);
     if (!spentOn) throw new BadRequestException(MONEY_DATE);
-    const saved = await this.money.payPartner({ partnerId: id, amountCents: amount, spentOn, note: text(b['note'], 300), by: currentUserId() });
+    // больше начисленного не выплачиваем (владелец 31.10.2026): остаток считается тем же расчётом, что в списке
+    const accrued = BigInt(buildPartners(await this.money.partnersSource()).partners.find((p) => p.id === id)?.accruedCents ?? '0');
+    const saved = await this.money.payPartner({ partnerId: id, amountCents: amount, accruedCents: accrued, spentOn, note: text(b['note'], 300), by: currentUserId() });
+    if (!saved) throw new BadRequestException(PARTNER_PAYOUT_OVER);
     return { ...saved, amountCents: cents(saved.amountCents) };
   }
 

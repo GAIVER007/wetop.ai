@@ -676,6 +676,22 @@
     }
   },
   {
+    "route": "/learn",
+    "vertical": null,
+    "features": [
+      "HOSPITALITY",
+      "BEAUTY",
+      "FOOD_SERVICE"
+    ],
+    "branch": "/today",
+    "active": "/learn",
+    "rule": {
+      "href": "/learn",
+      "label": "Обучение",
+      "requires": "self"
+    }
+  },
+  {
     "route": "/management/analytics",
     "vertical": null,
     "features": [

@@ -346,6 +346,11 @@ export function TopNav({
                         </Link>
                       )}
                       <hr className="profile-dropdown__sep" />
+                      {/* «Обучение» у всех ролей (владелец 30.10.2026): все инструкции WETOP */}
+                      <Link href="/learn" onClick={() => setProfile(false)}>
+                        <Icon name="file" />
+                        {t('Обучение')}
+                      </Link>
                       <Link href="/help" onClick={() => setProfile(false)}>
                         <Icon name="help" />
                         {t('Помощь')}

@@ -165,6 +165,8 @@ export const CAPABILITIES: readonly Capability[] = [
 
   // ── без данных арендатора: уровень формальный ─────────────────────────
   cap('help', ['/help'], 'desk', ALL, 'ORGANIZATION'),
+  // «Обучение» (30.10.2026): инструкции у всех ролей, даже «Личный кабинет»
+  cap('learn', ['/learn'], 'self', ALL, 'ORGANIZATION'),
   cap('profile', ['/profile'], 'desk', ALL, 'ORGANIZATION'),
   cap('whats-new', ['/whats-new'], 'desk', ALL, 'ORGANIZATION'),
 ];

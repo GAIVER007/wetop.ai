@@ -496,3 +496,13 @@
     }
   } /* H11: файл для Excel на телефоне не нужен, а кнопка в отдельной строке опускает таблицу ниже первого экрана */
 }
+
+/* «История изменений» брони (30.10.2026): строка события, деньги было и стало, комментарий */
+.booking-history { list-style: none; margin: var(--space-2) 0; padding: 0; display: grid; gap: var(--space-1); }
+.booking-history > li { display: grid; gap: var(--space-1); padding-block: var(--space-2); border-bottom: 1px solid var(--border-soft); }
+.booking-history > li:last-child { border-bottom: 0; }
+.booking-history__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); }
+.booking-history__head time { color: var(--muted); font-variant-numeric: tabular-nums; }
+.booking-history__money, .booking-history__note { margin: 0; }
+.booking-history__money s { color: var(--muted); }
+.booking-history details summary { cursor: pointer; color: var(--muted); font-size: var(--text-xs); }

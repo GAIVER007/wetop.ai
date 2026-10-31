@@ -22,11 +22,14 @@ export function ServiceMaterials({
   serviceName,
   scopeKey,
   initial,
+  priceMinor,
 }: {
   serviceId: string;
   serviceName: string;
   scopeKey: string;
   initial?: BeautyServiceMaterials;
+  /** Цена услуги: маржа = цена − себестоимость техкарты (владелец 31.10.2026) */
+  priceMinor?: string;
 }) {
   const t = useT();
   const [data, setData] = useState<BeautyServiceMaterials | null>(initial ?? null);
@@ -167,6 +170,18 @@ export function ServiceMaterials({
           ? t('Себестоимость не рассчитана')
           : formatMoney(data.totalCostMinor, data.currency)}</strong>
       </div>
+      {!dirty && priceMinor && data.totalCostMinor !== null && BigInt(priceMinor) > 0n && (() => {
+        const price = BigInt(priceMinor);
+        const margin = price - BigInt(data.totalCostMinor);
+        return (
+          <div className="beauty-material-total" data-testid="service-margin">
+            <span>{t('Маржа с услуги')}</span>
+            <strong>
+              {formatMoney(margin.toString(), data.currency)} ({String((margin * 100n) / price)}%)
+            </strong>
+          </div>
+        );
+      })()}
       {!dirty && data.missingCost && <Alert>{t('Для части материалов нет цены партии или не хватает остатка.')}</Alert>}
       {!available.length && (
         <p>

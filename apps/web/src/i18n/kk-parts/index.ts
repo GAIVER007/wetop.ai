@@ -19,6 +19,7 @@ import { sellerSite } from './seller-site';
 import { analyticsEntry } from './analytics-entry';
 import { libSellerSite } from './lib-seller-site';
 import { libOps } from './lib-ops';
+import { learn } from './learn';
 import type { KkPart } from './types';
 
 export type { KkPart } from './types';
@@ -46,6 +47,7 @@ export const AREAS: Record<string, KkPart> = {
   'analytics-entry': analyticsEntry,
   'lib-seller-site': libSellerSite,
   'lib-ops': libOps,
+  'learn': learn,
 };
 
 export const PARTS: Record<string, Record<string, string>> = Object.fromEntries(

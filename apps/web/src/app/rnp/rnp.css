@@ -1,7 +1,7 @@
 /* РНП бизнеса (владелец 30.10.2026): полоса итогов «B» как в Кабинете WETOP, таблица дней в одну строку */
 .rnp { display: grid; gap: var(--space-2); min-width: 0; }
 .rnp__head { display: flex; justify-content: flex-end; }
-.rnp__strip { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); margin: 0; padding: var(--space-2) 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.rnp__strip { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); margin: 0; padding: var(--space-2) 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-control); }
 .rnp__strip > div { display: grid; gap: var(--space-1); padding: 0 var(--space-4); border-left: 1px solid var(--border); min-width: 0; }
 .rnp__strip > div:first-child { border-left: 0; }
 .rnp__strip dt { color: var(--muted); font-size: var(--text-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -93,20 +93,27 @@ test('30 дней: окно от сегодня и шаг стрелки рав�
   await expect(page.getByTestId('date-col')).toHaveCount(30);
   await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', today);
   await page.getByTestId('board-period-button').click();
-  await expect(page.getByRole('button', { name: '30 дней', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
+  // 1-го числа 30-дневного месяца «30 дней» совпадают с «Этим месяцем», и отмечен месяц (гейт main 1.11.2026)
+  const [y, m, d] = today.split('-').map(Number) as [number, number, number];
+  const wholeMonth = d === 1 && new Date(Date.UTC(y, m, 0)).getUTCDate() === 30;
+  await expect(
+    page.getByRole('button', { name: wholeMonth ? 'Этот месяц' : '30 дней', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Escape');
   // стрелка шагает ровно на 30 дней
-  await page.getByRole('link', { name: 'Следующий период', exact: true }).click();
+  // в режиме месяца стрелка «Следующий месяц»: 1-го числа 30-дневного месяца это тоже ровно +30 дней
+  await page
+    .getByRole('link', { name: wholeMonth ? 'Следующий месяц' : 'Следующий период', exact: true })
+    .click();
   const next = new Date(`${today}T00:00:00Z`);
   next.setUTCDate(next.getUTCDate() + 30);
   await expect(page.getByTestId('date-col').first()).toHaveAttribute(
     'data-date',
     next.toISOString().slice(0, 10),
   );
-  await expect(page.getByTestId('date-col')).toHaveCount(30);
+  await expect(page.getByTestId('date-col')).toHaveCount(
+    wholeMonth ? new Date(Date.UTC(y, m + 1, 0)).getUTCDate() : 30,
+  );
   await chooseBoardPeriod(page, 'Сегодня');
   await expect(page.getByTestId('date-col')).toHaveCount(1);
   await expect(page.getByTestId('date-col').first()).toHaveAttribute('data-date', today);

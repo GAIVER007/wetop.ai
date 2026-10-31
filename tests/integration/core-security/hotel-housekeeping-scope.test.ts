@@ -145,7 +145,9 @@ describe.skipIf(!ENABLED)('«Личный кабинет» гостиницы: �
       body: { model: 'FIXED', fixedMinor: 1_000_000, percent: 0, perCleaningMinor: 150_000 },
     });
     expect(pay.status, pay.text.slice(0, 300)).toBe(200);
-    const month = new Date().toISOString().slice(0, 7);
+    // месяц зарплаты в поясе гостиницы (Asia/Almaty): с 00:00 до 05:00 1-го числа по Алматы UTC ещё в прошлом месяце,
+    // и уборка сегодняшнего дня в нём не считалась (гейт main 1.11.2026)
+    const month = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date()).slice(0, 7);
     const payroll = await w.call('H1_MGR', 'get', `/food-service/payroll?month=${month}`, { scope: 'HOT+H1' });
     expect(payroll.status, payroll.text.slice(0, 300)).toBe(200);
     const row = (payroll.json as { rows: Array<{ employeeId: string; cleanings: number; pieceMinor: string; totalMinor: string }> }).rows.find((r) => r.employeeId === ids.me)!;

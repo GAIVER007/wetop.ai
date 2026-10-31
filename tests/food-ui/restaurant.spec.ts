@@ -691,8 +691,11 @@ test('отчёт за период: выручка, средний чек, оп�
   await expect(page.getByTestId('food-period-days')).toBeVisible();
   await expect(page.getByTestId('food-period-categories')).toContainText('Паста');
   // «Все отчёты» ресторана (аудит вертикалей 22.10.2026 п.5): /reports ведёт сюда же, период сохраняется
-  await page.goto(`/reports?from=${yesterday}&to=${day}`);
-  await expect(page).toHaveURL(new RegExp(`/management/analytics\\?from=${yesterday}&to=${day}$`));
+  // «Аналитика» показывает один месяц (владелец 26.10.2026): 1-го числа вчера в прошлом месяце, и отрезок
+  // «вчера–сегодня» обрезался бы до вчера без заказов (гейт main 31.10.2026, полночь по Алматы). Тогда только сегодня.
+  const since = yesterday.slice(0, 7) === day.slice(0, 7) ? yesterday : day;
+  await page.goto(`/reports?from=${since}&to=${day}`);
+  await expect(page).toHaveURL(new RegExp(`/management/analytics\\?from=${since}&to=${day}$`));
   await expect(page.getByTestId('food-period-categories')).toContainText('Паста');
   const bad = await request.get(`${api}/food-service/period-report?from=${day}&to=2000-01-01`, { headers });
   expect(bad.status()).toBe(400);

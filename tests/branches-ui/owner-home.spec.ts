@@ -31,6 +31,30 @@ for (const vertical of ['hotel', 'beauty', 'food'] as const) {
     await expect(main.getByRole('heading', { level: 1, name: 'Главная' })).toBeVisible();
     await expect(main.getByRole('complementary', { name: 'Решения' })).toBeVisible();
     await expect(main.getByRole('region', { name: 'Куда уходят деньги' })).toBeVisible();
+    // единая Главная «B» у всех трёх направлений (владелец 30.10.2026), ровно на экране 1440x800
+    const b = main.getByTestId('owner-b');
+    await expect(b).toBeVisible();
+    await expect(b.getByTestId('owner-b-masters')).toContainText(
+      { hotel: 'Номера', beauty: 'Мастера', food: 'Официанты и бармены' }[vertical],
+    );
+    await expect(b.getByTestId('owner-b-funnel')).toContainText({ hotel: 'Заехали', beauty: 'Записались', food: 'Забронировали стол' }[vertical]);
+    await page.setViewportSize({ width: 1440, height: 800 });
+    const fit = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollHeight - window.innerHeight,
+      wide: document.documentElement.scrollWidth - window.innerWidth,
+      cols: [...document.querySelectorAll('.owner-b__col')].map((c) => Math.round(c.getBoundingClientRect().bottom)),
+    }));
+    expect(fit.scroll).toBeLessThanOrEqual(0);
+    expect(fit.wide).toBeLessThanOrEqual(0);
+    expect(Math.max(...fit.cols) - Math.min(...fit.cols)).toBeLessThanOrEqual(1);
+    // первый вход открывает обучение поверх Главной: закрываем, как человек
+    const tour = page.getByTestId('product-tour');
+    const shown = await tour.waitFor({ state: 'visible', timeout: 3000 }).then(() => true, () => false);
+    if (shown) {
+      await tour.getByRole('button', { name: 'Пропустить' }).click();
+      await expect(tour).toBeHidden();
+    }
+    if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/home-${vertical}-1440.png` });
     await main.getByRole('link', { name: 'Рабочий день' }).click();
     await expect(page).toHaveURL(/\/today\/operations$/);
     await expect(page.locator('main#main-content h1')).toBeVisible();
@@ -108,8 +132,34 @@ test('Главная владельца салона «B»: цифры меся�
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(wide).toBeLessThanOrEqual(0);
   if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/owner-b-1280.png`, fullPage: true });
-  await page.setViewportSize({ width: 1280, height: 720 });
-  const tall = await page.evaluate(() => document.documentElement.scrollHeight);
-  console.log(`owner-b height at 1280x720: ${tall}`);
-  if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/owner-b-720.png` });
+  // владелец 30.10.2026: «четко ровно на 1 экран без лишних свайпов»: ноутбук 1440x800 и 1280x720 без прокрутки,
+  // ни один блок не обрезан снизу, под коротким блоком нет пустоты (колонки встык, нижние края на одной линии)
+  for (const size of [{ width: 1440, height: 800 }, { width: 1280, height: 720 }]) {
+    await page.setViewportSize(size);
+    const fit = await page.evaluate(() => {
+      const cols = [...document.querySelectorAll('.owner-b__col')].map((c) => Math.round(c.getBoundingClientRect().bottom));
+      return {
+        scroll: document.documentElement.scrollHeight - window.innerHeight,
+        bottom: Math.round(document.querySelector('.owner-b')!.getBoundingClientRect().bottom) - window.innerHeight,
+        cols,
+      };
+    });
+    expect(fit.scroll, `${size.width}x${size.height}`).toBeLessThanOrEqual(0);
+    expect(fit.bottom, `${size.width}x${size.height}`).toBeLessThanOrEqual(0);
+    expect(fit.cols).toHaveLength(3);
+    expect(Math.max(...fit.cols) - Math.min(...fit.cols)).toBeLessThanOrEqual(1);
+    if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/owner-b-${size.width}x${size.height}.png` });
+  }
+  // у настоящего салона 8 и больше мастеров: все строки в таблице, экран не растёт, длинный список листается в карточке
+  await page.setViewportSize({ width: 1440, height: 800 });
+  const many = await page.evaluate(() => {
+    const body = document.querySelector('[data-testid="owner-b-masters"] tbody')!;
+    const row = body.querySelector('tr')!;
+    for (let i = 0; i < 11; i++) body.appendChild(row.cloneNode(true));
+    const wrap = document.querySelector('.owner-b__masters-wrap')!;
+    return { rows: body.querySelectorAll('tr').length, scroll: document.documentElement.scrollHeight - window.innerHeight, inner: wrap.scrollHeight > wrap.clientHeight };
+  });
+  expect(many.rows).toBe(12);
+  expect(many.scroll).toBeLessThanOrEqual(0);
+  if (process.env.OWNER_SHOTS) await page.screenshot({ path: `${process.env.OWNER_SHOTS}/owner-b-12-masters.png` });
 });

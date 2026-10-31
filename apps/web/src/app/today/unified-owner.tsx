@@ -6,7 +6,7 @@ import './unified-owner.css';
 import { OwnerDailyChart } from './owner-daily-chart';
 import { intlLocale, translator, type DeskLocale, type Translate } from '../../i18n';
 import { Icon } from '../../components/icon';
-import type { BeautyOwnerHome } from '../../lib/api';
+import type { BeautyOwnerHome, VerticalOwnerHome } from '../../lib/api';
 import { OwnerHomeB } from './owner-home-b';
 /** «сентябрь 2026 г.» → «Сентябрь 2026»: заглавная и без «г.» */
 import { dateFormat } from '../../i18n/dates';
@@ -141,7 +141,7 @@ export function OwnerSummaryView({
 }: {
   visits?: OwnerVisits | null;
   /** Салон: Главная владельца «B» (30.10.2026); без неё прежний вид */
-  ownerB?: BeautyOwnerHome | null;
+  ownerB?: BeautyOwnerHome | VerticalOwnerHome | null;
   summary: OwnerSummaryDto;
   locale?: DeskLocale;
 }) {

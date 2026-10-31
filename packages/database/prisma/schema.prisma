@@ -84,7 +84,7 @@ model Business {
 /// Business; БЕЗ organization_id (выводится через business_id — §18.3) и БЕЗ vertical (только у Business).
 /// Правило дат AGENTS.md §13 отсчитывается от timezone филиала.
 model Location {
-  cashRegister CashRegister?
+  cashRegister         CashRegister?
   id                   String         @id @default(uuid()) @db.Uuid
   businessId           String         @map("business_id") @db.Uuid
   name                 String         @db.VarChar(200)
@@ -162,11 +162,11 @@ model Location {
   voiceBookingQuotes        VoiceBookingQuote[]
   /// STAFF-TG-20261020: уведомления сотрудникам о бронях с сайта
   staffNotifications        StaffNotification[]
+  scheduleRequests          EmployeeScheduleRequest[]
 
   @@index([businessId])
   @@index([bookingTrackedSiteId])
   @@map("locations")
-  scheduleRequests EmployeeScheduleRequest[]
 }
 
 /// Фото и договор объекта (ADR-158, DATA_MODEL §32.3): файл в закрытом хранилище, в базе только ключ.
@@ -544,12 +544,12 @@ model MarketingBudgetLine {
 }
 
 model Property {
-  cashRegister CashRegister?
-  id                  String   @id @default(uuid()) @db.Uuid
+  cashRegister        CashRegister?
+  id                  String        @id @default(uuid()) @db.Uuid
   /// Чей это объект (ADR-061). Обязателен с v1.13 (ADR-103): по нему режет Row Level Security (§17).
-  organizationId      String   @map("organization_id") @db.Uuid
+  organizationId      String        @map("organization_id") @db.Uuid
   name                String
-  legalName           String?  @map("legal_name")
+  legalName           String?       @map("legal_name")
   bin                 String?
   address             String?
   /// Контакты объекта для печатных форм (v1.7, ADR-082): до них телефон и почта были зашиты в код
@@ -557,47 +557,47 @@ model Property {
   phone               String?
   email               String?
   /// ISO 3166-1 alpha-2 for Channex property creation. NULL until the owner supplies it.
-  countryCode         String?  @map("country_code") @db.VarChar(2)
+  countryCode         String?       @map("country_code") @db.VarChar(2)
   /// City sent to Channex; not inferred from the free-form address.
-  city                String?  @db.VarChar(100)
+  city                String?       @db.VarChar(100)
   /// One of the Channex hotels-collection property_type values.
-  channexPropertyType String?  @map("channex_property_type") @db.VarChar(40)
+  channexPropertyType String?       @map("channex_property_type") @db.VarChar(40)
   /// IANA timezone объекта, например Asia/Almaty
   timezone            String
   /// ISO 4217, на объекте KZT
-  currency            String   @db.Char(3)
+  currency            String        @db.Char(3)
   /// Локальное время заезда "HH:mm", на объекте 14:00
-  checkInTime         String   @map("check_in_time")
+  checkInTime         String        @map("check_in_time")
   /// Локальное время выезда "HH:mm", на объекте 12:00
-  checkOutTime        String   @map("check_out_time")
+  checkOutTime        String        @map("check_out_time")
   /// Карточка объекта (ADR-158, DATA_MODEL §32): сведения для сайта, каналов и разговора с гостем. Деньги не меняют.
-  description         String?  @db.VarChar(500)
-  website             String?  @db.VarChar(300)
+  description         String?       @db.VarChar(500)
+  website             String?       @db.VarChar(300)
   /// Имя в договоре и счёте гостя; пусто, пока не задано, тогда печатается name
-  publicName          String?  @map("public_name") @db.VarChar(200)
-  earlyCheckIn        Boolean  @default(false) @map("early_check_in")
-  lateCheckOut        Boolean  @default(false) @map("late_check_out")
-  childrenAllowed     Boolean  @default(true) @map("children_allowed")
-  petsAllowed         Boolean  @default(false) @map("pets_allowed")
-  smokingAllowed      Boolean  @default(false) @map("smoking_allowed")
+  publicName          String?       @map("public_name") @db.VarChar(200)
+  earlyCheckIn        Boolean       @default(false) @map("early_check_in")
+  lateCheckOut        Boolean       @default(false) @map("late_check_out")
+  childrenAllowed     Boolean       @default(true) @map("children_allowed")
+  petsAllowed         Boolean       @default(false) @map("pets_allowed")
+  smokingAllowed      Boolean       @default(false) @map("smoking_allowed")
   /// CASH_CARD | CASH | CARD | TRANSFER (CHECK в базе)
-  onsitePayment       String   @default("CASH_CARD") @map("onsite_payment") @db.VarChar(12)
+  onsitePayment       String        @default("CASH_CARD") @map("onsite_payment") @db.VarChar(12)
   /// Подпись правила отмены для карточки (штраф считает тариф, Q-293): FREE_1D | FREE_3D | FREE_7D | NON_REFUNDABLE
-  cancellationRule    String   @default("FREE_1D") @map("cancellation_rule") @db.VarChar(16)
+  cancellationRule    String        @default("FREE_1D") @map("cancellation_rule") @db.VarChar(16)
   /// Подпись залога для карточки: NONE | FIRST_NIGHT | HALF | FULL
-  depositRule         String   @default("NONE") @map("deposit_rule") @db.VarChar(16)
-  minGuestAge         Int      @default(18) @map("min_guest_age") @db.SmallInt
-  quietHoursFrom      String?  @map("quiet_hours_from") @db.VarChar(5)
-  quietHoursTo        String?  @map("quiet_hours_to") @db.VarChar(5)
-  houseRulesNote      String?  @map("house_rules_note") @db.VarChar(500)
+  depositRule         String        @default("NONE") @map("deposit_rule") @db.VarChar(16)
+  minGuestAge         Int           @default(18) @map("min_guest_age") @db.SmallInt
+  quietHoursFrom      String?       @map("quiet_hours_from") @db.VarChar(5)
+  quietHoursTo        String?       @map("quiet_hours_to") @db.VarChar(5)
+  houseRulesNote      String?       @map("house_rules_note") @db.VarChar(500)
   /// Коды удобств из каталога домена PROPERTY_AMENITIES
-  amenities           String[] @default([])
+  amenities           String[]      @default([])
   /// Platform P1 (ADR-104, DATA_MODEL §18.4, v2.6): родитель объекта — филиал (1:1), NOT NULL с миграции
   /// 20260928000032; новый объект — через createPropertyInChain. organization_id остаётся, пока замок
   /// ADR-061 не переведён на цепочку Location → Business, и совпадает с организацией Business.
-  locationId          String   @unique @map("location_id") @db.Uuid
-  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  locationId          String        @unique @map("location_id") @db.Uuid
+  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   /// Ключ и индекс — как их строит миграция 20260920000016: ON DELETE и ON UPDATE — NO ACTION.
   /// Организацию, за которой числится объект, удалить нельзя: объект не становится ничьим молча.
@@ -1739,8 +1739,8 @@ model CashCategory {
 
 /// Поступление, расход или перевод между способами; прошлое не правится — ошибка аннулируется (status)
 model CashOperation {
-  cashShiftId String? @map("cash_shift_id") @db.Uuid
-  cashShift CashShift? @relation(fields: [cashShiftId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cashShiftId String?           @map("cash_shift_id") @db.Uuid
+  cashShift   CashShift?        @relation(fields: [cashShiftId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   id          String            @id @default(uuid()) @db.Uuid
   propertyId  String            @map("property_id") @db.Uuid
   kind        CashOperationKind
@@ -1752,6 +1752,8 @@ model CashOperation {
   amount      BigInt
   categoryId  String?           @map("category_id") @db.Uuid
   note        String?
+  /// тип расхода (миграция 173), только у EXPENSE
+  expenseType ExpenseType?      @map("expense_type")
   /// комиссия ссылается на свою операцию или перевод
   relatedId   String?           @map("related_id") @db.Uuid
   status      PaymentStatus     @default(COMPLETED)
@@ -2666,7 +2668,7 @@ enum UserStatus {
 /// Арендатор: одна организация — один клиент платформы (DATA_MODEL §13, ADR-046).
 /// Разделения данных объекта по организациям в срезе 13 нет: пробный период пускает в демо-объект.
 model Organization {
-  cashRegisters CashRegister[]
+  cashRegisters     CashRegister[]
   customerImports   CustomerImport[]
   id                String             @id @default(uuid()) @db.Uuid
   name              String             @db.VarChar(200)
@@ -2726,23 +2728,23 @@ model Organization {
 /// Человек. Почта в нижнем регистре — за этим следит CHECK в миграции, Prisma такого не описывает.
 /// Паролей нет намеренно (ADR-046): вход по одноразовому коду на почту.
 model User {
-  responsibleCashShifts CashShift[] @relation("CashShiftResponsible")
-  closedCashShifts CashShift[] @relation("CashShiftClosed")
-  receivedCashHandovers CashHandover[] @relation("CashHandoverRecipient")
-  requestedCashHandovers CashHandover[] @relation("CashHandoverRequester")
-  customerImports CustomerImport[]
-  id              String           @id @default(uuid()) @db.Uuid
-  email           String           @unique @db.VarChar(320)
-  name            String?          @db.VarChar(200)
-  status          UserStatus       @default(ACTIVE)
-  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  lastLoginAt     DateTime?        @map("last_login_at") @db.Timestamptz(6)
+  responsibleCashShifts  CashShift[]      @relation("CashShiftResponsible")
+  closedCashShifts       CashShift[]      @relation("CashShiftClosed")
+  receivedCashHandovers  CashHandover[]   @relation("CashHandoverRecipient")
+  requestedCashHandovers CashHandover[]   @relation("CashHandoverRequester")
+  customerImports        CustomerImport[]
+  id                     String           @id @default(uuid()) @db.Uuid
+  email                  String           @unique @db.VarChar(320)
+  name                   String?          @db.VarChar(200)
+  status                 UserStatus       @default(ACTIVE)
+  createdAt              DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastLoginAt            DateTime?        @map("last_login_at") @db.Timestamptz(6)
   /// Когда человек подтвердил почту по ссылке из письма (решение владельца 20.09.2026).
   /// NULL — не подтвердил: вход закрыт. У заведённых до 20.09.2026 проставлено миграцией.
-  emailVerifiedAt DateTime?        @map("email_verified_at") @db.Timestamptz(6)
+  emailVerifiedAt        DateTime?        @map("email_verified_at") @db.Timestamptz(6)
   /// Язык интерфейса человека (v2.17, Q-REG-1): `ru`, `kk`, `en` (CHECK `users_locale_known`). Пока
   /// стойка только на русском; поле запоминает выбор при регистрации.
-  locale          String           @default("ru") @db.VarChar(5)
+  locale                 String           @default("ru") @db.VarChar(5)
 
   /// Вход по паролю (§13.8, ADR-049, миграция 20260915000014). Пустая строка — пароль не задан:
   /// такой человек по паролю не войдёт. scrypt из node:crypto, формат «scrypt$N$r$p$соль$хеш».
@@ -2813,14 +2815,14 @@ model User {
   locationCompetitorsCreated         LocationCompetitor[]           @relation("LocationCompetitorCreatedBy")
   locationCompetitorSnapshotsCreated LocationCompetitorSnapshot[]   @relation("LocationCompetitorSnapshotCreatedBy")
 
-  voiceCallbacksDone     VoiceCallback[]
-  staffTelegramLink      StaffTelegramLink?
-  staffTelegramLinkCodes StaffTelegramLinkCode[]
-  staffNotifications     StaffNotification[]
-
-  @@map("users")
+  voiceCallbacksDone      VoiceCallback[]
+  staffTelegramLink       StaffTelegramLink?
+  staffTelegramLinkCodes  StaffTelegramLinkCode[]
+  staffNotifications      StaffNotification[]
   scheduleRequestsCreated EmployeeScheduleRequest[] @relation("ScheduleRequestCreatedBy")
   scheduleRequestsDecided EmployeeScheduleRequest[] @relation("ScheduleRequestDecidedBy")
+
+  @@map("users")
 }
 
 /// Одноразовая ссылка на установку пароля: приглашение сотрудника и сброс по его просьбе (§13.9, ADR-049).
@@ -3080,13 +3082,13 @@ model SellerProfile {
 /// (`npm run accounts -- platform-admin`): маршрута API, который пишет сюда, нет. Действует, пока `revoked_at` пуст.
 /// Отдельная таблица, а не поле в `users`: правка профиля человека не может задеть отметку.
 model PlatformAdmin {
-  userId    String    @id @map("user_id") @db.Uuid
-  grantedAt DateTime  @default(now()) @map("granted_at") @db.Timestamptz(6)
-  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(6)
-  note      String?   @db.VarChar(200)
+  userId      String    @id @map("user_id") @db.Uuid
+  grantedAt   DateTime  @default(now()) @map("granted_at") @db.Timestamptz(6)
+  revokedAt   DateTime? @map("revoked_at") @db.Timestamptz(6)
+  note        String?   @db.VarChar(200)
   /// Открывать Кабинет WETOP при входе и открытии приложения (владелец 30.10.2026, миграция 171): учётка компании.
   /// false: главный администратор входит в свою стойку, как владелец организации
-  cabinetHome Boolean @default(false) @map("cabinet_home")
+  cabinetHome Boolean   @default(false) @map("cabinet_home")
 
   user User @relation(fields: [userId], references: [id])
 
@@ -3416,10 +3418,10 @@ model Employee {
   invites            Invite[]
   housekeepingUnits  InventoryUnit[]           @relation("InventoryUnitHousekeepingAssignee")
   housekeepingEvents HousekeepingEvent[]       @relation("HousekeepingEventEmployee")
+  scheduleRequests   EmployeeScheduleRequest[]
 
   @@index([businessId])
   @@map("employees")
-  scheduleRequests   EmployeeScheduleRequest[]
 }
 
 // Additive portal models, prepared migration128. Production application requires the owner-admin release step.
@@ -4035,6 +4037,19 @@ enum EmployeePayModel {
   BONUS_ONLY
 }
 
+/// Как часто выплачиваем зарплату (миграция 173)
+enum PayFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+/// Тип расхода кассы (миграция 173): ежедневный или разовый; старые расходы без типа
+enum ExpenseType {
+  DAILY
+  ONE_OFF
+}
+
 /// Меню ресторана: каталог сети, принадлежит бизнесу FOOD_SERVICE (§33.1, ADR-159)
 model MenuCategory {
   id         String      @id @default(uuid()) @db.Uuid
@@ -4104,8 +4119,8 @@ model MenuItemIngredient {
 
 /// Заказ: номер по филиалу, статусная машина §33.2, `total` — снимок суммы строк
 model RestaurantOrder {
-  creationRequestKey   String? @map("creation_request_key") @db.VarChar(100)
-  creationRequestHash  String? @map("creation_request_hash") @db.Char(64)
+  creationRequestKey   String?                   @map("creation_request_key") @db.VarChar(100)
+  creationRequestHash  String?                   @map("creation_request_hash") @db.Char(64)
   id                   String                    @id @default(uuid()) @db.Uuid
   locationId           String                    @map("location_id") @db.Uuid
   number               Int
@@ -4284,6 +4299,12 @@ model EmployeePaySetting {
   percent          Int              @default(0) @db.SmallInt
   /// Сдельно за одну уборку гостиницы (миграция 143), тиыны, CHECK >= 0
   perCleaningMinor BigInt           @default(0) @map("per_cleaning_minor")
+  /// как часто выплачиваем (миграция 173, PAYROLL-DAILY-20261030); у всех по умолчанию месяц
+  payFrequency     PayFrequency     @default(MONTHLY) @map("pay_frequency")
+  /// ISO 1 (пн) .. 7 (вс), только у WEEKLY (CHECK)
+  payWeekday       Int?             @map("pay_weekday") @db.SmallInt
+  /// чем обычно платим: подсказка окна выплаты
+  payMethod        PaymentMethod?   @map("pay_method")
   currency         String           @db.Char(3)
   updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
   updatedById      String?          @map("updated_by_id") @db.Uuid
@@ -4487,8 +4508,8 @@ model RestaurantPayment {
 
 /// DATA_MODEL §35.2-35.3: приход, расход, перевод кассы филиала; выплата зарплаты = EXPENSE с сотрудником и месяцем
 model RestaurantCashOperation {
-  cashShiftId String? @map("cash_shift_id") @db.Uuid
-  cashShift CashShift? @relation(fields: [cashShiftId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cashShiftId    String?           @map("cash_shift_id") @db.Uuid
+  cashShift      CashShift?        @relation(fields: [cashShiftId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   id             String            @id @default(uuid()) @db.Uuid
   locationId     String            @map("location_id") @db.Uuid
   kind           CashOperationKind
@@ -4502,6 +4523,10 @@ model RestaurantCashOperation {
   employeeId     String?           @map("employee_id") @db.Uuid
   /// первое число месяца выплаты
   period         DateTime?         @db.Date
+  /// за какой рабочий день выплата зарплаты (миграция 173), только с employeeId
+  payDate        DateTime?         @map("pay_date") @db.Date
+  /// тип расхода (миграция 173), только у EXPENSE
+  expenseType    ExpenseType?      @map("expense_type")
   status         PaymentStatus     @default(COMPLETED)
   occurredAt     DateTime          @default(now()) @map("occurred_at") @db.Timestamptz(6)
   createdById    String?           @map("created_by_id") @db.Uuid
@@ -5162,18 +5187,18 @@ model CashRegister {
 }
 
 model CashShift {
-  register          CashRegister    @relation(fields: [registerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  responsibleUser   User            @relation("CashShiftResponsible", fields: [responsibleUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  closedBy          User?           @relation("CashShiftClosed", fields: [closedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  register          CashRegister              @relation(fields: [registerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  responsibleUser   User                      @relation("CashShiftResponsible", fields: [responsibleUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  closedBy          User?                     @relation("CashShiftClosed", fields: [closedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
   handover          CashHandover?
   branchOperations  RestaurantCashOperation[]
   operations        CashOperation[]
-  id                String          @id @db.Uuid
-  registerId        String          @map("register_id") @db.Uuid
-  responsibleUserId String          @map("responsible_user_id") @db.Uuid
-  openedAt          DateTime        @default(now()) @map("opened_at") @db.Timestamptz(6)
-  closedAt          DateTime?       @map("closed_at") @db.Timestamptz(6)
-  closedById        String?         @map("closed_by_id") @db.Uuid
+  id                String                    @id @db.Uuid
+  registerId        String                    @map("register_id") @db.Uuid
+  responsibleUserId String                    @map("responsible_user_id") @db.Uuid
+  openedAt          DateTime                  @default(now()) @map("opened_at") @db.Timestamptz(6)
+  closedAt          DateTime?                 @map("closed_at") @db.Timestamptz(6)
+  closedById        String?                   @map("closed_by_id") @db.Uuid
   opening           Json
   closing           Json?
 
@@ -5316,8 +5341,8 @@ model PlatformPartner {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  clients  PlatformClientPartner[]
-  payouts  PlatformExpense[]
+  clients PlatformClientPartner[]
+  payouts PlatformExpense[]
 
   @@map("platform_partners")
 }
@@ -5330,7 +5355,7 @@ model PlatformClientPartner {
   updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
   updatedBy      String?  @map("updated_by") @db.Uuid
 
-  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   partner      PlatformPartner? @relation(fields: [partnerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([partnerId], map: "platform_client_partners_partner")

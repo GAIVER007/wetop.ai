@@ -206,6 +206,7 @@ export const portalTeam: Record<string, string> = {
   "Оплаченные оказанные услуги": 'Paid services provided',
   "По закрытым заказам, расчёт сервера": 'From closed orders, calculated by the server',
   "Бонусы и удержания: подробности": 'Bonuses and deductions: details',
+  'Удержания: подробности': 'Deductions: details',
   "Условия и выплаты меняет руководитель. Здесь вы видите свои данные.": 'Terms and payouts are changed by a manager. Here you see your own data.',
   "Фото и работы": 'Photos and work',
   "Управление": 'Management',

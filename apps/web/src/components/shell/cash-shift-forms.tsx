@@ -5,6 +5,7 @@ import { inputToMinor, minorToInput } from '../../lib/money';
 import type { CashRegisterView } from '../../lib/cash-register';
 import { useT } from '../../i18n/locale-provider';
 import { msg } from '../../i18n';
+import { ShiftPayouts } from './shift-payouts';
 
 /**
  * Окна открытия и закрытия смены (владелец 26.10.2026: открытие «Б», закрытие «А»).
@@ -151,6 +152,10 @@ export function CloseShiftForm({
   send,
   onCancel,
   onExpense,
+  scopeKey,
+  onPaid,
+  left,
+  setLeft,
 }: {
   cash: CashRegisterView;
   busy: boolean;
@@ -160,8 +165,16 @@ export function CloseShiftForm({
   onCancel: () => void;
   /** Добавить расход; со статьёй кнопки частых статей она уже выбрана в окне расхода */
   onExpense: (category?: string) => void;
+  /** Выплаты мастерам дня (вариант A владельца 30.10.2026); без него окно как раньше */
+  scopeKey?: string;
+  /** выплата прошла: касса перечитывается, «должно быть в кассе» уменьшается */
+  onPaid?: () => void;
+  /** отметки «Не забрал» из шапки кассы: переживают пересоздание окна */
+  left?: ReadonlySet<string>;
+  setLeft?: (update: (s: ReadonlySet<string>) => ReadonlySet<string>) => void;
 }) {
   const t = useT();
+  const [unpaid, setUnpaid] = useState<Array<{ name: string; amountMinor: string }>>([]);
   const expected = BigInt(cash.snapshot.balances.CASH ?? '0');
   const opened = BigInt(cash.active?.opening.counted ?? '0');
   const received = BigInt(cash.totals?.received.CASH ?? '0');
@@ -204,6 +217,10 @@ export function CloseShiftForm({
         if (ready) send({ action: 'close', counted, retained, recipientId: recipient, note });
       }}
     >
+      {/* сначала выплаты мастерам дня: раздела нет, если сегодня никому не платить (владелец 30.10.2026) */}
+      {scopeKey && left && setLeft && (
+        <ShiftPayouts scopeKey={scopeKey} money={money} disabled={busy || disabled} onPaid={() => onPaid?.()} onLeft={setUnpaid} left={left} setLeft={setLeft} />
+      )}
       <section className="cash-shift-calc" aria-label={t('Расчёт наличных за смену')}>
         {row(msg('Было на открытии'), opened)}
         {row(msg('Оплаты наличными'), received, '+ ')}
@@ -312,6 +329,13 @@ export function CloseShiftForm({
             </Button>
           ))}
         </fieldset>
+      )}
+      {unpaid.length > 0 && (
+        <p className="cash-header__note" data-testid="cash-close-unpaid">
+          {t('Не забрали сегодня: {list}. Сумма копится в «Зарплате» и попадёт в отчёт.', {
+            list: unpaid.map((u) => `${u.name} ${money(u.amountMinor)}`).join(', '),
+          })}
+        </p>
       )}
       <div className="cash-header__footer">
         <Button type="button" tone="secondary" disabled={busy} onClick={onCancel}>

@@ -57,6 +57,10 @@
   --axis-line: #e5eaf2;
   --overlay: rgba(11, 23, 44, 0.32);
   --focus: #085fba;
+  --glass-a: rgba(255, 255, 255, 0.62);
+  --glass-a-hover: rgba(255, 255, 255, 0.85);
+  --glass-a-line: rgba(16, 24, 39, 0.1);
+  --glint: rgba(255, 255, 255, 0.95);
   --st-confirmed: #dcecff;
   --st-checked-in: #d7f0e9;
   --st-checked-out: #e9edf4;
@@ -127,6 +131,7 @@
   --shadow: 0px 6px 24px 0px rgba(26, 45, 78, 0.04); /* устарел */
   --shadow-floating: 0px 20px 70px 0px rgba(18, 38, 68, 0.16);
   --shadow-glass: 0px 16px 36px -18px rgba(18, 38, 68, 0.16);
+  --shadow-glass-a: 0px 8px 24px -10px rgba(18, 38, 68, 0.16);
   --ease: 180ms cubic-bezier(0, 0, 0.58, 1);
   --duration-fast: 120ms;
   --duration-base: 180ms;
@@ -195,6 +200,10 @@
   --axis-line: #1b2a3d;
   --overlay: rgba(0, 5, 15, 0.64);
   --focus: #48a5ff;
+  --glass-a: rgba(255, 255, 255, 0.07);
+  --glass-a-hover: rgba(255, 255, 255, 0.13);
+  --glass-a-line: rgba(255, 255, 255, 0.14);
+  --glint: rgba(255, 255, 255, 0.28);
   --st-confirmed: #163958;
   --st-checked-in: #16443f;
   --st-checked-out: #243044;
@@ -203,6 +212,7 @@
   --shadow: 0px 6px 24px 0px rgba(0, 0, 0, 0.1);
   --shadow-floating: 0px 24px 80px 0px rgba(0, 0, 0, 0.4);
   --shadow-glass: 0px 18px 40px -20px rgba(0, 0, 0, 0.4);
+  --shadow-glass-a: 0px 8px 28px -10px rgba(0, 0, 0, 0.4);
 }
 [data-theme='contrast'] {
   color-scheme: light;
@@ -256,6 +266,10 @@
   --axis-line: #596a80;
   --overlay: rgba(11, 23, 44, 0.32);
   --focus: #064a92;
+  --glass-a: #ffffff;
+  --glass-a-hover: #ffffff;
+  --glass-a-line: #596a80;
+  --glint: #ffffff;
   --st-confirmed: #dcecff;
   --st-checked-in: #d7f0e9;
   --st-checked-out: #e9edf4;
@@ -326,6 +340,7 @@
   --shadow: 0px 6px 24px 0px rgba(26, 45, 78, 0.04);
   --shadow-floating: 0px 20px 70px 0px rgba(18, 38, 68, 0.16);
   --shadow-glass: 0px 16px 36px -18px rgba(18, 38, 68, 0.16);
+  --shadow-glass-a: 0px 8px 24px -10px rgba(18, 38, 68, 0.16);
   --ease: 180ms cubic-bezier(0, 0, 0.58, 1);
   --duration-fast: 120ms;
   --duration-base: 180ms;
@@ -364,6 +379,10 @@
     --grid-line: #eef1f7;
     --axis-line: #e5eaf2;
     --focus: #085fba;
+    --glass-a: #ffffff;
+    --glass-a-hover: #ffffff;
+    --glass-a-line: #e5eaf2;
+    --glint: #ffffff;
   }
 }
 }

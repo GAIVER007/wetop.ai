@@ -188,7 +188,7 @@ export const RULES: Rule[] = [
   },
   {
     id: 'shadow-on-page',
-    why: 'тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не кольцо фокуса (--ring) и не inset',
+    why: 'тень у блока на странице (DESIGN.md §5): box-shadow, который не --shadow-floating, не --shadow-glass-a (стекло «A»), не кольцо фокуса (--ring) и не inset',
     ext: /\.(css|tsx)$/,
     find: (s) =>
       [...s.matchAll(/box-?[sS]hadow\s*:\s*([^;}'"]+)/g)]
@@ -197,6 +197,8 @@ export const RULES: Rule[] = [
           (v) =>
             v !== 'none' &&
             !v.includes('--shadow-floating') &&
+            // стекло «A» (владелец 01.11.2026): мягкая тень кнопок, вкладок и полос одной переменной
+            !v.includes('--shadow-glass-a') &&
             !v.includes('--ring') &&
             !v.startsWith('inset') &&
             !/^0 0 0 \d/.test(v),

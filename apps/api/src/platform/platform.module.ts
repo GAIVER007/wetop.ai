@@ -15,6 +15,7 @@ import { EXCHANGE_FETCH, ExchangeRatesService, fetchNbk } from './exchange-rates
 import { GROWTH_REPOSITORY, GrowthController, PrismaGrowthRepository } from './growth.controller';
 import { CLIENT_CARD_REPOSITORY, ClientCardController, PrismaClientCardRepository } from './client-card.controller';
 import { MONEY_REPOSITORY, PrismaMoneyRepository } from './money.repository';
+import { PARTNER_CABINET_REPOSITORY, PartnerController, PrismaPartnerCabinetRepository } from './partner.controller';
 import { PrismaSupportAudit, SUPPORT_AUDIT } from './support.audit';
 import { EnvSupportConnection, SUPPORT_CONNECTION } from './support.connection';
 import { SupportController } from './support.controller';
@@ -29,7 +30,7 @@ import {
 
 /** Раздел «Платформа»: организации и их расширения, техподдержка — панель ИИ-помощника (DATA_MODEL §16, ADR-083) */
 @Module({
-  controllers: [PlatformController, SupportController, CabinetController, MoneyController, GrowthController, ClientCardController, OwnerBusinessesController],
+  controllers: [PlatformController, SupportController, CabinetController, MoneyController, GrowthController, ClientCardController, OwnerBusinessesController, PartnerController],
   providers: [
     PrismaService,
     // кабинет компании WETOP (владелец 28.10.2026)
@@ -38,6 +39,8 @@ import {
     { provide: MONEY_REPOSITORY, useClass: PrismaMoneyRepository },
     { provide: GROWTH_REPOSITORY, useClass: PrismaGrowthRepository },
     { provide: CLIENT_CARD_REPOSITORY, useClass: PrismaClientCardRepository },
+    // кабинет партнёра WETOP (DATA_MODEL §63.3, миграция 178)
+    { provide: PARTNER_CABINET_REPOSITORY, useClass: PrismaPartnerCabinetRepository },
     { provide: EXTENSIONS_REPOSITORY, useClass: PrismaExtensionsRepository },
     ExtensionsService,
     { provide: SUPPORT_CONNECTION, useClass: EnvSupportConnection },

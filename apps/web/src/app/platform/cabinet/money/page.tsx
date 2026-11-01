@@ -105,7 +105,8 @@ async function Money({ month, tab, category }: { month: string; tab: MoneyTab; c
       )}
       {tab === 'overview' && (
         <>
-          <div className="cabinet-money__pair">
+          {/* один экран 1440×900 (владелец 01.11.2026): поступления, статьи и просрочка в ряд, ниже ожидаем и месяцы */}
+          <div className="cabinet-money__pair cabinet-money__pair--three">
             <Panel data-testid="money-payments">
               <div className="cabinet__panel-head">
                 <b className="panel__title">{t('Последние поступления')}</b>
@@ -124,14 +125,19 @@ async function Money({ month, tab, category }: { month: string; tab: MoneyTab; c
               </div>
               <CategoryBars view={view} t={t} />
             </Panel>
+            <Panel title={t('Просрочено')} data-testid="money-overdue">
+              <DueTable rows={sm.overdue.map((o) => ({ ...o, late: true }))} empty={t('Просроченных оплат нет')} t={t} />
+            </Panel>
           </div>
           <div className="cabinet-money__pair">
             <Panel title={t('Ожидаем оплату, 30 дней')} data-testid="money-upcoming">
               <DueTable rows={(sm.upcoming ?? []).map((u) => ({ ...u, late: false }))} empty={t('В ближайшие 30 дней оплат по тарифам нет')} t={t} />
             </Panel>
-            <Panel title={t('Просрочено')} data-testid="money-overdue">
-              <DueTable rows={sm.overdue.map((o) => ({ ...o, late: true }))} empty={t('Просроченных оплат нет')} t={t} />
-            </Panel>
+            {sm.table && (
+              <Panel title={t('По месяцам')} data-testid="money-months">
+                <MonthsShort table={sm.table} t={t} monthName={(mm) => monthLabel(mm, locale).split(' ')[0]!} />
+              </Panel>
+            )}
           </div>
         </>
       )}
@@ -141,11 +147,6 @@ async function Money({ month, tab, category }: { month: string; tab: MoneyTab; c
         </Panel>
       )}
       {tab === 'out' && <ExpensesTab view={view} month={month} category={category} t={t} />}
-      {tab === 'overview' && sm.table && (
-        <Panel title={t('По месяцам')} data-testid="money-months">
-          <MonthsShort table={sm.table} t={t} monthName={(mm) => monthLabel(mm, locale).split(' ')[0]!} />
-        </Panel>
-      )}
       {tab === 'months' && sm.table && (
         <Panel title={t('Доходы и расходы по месяцам')} data-testid="money-table">
           <MonthTable table={sm.table} t={t} monthName={shortMonth} />
@@ -201,7 +202,7 @@ function CategoryBars({ view, t }: { view: Ready; t: Translate }) {
   if (rows.length === 0) return <EmptyState title={t('Расходов в этом месяце нет')} />;
   const top = rows[0]![1];
   return (
-    <ul className="cabinet-expenses__bars">
+    <ul className="cabinet-expenses__bars cabinet-expenses__bars--plain">
       {rows.map(([c, v]) => (
         <li key={c}>
           <span className="cabinet-expenses__name">{t(CATEGORY_LABEL[c as PlatformExpenseCategory])}</span>

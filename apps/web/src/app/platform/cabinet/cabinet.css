@@ -746,6 +746,26 @@
     gap: var(--space-4);
     align-items: stretch;
   }
+  .cabinet-money__pair--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cabinet-money__pair--three > .panel {
+    align-content: start;
+  }
+  .cabinet-money__pair--three td {
+    max-inline-size: calc(var(--space-16) * 2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  @media (max-width: 1279px) {
+    .cabinet-money__pair--three {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .cabinet__client-head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
   .cabinet-money__pair .tbl {
     min-width: 0;
   }
@@ -999,6 +1019,51 @@
   .cabinet__write {
     justify-self: start;
   }
+  /* Карточка клиента в один экран (владелец 01.11.2026): «Написать», оплата и партнёр одной строкой под названием */
+  .cabinet__client-head {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: end;
+  }
+  .cabinet__client-head > :last-child:not(.cabinet__access) {
+    grid-column: 1 / -1;
+  }
+  .cabinet__client-head > .cabinet__client-title {
+    grid-column: 1 / -1;
+  }
+  .cabinet__client-head > .cabinet__write {
+    align-self: end;
+  }
+  /* журнал клиента растёт: свежие действия сверху, старые прокручиваются внутри панели, страница остаётся в экран */
+  .cabinet__journal .table-scroll,
+  .cabinet__journal > .tbl {
+    max-block-size: calc(var(--space-16) * 3);
+    overflow-y: auto;
+  }
+  /* карточка клиента в один экран: панели ниже, как на главной кабинета */
+  .cabinet-card-page .panel {
+    padding-block: var(--space-4);
+  }
+  .cabinet__client-head {
+    gap: var(--space-2) var(--space-4);
+  }
+  /* «Продлить пробный»: +7, +14, +30 в одну строку под подписью */
+  .cabinet__access > form[aria-label] > .row {
+    flex-wrap: nowrap;
+  }
+  .cabinet__client-head .cabinet__access {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  /* оплата одной строкой: заметка, «Оплата получена», «Только чтение» */
+  .cabinet__client-head .cabinet__access > form:first-child {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+  .cabinet__client-head .cabinet__access .row {
+    flex-wrap: nowrap;
+  }
+  .cabinet__client-head > .cabinet__form--row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
   .cabinet-expenses {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
@@ -1020,6 +1085,12 @@
     border-radius: var(--radius-sm);
     color: var(--text);
     text-decoration: none;
+  }
+  /* «Расходы по статьям» в обзоре «Денег»: строка без ссылки, имя и сумма над полосой (было наложение на полосу) */
+  .cabinet-expenses__bars--plain > li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-2);
   }
   .cabinet-expenses__bars a:hover,
   .cabinet-expenses__bars li[data-active] a {

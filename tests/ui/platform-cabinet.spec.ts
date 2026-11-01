@@ -156,6 +156,12 @@ test('карточка клиента: доступ, люди, филиалы, �
   await expect(page.getByTestId('client-journal')).toContainText('admin@wetop.test');
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(wide).toBeLessThanOrEqual(0);
+  // один экран (владелец 01.11.2026): карточка клиента на 1440×900 без прокрутки вниз, журнал виден
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.getByTestId('client-journal')).toBeInViewport();
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/client-card-1440x900.png`, fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollHeight - innerHeight)).toBeLessThanOrEqual(0);
+  await page.setViewportSize({ width: 1280, height: 900 });
   // оплата получена: статус «платит», продлевать пробный больше нечего
   await page.getByTestId('client-access-paid').click();
   await expect(page.getByTestId('client-access-result')).toContainText('Оплата подтверждена');

@@ -26,6 +26,24 @@ export function isExtensionActive(row: ExtensionState | null, now: Date): boolea
 }
 
 /**
+ * Пробный месяц: все платные функции открыты (владелец 01.11.2026 «везде пробный период месяц, доступны все функции»).
+ * Организация на действующем пробном получает каждое расширение (ИИ-продавец, конструктор сайта) до конца своего
+ * пробного, даже если его не подключали. Своё расширение, которое действует дольше (оплачено бессрочно или до более
+ * поздней даты), не трогаем. Пробный кончился, организация платит или только чтение: только своё расширение.
+ */
+export function effectiveExtension(
+  row: ExtensionState | null,
+  org: { status: string; trialEndsAt: Date | null } | null,
+  now: Date,
+): ExtensionState | null {
+  const trialLive = !!org && org.status === 'TRIAL' && org.trialEndsAt !== null && now < org.trialEndsAt;
+  if (!trialLive) return row;
+  const end = org.trialEndsAt!;
+  if (row && row.status !== 'OFF' && (row.activeUntil === null ? row.status === 'ACTIVE' : row.activeUntil >= end)) return row;
+  return { status: 'TRIAL', activeUntil: end };
+}
+
+/**
  * Доступ к разделу по расширению (ADR-083, Q-183 вариант (а)): `active` — раздел целиком; `expired` — срок пробного или
  * оплаченного вышел: раздел только для чтения, правка и ответы гостям закрыты, ничего не удаляется; `off` — выключено
  * или не подключали: раздела в меню нет.

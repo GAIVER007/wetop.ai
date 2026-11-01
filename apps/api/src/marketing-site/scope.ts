@@ -1,5 +1,5 @@
 import { ConflictException, ForbiddenException } from '@nestjs/common';
-import { accessDeniedMessage, canWrite, siteBuilderAccess, siteBuilderDenied, type ExtensionAccess, type Permission } from '@pms/domain';
+import { accessDeniedMessage, canWrite, effectiveExtension, siteBuilderAccess, siteBuilderDenied, type ExtensionAccess, type Permission } from '@pms/domain';
 import type { DbTx } from '@pms/database';
 import {
   actorMay,
@@ -58,7 +58,10 @@ export async function siteBuilderAccessIn(tx: DbTx, locationId: string, now: Dat
   activeUntil: Date | null;
 }> {
   const row = await tx.siteBuilderEntitlement.findUnique({ where: { locationId }, select: { status: true, activeUntil: true } });
-  return { access: siteBuilderAccess(row, now), status: row?.status ?? null, activeUntil: row?.activeUntil ?? null };
+  // пробный месяц организации: конструктор открыт до конца пробного (владелец 01.11.2026 «доступны все функции»)
+  const loc = await tx.location.findUnique({ where: { id: locationId }, select: { business: { select: { organization: { select: { status: true, trialEndsAt: true } } } } } });
+  const eff = effectiveExtension(row, loc?.business.organization ?? null, now);
+  return { access: siteBuilderAccess(eff, now), status: eff?.status ?? null, activeUntil: eff?.activeUntil ?? null };
 }
 
 /** Перепроверка внутри транзакции под замком: бизнес и филиал ещё действуют, организация не только для чтения */

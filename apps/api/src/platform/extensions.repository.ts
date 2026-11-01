@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Inject, Injectable } from '@nestjs/common';
-import type { BusinessVertical, ExtensionChange, ExtensionStatus, OrganizationStatus } from '@pms/domain';
+import { effectiveExtension, type BusinessVertical, type ExtensionChange, type ExtensionStatus, type OrganizationStatus } from '@pms/domain';
 import { PrismaService } from '../database/prisma.provider';
 import type { OverviewSource } from './overview';
 
@@ -182,10 +182,17 @@ export class PrismaExtensionsRepository implements ExtensionsRepository {
   }
 
   async aiSeller(organizationId: string): Promise<ExtensionRow | null> {
-    return this.prisma.db.organizationExtension.findUnique({
-      where: { organizationId_extension: { organizationId, extension: KIND } },
-      select: { status: true, activeUntil: true, note: true, updatedAt: true },
-    });
+    const [row, org] = await Promise.all([
+      this.prisma.db.organizationExtension.findUnique({
+        where: { organizationId_extension: { organizationId, extension: KIND } },
+        select: { status: true, activeUntil: true, note: true, updatedAt: true },
+      }),
+      this.prisma.db.organization.findUnique({ where: { id: organizationId }, select: { status: true, trialEndsAt: true } }),
+    ]);
+    // пробный месяц: все функции открыты (владелец 01.11.2026); раздел «Платформа» видит своё, не это
+    const eff = effectiveExtension(row, org, new Date());
+    if (!eff) return null;
+    return eff === row ? row : { ...eff, note: row?.note ?? null, updatedAt: row?.updatedAt ?? new Date(0) };
   }
 
   async organizations(): Promise<OrganizationSummary[]> {

@@ -11,6 +11,8 @@ export interface OwnerAttentionItem {
   href: string;
   action: string;
   count?: number;
+  /** данные строки для экрана на другом языке (01.11.2026): текст выше русский */
+  detail?: { since?: string; dirty?: number; beds?: boolean; clean?: boolean };
 }
 /** null = сигнал не прочитан (нет данных или источник недоступен): строку не показываем и «всё хорошо» не обещаем */
 export interface OwnerAttentionFacts {
@@ -98,7 +100,7 @@ export function ownerAttention(f: OwnerAttentionFacts): OwnerAttentionItem[] {
   // незакрытая вчерашняя смена: деньги кассы висят, первой строкой во всех направлениях
   if (f.openShiftSince)
     items.push({
-      id: 'open-shift', tone: 'warn',
+      id: 'open-shift', tone: 'warn', detail: { since: `${f.openShiftSince.slice(8, 10)}.${f.openShiftSince.slice(5, 7)}` },
       text: `Смена с ${f.openShiftSince.slice(8, 10)}.${f.openShiftSince.slice(5, 7)} не закрыта`,
       href: f.vertical === 'FOOD_SERVICE' ? '/restaurant-finance' : '/finance', action: 'Касса',
     });
@@ -146,6 +148,7 @@ export function ownerAttention(f: OwnerAttentionFacts): OwnerAttentionItem[] {
       const dirty = has(f.dirtyRooms);
       items.push({
         id: 'arrivals', tone: dirty ? 'warn' : 'ok', count: f.arrivals,
+        detail: dirty ? { dirty: f.dirtyRooms!, beds: Boolean(f.dirtyHasBeds) } : { clean: known(f.dirtyRooms) },
         // строка в одну линию узкой колонки: при неубранных «сегодня» опускаем, заезды и так за сегодня
         text: `${ruCount(f.arrivals, ['заезд', 'заезда', 'заездов'])}${dirty ? `, не убрано: ${rooms(f.dirtyRooms!)}` : known(f.dirtyRooms) ? ' сегодня, номера убраны' : ' сегодня'}`,
         href: dirty ? '/inventory?housekeeping=DIRTY' : '/reservations?arrival=today',
@@ -153,7 +156,7 @@ export function ownerAttention(f: OwnerAttentionFacts): OwnerAttentionItem[] {
       });
     } else if (has(f.dirtyRooms))
       items.push({
-        id: 'dirty-rooms', tone: 'warn', count: f.dirtyRooms,
+        id: 'dirty-rooms', tone: 'warn', count: f.dirtyRooms, detail: { dirty: f.dirtyRooms, beds: Boolean(f.dirtyHasBeds) },
         text: `Не убрано: ${rooms(f.dirtyRooms)}`, href: '/inventory?housekeeping=DIRTY', action: 'Номера',
       });
     if (has(f.noPrepay) && f.today) {

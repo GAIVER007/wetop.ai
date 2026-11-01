@@ -24,8 +24,10 @@ test('обучение: список, инструкция, язык', async ({ 
   await page.getByTestId('help-learn').getByRole('link', { name: 'Открыть инструкции', exact: true }).click();
   await page.waitForURL('**/learn');
   const rows = page.getByTestId('learn-row');
-  await expect(rows).toHaveCount(4);
+  // четыре инструкции салона и «Гостиница: все разделы» (01.11.2026)
+  await expect(rows).toHaveCount(5);
   await expect(rows.first()).toContainText('Администратор салона');
+  await expect(rows.nth(4)).toContainText('Гостиница: все разделы');
   await expect(rows.nth(1)).toContainText('Касса и зарплата');
   await expect(page.locator('.learn-row__cover').first()).toHaveJSProperty('complete', true);
   await snap(page, 'ru-01-list', true);
@@ -48,6 +50,6 @@ test('обучение: список, инструкция, язык', async ({ 
   // телефон: строки в столбик
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/learn');
-  await expect(page.getByTestId('learn-row')).toHaveCount(4);
+  await expect(page.getByTestId('learn-row')).toHaveCount(5);
   await snap(page, 'ru-04-phone', true);
 });

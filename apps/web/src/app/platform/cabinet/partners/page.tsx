@@ -191,15 +191,16 @@ async function Partners({ show, search }: { show: string; search: string }) {
                                 free={(view.allClients ?? []).filter((c) => !view.clients.some((l) => l.organizationId === c.id))}
                               />
                             </FormDialog>
-                            {p.active && (
-                              <FormDialog label={t('Пригласить')} title={t('Кабинет партнёра: {name}', { name: p.name })} tone="secondary" testId="partner-invite-dialog">
-                                <PartnerInviteForm partnerId={p.id} />
-                              </FormDialog>
-                            )}
                             <FormDialog label={t('Изменить')} title={p.name} tone="secondary" testId="partner-edit-dialog">
                               <PartnerForm
                                 partner={{ id: p.id, name: p.name, phone: p.phone, email: p.email, percentInput: bpInput(p.percentBp), active: p.active }}
                               />
+                              {/* ссылка в кабинет партнёра внутри «Изменить»: строка таблицы без лишней кнопки */}
+                              {p.active && (
+                                <div className="cabinet-access-list" data-testid="partner-invite-dialog">
+                                  <PartnerInviteForm partnerId={p.id} />
+                                </div>
+                              )}
                             </FormDialog>
                           </div>
                         </td>

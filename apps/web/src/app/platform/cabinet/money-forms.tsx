@@ -1,7 +1,7 @@
 'use client';
-import { startTransition, useActionState, type FormEvent } from 'react';
+import { startTransition, useActionState, useState, type FormEvent } from 'react';
 import { DateInput } from '../../../components/date-field';
-import { Alert, Button, Field, Input, Notice, Select } from '../../../components/ui';
+import { Alert, Button, EmptyState, Field, Input, Notice, Select } from '../../../components/ui';
 import type { PlatformExpenseCategory, PlatformPlan } from '../../../lib/api';
 import { useT } from '../../../i18n/locale-provider';
 import { CATEGORY_LABEL } from './categories';
@@ -480,6 +480,77 @@ export function ClientPartnerForm({
         {pending ? t('Сохраняю…') : t('Сохранить')}
       </Button>
       <Result state={state} testId="client-partner" />
+    </form>
+  );
+}
+
+/** «Партнёры» A (01.11.2026): клиенты партнёра в окне. Назначить свободного клиента и убрать своего */
+export function PartnerClientsForm({
+  partnerId,
+  mine,
+  free,
+}: {
+  partnerId: string;
+  mine: Array<{ id: string; name: string }>;
+  free: Array<{ id: string; name: string }>;
+}) {
+  const t = useT();
+  return (
+    <div className="cabinet__form" data-testid="partner-clients">
+      {mine.length === 0 ? (
+        <EmptyState title={t('У партнёра пока нет клиентов.')} />
+      ) : (
+        <ul className="partners-a__clients">
+          {mine.map((c) => (
+            <li key={c.id} data-testid="partner-client">
+              <span>{c.name}</span>
+              <PartnerClientRemove organizationId={c.id} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {free.length > 0 && <PartnerClientAssign partnerId={partnerId} free={free} />}
+    </div>
+  );
+}
+
+function PartnerClientAssign({ partnerId, free }: { partnerId: string; free: Array<{ id: string; name: string }> }) {
+  const t = useT();
+  const [picked, setPicked] = useState(free[0]?.id ?? '');
+  const [state, action, pending] = useActionState<MoneyFormResult | null, FormData>(
+    (prev: MoneyFormResult | null, form: FormData) => setClientPartnerAction(String(form.get('organizationId') ?? ''), prev, form),
+    null,
+  );
+  return (
+    <form onSubmit={keepOnError(action)} className="cabinet__form cabinet__form--pick" data-testid="partner-client-assign">
+      <input type="hidden" name="partnerId" value={partnerId} />
+      <Field label={t('Назначить клиента')}>
+        <Select name="organizationId" value={picked} onChange={(e) => setPicked(e.currentTarget.value)}>
+          {free.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </Select>
+      </Field>
+      <Button type="submit" disabled={pending || !picked} aria-busy={pending} data-testid="partner-client-assign-save">
+        {pending ? t('Сохраняю…') : t('Назначить')}
+      </Button>
+      {state?.error && <Alert data-testid="partner-client-assign-error">{state.error}</Alert>}
+    </form>
+  );
+}
+
+function PartnerClientRemove({ organizationId }: { organizationId: string }) {
+  const t = useT();
+  const [state, action, pending] = useActionState<MoneyFormResult | null, FormData>(setClientPartnerAction.bind(null, organizationId), null);
+  return (
+    <form onSubmit={keepOnError(action)}>
+      <input type="hidden" name="partnerId" value="" />
+      <Button type="submit" tone="ghost" size="sm" disabled={pending} data-testid="partner-client-remove">
+        {t('Убрать')}
+      </Button>
+      {state?.error && <Alert>{state.error}</Alert>}
     </form>
   );
 }

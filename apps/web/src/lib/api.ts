@@ -3291,6 +3291,10 @@ export type PlatformPartners =
       partners: PlatformPartner[];
       totals: { partners: number; trials: number; connected: number; incomeCents: string; accruedCents: string; paidCents: string; dueCents: string };
       clients: Array<{ organizationId: string; partnerId: string; name: string }>;
+      /** Выплаты партнёрам, новые сверху («Партнёры» A, 01.11.2026); старый API без поля */
+      payouts?: Array<{ id: string; partnerId: string; partnerName: string; amountCents: string; spentOn: string; note: string | null; voided: boolean }>;
+      /** Все клиенты для «Назначить клиента»; старый API без поля */
+      allClients?: Array<{ id: string; name: string }>;
     };
 
 export interface PlatformMonthMoney {

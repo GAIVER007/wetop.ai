@@ -298,13 +298,25 @@ export class MoneyController {
     requirePlatformAdmin();
     if (!(await this.money.ready()) || !(await this.money.partnersReady())) return { ready: false };
     const own = currentOrganizationId();
-    const [src, orgs] = await Promise.all([this.money.partnersSource(), this.cabinet.source({ since30d: new Date(), ownOrganizationId: own })]);
+    const [src, orgs, payouts] = await Promise.all([
+      this.money.partnersSource(),
+      this.cabinet.source({ since30d: new Date(), ownOrganizationId: own }),
+      this.money.partnerPayouts(),
+    ]);
     const view = buildPartners(src);
     const names = new Map(orgs.organizations.map((o) => [o.id, o.name]));
+    const partnerNames = new Map(src.partners.map((p) => [p.id, p.name]));
+    // клиенты для «Назначить клиента» (владелец 01.11.2026): без своей организации и архива, как в «Клиентах»
+    const allClients = orgs.organizations
+      .filter((o) => o.id !== orgs.ownOrganizationId && o.status !== 'SUSPENDED')
+      .map((o) => ({ id: o.id, name: o.name }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
     return {
       ready: true,
       ...view,
       clients: src.links.map((l) => ({ organizationId: l.organizationId, partnerId: l.partnerId, name: names.get(l.organizationId) ?? '' })),
+      payouts: payouts.map((p) => ({ ...p, partnerName: partnerNames.get(p.partnerId) ?? '', amountCents: cents(p.amountCents) })),
+      allClients,
     };
   }
 

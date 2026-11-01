@@ -762,6 +762,189 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
+  /* «Партнёры» A (владелец 01.11.2026): поиск и фильтры «стекло», 5 итогов в ряд, таблица и выплаты справа, один экран */
+  .partners-a {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .partners-a__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .partners-a__search {
+    flex: 1 1 calc(var(--space-16) * 4);
+    padding: calc(var(--space-1) / 2);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--radius-control);
+    background: var(--glass-panel);
+    backdrop-filter: blur(var(--glass-blur));
+  }
+  .partners-a__search input {
+    inline-size: 100%;
+    border-color: transparent;
+    background: transparent;
+  }
+  .partners-a__filters {
+    display: inline-flex;
+    gap: var(--space-1);
+    padding: calc(var(--space-1) / 2);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--radius-control);
+    background: var(--glass-panel);
+    backdrop-filter: blur(var(--glass-blur));
+  }
+  .partners-a__filters > a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-h-sm);
+    padding: 0 var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .partners-a__filters > a[aria-current='page'] {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .partners-a__kpis {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+  }
+  .partners-a__kpis > div {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-solid);
+  }
+  .partners-a__kpis dt {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+  .partners-a__kpis dd {
+    margin: 0;
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .partners-a__kpis > div > span {
+    font-size: var(--text-xs);
+  }
+  .partners-a__kpis > div[data-tone='success'] dd {
+    color: var(--success);
+  }
+  .partners-a__kpis > div[data-tone='warning'] dd {
+    color: var(--warning);
+  }
+  .partners-a__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) calc(var(--space-16) * 6);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  .partners-a__side {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .partners-a__list td {
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  .partners-a__list .num {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+  }
+  .partners-a__list td[data-due] {
+    color: var(--warning);
+  }
+  .partners-a__who {
+    display: grid;
+    justify-items: start;
+    gap: calc(var(--space-1) / 2);
+  }
+  .partners-a__who > .muted {
+    font-size: var(--text-xs);
+  }
+  .partners-a__actions {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+  }
+  .partners-a__actions .btn {
+    min-height: var(--control-h-sm);
+    padding: 0 var(--space-2);
+  }
+  .partners-a__payouts,
+  .partners-a__clients {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .partners-a__payouts > li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+  }
+  .partners-a__payouts > li + li,
+  .partners-a__clients > li + li {
+    border-top: 1px solid var(--border);
+  }
+  .partners-a__payouts > li[data-voided] {
+    opacity: 0.55;
+  }
+  .partners-a__payee {
+    display: grid;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .partners-a__payee > .muted {
+    font-size: var(--text-xs);
+  }
+  .partners-a__clients > li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-block: var(--space-1);
+  }
+  .cabinet__form--pick {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+  .cabinet__form--pick > .alert,
+  .cabinet__form--pick > .notice {
+    grid-column: 1 / -1;
+  }
+  @media (max-width: 1279px) {
+    .partners-a__kpis {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .partners-a__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .partners-a__kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .partners-a__list td {
+      white-space: normal;
+    }
+  }
   /* «Команда» и «Партнёры»: таблица по ширине панели, имя переносится, кнопки строки в одну линию справа */
   .cabinet-people .tbl {
     min-width: 0;

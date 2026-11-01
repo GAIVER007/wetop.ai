@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect, unstable_rethrow } from 'next/navigation';
-import { Badge, EmptyState, Panel, Stat, Stats, Table, type BadgeTone } from '../../components/ui';
+import { Badge, EmptyState, Panel, Table, type BadgeTone } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { ApiError } from '../../lib/api-error';
 import { partnerApi, type PartnerCabinetView, type PartnerClientStatus } from '../../lib/api';
@@ -11,6 +11,7 @@ import { serverT } from '../../i18n/server';
 import { usd } from '../platform/cabinet/shell';
 import { signOut } from '../login/actions';
 import { CopyLink } from './copy-link';
+import { KpiStrip } from '../platform/cabinet/kpi-strip';
 import '../platform/cabinet/cabinet.css';
 import './partner.css';
 
@@ -85,20 +86,22 @@ function Home({ cab, t }: { cab: PartnerCabinetView; t: Translate }) {
   const ended = v.clients.filter((c) => c.status === 'TRIAL_ENDED');
   return (
     <>
-      <Stats min={180}>
-        <Stat label={t('Клиентов')} value={formatInt(v.stats.clients)} icon={<Icon name="guests" />} testId="partner-clients-count" />
-        <Stat label={t('На пробном')} value={formatInt(v.stats.trial)} icon={<Icon name="today" />} testId="partner-trial-count" />
-        <Stat
-          label={t('Оплатили')}
-          value={formatInt(v.stats.paid)}
-          hint={v.stats.conversion === null ? undefined : t('конверсия {p}%', { p: (v.stats.conversion / 10).toFixed(1).replace('.', ',') })}
-          icon={<Icon name="chart" />}
-          tone="success"
-          testId="partner-paid-count"
-        />
-        <Stat label={t('Баланс')} value={usd(v.money.balanceCents)} hint={t('начислено {a}', { a: usd(v.money.accruedCents) })} icon={<Icon name="money" />} testId="partner-balance" />
-        <Stat label={t('Рейтинг')} value={`${v.rating.place} / ${v.rating.of}`} icon={<Icon name="analytics" />} testId="partner-rating" />
-      </Stats>
+      <KpiStrip
+        testId="partner-strip"
+        items={[
+          { id: 'clients-count', label: t('Клиентов'), value: formatInt(v.stats.clients) },
+          { id: 'trial-count', label: t('На пробном'), value: formatInt(v.stats.trial) },
+          {
+            id: 'paid-count',
+            label: t('Оплатили'),
+            value: formatInt(v.stats.paid),
+            hint: v.stats.conversion === null ? undefined : t('конверсия {p}%', { p: (v.stats.conversion / 10).toFixed(1).replace('.', ',') }),
+            tone: 'success',
+          },
+          { id: 'balance', label: t('Баланс'), value: usd(v.money.balanceCents), hint: t('начислено {a}', { a: usd(v.money.accruedCents) }) },
+          { id: 'rating', label: t('Рейтинг'), value: `${v.rating.place} / ${v.rating.of}` },
+        ]}
+      />
       <Panel title={t('Требует действия')} data-testid="partner-actions">
         {soon.length + ended.length === 0 ? (
           <EmptyState title={t('Срочного нет. Пригласите новых клиентов по своей ссылке.')} />
@@ -177,11 +180,14 @@ function Money({ cab, t }: { cab: PartnerCabinetView; t: Translate }) {
   const v = cab.view;
   return (
     <>
-      <Stats min={200}>
-        <Stat label={t('Начислено')} value={usd(v.money.accruedCents)} icon={<Icon name="chart" />} testId="partner-accrued" />
-        <Stat label={t('Выплачено')} value={usd(v.money.paidCents)} icon={<Icon name="receipt" />} testId="partner-paid" />
-        <Stat label={t('Баланс к выплате')} value={usd(v.money.balanceCents)} icon={<Icon name="money" />} tone="success" testId="partner-due" />
-      </Stats>
+      <KpiStrip
+        testId="partner-money-strip"
+        items={[
+          { id: 'accrued', label: t('Начислено'), value: usd(v.money.accruedCents) },
+          { id: 'paid', label: t('Выплачено'), value: usd(v.money.paidCents) },
+          { id: 'due', label: t('Баланс к выплате'), value: usd(v.money.balanceCents), tone: 'success' },
+        ]}
+      />
       <Panel title={t('Как считается')}>
         <p className="muted">
           {t('За клиента на месячном тарифе $10, на годовом $100, разово с первой оплаты. С допов (продвижение, ИИ-продавец, контент) {p}% с первой оплаты допа. Повторные оплаты не начисляются.', {

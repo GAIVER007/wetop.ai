@@ -13,12 +13,15 @@ export function FormDialog({
   label,
   title,
   tone = 'primary',
+  size,
   testId,
   children,
 }: {
   label: string;
   title: string;
   tone?: 'primary' | 'secondary' | undefined;
+  /** `sm`: кнопка в строке таблицы, чтобы строка не распиралась */
+  size?: 'sm' | undefined;
   testId: string;
   children: ReactNode;
 }) {
@@ -45,7 +48,7 @@ export function FormDialog({
   }, [open]);
   return (
     <>
-      <Button type="button" tone={tone} onClick={() => setOpen(true)} data-testid={`${testId}-open`}>
+      <Button type="button" tone={tone} size={size} onClick={() => setOpen(true)} data-testid={`${testId}-open`}>
         {label}
       </Button>
       <dialog

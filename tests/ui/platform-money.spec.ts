@@ -117,12 +117,19 @@ test('тариф, подписка клиента, команда с цифро�
   await digital.getByTestId('money-team-save').click();
   await expect(page.getByTestId('team-row').filter({ hasText: 'ИИ-продавец' })).toContainText('цифровой сотрудник');
   await expect(page.getByTestId('team-payroll')).toHaveText('$830');
+  await expect(page.getByTestId('team-filter-digital')).toContainText('1');
+  await expect(page.getByTestId('team-row').filter({ hasText: 'Айдар Тестов' }).getByTestId('team-row-left')).toHaveText('$800');
   await page.getByTestId('team-row').filter({ hasText: 'Айдар Тестов' }).getByTestId('team-pay-dialog-open').click();
   const payout = page.getByTestId('team-pay-dialog').getByTestId('money-expense-form');
   await expect(payout.getByLabel('Сумма, $')).toHaveValue('800');
   await payout.getByTestId('money-expense-save').click();
   await expect(page.getByTestId('team-paid')).toHaveText('$800');
   await expect(page.getByTestId('team-left')).toHaveText('$30');
+  await expect(page.getByTestId('team-row').filter({ hasText: 'Айдар Тестов' }).getByTestId('team-row-left')).toHaveText('выплачено');
+  // подписи полосы в одну строку и таблица без прокрутки вбок
+  expect(await page.getByTestId('team-list').locator('table').evaluate((t) => t.parentElement!.scrollWidth <= t.parentElement!.clientWidth + 1)).toBe(true);
+  for (const dt of await page.getByTestId('team-strip').locator('dt').all())
+    expect(await dt.evaluate((e) => e.scrollWidth <= e.clientWidth + 1 && e.getBoundingClientRect().height < 30)).toBe(true);
   await expect(page.getByTestId('team-payouts')).toContainText('Айдар Тестов');
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/team-1280.png`, fullPage: true });
   await page.goto('/platform/cabinet/money?tab=months');
@@ -388,7 +395,7 @@ test('партнёр: приглашение, регистрация по ссы
   await page.getByRole('link', { name: 'Ссылка' }).click();
   await expect(page.getByTestId('partner-link-value')).toHaveValue(/\/start\?p=P001$/);
   await page.getByRole('link', { name: 'Деньги' }).click();
-  await expect(page.getByTestId('partner-accrued')).toContainText('$15');
+  await expect(page.getByTestId('partner-money-accrued')).toContainText('$15');
   await expect(page.getByTestId('partner-payout-row')).toContainText('Kaspi');
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(wide).toBeLessThanOrEqual(0);

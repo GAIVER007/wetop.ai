@@ -106,6 +106,15 @@
     align-items: center;
     gap: 12px;
   }
+  /* «Кабинет владельца» в шапке (владелец 01.11.2026): на телефоне только значок */
+  .header-owner-link {
+    white-space: nowrap;
+  }
+  @media (max-width: 600px) {
+    .header-owner-link > span {
+      display: none;
+    }
+  }
   .icon-button {
     border: 1px solid transparent;
     background: transparent;

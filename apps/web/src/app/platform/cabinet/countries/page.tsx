@@ -3,12 +3,13 @@ import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { RefreshButton } from '../../../../components/refresh-button';
-import { EmptyState, LoadingState, Panel, Stat, Stats, Table } from '../../../../components/ui';
+import { EmptyState, LoadingState, Panel, Table } from '../../../../components/ui';
 import { Icon } from '../../../../components/icon';
 import { ApiError, platformApi, type PlatformCountries } from '../../../../lib/api';
 import { loadErrorProps } from '../../../../lib/load-error';
 import { formatInt } from '../../../../lib/dashboard-format';
 import { currentLocale, serverT } from '../../../../i18n/server';
+import { KpiStrip } from '../kpi-strip';
 import { CabinetShell, usd } from '../shell';
 import { MonthPicker } from '../money/month-picker';
 import { percentText } from '../growth-parts';
@@ -63,31 +64,33 @@ async function Countries({ month }: { month: string }) {
       <div className="cabinet__head">
         <MonthPicker month={month} locale={locale} base="/platform/cabinet/countries" />
       </div>
-      <Stats min={200}>
-        <Stat label={t('Стран')} value={formatInt(known.length)} hint={t('с посетителями или клиентами')} icon={<Icon name="pin" />} testId="countries-count" />
-        <Stat
-          label={t('Больше всего дохода')}
-          value={topIncome ? countryName(topIncome.country, locale, t) : dash}
-          hint={topIncome ? usd(topIncome.incomeCents) : t('оплат в месяце нет')}
-          icon={<Icon name="chart" />}
-          tone="success"
-          testId="countries-top-income"
-        />
-        <Stat
-          label={t('Больше всего посетителей')}
-          value={topVisitors && topVisitors.visitors ? countryName(topVisitors.country, locale, t) : dash}
-          hint={topVisitors && topVisitors.visitors ? formatInt(topVisitors.visitors) : t('посетителей пока нет')}
-          icon={<Icon name="guests" />}
-          testId="countries-top-visitors"
-        />
-        <Stat
-          label={t('Клиенты без страны')}
-          value={formatInt(unknown?.paying ?? 0)}
-          hint={t('платящие, заведены до 10.10')}
-          icon={<Icon name="person" />}
-          testId="countries-unknown"
-        />
-      </Stats>
+      {/* полоса цифр как «Сайт wetop.ai» (владелец 01.11.2026) */}
+      <KpiStrip
+        testId="countries-strip"
+        items={[
+          { id: 'count', label: t('Стран'), value: formatInt(known.length), hint: t('за месяц') },
+          {
+            id: 'top-income',
+            label: t('Больше всего дохода'),
+            value: topIncome ? countryName(topIncome.country, locale, t) : t('нет оплат'),
+            hint: topIncome ? usd(topIncome.incomeCents) : undefined,
+            tone: topIncome ? 'success' : undefined,
+          },
+          {
+            id: 'top-visitors',
+            label: t('Больше всего посетителей'),
+            value: topVisitors && topVisitors.visitors ? countryName(topVisitors.country, locale, t) : t('нет посетителей'),
+            hint: topVisitors && topVisitors.visitors ? formatInt(topVisitors.visitors) : undefined,
+          },
+          {
+            id: 'unknown',
+            label: t('Клиенты без страны'),
+            value: formatInt(unknown?.paying ?? 0),
+            hint: t('встанет при входе'),
+            tone: (unknown?.paying ?? 0) > 0 ? 'warning' : undefined,
+          },
+        ]}
+      />
       <Panel title={t('Страны за месяц')}>
         {view.rows.length === 0 ? (
           <EmptyState title={t('Пока нет ни посетителей, ни клиентов.')} />
@@ -147,7 +150,7 @@ async function Countries({ month }: { month: string }) {
           </Table>
         )}
         <p className="muted cabinet__note">
-          {t('Страна клиента по телефону при регистрации, посетителя по адресу входа. Процент рядом: переход с прошлого шага.')}
+          {t('Страна клиента: выбранная при регистрации; у заведённых без неё страна адреса первого входа. Посетителя: по адресу визита.')}
         </p>
       </Panel>
     </CabinetShell>

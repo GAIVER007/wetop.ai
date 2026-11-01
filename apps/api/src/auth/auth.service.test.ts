@@ -30,6 +30,19 @@ function service(users = [fakeUser()]) {
   return { auth: new AuthService(world.prisma, verification), verification, letters, ...world };
 }
 
+describe('страна клиента по входу (владелец 01.11.2026: страна определяется всегда)', () => {
+  it('у организации без страны вход ставит страну по адресу входа; заданную не меняет; неизвестную XX/T1 не пишет', async () => {
+    const { auth, organizations } = service();
+    organizations[0]!.countryCode = null;
+    await auth.login({ email: 'admin@example.invalid', password: PASSWORD, ipCountry: 'xx' }, NOW);
+    expect(organizations[0]!.countryCode).toBeNull();
+    await auth.login({ email: 'admin@example.invalid', password: PASSWORD, ipCountry: 'kz' }, NOW);
+    expect(organizations[0]!.countryCode).toBe('KZ');
+    await auth.login({ email: 'admin@example.invalid', password: PASSWORD, ipCountry: 'QA' }, NOW);
+    expect(organizations[0]!.countryCode).toBe('KZ');
+  });
+});
+
 describe('AuthService.login', () => {
   it('верный пароль выдаёт токен, открывает сессию на 12 часов и пишет вход в журнал', async () => {
     const { auth, sessions, audit, users } = service();

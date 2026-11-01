@@ -107,6 +107,7 @@ export class AuthController {
     @Headers('user-agent') userAgent?: string,
     @Ip() socketIp?: string,
     @Headers('cf-connecting-ip') cfConnectingIp?: string,
+    @Headers('cf-ipcountry') cfIpCountry?: string,
   ) {
     this.ipLimit('login', AUTH_IP_LIMITS.loginPerHour, socketIp, cfConnectingIp);
     return this.auth.login({
@@ -114,6 +115,8 @@ export class AuthController {
       password: text(body?.password, 'password', 200),
       // адрес устройства для замка «почта + адрес» (владелец 27.10.2026); не сохраняется
       ip: visitorIp(socketIp, cfConnectingIp) ?? null,
+      // страна адреса входа от Cloudflare: только клиентам без страны (владелец 01.11.2026)
+      ipCountry: cfIpCountry ?? null,
       // семейство браузера — тем же разбором, что в аналитике сайта; полный User-Agent не храним (ADR-018)
       userAgentFamily: sessionDevice(userAgent),
     });

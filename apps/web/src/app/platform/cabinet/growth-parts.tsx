@@ -140,6 +140,48 @@ export function SalesFunnel({ growth, t }: { growth: PlatformGrowth; t: Translat
   );
 }
 
+/**
+ * Воронка продаж одной строкой (главная «C», владелец 01.11.2026): шесть шагов рядом, под числом переход с прошлого
+ * шага и полоска доли от входа. Шаги 1 до 3 синие, с активных на пробном зелёные.
+ */
+export function SalesFunnelRow({ growth, t }: { growth: PlatformGrowth; t: Translate }) {
+  const f = growth.funnel;
+  const steps: Array<{ key: string; label: string; value: number | null; conv: number | null; tone: 'lead' | 'paid' }> = [
+    { key: 'visitors', label: t('Посетили сайт'), value: f.visitors, conv: null, tone: 'lead' },
+    { key: 'registrations', label: t('Оставили заявку'), value: f.registrations, conv: f.conversion.visitorToRegistration, tone: 'lead' },
+    { key: 'trials', label: t('Подключили пробный'), value: f.trials, conv: f.conversion.registrationToTrial, tone: 'lead' },
+    { key: 'active', label: t('Активны на пробном'), value: f.activeTrials ?? null, conv: f.conversion.trialToActive ?? null, tone: 'paid' },
+    { key: 'paid', label: t('Оплатили'), value: f.firstPayments, conv: f.conversion.trialToPaid, tone: 'paid' },
+    { key: 'renewals', label: t('Продлили'), value: f.renewals, conv: f.conversion.renewal, tone: 'paid' },
+  ];
+  const entry = f.visitors ?? f.registrations;
+  return (
+    <ol className="cabinet-steps" data-testid="growth-funnel">
+      {steps.map((s, i) => {
+        const share = s.value !== null && entry > 0 ? Math.min(100, Math.max(2, Math.round((s.value * 100) / entry))) : 2;
+        return (
+          <li key={s.key} className="cabinet-steps__step" data-tone={s.tone} data-testid={`growth-${s.key}`}>
+            <span className="cabinet-steps__label">
+              {formatInt(i + 1)}. {s.label}
+            </span>
+            <span className="cabinet-steps__line">
+              <b className="cabinet-steps__value">{s.value === null ? '—' : formatInt(s.value)}</b>
+              {i === 0 ? (
+                <span className="cabinet__conv cabinet__conv--start">{s.value === null ? t('счётчик не подключён') : t('старт')}</span>
+              ) : (
+                s.conv !== null && <span className="cabinet__conv">{percentText(s.conv)}</span>
+              )}
+            </span>
+            <span className="cabinet__meter" aria-hidden="true">
+              <span style={{ inlineSize: `${share}%` }} /* slop-allow: inline-style ширина полосы из доли от входа */ />
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 /** «Пробный в оплату и продления» по месяцам: две линии, проценты 0 до 100, выбранный месяц последним */
 export function RatesChart({ growth, t, monthName }: { growth: PlatformGrowth; t: Translate; monthName: (m: string) => string }) {
   const rates = growth.rates ?? [];

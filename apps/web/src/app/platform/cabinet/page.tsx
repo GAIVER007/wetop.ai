@@ -1,8 +1,9 @@
+import Link from 'next/link';
 import { Suspense } from 'react';
 import { Page } from '../../../components/page';
 import { LoadError } from '../../../components/load-error';
 import { RefreshButton } from '../../../components/refresh-button';
-import { EmptyState, LoadingState, Panel, PanelTitle, Stat, Stats } from '../../../components/ui';
+import { EmptyState, LoadingState, Panel, PanelTitle } from '../../../components/ui';
 import { Icon } from '../../../components/icon';
 import { ApiError, platformApi, type PlatformCabinet, type PlatformGrowth } from '../../../lib/api';
 import { loadErrorProps } from '../../../lib/load-error';
@@ -12,12 +13,13 @@ import { unstable_rethrow } from 'next/navigation';
 import { monthLabel } from '../../branches/month-picker';
 import { CabinetShell, usd } from './shell';
 import { MonthPicker } from './money/month-picker';
-import { IncomeChart, percentText, RatesChart, SalesFunnel, tenthsText } from './growth-parts';
+import { IncomeChart, percentText, RatesChart, SalesFunnelRow, tenthsText } from './growth-parts';
 
 /**
- * Кабинет руководителя WETOP, главная вариант «B» (владелец 30.10.2026; план docs/plans/2026-10-29-owner-cabinet-full.md):
- * 4 цифры (MRR, оплатившие клиенты, средний чек, сумма оплат), воронка продаж конусом из шести шагов, справа
- * «пробный в оплату и продления» и доход по месяцам, внизу регистрации, активность на пробном и не оплатившие.
+ * Кабинет руководителя WETOP, главная вариант «C» (владелец 01.11.2026: «верхушка где выбор даты, там пустое
+ * пространство, а чтобы увидеть нижнюю статистику, нужно свайпать вниз»): месяц и «Обновить» в строке заголовка;
+ * сверху два блока: деньги месяца (MRR, оплатившие клиенты, средний чек, сумма оплат) и пробный период; ниже
+ * воронка продаж одной строкой из шести шагов с полосками; внизу два графика. Весь экран 1440×900 без прокрутки.
  * Только главному администратору.
  */
 export default async function CabinetPage({
@@ -26,11 +28,21 @@ export default async function CabinetPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const t = await serverT();
+  const locale = await currentLocale();
   const q = await searchParams;
   const raw = typeof q['month'] === 'string' ? q['month'] : '';
   const month = /^\d{4}-(0[1-9]|1[0-2])$/.test(raw) ? raw : new Date().toISOString().slice(0, 7);
   return (
-    <Page width="full" title={t('Кабинет WETOP')} actions={<RefreshButton />}>
+    <Page
+      width="full"
+      title={t('Кабинет WETOP')}
+      actions={
+        <>
+          <MonthPicker month={month} locale={locale} base="/platform/cabinet" />
+          <RefreshButton />
+        </>
+      }
+    >
       <Suspense fallback={<LoadingState label={t('Считаем клиентов…')} />}>
         <Cabinet month={month} />
       </Suspense>
@@ -65,60 +77,100 @@ async function Cabinet({ month }: { month: string }) {
   const shortMonth = (mm: string) => monthLabel(mm, locale).split(' ')[0]!.slice(0, 3);
   const diffInt = (now: number, before: number) => (now === before ? '' : `${now > before ? '+' : '\u2212'}${formatInt(Math.abs(now - before))}`);
   const vsPrev = (d: string) => (d ? t('{d} к прошлому месяцу', { d }) : t('как в прошлом месяце'));
+  const paidDiff = m ? diffInt(m.paidClients, m.previous.paidClients) : '';
+  const money: Array<{ id: string; label: string; value: string; hint: string | undefined; href?: string; tone?: 'up' }> = [
+    { id: 'cabinet-mrr', label: t('MRR, в месяц'), value: usd(k.mrrCents), hint: t('подписки, оплаченные на сегодня'), href: '/platform/cabinet/subscriptions' },
+    {
+      id: 'cabinet-paid-clients',
+      label: t('Клиенты, оплатили'),
+      value: formatInt(m?.paidClients ?? k.paying),
+      hint: m ? vsPrev(paidDiff) : undefined,
+      href: '/platform/cabinet/clients',
+      ...(paidDiff.startsWith('+') ? { tone: 'up' as const } : {}),
+    },
+    { id: 'cabinet-avg-check', label: t('Средний чек'), value: usd(m?.avgCheckCents ?? '0'), hint: t('за оплату в месяце') },
+    {
+      id: 'cabinet-income',
+      label: t('Сумма оплат'),
+      value: usd(m?.incomeCents ?? '0'),
+      hint: t('оплат за месяц: {n}', { n: formatInt(m?.paymentsCount ?? 0) }),
+      href: `/platform/cabinet/money?month=${month}`,
+    },
+  ];
+  const activity = tr?.avgActiveDaysTenths ?? null;
   return (
     <CabinetShell active="home" t={t} clients={view.totals.clients} className="cabinet-home-page">
-      <div className="cabinet__head">
-        <MonthPicker month={month} locale={locale} base="/platform/cabinet" />
-      </div>
-      <Stats min={180}>
-        <Stat
-          label={t('MRR, в месяц')}
-          value={usd(k.mrrCents)}
-          hint={t('подписки, оплаченные на сегодня')}
-          tone="success"
-          icon={<Icon name="chart" />}
-          testId="cabinet-mrr"
-          href="/platform/cabinet/subscriptions"
-        />
-        <Stat
-          label={t('Клиенты, оплатили')}
-          value={formatInt(m?.paidClients ?? k.paying)}
-          hint={m ? vsPrev(diffInt(m.paidClients, m.previous.paidClients)) : undefined}
-          icon={<Icon name="guests" />}
-          testId="cabinet-paid-clients"
-          href="/platform/cabinet/clients"
-        />
-        <Stat
-          label={t('Средний чек')}
-          value={usd(m?.avgCheckCents ?? '0')}
-          hint={t('за оплату в месяце')}
-          icon={<Icon name="money" />}
-          testId="cabinet-avg-check"
-        />
-        <Stat
-          label={t('Сумма оплат')}
-          value={usd(m?.incomeCents ?? '0')}
-          hint={t('оплат за месяц: {n}', { n: formatInt(m?.paymentsCount ?? 0) })}
-          icon={<Icon name="money" />}
-          testId="cabinet-income"
-          href={`/platform/cabinet/money?month=${month}`}
-        />
-      </Stats>
-
-      <div className="cabinet-home">
+      <div className="cabinet-c">
+        <div className="cabinet-c__top">
+          <Panel title={t('Деньги за месяц')} className="cabinet-c__money">
+            <dl className="cabinet-c__kpis">
+              {money.map((x) => (
+                <div key={x.id}>
+                  <dt className="muted">{x.href ? <Link href={x.href} prefetch={false}>{x.label}</Link> : x.label}</dt>
+                  <dd data-testid={x.id}>{x.value}</dd>
+                  {x.hint && (
+                    <span className="cabinet__sub muted" data-tone={x.tone}>
+                      {x.hint}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </dl>
+          </Panel>
+          <Panel title={t('Пробный период')} className="cabinet-c__trial">
+            <dl className="cabinet-c__rows">
+              <div data-testid="cabinet-registrations">
+                <dt>{t('Регистрации за месяц')}</dt>
+                <dd>
+                  <b>{formatInt(tr?.registrations ?? growth.funnel.registrations)}</b>
+                  <span className="muted">
+                    {t('на пробном {n}, кончается за 3 дня {s}', {
+                      n: formatInt(tr?.now ?? k.trial),
+                      s: formatInt(tr?.endingSoon ?? k.trialEndingSoon),
+                    })}
+                  </span>
+                </dd>
+              </div>
+              <div data-testid="cabinet-trial-activity">
+                <dt>{t('Активность на пробном')}</dt>
+                <dd>
+                  <b>{activity === null ? '—' : t('{d} из 7 дней', { d: tenthsText(activity) })}</b>
+                  <span className="muted">
+                    {activity === null || !tr
+                      ? t('в месяце пробный ещё ни у кого не кончился')
+                      : t('у оплативших {p}, у не оплативших {u}', {
+                          p: tr.paidActiveDaysTenths === null ? '—' : tenthsText(tr.paidActiveDaysTenths),
+                          u: tr.unpaidActiveDaysTenths === null ? '—' : tenthsText(tr.unpaidActiveDaysTenths),
+                        })}
+                  </span>
+                </dd>
+              </div>
+              <div data-testid="cabinet-trial-unpaid">
+                <dt>{t('После пробного не оплатили')}</dt>
+                <dd>
+                  <b data-tone={tr && tr.endedUnpaid > 0 ? 'danger' : undefined}>
+                    {t('{n} из {m}', { n: formatInt(tr?.endedUnpaid ?? 0), m: formatInt(tr?.ended ?? 0) })}
+                  </b>
+                  <span className="muted">
+                    {tr && tr.ended > 0
+                      ? t('{p} пробных, кончившихся в месяце', { p: percentText(Math.floor((tr.endedUnpaid * 1000) / tr.ended)) })
+                      : t('в месяце пробный ещё ни у кого не кончился')}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+          </Panel>
+        </div>
         <Panel>
           <PanelTitle>
             <span className="cabinet-home__title">
               {t('Воронка продаж')}
-              <span className="muted cabinet__sub">{t('% справа: переход с прошлого шага')}</span>
+              <span className="muted cabinet__sub">{t('% под числом: переход с прошлого шага')}</span>
             </span>
           </PanelTitle>
-          <SalesFunnel growth={growth} t={t} />
-          <p className="muted cabinet__sub cabinet-home__note">
-            {t('Шаг 4: работали в системе 3 дня и больше за пробный. Шаг 5: первая оплата. Шаг 6: продлили после оплаты.')}
-          </p>
+          <SalesFunnelRow growth={growth} t={t} />
         </Panel>
-        <div className="cabinet-home__side">
+        <div className="cabinet-c__charts">
           <Panel>
             <PanelTitle>
               <span className="cabinet-home__title">
@@ -132,59 +184,6 @@ async function Cabinet({ month }: { month: string }) {
             <IncomeChart growth={growth} t={t} monthName={shortMonth} />
           </Panel>
         </div>
-      </div>
-
-      <div className="cabinet-home__trial">
-        <Panel>
-          <div className="cabinet-home__fact" data-testid="cabinet-registrations">
-            <span className="muted">{t('Регистрации за месяц')}</span>
-            <b>{formatInt(tr?.registrations ?? growth.funnel.registrations)}</b>
-            <span>
-              {t('сейчас на пробном {n}, кончается за 3 дня {s}', {
-                n: formatInt(tr?.now ?? k.trial),
-                s: formatInt(tr?.endingSoon ?? k.trialEndingSoon),
-              })}
-            </span>
-          </div>
-        </Panel>
-        <Panel>
-          <div className="cabinet-home__fact" data-testid="cabinet-trial-activity">
-            <span className="muted">{t('Активность на пробном')}</span>
-            <b>
-              {tr?.avgActiveDaysTenths === null || tr?.avgActiveDaysTenths === undefined
-                ? '—'
-                : t('{d} из 7 дней', { d: tenthsText(tr.avgActiveDaysTenths) })}
-            </b>
-            {tr?.avgActiveDaysTenths !== null && tr?.avgActiveDaysTenths !== undefined && (
-              <span className="cabinet__meter" aria-hidden="true">
-                <span
-                  style={{ inlineSize: `${Math.min(100, Math.round((tr.avgActiveDaysTenths * 100) / 70))}%` }} /* slop-allow: inline-style ширина полосы из доли дней */
-                />
-              </span>
-            )}
-            <span>
-              {tr?.avgActiveDaysTenths === null || tr?.avgActiveDaysTenths === undefined
-                ? t('в месяце пробный ещё ни у кого не кончился')
-                : t('у оплативших {p}, у не оплативших {u}', {
-                    p: tr.paidActiveDaysTenths === null ? '—' : tenthsText(tr.paidActiveDaysTenths),
-                    u: tr.unpaidActiveDaysTenths === null ? '—' : tenthsText(tr.unpaidActiveDaysTenths),
-                  })}
-            </span>
-          </div>
-        </Panel>
-        <Panel>
-          <div className="cabinet-home__fact" data-testid="cabinet-trial-unpaid">
-            <span className="muted">{t('После пробного не оплатили')}</span>
-            <b data-tone={tr && tr.endedUnpaid > 0 ? 'danger' : undefined}>
-              {t('{n} из {m}', { n: formatInt(tr?.endedUnpaid ?? 0), m: formatInt(tr?.ended ?? 0) })}
-            </b>
-            <span>
-              {tr && tr.ended > 0
-                ? t('{p} пробных, кончившихся в месяце', { p: percentText(Math.floor((tr.endedUnpaid * 1000) / tr.ended)) })
-                : t('в месяце пробный ещё ни у кого не кончился')}
-            </span>
-          </div>
-        </Panel>
       </div>
     </CabinetShell>
   );

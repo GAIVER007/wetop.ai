@@ -66,6 +66,15 @@ test('главная «B»: 4 цифры, воронка продаж из 6 ш�
   await expect(page.getByTestId('growth-renewals')).toBeVisible();
   for (const id of ['cabinet-mrr', 'growth-renewals', 'growth-rates', 'growth-income'])
     await expect(page.getByTestId(id), id).toBeInViewport({ ratio: 1 });
+  // главная «C» (владелец 01.11.2026: «пустое пространство у выбора даты, нижнюю статистику надо свайпать»): месяц в
+  // строке заголовка, факты о пробном сверху; на экране компьютера 1440×900 всё без прокрутки
+  await expect(page.locator('.page__actions').getByTestId('money-month')).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.reload();
+  for (const id of ['cabinet-mrr', 'cabinet-registrations', 'cabinet-trial-unpaid', 'growth-renewals', 'growth-rates', 'growth-income'])
+    await expect(page.getByTestId(id), id).toBeInViewport({ ratio: 1 });
+  expect(await page.evaluate(() => document.documentElement.scrollHeight - innerHeight)).toBeLessThanOrEqual(0);
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/cabinet-c-1440x900.png` });
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/cabinet-1440x800.png` });
 
   // «Клиенты»: строка с LTV, «оплачено до» и кнопкой «Доступ»; своя организация не клиент

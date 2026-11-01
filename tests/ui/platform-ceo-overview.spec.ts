@@ -42,9 +42,14 @@ test('Обзор WETOP: оплата и расход из «Денег» в вы
   await expect(o.getByTestId('ceo-finance-profit')).toContainText('$179');
   await expect(o.getByTestId('ceo-finance-cash')).toContainText('$179');
   await expect(page.getByRole('link', { name: 'Обзор WETOP' })).toHaveAttribute('aria-current', 'page');
-  const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-  expect(wide).toBeLessThanOrEqual(0);
-  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/ceo-overview-1440.png`, fullPage: true });
+  // вариант A (владелец 01.11.2026): график выручки рядом с «Клиентами» и «Финансами», месяц в строке заголовка,
+  // весь обзор на одном экране 1440×900 без прокрутки
+  await expect(o.getByTestId('growth-income')).toContainText('$199');
+  await expect(page.locator('.page__actions').getByTestId('money-month')).toBeVisible();
+  const over = await page.evaluate(() => ({ w: document.documentElement.scrollWidth - innerWidth, h: document.documentElement.scrollHeight - innerHeight }));
+  expect(over.w).toBeLessThanOrEqual(0);
+  expect(over.h).toBeLessThanOrEqual(0);
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/ceo-overview-1440.png` });
 });
 
 test('сквозная цепочка: тариф, партнёр, оплата клиента → Обзор (MRR, ARR, комиссия, долг, платит), отмена всё возвращает', async ({

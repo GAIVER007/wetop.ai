@@ -199,6 +199,7 @@ export const RULES: Rule[] = [
             !v.includes('--shadow-floating') &&
             // стекло «A» (владелец 01.11.2026): мягкая тень кнопок, вкладок и полос одной переменной
             !v.includes('--shadow-glass-a') &&
+            !v.includes('--shadow-primary-glow') &&
             !v.includes('--ring') &&
             !v.startsWith('inset') &&
             !/^0 0 0 \d/.test(v),

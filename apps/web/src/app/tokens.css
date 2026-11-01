@@ -132,6 +132,7 @@
   --shadow-floating: 0px 20px 70px 0px rgba(18, 38, 68, 0.16);
   --shadow-glass: 0px 16px 36px -18px rgba(18, 38, 68, 0.16);
   --shadow-glass-a: 0px 8px 24px -10px rgba(18, 38, 68, 0.16);
+  --shadow-primary-glow: 0px 8px 20px -8px rgba(8, 95, 186, 0.45);
   --ease: 180ms cubic-bezier(0, 0, 0.58, 1);
   --duration-fast: 120ms;
   --duration-base: 180ms;
@@ -213,6 +214,7 @@
   --shadow-floating: 0px 24px 80px 0px rgba(0, 0, 0, 0.4);
   --shadow-glass: 0px 18px 40px -20px rgba(0, 0, 0, 0.4);
   --shadow-glass-a: 0px 8px 28px -10px rgba(0, 0, 0, 0.4);
+  --shadow-primary-glow: 0px 8px 22px -8px rgba(72, 165, 255, 0.4);
 }
 [data-theme='contrast'] {
   color-scheme: light;
@@ -341,6 +343,7 @@
   --shadow-floating: 0px 20px 70px 0px rgba(18, 38, 68, 0.16);
   --shadow-glass: 0px 16px 36px -18px rgba(18, 38, 68, 0.16);
   --shadow-glass-a: 0px 8px 24px -10px rgba(18, 38, 68, 0.16);
+  --shadow-primary-glow: 0px 8px 20px -8px rgba(8, 95, 186, 0.45);
   --ease: 180ms cubic-bezier(0, 0, 0.58, 1);
   --duration-fast: 120ms;
   --duration-base: 180ms;

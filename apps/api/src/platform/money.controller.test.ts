@@ -70,6 +70,7 @@ const money: Partial<MoneyRepository> = {
     added.push(input);
     return { ...input, id: input.id ?? PARTNER };
   },
+  partnerPayouts: async () => [{ id: 'e9', partnerId: PARTNER, amountCents: 1000n, spentOn: '2026-10-28', note: 'Kaspi', voided: false }],
   partnerExists: async (id: string) => id === PARTNER,
   setClientPartner: async (input) => {
     added.push(input);
@@ -199,6 +200,11 @@ describe('команда: цифровой сотрудник; партнёры'
     const res = await api().get('/platform/partners').set(admin).expect(200);
     expect(res.body.partners[0]).toMatchObject({ name: 'Айдар', trials: 1, connected: 1, incomeCents: '9900', accruedCents: '1980', dueCents: '1980' });
     expect(res.body.clients).toEqual([{ organizationId: LUXX, partnerId: PARTNER, name: 'Luxx' }]);
+    // «Партнёры» A (владелец 01.11.2026): выплаты списком с отменой и все клиенты для «Назначить клиента»
+    expect(res.body.payouts).toEqual([
+      { id: 'e9', partnerId: PARTNER, partnerName: 'Айдар', amountCents: '1000', spentOn: '2026-10-28', note: 'Kaspi', voided: false },
+    ]);
+    expect(res.body.allClients).toEqual([{ id: LUXX, name: 'Luxx' }]);
     partnersReady = false;
     expect((await api().get('/platform/partners').set(admin).expect(200)).body).toEqual({ ready: false });
     expect((await api().post('/platform/partners').set(admin).send({ name: 'X', percent: '10' }).expect(503)).body.message).toBe(PARTNERS_NOT_READY);

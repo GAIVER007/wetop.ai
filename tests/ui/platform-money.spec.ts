@@ -182,7 +182,6 @@ test('партнёры: процент, клиент партнёра, начи�
   expect((await request.post(`${FIXTURE_API}/platform/payments`, { ...asAdmin, data: { organizationId: 'ui-org-2', amount: '50', paidOn: new Date().toISOString().slice(0, 10), kind: 'ADDON' } })).ok()).toBe(true);
   await page.goto('/platform/cabinet/partners');
   const row = page.getByTestId('partner-row').filter({ hasText: 'Агентство Тест' });
-  await expect(row).toContainText('Хостел «Пример»');
   await expect(row).toContainText('$50');
   await expect(page.getByTestId('partners-due')).toHaveText('$10');
   await row.getByTestId('partner-pay-dialog-open').click();
@@ -196,6 +195,72 @@ test('партнёры: процент, клиент партнёра, начи�
   // выплата в «Деньгах» по статье «Партнёрам»
   await page.goto('/platform/cabinet/money');
   await expect(page.getByTestId('money-table')).toContainText('Партнёрам');
+});
+
+/**
+ * «Партнёры» A (владелец 01.11.2026, «давай а»): выплаты списком справа, ошибочную выплату отменяют и долг возвращается;
+ * поиск и фильтры; клиентов партнёра назначают и убирают прямо здесь; всё в один экран 1440×900.
+ */
+test('партнёры A: отмена выплаты, поиск и фильтры, клиенты партнёра, один экран', async ({ page, request }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await signIn(page, request);
+  const token = (await page.context().cookies()).find((c) => c.name === 'wetop_session')?.value;
+  const asAdmin = { headers: { 'x-wetop-test-client': '1', 'x-wetop-session': token! } };
+  const partner = await (await request.post(`${FIXTURE_API}/platform/partners`, { ...asAdmin, data: { name: 'Айгерим Тестова', percent: '20', phone: '+7 700 000 00 01' } })).json();
+  await request.post(`${FIXTURE_API}/platform/partners`, { ...asAdmin, data: { name: 'Ержан Тестов', percent: '10' } });
+  await page.goto('/platform/cabinet/partners');
+  const row = page.getByTestId('partner-row').filter({ hasText: 'Айгерим Тестова' });
+
+  // клиента партнёру назначают прямо здесь: окно «Клиенты»
+  await row.getByTestId('partner-clients-dialog-open').click();
+  const dlg = page.locator('dialog[open]');
+  await expect(dlg).toContainText('У партнёра пока нет клиентов');
+  await dlg.getByLabel('Назначить клиента').selectOption({ label: 'Хостел «Пример»' });
+  await dlg.getByTestId('partner-client-assign-save').click();
+  // окно остаётся открытым: клиент сразу в списке партнёра, рядом «Убрать»
+  await expect(dlg.getByTestId('partner-client')).toHaveText(/Хостел «Пример»/);
+  await dlg.getByRole('button', { name: 'Закрыть' }).click();
+  expect((await request.post(`${FIXTURE_API}/platform/payments`, { ...asAdmin, data: { organizationId: 'ui-org-2', amount: '50', paidOn: new Date().toISOString().slice(0, 10), kind: 'ADDON' } })).ok()).toBe(true);
+  await page.reload();
+  await expect(page.getByTestId('partners-due')).toHaveText('$10');
+  await row.getByTestId('partner-clients-dialog-open').click();
+  await expect(page.getByTestId('partner-client')).toHaveText(/Хостел «Пример»/);
+  await page.locator('dialog[open]').getByRole('button', { name: 'Закрыть' }).click();
+
+  // фильтры «стекло» и поиск по клиенту
+  await page.getByTestId('partners-filter-due').click();
+  await page.waitForURL('**/partners?show=due');
+  await expect(page.getByTestId('partner-row')).toHaveCount(1);
+  await page.getByLabel('Поиск партнёра').fill('Пример');
+  await page.getByLabel('Поиск партнёра').press('Enter');
+  await page.waitForURL(/q=/);
+  await expect(page.getByTestId('partner-row')).toHaveCount(1);
+  await page.getByLabel('Поиск партнёра').fill('нет такого');
+  await page.getByLabel('Поиск партнёра').press('Enter');
+  await expect(page.getByTestId('partners-list')).toContainText('Никого не нашли');
+  await page.goto('/platform/cabinet/partners');
+  await expect(page.getByTestId('partner-row')).toHaveCount(2);
+
+  // выплата видна справа; ошибочную отменяют, к выплате снова $10
+  await row.getByTestId('partner-pay-dialog-open').click();
+  await page.locator('dialog[open]').getByTestId('partner-payout-save').click();
+  await expect(page.getByTestId('partners-due')).toHaveText('$0');
+  const paid = page.getByTestId('partner-payout-row').filter({ hasText: 'Айгерим Тестова' });
+  await expect(paid).toContainText('$10');
+  // один экран 1440×900: без прокрутки и вбок, и вниз
+  const over = await page.evaluate(() => ({ w: document.documentElement.scrollWidth - innerWidth, h: document.documentElement.scrollHeight - innerHeight }));
+  expect(over.w).toBeLessThanOrEqual(0);
+  expect(over.h).toBeLessThanOrEqual(0);
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/partners-a-1440.png` });
+  await paid.getByTestId('money-void-expense').click();
+  await expect(page.getByTestId('partners-due')).toHaveText('$10');
+  await expect(paid).toContainText('отменена');
+
+  // убрать клиента у партнёра: начисленное уходит
+  await row.getByTestId('partner-clients-dialog-open').click();
+  await page.locator('dialog[open]').getByTestId('partner-client-remove').click();
+  await expect(page.getByTestId('partners-due')).toHaveText('$0');
+  expect(partner.id).toBeTruthy();
 });
 
 /**

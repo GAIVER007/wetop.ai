@@ -10,7 +10,8 @@ import { api, chessboardApi, financeApi, messengerLinks, reservationHistoryApi, 
 import { BookingHistory } from './booking-history';
 import { formatMoney } from '../../../lib/money';
 import { displayDate } from '../../../lib/display-date';
-import { MAX_CHESSBOARD_DAYS, citizenshipLabel } from '@pms/domain';
+import { MAX_CHESSBOARD_DAYS } from '@pms/domain';
+import { countryName } from '../../../lib/citizenship-name';
 import { nightsBetween } from '../../../lib/plural';
 import { countLabel, intlLocale, msg } from '../../../i18n';
 import { currentLocale, serverT } from '../../../i18n/server';
@@ -159,7 +160,7 @@ export default async function ReservationPage({
                 }
               >
                 {r.primaryGuest.citizenship
-                  ? t('гражданство: {country}', { country: citizenshipLabel(r.primaryGuest.citizenship) ?? r.primaryGuest.citizenship })
+                  ? t('гражданство: {country}', { country: countryName(r.primaryGuest.citizenship, locale) ?? r.primaryGuest.citizenship })
                   : t('гражданство не указано')}
               </span>
             )}

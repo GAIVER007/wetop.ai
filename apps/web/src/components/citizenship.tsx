@@ -1,6 +1,8 @@
 'use client';
 import { useCallback, useId, useRef, useState, type ReactNode } from 'react';
-import { CITIZENSHIP_COUNTRIES, citizenshipLabel } from '@pms/domain';
+import { CITIZENSHIP_COUNTRIES } from '@pms/domain';
+import { useLocale, useT } from '../i18n/locale-provider';
+import { countryName } from '../lib/citizenship-name';
 import { ConfirmDialog } from './confirm-dialog';
 import { Alert, Field, Select } from './ui';
 
@@ -27,7 +29,13 @@ export function CitizenshipSelect({
   'aria-describedby'?: string | undefined;
   'aria-invalid'?: boolean | 'true' | 'false' | undefined;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const current = (value ?? defaultValue ?? '').trim().toUpperCase();
+  // страны по алфавиту языка человека, первые 15 частых стран списка остаются сверху (инструкция гостиницы 01.11.2026)
+  const named = CITIZENSHIP_COUNTRIES.map((c) => ({ code: c.code, name: countryName(c.code, locale) ?? c.name }));
+  const countries =
+    locale === 'ru' ? named : [...named.slice(0, 15), ...named.slice(15).sort((a, b) => a.name.localeCompare(b.name, locale))];
   const known = current === '' || CITIZENSHIP_COUNTRIES.some((c) => c.code === current);
   const control = value !== undefined ? { value: current } : { defaultValue: current };
   return (
@@ -40,9 +48,9 @@ export function CitizenshipSelect({
       onChange={onChange ? (e) => onChange(e.target.value) : undefined}
       data-testid="citizenship-select"
     >
-      <option value="">Не указано</option>
-      {!known && <option value={current}>{citizenshipLabel(current)}</option>}
-      {CITIZENSHIP_COUNTRIES.map((c) => (
+      <option value="">{t('Не указано')}</option>
+      {!known && <option value={current}>{countryName(current, locale)}</option>}
+      {countries.map((c) => (
         <option key={c.code} value={c.code}>
           {c.name}
         </option>
@@ -53,7 +61,7 @@ export function CitizenshipSelect({
 
 /** Отказ заселения из-за пустого гражданства: текст API (reservations.service checkIn) */
 export const isCitizenshipRefusal = (error: string | null | undefined) =>
-  Boolean(error && /гражданств/i.test(error) && /заселен/i.test(error));
+  Boolean(error && /гражданств/i.test(error) && /заселен/i.test(error)); // kk-allow: сверка с текстом ответа API
 
 /**
  * Окно «Укажите гражданство» прямо на заселении (шахматка и карточка брони): выбрать страну, сохранить в карточку
@@ -69,6 +77,7 @@ export function useCitizenshipPrompt(save: (code: string) => Promise<{ error: st
   const [pending, setPending] = useState(false);
   const decide = useRef<((ok: boolean) => void) | null>(null);
   const controlId = useId();
+  const t = useT();
 
   const ask = useCallback((name: string) => {
     decide.current?.(false);
@@ -92,9 +101,9 @@ export function useCitizenshipPrompt(save: (code: string) => Promise<{ error: st
   const dialog = guest === null ? null : (
     <ConfirmDialog
       open
-      title="Укажите гражданство гостя"
-      confirmLabel="Сохранить и заселить"
-      cancelLabel="Не сейчас"
+      title={t('Укажите гражданство гостя')}
+      confirmLabel={t('Сохранить и заселить')}
+      cancelLabel={t('Не сейчас')}
       tone="primary"
       pending={pending}
       confirmDisabled={!code}
@@ -110,10 +119,9 @@ export function useCitizenshipPrompt(save: (code: string) => Promise<{ error: st
       }}
     >
       <p>
-        {guest}: без гражданства заселение невозможно, гостя нужно зарегистрировать в eQonaq. Страна сохранится в
-        карточке гостя.
+        {t('{guest}: без гражданства заселение невозможно, гостя нужно зарегистрировать в eQonaq. Страна сохранится в карточке гостя.', { guest })}
       </p>
-      <Field label="Гражданство" controlId={controlId}>
+      <Field label={t('Гражданство')} controlId={controlId}>
         <CitizenshipSelect id={controlId} value={code} onChange={setCode} required />
       </Field>
       {error && <Alert>{error}</Alert>}

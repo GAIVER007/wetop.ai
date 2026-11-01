@@ -33,8 +33,11 @@ test('все бизнесы: итог по валютам, строки WETOP и
   await page.waitForURL('**/owner');
   const view = page.getByTestId('owner-businesses');
   await expect(view).toBeVisible();
-  await expect(page.getByTestId('owner-total-QAR')).toContainText('Все бизнесы, QAR');
-  await expect(page.getByTestId('owner-total-USD')).toContainText('Прибыль');
+  // всё в валюте компании по курсу Нацбанка РК на день операции (владелец 01.11.2026): один итог в тенге
+  await expect(page.getByTestId('owner-total-KZT')).toContainText('Все бизнесы, KZT');
+  await expect(page.getByTestId('owner-total-QAR')).toHaveCount(0);
+  await expect(page.getByTestId('owner-total-USD')).toHaveCount(0);
+  await expect(page.getByTestId('owner-fx')).toContainText('QAR, USD переведены в KZT по курсу Нацбанка РК на день операции');
   const rows = page.getByTestId('owner-row');
   await expect(rows).toHaveCount(3);
   await expect(rows.nth(0)).toContainText('WETOP');
@@ -46,7 +49,9 @@ test('все бизнесы: итог по валютам, строки WETOP и
   const other = rows.nth(2).locator('form[action="/auth/organization"]');
   await expect(other.locator('input[name="organizationId"]')).toHaveValue('ui-org-2');
   await expect(other.locator('input[name="locationId"]')).toHaveValue('44444444-4444-4444-8444-444444444444');
-  await expect(page.getByTestId('owner-chart-QAR')).toBeVisible();
+  await expect(page.getByTestId('owner-chart-KZT')).toBeVisible();
+  // исходная сумма филиала подписью под суммой в тенге
+  await expect(rows.nth(1)).toContainText('QAR');
   // «Требуют решения» отдельным блоком снят (владелец 01.11.2026, один экран): дела филиала в строке таблицы
   await expect(page.getByRole('main')).toContainText('бизнесов: 3, филиалов: 2');
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

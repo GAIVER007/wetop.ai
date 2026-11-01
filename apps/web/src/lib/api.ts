@@ -5734,11 +5734,14 @@ export interface OwnerBusinesses {
     revenueMinor: string;
     expensesMinor: string;
     profitMinor: string;
+    /** Суммы в валюте филиала, если строка переведена в валюту компании; своя валюта: null */
+    source?: { currency: string; revenueMinor: string; expensesMinor: string; profitMinor: string } | null;
     attention: number;
     current: boolean;
   }>;
   chart: Array<{ currency: string; revenueMinor: string[] }>;
-}
+  /** Перевод в валюту компании по курсу Нацбанка РК на день операции (владелец 01.11.2026); курсов нет: null */
+  fx?: { currency: string; source: 'NBK'; converted: string[]; approximate: boolean; missing: string[] }
 /** РНП бизнеса по дням (`GET /business-rnp`, владелец 30.10.2026): деньги минорными единицами строкой */
 export interface BusinessRnpRow {
   visitors: number;

@@ -11,10 +11,10 @@ import { CabinetController } from './cabinet.controller';
 import { CABINET_REPOSITORY, PrismaCabinetRepository } from './cabinet.repository';
 import { MoneyController } from './money.controller';
 import { OwnerBusinessesController } from './owner-businesses.controller';
+import { EXCHANGE_FETCH, ExchangeRatesService, fetchNbk } from './exchange-rates';
 import { GROWTH_REPOSITORY, GrowthController, PrismaGrowthRepository } from './growth.controller';
 import { CLIENT_CARD_REPOSITORY, ClientCardController, PrismaClientCardRepository } from './client-card.controller';
 import { MONEY_REPOSITORY, PrismaMoneyRepository } from './money.repository';
-import { PARTNER_CABINET_REPOSITORY, PartnerController, PrismaPartnerCabinetRepository } from './partner.controller';
 import { PrismaSupportAudit, SUPPORT_AUDIT } from './support.audit';
 import { EnvSupportConnection, SUPPORT_CONNECTION } from './support.connection';
 import { SupportController } from './support.controller';
@@ -29,7 +29,7 @@ import {
 
 /** Раздел «Платформа»: организации и их расширения, техподдержка — панель ИИ-помощника (DATA_MODEL §16, ADR-083) */
 @Module({
-  controllers: [PlatformController, SupportController, CabinetController, MoneyController, GrowthController, ClientCardController, OwnerBusinessesController, PartnerController],
+  controllers: [PlatformController, SupportController, CabinetController, MoneyController, GrowthController, ClientCardController, OwnerBusinessesController],
   providers: [
     PrismaService,
     // кабинет компании WETOP (владелец 28.10.2026)
@@ -38,8 +38,6 @@ import {
     { provide: MONEY_REPOSITORY, useClass: PrismaMoneyRepository },
     { provide: GROWTH_REPOSITORY, useClass: PrismaGrowthRepository },
     { provide: CLIENT_CARD_REPOSITORY, useClass: PrismaClientCardRepository },
-    // кабинет партнёра WETOP (DATA_MODEL §63.3, миграция 178)
-    { provide: PARTNER_CABINET_REPOSITORY, useClass: PrismaPartnerCabinetRepository },
     { provide: EXTENSIONS_REPOSITORY, useClass: PrismaExtensionsRepository },
     ExtensionsService,
     { provide: SUPPORT_CONNECTION, useClass: EnvSupportConnection },
@@ -50,6 +48,9 @@ import {
     // ночная проверка подписок (срез 4 кабинета руководителя, 29.10.2026)
     { provide: SUBSCRIPTION_NIGHTLY_REPOSITORY, useClass: PrismaSubscriptionNightlyRepository },
     SubscriptionNightlyService,
+    // курсы Нацбанка РК по дням для «Все бизнесы» в валюте компании (владелец 01.11.2026, миграция 180)
+    { provide: EXCHANGE_FETCH, useValue: fetchNbk },
+    ExchangeRatesService,
     // создание организации (ORG2): письмо владельцу уходит тем же отправителем и на тот же адрес стойки, что сброс пароля
     OrganizationCreation,
     {

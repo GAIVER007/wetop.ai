@@ -8554,6 +8554,15 @@ createServer(async (req, res) => {
         return new Date(Date.UTC(y, m - 1 + d, 1)).toISOString().slice(0, 7);
       });
       const branch = DEFAULT_FIXTURE_BRANCH;
+      // деньги по дням (15-е число месяца); курсы Нацбанка вымышленные, но правдоподобные (владелец 01.11.2026)
+      const days = (rev: (i: number) => number, exp: (i: number) => number) =>
+        months.map((m, i) => ({ date: `${m}-15`, revenueMinor: BigInt(rev(i)) * 100n, expensesMinor: BigInt(exp(i)) * 100n }));
+      const fxRates = new Map(
+        (['QAR', 'USD'] as const).map((c) => [
+          c,
+          months.map((m, i) => ({ date: `${m}-01`, micro: BigInt(c === 'QAR' ? 124_000_000 + i * 150_000 : 452_000_000 + i * 400_000) })),
+        ]),
+      );
       return send(
         200,
         buildOwnerBusinesses({
@@ -8569,7 +8578,7 @@ createServer(async (req, res) => {
               locationId: branch.locationId,
               locationName: 'Luxx Aparts 1',
               currency: 'QAR',
-              money: months.map((m, i) => ({ month: m, revenueMinor: BigInt(150000 + i * 12000) * 100n, expensesMinor: BigInt(90000 + i * 3000) * 100n })),
+              days: days((i) => 150000 + i * 12000, (i) => 90000 + i * 3000),
               attention: 2,
             },
             {
@@ -8581,11 +8590,18 @@ createServer(async (req, res) => {
               locationId: '44444444-4444-4444-8444-444444444444',
               locationName: 'Luxx Aparts 2',
               currency: 'QAR',
-              money: months.map((m, i) => ({ month: m, revenueMinor: BigInt(120000 + i * 9000) * 100n, expensesMinor: BigInt(70000 + i * 2000) * 100n })),
+              days: days((i) => 120000 + i * 9000, (i) => 70000 + i * 2000),
               attention: 0,
             },
           ],
-          platform: { incomeMinor: [0n, 0n, 0n, 120000n, 300000n, 490000n], expensesMinor: [0n, 0n, 0n, 80000n, 150000n, 280000n] },
+          platform: {
+            days: months.map((m, i) => ({
+              date: `${m}-10`,
+              revenueMinor: [0n, 0n, 0n, 120000n, 300000n, 490000n][i]!,
+              expensesMinor: [0n, 0n, 0n, 80000n, 150000n, 280000n][i]!,
+            })),
+          },
+          fx: { currency: 'KZT', rates: fxRates },
         }),
       );
     }

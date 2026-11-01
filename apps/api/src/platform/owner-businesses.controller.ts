@@ -8,6 +8,7 @@ import { Access } from '../auth/access.decorator';
 import { readOwnerAttention } from '../finance/owner-attention';
 import { buildOwnerBusinesses, type OwnerBusinessesSource } from '../finance/owner-businesses';
 import { MONEY_REPOSITORY, type MoneyRepository } from './money.repository';
+import { readDailyRates } from './exchange-rates';
 
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
 const sixMonths = (month: string) =>
@@ -15,8 +16,9 @@ const sixMonths = (month: string) =>
     const [y, m] = month.split('-').map(Number) as [number, number];
     return new Date(Date.UTC(y, m - 1 - (5 - i), 1)).toISOString().slice(0, 7);
   });
-const monthIn = (at: Date, tz: string) =>
-  new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit' }).format(at).slice(0, 7);
+/** День операции в поясе филиала: по нему курс Нацбанка (владелец 01.11.2026) и месяц строки */
+const dayIn = (at: Date, tz: string) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(at);
 
 /**
  * «Кабинет владельца: все бизнесы», вариант C (владелец 30.10.2026). Человек видит филиалы всех организаций, где он
@@ -72,14 +74,14 @@ export class OwnerBusinessesController {
     for (const l of locations) {
       const rev = new Map<string, bigint>();
       const exp = new Map<string, bigint>();
-      const add = (map: Map<string, bigint>, m: string, v: bigint) => map.set(m, (map.get(m) ?? 0n) + v);
+      const add = (map: Map<string, bigint>, d: string, v: bigint) => map.set(d, (map.get(d) ?? 0n) + v);
       const v = l.business.vertical;
       if (v === 'BEAUTY') {
         const rows = await db.appointment.findMany({
           where: { locationId: l.id, status: 'DONE', startsAt: { gte: from, lt: to } },
           select: { price: true, startsAt: true },
         });
-        for (const r of rows) add(rev, monthIn(r.startsAt, l.timezone), r.price);
+        for (const r of rows) add(rev, dayIn(r.startsAt, l.timezone), r.price);
       } else if (v === 'FOOD_SERVICE') {
         const [orders, bar] = await Promise.all([
           db.restaurantOrder.findMany({
@@ -91,8 +93,8 @@ export class OwnerBusinessesController {
             select: { totalRevenue: true, createdAt: true },
           }),
         ]);
-        for (const r of orders) add(rev, monthIn(r.closedAt!, l.timezone), r.total);
-        for (const r of bar) add(rev, monthIn(r.createdAt, l.timezone), r.totalRevenue);
+        for (const r of orders) add(rev, dayIn(r.closedAt!, l.timezone), r.total);
+        for (const r of bar) add(rev, dayIn(r.createdAt, l.timezone), r.totalRevenue);
       } else if (v === 'HOSPITALITY' && l.property) {
         const charges = await db.charge.findMany({
           where: {
@@ -102,21 +104,21 @@ export class OwnerBusinessesController {
           },
           select: { amount: true, serviceDate: true },
         });
-        for (const r of charges) add(rev, r.serviceDate!.toISOString().slice(0, 7), r.amount);
+        for (const r of charges) add(rev, r.serviceDate!.toISOString().slice(0, 10), r.amount);
       }
       if (v === 'BEAUTY' || v === 'FOOD_SERVICE') {
         const rows = await db.restaurantCashOperation.findMany({
           where: { locationId: l.id, kind: 'EXPENSE', status: 'COMPLETED', appointmentId: null, orderId: null, occurredAt: { gte: from, lt: to } },
           select: { amount: true, occurredAt: true },
         });
-        for (const r of rows) add(exp, monthIn(r.occurredAt, l.timezone), r.amount);
+        for (const r of rows) add(exp, dayIn(r.occurredAt, l.timezone), r.amount);
       } else if (v === 'HOSPITALITY' && l.property) {
         const rows = await db.$queryRaw<Array<{ amount: bigint; occurredAt: Date }>>(
           Prisma.sql`SELECT c.amount, c.occurred_at AS "occurredAt" FROM cash_operations c
             WHERE c.property_id = ${l.property.id}::uuid AND c.status = 'COMPLETED' AND c.kind = 'EXPENSE'
               AND c.occurred_at >= ${from} AND c.occurred_at < ${to}`,
         );
-        for (const r of rows) add(exp, monthIn(r.occurredAt, l.timezone), r.amount);
+        for (const r of rows) add(exp, dayIn(r.occurredAt, l.timezone), r.amount);
       }
       // дела «Требуют решения» сегодня; сбой одного филиала не ломает список
       const attention = await readOwnerAttention(db, {
@@ -139,20 +141,39 @@ export class OwnerBusinessesController {
         locationId: l.id,
         locationName: l.name,
         currency: l.currency,
-        money: months.map((m) => ({ month: m, revenueMinor: rev.get(m) ?? 0n, expensesMinor: exp.get(m) ?? 0n })),
+        days: [...new Set([...rev.keys(), ...exp.keys()])]
+          .filter((d) => months.includes(d.slice(0, 7)))
+          .sort()
+          .map((d) => ({ date: d, revenueMinor: rev.get(d) ?? 0n, expensesMinor: exp.get(d) ?? 0n })),
         attention,
       });
     }
     let platform: OwnerBusinessesSource['platform'] = null;
     if (actorIsPlatformAdmin() && (await this.money.ready())) {
       const src = await this.money.source();
-      const by = (rows: Array<{ day: string; cents: bigint; voided: boolean }>) =>
-        months.map((m) => rows.filter((r) => !r.voided && r.day.slice(0, 7) === m).reduce((n, r) => n + r.cents, 0n));
-      platform = {
-        incomeMinor: by(src.payments.map((p) => ({ day: p.paidOn, cents: p.amountCents, voided: p.voided }))),
-        expensesMinor: by(src.expenses.map((e) => ({ day: e.spentOn, cents: e.amountCents, voided: e.voided }))),
+      const byDay = new Map<string, { revenueMinor: bigint; expensesMinor: bigint }>();
+      const put = (day: string, rev: bigint, exp: bigint) => {
+        if (!months.includes(day.slice(0, 7))) return;
+        const d = byDay.get(day) ?? { revenueMinor: 0n, expensesMinor: 0n };
+        d.revenueMinor += rev;
+        d.expensesMinor += exp;
+        byDay.set(day, d);
       };
+      for (const p of src.payments) if (!p.voided) put(p.paidOn, p.amountCents, 0n);
+      for (const e of src.expenses) if (!e.voided) put(e.spentOn, 0n, e.amountCents);
+      platform = { days: [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, d]) => ({ date, ...d })) };
     }
-    return buildOwnerBusinesses({ month, months, branches, platform });
+    // всё в валюте компании текущей сессии по курсу Нацбанка РК на день операции (владелец 01.11.2026)
+    const company = own
+      ? (await db.organization.findUnique({ where: { id: own }, select: { reportingCurrency: true } }))?.reportingCurrency
+      : null;
+    const currency = company ?? 'KZT';
+    const rates = await readDailyRates(
+      db,
+      [currency, ...branches.map((b) => b.currency), ...(platform ? ['USD'] : [])],
+      `${months[0]}-01`,
+      now.toISOString().slice(0, 10),
+    );
+    return buildOwnerBusinesses({ month, months, branches, platform, fx: rates ? { currency, rates } : null });
   }
 }

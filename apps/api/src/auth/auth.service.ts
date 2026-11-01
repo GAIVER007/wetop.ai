@@ -184,6 +184,12 @@ const visible = (
   ...(access.scopes.length > 0 ? { scopes: access.scopes } : {}),
 });
 
+/** Код страны из CF-IPCountry: две латинские буквы; XX (не определена) и T1 (Tor) не страна */
+export function ipCountryCode(raw: string | null | undefined): string | null {
+  const c = (raw ?? '').trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(c) && c !== 'XX' && c !== 'T1' ? c : null;
+}
+
 /**
  * Вход в стойку по логину и паролю (DATA_MODEL §13.8, ADR-049, решение владельца 15.09.2026 по Q-139).
  *
@@ -196,6 +202,7 @@ const visible = (
  * Cloudflare Access остаётся замком на периметре — этот вход его не отменяет (ADR-045).
  */
 @Injectable()
+
 export class AuthService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
@@ -344,7 +351,7 @@ export class AuthService {
   }
 
   async login(
-    input: { email: string; password: string; userAgentFamily?: string | null; ip?: string | null },
+    input: { email: string; password: string; userAgentFamily?: string | null; ip?: string | null; ipCountry?: string | null },
     now = new Date(),
   ): Promise<LoginResult> {
     const email = validEmail(input.email);
@@ -418,6 +425,10 @@ export class AuthService {
     const organizationId = open?.organizationId;
     if (!organizationId) throw new UnauthorizedException(WRONG);
     await this.assertOrganizationOpen(organizationId);
+    // страна клиента всегда определена (владелец 01.11.2026): страна регистрации главная; у заведённых без неё
+    // (до 10.10.2026, платформой) ставим страну адреса входа (CF-IPCountry) один раз, заданную не трогаем
+    const geo = ipCountryCode(input.ipCountry);
+    if (geo) await this.prisma.db.organization.updateMany({ where: { id: organizationId, countryCode: null }, data: { countryCode: geo } });
 
     const token = newSessionToken();
     const expiresAt = sessionExpiry(now);

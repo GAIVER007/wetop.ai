@@ -255,6 +255,18 @@ export function TopNav({
             </div>
             )}
             <div className="header-tools">
+              {/* владелец 01.11.2026: «страницу владельца в топ сразу прямой ссылкой»: все бизнесы и филиалы одним нажатием */}
+              {shell?.access.role === 'OWNER' && !shell.access.unknown && (
+                <Link
+                  className="btn btn--secondary btn--sm header-owner-link"
+                  href="/owner"
+                  aria-current={path === '/owner' ? 'page' : undefined}
+                  data-testid="header-owner-link"
+                >
+                  <Icon name="today" />
+                  <span>{t('Кабинет владельца')}</span>
+                </Link>
+              )}
               {demo && (
                 <span
                   className="demo-indicator"

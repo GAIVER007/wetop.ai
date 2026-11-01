@@ -170,6 +170,11 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         if (!row) throw new Error(`organization ${where.id} not found`);
         return { ...row };
       },
+      async updateMany({ where, data }: { where: { id: string; countryCode: null }; data: { countryCode: string } }) {
+        const rows = organizations.filter((o) => o.id === where.id && (o.countryCode ?? null) === null);
+        for (const o of rows) o.countryCode = data.countryCode;
+        return { count: rows.length };
+      },
       async create({ data }: { data: Omit<FakeOrganization, 'id'> }) {
         seq += 1;
         const row: FakeOrganization = { id: `org-${seq + 1}`, ...data };

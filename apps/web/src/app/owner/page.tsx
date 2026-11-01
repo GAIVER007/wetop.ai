@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../components/page';
 import { LoadError } from '../../components/load-error';
-import { Badge, Button, EmptyState, LoadingState, Panel } from '../../components/ui';
+import { Badge, Button, EmptyState, LoadingState, Panel, PanelTitle } from '../../components/ui';
 import { branchesApi, ownerBusinessesApi, type OwnerBusinesses } from '../../lib/api';
 import { loadErrorProps } from '../../lib/load-error';
 import { formatOwnerMoney } from '../../lib/owner-summary';
@@ -22,8 +22,10 @@ import './owner.css';
 export default async function OwnerPage({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
   const [t, q] = await Promise.all([serverT(), searchParams]);
   const month = /^\d{4}-(0[1-9]|1[0-2])$/.test(q.month ?? '') ? q.month! : new Date().toISOString().slice(0, 7);
+  const locale = await currentLocale();
   return (
-    <Page width="full" title={t('Все бизнесы')}>
+    // месяц в шапке страницы, а не отдельной строкой: страница в один экран и на ноутбуке 1280×720 (владелец 01.11.2026)
+    <Page width="full" title={t('Все бизнесы')} actions={<MonthPicker month={month} locale={locale} base="/owner" />}>
       <Suspense fallback={<LoadingState label={t('Считаем бизнесы…')} />}>
         <Businesses month={month} />
       </Suspense>
@@ -54,20 +56,35 @@ async function Businesses({ month }: { month: string }) {
   const money = (v: string, c: string) => formatOwnerMoney(v, c);
   if (view.rows.length === 0) return <EmptyState title={t('Своих бизнесов пока нет.')} data-testid="owner-empty" />;
   const top = (c: OwnerBusinesses['chart'][number]) => c.revenueMinor.reduce((n, v) => (BigInt(v) > n ? BigInt(v) : n), 0n);
-  const busy = view.rows.filter((r) => r.attention > 0);
+  /** Выручка за полгода в карточке итога своей валюты, справа от сумм (владелец 01.11.2026: «без обрезов на один экран») */
+  const chartOf = (currency: string) => {
+    const c = view.chart.find((x) => x.currency === currency);
+    if (!c) return null;
+    const max = top(c);
+    return (
+      <div className="owner__chart-block" data-testid={`owner-chart-${c.currency}`}>
+        <h3>{t('Выручка за 6 месяцев')}</h3>
+        <div className="owner__chart" role="img" aria-label={t('Выручка за 6 месяцев, {currency}', { currency: c.currency })}>
+          {c.revenueMinor.map((v, i) => (
+            <div key={view.months[i]} title={`${monthLabel(view.months[i]!, locale)}: ${money(v, c.currency)}`}>
+              <i
+                style={{ blockSize: `${max === 0n ? 0 : Number((BigInt(v) * 100n) / max)}%` }} /* slop-allow: inline-style высота столбца = выручка месяца */
+              />
+              <em>{monthLabel(view.months[i]!, locale).slice(0, 3)}</em>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
   return (
     <div className="owner" data-testid="owner-businesses">
-      <div className="owner__head">
-        <MonthPicker month={month} locale={locale} base="/owner" />
-        <span className="muted">
-          {t('бизнесов: {b}, филиалов: {f}', { b: view.counts.businesses, f: view.counts.branches })}
-        </span>
-      </div>
       <section className="owner__totals" aria-label={t('Итог всех бизнесов')}>
         {view.totals.map((x) => {
           const d = BigInt(x.profitMinor) - BigInt(x.previousProfitMinor);
           return (
             <div key={x.currency} className="owner__total" data-testid={`owner-total-${x.currency}`}>
+              <div className="owner__total-sums">
               <h2>{t('Все бизнесы, {currency}', { currency: x.currency })}</h2>
               <dl>
                 <div>
@@ -88,11 +105,20 @@ async function Businesses({ month }: { month: string }) {
                   ? t('прибыль как в прошлом месяце')
                   : t('прибыль {sign}{sum} к прошлому месяцу', { sign: d > 0n ? '+' : '\u2212', sum: money(String(d < 0n ? -d : d), x.currency) })}
               </small>
+              </div>
+              {chartOf(x.currency)}
             </div>
           );
         })}
       </section>
-      <Panel title={t('Бизнесы и филиалы')} className="owner__table-panel">
+      {/* число бизнесов и филиалов в заголовке таблицы; «Требуют решения» снят: дела каждого филиала в колонке «Сегодня» */}
+      <Panel className="owner__table-panel">
+        <PanelTitle>
+          {t('Бизнесы и филиалы')}{' '}
+          <span className="muted owner__count">
+            {t('бизнесов: {b}, филиалов: {f}', { b: view.counts.businesses, f: view.counts.branches })}
+          </span>
+        </PanelTitle>
         <table className="tbl owner__table" data-testid="owner-table">
           <thead>
             <tr>
@@ -137,47 +163,6 @@ async function Businesses({ month }: { month: string }) {
           </tbody>
         </table>
       </Panel>
-      <div className="owner__pair">
-        <Panel title={t('Выручка за 6 месяцев')}>
-          {/* валюты рядом, а не друг под другом: страница в один экран 1440×900 (аудит кабинета 31.10.2026) */}
-          <div className="owner__charts">
-          {view.chart.map((c) => {
-            const max = top(c);
-            return (
-              <div key={c.currency} className="owner__chart-block" data-testid={`owner-chart-${c.currency}`}>
-                <h3>{c.currency}</h3>
-                <div className="owner__chart" role="img" aria-label={t('Выручка за 6 месяцев, {currency}', { currency: c.currency })}>
-                  {c.revenueMinor.map((v, i) => (
-                    <div key={view.months[i]} title={`${monthLabel(view.months[i]!, locale)}: ${money(v, c.currency)}`}>
-                      <i
-                        style={{ blockSize: `${max === 0n ? 0 : Number((BigInt(v) * 100n) / max)}%` }} /* slop-allow: inline-style высота столбца = выручка месяца */
-                      />
-                      <em>{monthLabel(view.months[i]!, locale).slice(0, 3)}</em>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-          </div>
-        </Panel>
-        <Panel title={t('Требуют решения сегодня')}>
-          {busy.length === 0 ? (
-            <p className="muted">{t('Во всех филиалах сегодня всё спокойно.')}</p>
-          ) : (
-            <ul className="owner__todo" data-testid="owner-todo">
-              {busy.map((r) => (
-                <li key={r.locationId}>
-                  <span>
-                    <b>{r.name}</b> {t('дел: {n}', { n: r.attention })}
-                  </span>
-                  <GoTo row={r} branchId={r.locationId ? branchIds.get(r.locationId) : undefined} t={t} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-      </div>
     </div>
   );
 }

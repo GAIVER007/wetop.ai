@@ -25,3 +25,23 @@ for (const width of [1280, 390]) {
     }
   });
 }
+
+/**
+ * «Все бизнесы» в один экран без обреза снизу (владелец 01.11.2026, скрин ноутбука: «нижняя часть обрезанная»):
+ * на 1440×900 и на ноутбуке 1280×720 страница не листается, последняя строка таблицы видна целиком.
+ */
+for (const [width, height] of [[1440, 900], [1280, 720]] as const)
+  test(`все бизнесы в один экран ${width}×${height}`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await page.goto('/owner');
+    const table = page.getByRole('main').getByTestId('owner-table');
+    await expect(table).toBeVisible();
+    const fit = await page.evaluate(() => ({
+      overflow: document.documentElement.scrollHeight - innerHeight,
+      lastRow: Math.round(document.querySelector('[data-testid="owner-row"]:last-child')!.getBoundingClientRect().bottom),
+    }));
+    expect(fit.overflow).toBeLessThanOrEqual(0);
+    expect(fit.lastRow).toBeLessThanOrEqual(height);
+    // выручка за полгода осталась: в карточке итога своей валюты
+    await expect(page.getByTestId('owner-total-QAR').getByTestId('owner-chart-QAR')).toBeVisible();
+  });

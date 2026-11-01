@@ -77,6 +77,7 @@ function clientInfoOf(request: Request): AuthClientInfo {
   return {
     ip: request.headers.get('cf-connecting-ip')?.trim() || null,
     userAgent: request.headers.get('user-agent')?.trim() || null,
+    country: request.headers.get('cf-ipcountry')?.trim() || null,
   };
 }
 

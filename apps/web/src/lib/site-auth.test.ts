@@ -86,7 +86,7 @@ describe('handleSiteAuth — источник и форма запроса', () 
     await handleSiteAuth(request({ email: 'a@b.kz' }), action, PROD);
     expect(action).toHaveBeenCalledWith(
       { email: 'a@b.kz' },
-      { ip: '203.0.113.7', userAgent: 'test-browser' },
+      { ip: '203.0.113.7', userAgent: 'test-browser', country: null },
     );
   });
 });

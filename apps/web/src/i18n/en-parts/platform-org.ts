@@ -1112,4 +1112,6 @@ export const platformOrg: Record<string, string> = {
   "Не короче 8 знаков": "At least 8 characters",
   "Повторите пароль": "Repeat password",
   "Проверьте телефон: от 10 до 15 цифр": "Check the phone: 10 to 15 digits",
+  "Конверсия": "Conversion",
+  "пробный ещё ни у кого не кончился": "no trial has ended yet",
 };

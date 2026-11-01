@@ -16,6 +16,7 @@ import {
   checkEditedSpec,
   decodeDesignInstruction,
   designInstructionText,
+  effectiveExtension,
   parseAssistantResult,
   siteBuilderAccess,
   SITE_ASSISTANT_SCHEMA_VERSION,
@@ -356,7 +357,7 @@ export class SiteGenerationWorker implements OnModuleInit, OnModuleDestroy {
       }),
       this.prisma.db.location.findFirst({ where: { id: run.locationId, businessId: run.businessId, status: 'ACTIVE' }, select: { id: true } }),
     ]);
-    return siteBuilderAccess(entitlement, now) === 'active' && !!org && canWrite(org.status, org.trialEndsAt, now) && !!business && !!location;
+    return siteBuilderAccess(effectiveExtension(entitlement, org, now), now) === 'active' && !!org && canWrite(org.status, org.trialEndsAt, now) && !!business && !!location;
   }
 
   /**

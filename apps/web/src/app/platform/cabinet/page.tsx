@@ -137,7 +137,7 @@ async function Cabinet({ month }: { month: string }) {
                   <b>{activity === null ? '—' : t('{d} из 7 дней', { d: tenthsText(activity) })}</b>
                   <span className="muted">
                     {activity === null || !tr
-                      ? t('в месяце пробный ещё ни у кого не кончился')
+                      ? t('пробный ещё ни у кого не кончился')
                       : t('у оплативших {p}, у не оплативших {u}', {
                           p: tr.paidActiveDaysTenths === null ? '—' : tenthsText(tr.paidActiveDaysTenths),
                           u: tr.unpaidActiveDaysTenths === null ? '—' : tenthsText(tr.unpaidActiveDaysTenths),
@@ -154,7 +154,7 @@ async function Cabinet({ month }: { month: string }) {
                   <span className="muted">
                     {tr && tr.ended > 0
                       ? t('{p} пробных, кончившихся в месяце', { p: percentText(Math.floor((tr.endedUnpaid * 1000) / tr.ended)) })
-                      : t('в месяце пробный ещё ни у кого не кончился')}
+                      : t('пробный ещё ни у кого не кончился')}
                   </span>
                 </dd>
               </div>

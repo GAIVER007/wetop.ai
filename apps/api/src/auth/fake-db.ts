@@ -149,6 +149,8 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     createdAt: new Date('2026-09-15T00:00:00Z'),
   }));
   const platformAdmins: FakePlatformAdmin[] = [];
+  /** Партнёры WETOP с входом (§63.3): рабочее место партнёра */
+  const platformPartners: Array<{ id: string; userId: string; organizationId: string; active: boolean }> = [];
   const organizations: FakeOrganization[] = [
     {
       id: FAKE_ORG,
@@ -465,6 +467,12 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
         return row ? { ...row } : null;
       },
     },
+    platformPartner: {
+      async findFirst({ where }: { where: { userId: string; organizationId: string; active: boolean } }) {
+        const row = platformPartners.find((p) => p.userId === where.userId && p.organizationId === where.organizationId && p.active === where.active);
+        return row ? { id: row.id } : null;
+      },
+    },
     platformAdmin: {
       async findUnique({ where }: { where: { userId: string } }) {
         const row = platformAdmins.find((a) => a.userId === where.userId);
@@ -598,6 +606,7 @@ export function fakeDb(users: FakeUser[] = [fakeUser()]) {
     verifications,
     memberships,
     platformAdmins,
+    platformPartners,
     properties,
     businesses,
     locations,

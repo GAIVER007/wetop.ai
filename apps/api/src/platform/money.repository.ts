@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import type { PartnerRow, PartnersSource } from './partners';
+import { planPayoutsOf, type PartnerRow, type PartnersSource } from './partners';
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@pms/database';
@@ -119,6 +119,8 @@ export async function readPartnersSource(db: PrismaService['db']): Promise<Partn
     // разовая выплата партнёру за тариф подписки клиента (DATA_MODEL §63.2)
     db.platformSubscription.findMany({ select: { organizationId: true, plan: { select: { partnerPayoutCents: true } } } }),
   ]);
+  const plans = await db.platformPlan.findMany({ select: { priceCents: true, partnerPayoutCents: true } });
+  const live = payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, voided: p.voidedAt !== null, kind: p.kind === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const), paidOn: day(p.paidOn)! }));
   return {
     partners: partners.map((p) => ({ id: p.id, name: p.name, phone: p.phone, email: p.email, percentBp: p.percentBp, active: p.active })),
     links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId }] : [])),
@@ -129,7 +131,8 @@ export async function readPartnersSource(db: PrismaService['db']): Promise<Partn
       kind: p.kind === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const),
       paidOn: day(p.paidOn)!,
     })),
-    planPayouts: subs.flatMap((x) => (x.plan?.partnerPayoutCents != null ? [{ organizationId: x.organizationId, payoutCents: x.plan.partnerPayoutCents }] : [])),
+    // по тарифу первого чека клиента, не нынешней подписки (аудит 01.11.2026)
+    planPayouts: planPayoutsOf(live, plans, subs.flatMap((x) => (x.plan?.partnerPayoutCents != null ? [{ organizationId: x.organizationId, payoutCents: x.plan.partnerPayoutCents }] : []))),
     payouts: payouts.flatMap((p) => (p.partnerId ? [{ partnerId: p.partnerId, amountCents: p.amountCents, voided: p.voidedAt !== null }] : [])),
   };
 }

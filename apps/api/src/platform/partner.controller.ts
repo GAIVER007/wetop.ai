@@ -41,6 +41,7 @@ import {
   partnerLinks,
   type PartnerCabinetView,
 } from './partner-cabinet';
+import { planPayoutsOf } from './partners';
 
 /**
  * Кабинет партнёра WETOP (владелец 31.10.2026; ТЗ VTOP 01.11.2026; DATA_MODEL §63.3, миграция 178).
@@ -247,7 +248,8 @@ export class PrismaPartnerCabinetRepository implements PartnerCabinetRepository 
           data: { email: input.email, name: input.name, passwordHash: input.passwordHash, status: 'ACTIVE' },
           select: { id: true },
         });
-        await tx.membership.create({ data: { userId: user.id, organizationId: org.id, role: 'OWNER' } });
+        // членство только для сессии (§13.5): «Личный кабинет», не владелец бизнеса (§63.3, аудит 01.11.2026)
+        await tx.membership.create({ data: { userId: user.id, organizationId: org.id, role: 'EMPLOYEE' } });
         await tx.platformPartner.update({
           where: { id: row.partnerId },
           data: { userId: user.id, organizationId: org.id, updatedAt: now, ...(input.phone ? { phone: input.phone } : {}) },
@@ -288,7 +290,12 @@ export class PrismaPartnerCabinetRepository implements PartnerCabinetRepository 
         links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId, source: l.source, channel: l.channel }] : [])),
         organizations: orgs.map((o) => ({ id: o.id, name: o.name, status: o.status, trialEndsAt: o.trialEndsAt ? o.trialEndsAt.toISOString() : null, createdAt: o.createdAt.toISOString() })),
         payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn), voided: p.voidedAt !== null, kind: p.kind === 'ADDON' ? 'ADDON' : 'PLAN' })),
-        planPayouts: subs.flatMap((s) => (s.plan?.partnerPayoutCents != null ? [{ organizationId: s.organizationId, payoutCents: s.plan.partnerPayoutCents }] : [])),
+        // по тарифу первого чека клиента, не нынешней подписки (аудит 01.11.2026)
+        planPayouts: planPayoutsOf(
+          payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn), voided: p.voidedAt !== null, kind: p.kind === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const) })),
+          await db.platformPlan.findMany({ select: { priceCents: true, partnerPayoutCents: true } }),
+          subs.flatMap((s) => (s.plan?.partnerPayoutCents != null ? [{ organizationId: s.organizationId, payoutCents: s.plan.partnerPayoutCents }] : [])),
+        ),
         payouts: payouts.flatMap((p) => (p.partnerId ? [{ partnerId: p.partnerId, amountCents: p.amountCents, spentOn: day(p.spentOn), voided: p.voidedAt !== null, note: p.note }] : [])),
       },
       new Date(),

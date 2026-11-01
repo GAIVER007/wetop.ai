@@ -13,7 +13,7 @@ import { buildSiteReport, type SiteReportInput } from './site-report';
 import { buildCountries, type CountriesSource } from './countries';
 import { buildRnp, type RnpSource } from './rnp';
 import { buildCeoOverview, type CeoSource } from './ceo-overview';
-import { buildPartners, type PartnersSource } from './partners';
+import { buildPartners, planPayoutsOf, type PartnersSource } from './partners';
 import type { ExpenseCategory } from './money';
 
 export const GROWTH_REPOSITORY = Symbol('GROWTH_REPOSITORY');
@@ -266,7 +266,12 @@ export async function rnpSource(db: PrismaService['db'], hosts: readonly string[
     expenses: spent.map((e) => ({ amountCents: e.amountCents, spentOn: day(e.spentOn)!, voided: e.voidedAt !== null, partnerId: e.partnerId })),
     partners,
     links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId }] : [])),
-    planPayouts: subs.flatMap((x) => (x.plan?.partnerPayoutCents != null ? [{ organizationId: x.organizationId, payoutCents: x.plan.partnerPayoutCents }] : [])),
+    // по тарифу первого чека клиента, не нынешней подписки (аудит 01.11.2026)
+    planPayouts: planPayoutsOf(
+      payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, paidOn: day(p.paidOn)!, voided: p.voidedAt !== null, kind: p.kind === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const) })),
+      partnersOn ? await db.platformPlan.findMany({ select: { priceCents: true, partnerPayoutCents: true } }) : [],
+      subs.flatMap((x) => (x.plan?.partnerPayoutCents != null ? [{ organizationId: x.organizationId, payoutCents: x.plan.partnerPayoutCents }] : [])),
+    ),
   };
 }
 

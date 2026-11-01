@@ -101,7 +101,7 @@ function Home({ cab, t }: { cab: PartnerCabinetView; t: Translate }) {
       </Stats>
       <Panel title={t('Требует действия')} data-testid="partner-actions">
         {soon.length + ended.length === 0 ? (
-          <p className="muted">{t('Срочного нет. Пригласите новых клиентов по своей ссылке.')}</p>
+          <EmptyState title={t('Срочного нет. Пригласите новых клиентов по своей ссылке.')} />
         ) : (
           <ul className="partner__todo">
             {soon.map((c) => (
@@ -191,7 +191,7 @@ function Money({ cab, t }: { cab: PartnerCabinetView; t: Translate }) {
       </Panel>
       <Panel title={t('История выплат')} data-testid="partner-payouts">
         {v.payouts.length === 0 ? (
-          <p className="muted">{t('Выплат пока не было.')}</p>
+          <EmptyState title={t('Выплат пока не было.')} />
         ) : (
           <Table aria-label={t('История выплат')}>
             <thead>

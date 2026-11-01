@@ -3296,6 +3296,10 @@ export type PlatformPartners =
       partners: PlatformPartner[];
       totals: { partners: number; trials: number; connected: number; incomeCents: string; accruedCents: string; paidCents: string; dueCents: string };
       clients: Array<{ organizationId: string; partnerId: string; name: string }>;
+      /** Выплаты партнёрам, новые сверху («Партнёры» A, 01.11.2026); старый API без поля */
+      payouts?: Array<{ id: string; partnerId: string; partnerName: string; amountCents: string; spentOn: string; note: string | null; voided: boolean }>;
+      /** Все клиенты для «Назначить клиента»; старый API без поля */
+      allClients?: Array<{ id: string; name: string }>;
     };
 
 export interface PlatformMonthMoney {
@@ -3371,7 +3375,8 @@ export interface PlatformSite {
     visitors: number;
     sessions: number;
     mobileShare: number;
-    daily: Array<{ date: string; visitors: number }>;
+    /** Поля кроме посетителей с 01.11.2026; старый API без них */
+    daily: Array<{ date: string; visitors: number; sessions?: number; signupOpen?: number; signupSent?: number; signupDone?: number; mobile?: number; sources?: string[] }>;
     path: { visitors: number; signupOpen: number; signupSent: number; signupDone: number; loginOpen: number };
     sources: Array<{ kind: 'DIRECT' | 'SEARCH' | 'SOCIAL' | 'PAID' | 'EMAIL' | 'REFERRAL'; source: string | null; visitors: number; share: number }>;
     pages: Array<{ path: string; views: number; share: number }>;
@@ -3402,6 +3407,8 @@ export interface PlatformCountries {
 export interface PlatformRnpDay {
   day: string;
   visitors: number;
+  /** Открыли регистрацию (01.11.2026); старый API без поля */
+  opens?: number;
   leads: number;
   registrations: number;
   firstPayments: number;
@@ -3411,6 +3418,8 @@ export interface PlatformRnpDay {
 export interface PlatformRnp {
   month: string;
   days: PlatformRnpDay[];
+  /** Недели месяца с понедельника (01.11.2026); старый API без поля */
+  weeks?: Array<Omit<PlatformRnpDay, 'day'> & { from: string; to: string }>;
   total: Omit<PlatformRnpDay, 'day'> & {
     visitorToLead: number | null;
     leadToRegistration: number | null;

@@ -241,18 +241,24 @@ export async function rnpSource(db: PrismaService['db'], hosts: readonly string[
     partnersOn ? db.platformSubscription.findMany({ select: { organizationId: true, plan: { select: { partnerPayoutCents: true } } } }) : Promise.resolve([]),
   ]);
   const siteIds = sites.map((x) => x.id);
-  const [sessions, sent] = siteIds.length
+  const [sessions, sent, opened] = siteIds.length
     ? await Promise.all([
         db.webSession.findMany({ where: { siteId: { in: siteIds }, startedAt: { gte: from, lt: to } }, select: { visitorKey: true, startedAt: true } }),
         db.webEvent.findMany({
           where: { name: 'signup_sent', session: { siteId: { in: siteIds } }, at: { gte: from, lt: to } },
           select: { at: true, session: { select: { visitorKey: true } } },
         }),
+        // «Открыли регистрацию» по дням (вариант Б РНП, владелец 01.11.2026)
+        db.webEvent.findMany({
+          where: { name: 'signup_open', session: { siteId: { in: siteIds } }, at: { gte: from, lt: to } },
+          select: { at: true, session: { select: { visitorKey: true } } },
+        }),
       ])
-    : [[], []];
+    : [[], [], []];
   return {
     visitors: sessions.map((x) => ({ day: day(x.startedAt)!, visitorKey: x.visitorKey })),
     leads: sent.map((e) => ({ day: day(e.at)!, visitorKey: e.session.visitorKey })),
+    opens: opened.map((e) => ({ day: day(e.at)!, visitorKey: e.session.visitorKey })),
     organizations: orgs.filter((o) => !company.has(o.id)),
     payments: payments
       .filter((p) => !company.has(p.organizationId))

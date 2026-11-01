@@ -86,6 +86,8 @@ export interface MoneyRepository {
   partnersReady(): Promise<boolean>;
   partnersSource(): Promise<PartnersSource>;
   savePartner(input: Omit<PartnerRow, 'id'> & { id: string | null }): Promise<PartnerRow | null>;
+  /** Выплаты партнёрам (расходы «Партнёрам» с отметкой партнёра), новые сверху; «Партнёры» A, 01.11.2026 */
+  partnerPayouts(): Promise<Array<{ id: string; partnerId: string; amountCents: bigint; spentOn: string; note: string | null; voided: boolean }>>;
   partnerExists(id: string): Promise<boolean>;
   /** Чей клиент: `partnerId` null снимает отметку */
   setClientPartner(input: { organizationId: string; partnerId: string | null; by: string | null }): Promise<void>;
@@ -437,6 +439,16 @@ export class PrismaMoneyRepository implements MoneyRepository {
       recurring: row.recurring,
       documentRef: row.documentRef,
     };
+  }
+
+  async partnerPayouts() {
+    const rows = await this.prisma.db.platformExpense.findMany({
+      where: { category: 'PARTNERS', partnerId: { not: null } },
+      orderBy: [{ spentOn: 'desc' }, { createdAt: 'desc' }],
+      take: 50,
+      select: { id: true, partnerId: true, amountCents: true, spentOn: true, note: true, voidedAt: true },
+    });
+    return rows.map((e) => ({ id: e.id, partnerId: e.partnerId!, amountCents: e.amountCents, spentOn: day(e.spentOn)!, note: e.note, voided: e.voidedAt !== null }));
   }
 
   async voidExpense(input: { id: string; by: string | null }): Promise<boolean> {

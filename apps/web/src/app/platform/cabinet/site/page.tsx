@@ -1,9 +1,10 @@
+import Link from 'next/link';
 import { Suspense } from 'react';
 import { unstable_rethrow } from 'next/navigation';
 import { Page } from '../../../../components/page';
 import { LoadError } from '../../../../components/load-error';
 import { RefreshButton } from '../../../../components/refresh-button';
-import { EmptyState, LoadingState, Panel, Stat, Stats, Table } from '../../../../components/ui';
+import { EmptyState, LoadingState, Panel, Table } from '../../../../components/ui';
 import { Icon } from '../../../../components/icon';
 import { ApiError, platformApi, type PlatformSite } from '../../../../lib/api';
 import { loadErrorProps } from '../../../../lib/load-error';
@@ -11,12 +12,14 @@ import { formatInt } from '../../../../lib/dashboard-format';
 import { serverT } from '../../../../i18n/server';
 import type { Translate } from '../../../../i18n';
 import { CabinetShell } from '../shell';
+import { KpiStrip } from '../kpi-strip';
 import { MonthPicker } from '../money/month-picker';
 import { percentText } from '../growth-parts';
 import { countryName, flag } from '../country';
 import { currentLocale } from '../../../../i18n/server';
 
 /**
+ * Вид «Б» (владелец 01.11.2026): полоса цифр и таблица по дням, сегодня сверху, итог месяца внизу.
  * «Сайт wetop.ai» в кабинете руководителя (владелец 29.10.2026): посетители месяца по дням, путь к регистрации
  * (окно регистрации, форма отправлена, почта подтверждена), откуда пришли и какие страницы смотрят. Счёт
  * счётчика WETOP на главной, без cookies и персональных данных. Месяц стрелками, как в «Деньгах».
@@ -30,10 +33,11 @@ export default async function SitePage({
   const q = await searchParams;
   const raw = typeof q['month'] === 'string' ? q['month'] : '';
   const month = /^\d{4}-(0[1-9]|1[0-2])$/.test(raw) ? raw : new Date().toISOString().slice(0, 7);
+  const busyOnly = q['days'] === 'busy';
   return (
     <Page width="full" title={t('Сайт wetop.ai')} actions={<RefreshButton />}>
       <Suspense fallback={<LoadingState label={t('Считаем посетителей…')} />}>
-        <Site month={month} />
+        <Site month={month} busyOnly={busyOnly} />
       </Suspense>
     </Page>
   );
@@ -46,7 +50,12 @@ function sourceName(s: NonNullable<PlatformSite['report']>['sources'][number], t
   return name;
 }
 
-async function Site({ month }: { month: string }) {
+/** Число ячейкой: ноль бледным, чтобы глаз цеплялся за дни с событиями */
+function Num({ v }: { v: number }) {
+  return <td className={v ? 'num' : 'num cabinet__zero'}>{formatInt(v)}</td>;
+}
+
+async function Site({ month, busyOnly }: { month: string; busyOnly: boolean }) {
   const t = await serverT();
   const locale = await currentLocale();
   let view: PlatformSite;
@@ -76,66 +85,95 @@ async function Site({ month }: { month: string }) {
       </CabinetShell>
     );
   const p = r.path;
-  const steps = [
-    { key: 'visitors', label: t('Зашли на сайт'), value: p.visitors },
-    { key: 'open', label: t('Открыли регистрацию'), value: p.signupOpen },
-    { key: 'sent', label: t('Отправили форму'), value: p.signupSent },
-    { key: 'done', label: t('Подтвердили почту'), value: p.signupDone },
-  ];
-  const top = Math.max(p.visitors, 1);
-  const maxDay = r.daily.reduce((n, d) => Math.max(n, d.visitors), 0);
+  const conv = (part: number, whole: number) => (whole ? percentText(Math.floor((part * 1000) / whole)) : '');
+  const today = new Date().toISOString().slice(0, 10);
+  // вариант Б (владелец 01.11.2026): сегодня первой строкой, будущих дней нет; «Только с посетителями» прячет пустые
+  const days = r.daily.filter((d) => (d.date <= today || d.visitors > 0) && (!busyOnly || d.visitors > 0)).reverse();
+  const base = `/platform/cabinet/site?month=${month}`;
+  const sum = (k: 'sessions' | 'signupOpen' | 'signupSent' | 'signupDone') => r.daily.reduce((n, d) => n + (d[k] ?? 0), 0);
+  const sourcesTotal = r.sources.slice(0, 2).map((x) => `${sourceName(x, t)} ${formatInt(x.visitors)}`).join(', ');
   return (
     <CabinetShell active="site" t={t}>
       {head}
-      <Stats min={180}>
-        <Stat label={t('Посетители')} value={formatInt(r.visitors)} hint={t('визитов {n}', { n: formatInt(r.sessions) })} icon={<Icon name="guests" />} tone="success" testId="site-visitors" />
-        <Stat label={t('Открыли регистрацию')} value={formatInt(p.signupOpen)} hint={percentText(r.visitors ? Math.floor((p.signupOpen * 1000) / r.visitors) : null)} icon={<Icon name="booking" />} testId="site-signup-open" />
-        <Stat label={t('Зарегистрировались')} value={formatInt(p.signupDone)} hint={t('почта подтверждена')} icon={<Icon name="person" />} testId="site-signup-done" />
-        <Stat label={t('С телефона')} value={percentText(r.mobileShare) || '0%'} hint={t('входили в стойку: {n}', { n: formatInt(p.loginOpen) })} icon={<Icon name="chart" />} testId="site-mobile" />
-      </Stats>
+      <KpiStrip
+        testId="site-strip"
+        items={[
+          { id: 'visitors', label: t('Посетители'), value: formatInt(r.visitors), hint: t('визитов {n}', { n: formatInt(r.sessions) }) },
+          { id: 'path-open', label: t('Открыли регистрацию'), value: formatInt(p.signupOpen), hint: conv(p.signupOpen, p.visitors) },
+          { id: 'path-sent', label: t('Отправили форму'), value: formatInt(p.signupSent), hint: conv(p.signupSent, p.signupOpen) },
+          { id: 'path-done', label: t('Новые клиенты'), value: formatInt(p.signupDone), hint: p.visitors ? t('{p} от посетителей', { p: conv(p.signupDone, p.visitors) }) : undefined, tone: 'success' },
+          { id: 'mobile', label: t('С телефона'), value: percentText(r.mobileShare) || '0%' },
+        ]}
+      />
 
-      <Panel title={t('Путь посетителя за месяц')}>
-        <ol className="cabinet__funnel cabinet__funnel--flow cabinet__funnel--four" data-testid="site-path">
-          {steps.map((s, i) => (
-            <li key={s.key} className="cabinet__step" data-testid={`site-path-${s.key}`}>
-              <span>{s.label}</span>
-              <b className="cabinet__step-value">{formatInt(s.value)}</b>
-              {i > 0 && steps[i - 1]!.value > 0 && (
-                <span className="cabinet__conv" title={t('переход с прошлого шага')}>
-                  {percentText(Math.floor((s.value * 1000) / steps[i - 1]!.value))}
-                </span>
-              )}
-              <span className="cabinet__meter" aria-hidden="true">
-                <span style={{ inlineSize: `${Math.round((s.value * 100) / top)}%` }} /* slop-allow: inline-style ширина полосы из доли шага */ />
-              </span>
-            </li>
-          ))}
-        </ol>
+      <Panel data-testid="site-days">
+        <div className="cabinet__panel-head">
+          <b className="panel__title">{t('По дням')}</b>
+          <nav className="glass-tabs" aria-label={t('Какие дни показать')}>
+            <Link href={base} aria-current={busyOnly ? undefined : 'page'} prefetch={false} data-testid="site-days-all">
+              {t('Все дни')}
+            </Link>
+            <Link href={`${base}&days=busy`} aria-current={busyOnly ? 'page' : undefined} prefetch={false} data-testid="site-days-busy">
+              {t('Только с посетителями')}
+            </Link>
+          </nav>
+        </div>
+        <Table aria-label={t('Посетители по дням')} data-testid="site-daily" className="cabinet__days">
+          <thead>
+            <tr>
+              <th>{t('День')}</th>
+              <th className="num">{t('Посетители')}</th>
+              <th className="num">{t('Визиты')}</th>
+              <th className="num">{t('Открыли регистрацию')}</th>
+              <th className="num">{t('Отправили форму')}</th>
+              <th className="num">{t('Подтвердили')}</th>
+              <th>{t('Откуда')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {days.map((d) => (
+              <tr key={d.date} data-testid="site-day" data-today={d.date === today || undefined}>
+                <td>
+                  {`${d.date.slice(8, 10)}.${d.date.slice(5, 7)}`}
+                  {d.date === today && <span className="cabinet__sub muted">{t('сегодня')}</span>}
+                </td>
+                <Num v={d.visitors} />
+                <Num v={d.sessions ?? 0} />
+                <Num v={d.signupOpen ?? 0} />
+                <Num v={d.signupSent ?? 0} />
+                <Num v={d.signupDone ?? 0} />
+                <td className={(d.sources ?? []).length ? undefined : 'cabinet__zero'}>
+                  {(d.sources ?? []).length ? (d.sources ?? []).slice(0, 2).map((x) => (x === 'DIRECT' ? t('Напрямую') : x === 'OTHER' ? t('другой сайт') : x)).join(', ') : t('нет')}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr data-testid="site-total">
+              <th>{t('Итого за месяц')}</th>
+              <td className="num">{formatInt(r.visitors)}</td>
+              <td className="num">{formatInt(sum('sessions') || r.sessions)}</td>
+              <td className="num">{formatInt(sum('signupOpen'))}</td>
+              <td className="num">{formatInt(sum('signupSent'))}</td>
+              <td className="num">{formatInt(sum('signupDone'))}</td>
+              <td>{sourcesTotal}</td>
+            </tr>
+          </tfoot>
+        </Table>
       </Panel>
 
-      <Panel title={t('Посетители по дням')}>
-        <ol className="cabinet__bars cabinet__bars--days" aria-label={t('Посетители по дням')} data-testid="site-daily">
-          {r.daily.map((d) => (
-            <li key={d.date} title={`${d.date}: ${formatInt(d.visitors)}`} data-busy={d.visitors > 0 || undefined}>
-              <span className="cabinet__bar-value">{d.visitors ? formatInt(d.visitors) : ''}</span>
-              <span className="cabinet__bar" style={{ blockSize: `${maxDay ? Math.max(Math.round((d.visitors * 100) / maxDay), 2) : 2}%` }} /* slop-allow: inline-style высота столбика из доли дня */ />
-              <span className="cabinet__bar-label">{Number(d.date.slice(8))}</span>
-            </li>
-          ))}
-        </ol>
-      </Panel>
-
+      <div className="cabinet__trio">
       <Panel title={t('Страны посетителей')}>
         <Table aria-label={t('Страны посетителей')} data-testid="site-countries">
           <thead>
             <tr>
               <th>{t('Страна')}</th>
-              <th className="num">{t('Посетители')}</th>
-              <th className="num">{t('Зарегистрировались')}</th>
+              <th className="num">{t('Люди')}</th>
+              <th className="num">{t('Клиенты')}</th>
             </tr>
           </thead>
           <tbody>
-            {r.countries.slice(0, 8).map((c) => (
+            {r.countries.slice(0, 6).map((c) => (
               <tr key={c.country ?? 'none'}>
                 <td>
                   {c.country && <span aria-hidden="true">{flag(c.country)} </span>}
@@ -148,8 +186,6 @@ async function Site({ month }: { month: string }) {
           </tbody>
         </Table>
       </Panel>
-
-      <div className="cabinet__pair">
         <Panel title={t('Откуда пришли')}>
           {r.sources.length === 0 ? (
             <EmptyState title={t('Посетителей пока нет.')} />

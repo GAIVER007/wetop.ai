@@ -51,12 +51,15 @@ test('оплата и расход: доход, расходы и прибыль
   await page.goto('/platform/cabinet/expenses');
   await expect(page.getByRole('main')).toContainText('Hetzner, Счёт 17, каждый месяц');
   await page.goto('/platform/cabinet/money');
-  // таблица по месяцам: доход, статья «Сервер», прибыль
+  await expect(page.getByTestId('money-months')).toContainText('$79,50');
+  // таблица по месяцам (вкладка «По месяцам», вариант Б): доход, статья «Сервер», прибыль
+  await page.getByTestId('money-tab-months').click();
   const table = page.getByTestId('money-table');
   await expect(table).toContainText('Доход: оплаты клиентов');
   await expect(table).toContainText('Сервер');
   await expect(table).toContainText('$79,50');
 
+  await page.getByTestId('money-tab-in').click();
   await page.getByTestId('money-payments').getByTestId('money-void-payment').click();
   await expect(page.getByTestId('money-income')).toHaveText('$0');
   await expect(page.getByTestId('money-profit')).toHaveText('\u2212$20');
@@ -68,21 +71,28 @@ test('оплата и расход: доход, расходы и прибыль
 test('тариф, подписка клиента, команда с цифровым сотрудником и выплатой зарплаты', async ({ page, request }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await signIn(page, request);
+  // «Тарифы» (вариант Б, владелец 01.11.2026): новый тариф в окне «+ Тариф», клиенты вкладкой, «Изменить» в окне
   await page.goto('/platform/cabinet/subscriptions');
-  const plan = page.getByTestId('money-plans').getByTestId('money-plan-form').last();
+  await expect(page.getByTestId('cabinet').getByRole('navigation', { name: 'Кабинет WETOP' })).toContainText('Тарифы');
+  await page.getByTestId('plan-add-dialog-open').click();
+  const plan = page.getByTestId('plan-add-dialog').getByTestId('money-plan-form');
   await plan.getByLabel('Тариф').fill('WETOP Core');
   await plan.getByLabel('Цена, $').fill('49');
   // владелец 30.10.2026: у тарифа разовая выплата партнёру за первый чек клиента
   await plan.getByLabel('Партнёру за первый чек, $').fill('10');
   await plan.getByTestId('money-plan-save').click();
+  await page.getByTestId('plans-tab-plans').click();
   await expect(page.getByTestId('money-plans')).toContainText('WETOP Core');
   await expect(page.getByTestId('money-plans')).toContainText('партнёру $10');
 
-  const sub = page.getByTestId('money-subscription-form').first();
+  await page.getByTestId('plans-tab-clients').click();
+  await page.getByTestId('plan-client-row').first().getByTestId('plan-client-dialog-open').click();
+  const sub = page.getByTestId('plan-client-dialog').getByTestId('money-subscription-form');
   await sub.getByLabel('В месяц, $').fill('49');
   await sub.getByTestId('money-subscription-save').click();
   await expect(page.getByTestId('money-subscriptions')).toContainText('$49 в месяц');
-  await expect(page.getByTestId('money-subscriptions')).toContainText('не оплачено');
+  // без «оплачено до» клиент сразу в должниках (DATA_MODEL §63): статус «просрочен»
+  await expect(page.getByTestId('plan-client-row').first()).toContainText('просрочен');
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/subscriptions-1280.png`, fullPage: true });
 
   // «Команда WETOP» (владелец 30.10.2026): человек (ФИО, телефон, почта, зарплата) и цифровой сотрудник (имя и зарплата);
@@ -115,7 +125,7 @@ test('тариф, подписка клиента, команда с цифро�
   await expect(page.getByTestId('team-left')).toHaveText('$30');
   await expect(page.getByTestId('team-payouts')).toContainText('Айдар Тестов');
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/team-1280.png`, fullPage: true });
-  await page.goto('/platform/cabinet/money');
+  await page.goto('/platform/cabinet/money?tab=months');
   await expect(page.getByTestId('money-expenses')).toHaveText('$800');
   await expect(page.getByTestId('money-table')).toContainText('Зарплаты');
 });
@@ -129,7 +139,8 @@ test('подписки клиентов: выдать доступ к конст
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page, request);
   await page.goto('/platform/cabinet/subscriptions');
-  const access = page.getByTestId('subscription-access').filter({ hasText: 'Хостел «Пример» (центр)' });
+  await page.getByTestId('plan-client-row').filter({ hasText: 'Хостел «Пример»' }).getByTestId('plan-client-dialog-open').click();
+  const access = page.getByTestId('plan-client-dialog').getByTestId('subscription-access').filter({ hasText: 'Хостел «Пример» (центр)' });
   await expect(access).toBeVisible();
   await expect(access).toContainText('Конструктор сайта');
   await expect(access).toContainText('не подключён');
@@ -182,7 +193,6 @@ test('партнёры: процент, клиент партнёра, начи�
   expect((await request.post(`${FIXTURE_API}/platform/payments`, { ...asAdmin, data: { organizationId: 'ui-org-2', amount: '50', paidOn: new Date().toISOString().slice(0, 10), kind: 'ADDON' } })).ok()).toBe(true);
   await page.goto('/platform/cabinet/partners');
   const row = page.getByTestId('partner-row').filter({ hasText: 'Агентство Тест' });
-  await expect(row).toContainText('Хостел «Пример»');
   await expect(row).toContainText('$50');
   await expect(page.getByTestId('partners-due')).toHaveText('$10');
   await row.getByTestId('partner-pay-dialog-open').click();
@@ -194,8 +204,74 @@ test('партнёры: процент, клиент партнёра, начи�
   expect(wide).toBeLessThanOrEqual(0);
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/partners-1280.png`, fullPage: true });
   // выплата в «Деньгах» по статье «Партнёрам»
-  await page.goto('/platform/cabinet/money');
+  await page.goto('/platform/cabinet/money?tab=months');
   await expect(page.getByTestId('money-table')).toContainText('Партнёрам');
+});
+
+/**
+ * «Партнёры» A (владелец 01.11.2026, «давай а»): выплаты списком справа, ошибочную выплату отменяют и долг возвращается;
+ * поиск и фильтры; клиентов партнёра назначают и убирают прямо здесь; всё в один экран 1440×900.
+ */
+test('партнёры A: отмена выплаты, поиск и фильтры, клиенты партнёра, один экран', async ({ page, request }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await signIn(page, request);
+  const token = (await page.context().cookies()).find((c) => c.name === 'wetop_session')?.value;
+  const asAdmin = { headers: { 'x-wetop-test-client': '1', 'x-wetop-session': token! } };
+  const partner = await (await request.post(`${FIXTURE_API}/platform/partners`, { ...asAdmin, data: { name: 'Айгерим Тестова', percent: '20', phone: '+7 700 000 00 01' } })).json();
+  await request.post(`${FIXTURE_API}/platform/partners`, { ...asAdmin, data: { name: 'Ержан Тестов', percent: '10' } });
+  await page.goto('/platform/cabinet/partners');
+  const row = page.getByTestId('partner-row').filter({ hasText: 'Айгерим Тестова' });
+
+  // клиента партнёру назначают прямо здесь: окно «Клиенты»
+  await row.getByTestId('partner-clients-dialog-open').click();
+  const dlg = page.locator('dialog[open]');
+  await expect(dlg).toContainText('У партнёра пока нет клиентов');
+  await dlg.getByLabel('Назначить клиента').selectOption({ label: 'Хостел «Пример»' });
+  await dlg.getByTestId('partner-client-assign-save').click();
+  // окно остаётся открытым: клиент сразу в списке партнёра, рядом «Убрать»
+  await expect(dlg.getByTestId('partner-client')).toHaveText(/Хостел «Пример»/);
+  await dlg.getByRole('button', { name: 'Закрыть' }).click();
+  expect((await request.post(`${FIXTURE_API}/platform/payments`, { ...asAdmin, data: { organizationId: 'ui-org-2', amount: '50', paidOn: new Date().toISOString().slice(0, 10), kind: 'ADDON' } })).ok()).toBe(true);
+  await page.reload();
+  await expect(page.getByTestId('partners-due')).toHaveText('$10');
+  await row.getByTestId('partner-clients-dialog-open').click();
+  await expect(page.getByTestId('partner-client')).toHaveText(/Хостел «Пример»/);
+  await page.locator('dialog[open]').getByRole('button', { name: 'Закрыть' }).click();
+
+  // фильтры «стекло» и поиск по клиенту
+  await page.getByTestId('partners-filter-due').click();
+  await page.waitForURL('**/partners?show=due');
+  await expect(page.getByTestId('partner-row')).toHaveCount(1);
+  await page.getByLabel('Поиск партнёра').fill('Пример');
+  await page.getByLabel('Поиск партнёра').press('Enter');
+  await page.waitForURL(/q=/);
+  await expect(page.getByTestId('partner-row')).toHaveCount(1);
+  await page.getByLabel('Поиск партнёра').fill('нет такого');
+  await page.getByLabel('Поиск партнёра').press('Enter');
+  await expect(page.getByTestId('partners-list')).toContainText('Никого не нашли');
+  await page.goto('/platform/cabinet/partners');
+  await expect(page.getByTestId('partner-row')).toHaveCount(2);
+
+  // выплата видна справа; ошибочную отменяют, к выплате снова $10
+  await row.getByTestId('partner-pay-dialog-open').click();
+  await page.locator('dialog[open]').getByTestId('partner-payout-save').click();
+  await expect(page.getByTestId('partners-due')).toHaveText('$0');
+  const paid = page.getByTestId('partner-payout-row').filter({ hasText: 'Айгерим Тестова' });
+  await expect(paid).toContainText('$10');
+  // один экран 1440×900: без прокрутки и вбок, и вниз
+  const over = await page.evaluate(() => ({ w: document.documentElement.scrollWidth - innerWidth, h: document.documentElement.scrollHeight - innerHeight }));
+  expect(over.w).toBeLessThanOrEqual(0);
+  expect(over.h).toBeLessThanOrEqual(0);
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/partners-a-1440.png` });
+  await paid.getByTestId('money-void-expense').click();
+  await expect(page.getByTestId('partners-due')).toHaveText('$10');
+  await expect(paid).toContainText('отменена');
+
+  // убрать клиента у партнёра: начисленное уходит
+  await row.getByTestId('partner-clients-dialog-open').click();
+  await page.locator('dialog[open]').getByTestId('partner-client-remove').click();
+  await expect(page.getByTestId('partners-due')).toHaveText('$0');
+  expect(partner.id).toBeTruthy();
 });
 
 /**
@@ -205,15 +281,17 @@ test('партнёры: процент, клиент партнёра, начи�
 test('расходы: запись в окне, итог, статьи с долей и отбор по статье', async ({ page, request }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await signIn(page, request);
+  // «Расходы» вкладкой в «Деньгах» (вариант Б, владелец 01.11.2026); старый адрес ведёт туда же
   await page.goto('/platform/cabinet/expenses');
-  await expect(page.getByTestId('cabinet').getByRole('navigation', { name: 'Кабинет WETOP' })).toContainText('Расходы');
+  await expect(page).toHaveURL(/\/platform\/cabinet\/money\?tab=out/);
+  await expect(page.getByTestId('money-tab-out')).toHaveAttribute('aria-current', 'page');
   await expect(page.getByTestId('expenses-by-category')).toContainText('Расходов в этом месяце нет');
   for (const [category, amount, note] of [
     ['Сервер', '30', 'Hetzner'],
     ['Реклама', '90', 'Instagram'],
   ] as const) {
-    await page.getByTestId('expenses-add-dialog-open').click();
-    const form = page.getByTestId('expenses-add-dialog').getByTestId('money-expense-form');
+    await page.getByTestId('money-expense-dialog-open').click();
+    const form = page.getByTestId('money-expense-dialog').getByTestId('money-expense-form');
     await form.getByLabel('Статья').selectOption({ label: category });
     await form.getByLabel('Сумма, $').fill(amount);
     await form.getByLabel('Заметка').fill(note);

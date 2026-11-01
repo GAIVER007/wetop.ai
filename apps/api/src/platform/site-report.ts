@@ -19,7 +19,8 @@ export interface SiteReport {
   sessions: number;
   /** Доля посещений с телефона, десятые процента */
   mobileShare: number;
-  daily: Array<{ date: string; visitors: number }>;
+  /** По дням (вариант Б, владелец 01.11.2026): посетители, визиты, шаги пути, визиты с телефона, источники дня по убыванию (`DIRECT` напрямую, `OTHER` другой сайт) */
+  daily: Array<{ date: string; visitors: number; sessions: number; signupOpen: number; signupSent: number; signupDone: number; mobile: number; sources: string[] }>;
   /** Посетители, дошедшие до шага (каждый один раз) */
   path: { visitors: number; signupOpen: number; signupSent: number; signupDone: number; loginOpen: number };
   sources: Array<{ kind: SourceKind; source: string | null; visitors: number; share: number }>;
@@ -40,6 +41,24 @@ export function buildSiteReport(input: SiteReportInput): SiteReport {
 
   const byDay = new Map<string, Set<string>>(datesBetween(from, to).map((d) => [d, new Set<string>()]));
   for (const s of input.sessions) byDay.get(localDate(s.startedAt, input.timezone))?.add(s.visitorKey);
+  // день визита: шаги пути считаются в день сессии, где они случились
+  const dayOfSession = new Map<string, string>();
+  for (const s of input.sessions) if (s.sessionKey) dayOfSession.set(s.sessionKey, localDate(s.startedAt, input.timezone));
+  const stepByDay = (name: string) => {
+    const m = new Map<string, Set<string>>();
+    for (const e of input.events) {
+      if (e.name !== name) continue;
+      const d = dayOfSession.get(e.sessionKey);
+      const v = visitorOf.get(e.sessionKey);
+      if (!d || !v) continue;
+      const set = m.get(d) ?? new Set<string>();
+      set.add(v);
+      m.set(d, set);
+    }
+    return (d: string) => m.get(d)?.size ?? 0;
+  };
+  const [openOn, sentOn, doneOn] = [stepByDay('signup_open'), stepByDay('signup_sent'), stepByDay('signup_done')];
+  const sourceLabel = (s: SiteReportInput['sessions'][number]) => (s.sourceKind === 'DIRECT' ? 'DIRECT' : (s.source ?? 'OTHER'));
 
   const groups = new Map<string, { kind: SourceKind; source: string | null; v: Set<string> }>();
   for (const s of input.sessions) {
@@ -67,7 +86,21 @@ export function buildSiteReport(input: SiteReportInput): SiteReport {
     visitors: visitors.size,
     sessions: input.sessions.length,
     mobileShare: tenths(input.sessions.filter((s) => s.device === 'MOBILE').length, input.sessions.length),
-    daily: [...byDay.entries()].map(([date, v]) => ({ date, visitors: v.size })),
+    daily: [...byDay.entries()].map(([date, v]) => {
+      const own = input.sessions.filter((s) => localDate(s.startedAt, input.timezone) === date);
+      const src = new Map<string, Set<string>>();
+      for (const s of own) src.set(sourceLabel(s), (src.get(sourceLabel(s)) ?? new Set<string>()).add(s.visitorKey));
+      return {
+        date,
+        visitors: v.size,
+        sessions: own.length,
+        signupOpen: openOn(date),
+        signupSent: sentOn(date),
+        signupDone: doneOn(date),
+        mobile: own.filter((s) => s.device === 'MOBILE').length,
+        sources: [...src.entries()].sort((a, b) => b[1].size - a[1].size || a[0].localeCompare(b[0])).map(([k]) => k),
+      };
+    }),
     path: {
       visitors: visitors.size,
       signupOpen: reached('signup_open'),

@@ -2730,6 +2730,11 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
       ready: true,
       ...view,
       clients: [...platformMoney.clientPartners].map(([organizationId, partnerId]) => ({ organizationId, partnerId, name: names.get(organizationId) ?? '' })),
+      // «Партнёры» A (01.11.2026): выплаты списком с отменой, все клиенты для «Назначить клиента»
+      payouts: platformMoney.expenses
+        .filter((e) => e.category === 'PARTNERS' && e.partnerId)
+        .map((e) => ({ id: e.id, partnerId: e.partnerId!, partnerName: platformMoney.partners.find((p) => p.id === e.partnerId)?.name ?? '', amountCents: e.amountCents, spentOn: e.spentOn, note: e.note, voided: e.voided })),
+      allClients: clients.map((c) => ({ id: c.id, name: c.name })),
     });
   }
   if ((path === '/platform/partners' && method === 'POST') || (/^\/platform\/partners\/[^/]+$/.test(path) && method === 'PUT')) {

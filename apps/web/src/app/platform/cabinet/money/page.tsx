@@ -1,10 +1,12 @@
 import { Suspense } from 'react';
 import { Page } from '../../../../components/page';
-import { Icon } from '../../../../components/icon';
-import { EmptyState, LoadingState, Panel, Stat, Stats, Table } from '../../../../components/ui';
-import type { PlatformMoney } from '../../../../lib/api';
+import { EmptyState, LoadingState, Panel, Table } from '../../../../components/ui';
+import type { PlatformExpenseCategory, PlatformMoney } from '../../../../lib/api';
 import { currentLocale, serverT } from '../../../../i18n/server';
-import type { Translate } from '../../../../i18n';
+import { msg, type Translate } from '../../../../i18n';
+import Link from 'next/link';
+import { KpiStrip } from '../kpi-strip';
+import { ExpensesTab } from './expenses-tab';
 import { MonthPicker } from './month-picker';
 import { NotReady, loadMoney } from '../load-money';
 import { CabinetShell, dayText, usd } from '../shell';
@@ -15,7 +17,8 @@ import { percentText } from '../growth-parts';
 import { formatInt } from '../../../../lib/dashboard-format';
 import { monthLabel } from '../../../branches/month-picker';
 
-/** Деньги компании WETOP (DATA_MODEL §63; вид от 30.10.2026: кнопки записи в окне, таблица по месяцам, поступления и расходы рядом, ожидаем и просрочено): доход, расходы и прибыль месяца в долларах, оплаты и расходы списком */
+/** Вид «Б» (владелец 01.11.2026): вкладки Обзор, Поступления, Расходы (бывший раздел), По месяцам; полоса цифр сверху.
+ * Деньги компании WETOP (DATA_MODEL §63; вид от 30.10.2026: кнопки записи в окне, таблица по месяцам, поступления и расходы рядом, ожидаем и просрочено): доход, расходы и прибыль месяца в долларах, оплаты и расходы списком */
 export default async function MoneyPage({
   searchParams,
 }: {
@@ -25,16 +28,26 @@ export default async function MoneyPage({
   const q = await searchParams;
   const raw = typeof q['month'] === 'string' ? q['month'] : '';
   const month = /^\d{4}-(0[1-9]|1[0-2])$/.test(raw) ? raw : new Date().toISOString().slice(0, 7);
+  const tab: MoneyTab = TABS.find((x) => x.key === q['tab'])?.key ?? 'overview';
+  const category = typeof q['category'] === 'string' ? q['category'] : '';
   return (
     <Page width="full" title={t('Деньги WETOP')}>
       <Suspense fallback={<LoadingState label={t('Считаем деньги…')} />}>
-        <Money month={month} />
+        <Money month={month} tab={tab} category={category} />
       </Suspense>
     </Page>
   );
 }
 
-async function Money({ month }: { month: string }) {
+type MoneyTab = 'overview' | 'in' | 'out' | 'months';
+const TABS: Array<{ key: MoneyTab; label: string }> = [
+  { key: 'overview', label: msg('Обзор') },
+  { key: 'in', label: msg('Поступления') },
+  { key: 'out', label: msg('Расходы') },
+  { key: 'months', label: msg('По месяцам') },
+];
+
+async function Money({ month, tab, category }: { month: string; tab: MoneyTab; category: string }) {
   const t = await serverT();
   const locale = await currentLocale();
   const { view, error } = await loadMoney(month, t);
@@ -55,85 +68,150 @@ async function Money({ month }: { month: string }) {
   const m = sm.month;
   const profitNegative = m.profitCents.startsWith('-');
   const shortMonth = (mm: string) => monthLabel(mm, locale).split(' ')[0]!.slice(0, 3);
+  const income = BigInt(m.incomeCents);
+  const margin = income > 0n ? Number((BigInt(m.profitCents) * 1000n) / income) : null;
+  const href = (k: MoneyTab) => `/platform/cabinet/money?month=${month}${k === 'overview' ? '' : `&tab=${k}`}`;
+  const live = view.payments.filter((p) => !p.voided);
   return (
     <CabinetShell active="money" t={t} clients={view.clients.length}>
       <div className="cabinet__head cabinet-money__head">
-        <MonthPicker month={month} locale={locale} />
+        <nav className="glass-tabs" aria-label={t('Разделы денег')}>
+          {TABS.map((x) => (
+            <Link key={x.key} href={href(x.key)} aria-current={x.key === tab ? 'page' : undefined} prefetch={false} data-testid={`money-tab-${x.key}`}>
+              {t(x.label)}
+            </Link>
+          ))}
+        </nav>
         <div className="cabinet-money__actions">
-          <FormDialog label={t('Записать оплату')} title={t('Оплата клиента')} testId="money-payment-dialog">
+          <MonthPicker month={month} locale={locale} base={tab === 'overview' ? '/platform/cabinet/money' : `/platform/cabinet/money?tab=${tab}`} />
+          <FormDialog label={t('+ Оплата')} title={t('Оплата клиента')} testId="money-payment-dialog">
             <PaymentForm clients={view.clients} today={today} />
           </FormDialog>
-          <FormDialog
-            label={t('Записать расход')}
-            title={t('Расход компании')}
-            tone="secondary"
-            testId="money-expense-dialog"
-          >
+          <FormDialog label={t('− Расход')} title={t('Расход компании')} tone="secondary" testId="money-expense-dialog">
             <ExpenseForm categories={view.categories} today={today} />
           </FormDialog>
         </div>
       </div>
-      <Stats min={180}>
-        <Stat
-          label={t('Поступило')}
-          value={usd(m.incomeCents)}
-          hint={t('оплат за месяц: {n}', { n: formatInt(view.payments.filter((p) => !p.voided).length) })}
-          icon={<Icon name="chart" />}
-          tone="success"
-          testId="money-income"
+      {tab !== 'out' && (
+        <KpiStrip
+          testId="money-strip"
+          items={[
+            { id: 'income', label: t('Поступило'), value: usd(m.incomeCents), hint: t('оплат: {n}', { n: formatInt(live.length) }), tone: 'success' },
+            { id: 'expenses', label: t('Расходы'), value: usd(m.expensesCents), hint: t('записей: {n}', { n: formatInt(view.expenses.filter((e) => !e.voided).length) }), tone: 'danger' },
+            { id: 'profit', label: t('Прибыль'), value: usd(m.profitCents), hint: margin === null ? undefined : t('маржа {p}', { p: signedPercent(margin) }), tone: profitNegative ? 'danger' : undefined },
+            { id: 'expected', label: t('Ожидаем в месяц'), value: usd(sm.expectedMonthlyCents), hint: t('по тарифам клиентов') },
+          ]}
         />
-        <Stat
-          label={t('Расходы')}
-          value={usd(m.expensesCents)}
-          hint={t('записей за месяц: {n}', { n: formatInt(view.expenses.filter((e) => !e.voided).length) })}
-          icon={<Icon name="money" />}
-          testId="money-expenses"
-        />
-        <Stat
-          label={t('Прибыль')}
-          value={usd(m.profitCents)}
-          tone={profitNegative ? 'danger' : 'success'}
-          icon={<Icon name="analytics" />}
-          testId="money-profit"
-        />
-        <Stat
-          label={t('Ожидаем в месяц')}
-          value={usd(sm.expectedMonthlyCents)}
-          hint={t('по подпискам клиентов')}
-          icon={<Icon name="booking" />}
-          testId="money-expected"
-        />
-      </Stats>
-      {sm.table && (
+      )}
+      {tab === 'overview' && (
+        <>
+          <div className="cabinet-money__pair">
+            <Panel data-testid="money-payments">
+              <div className="cabinet__panel-head">
+                <b className="panel__title">{t('Последние поступления')}</b>
+                <Link className="btn btn--secondary btn--sm" href={href('in')} prefetch={false}>
+                  {t('Все')}
+                </Link>
+              </div>
+              <PaymentsTable view={view} t={t} limit={5} />
+            </Panel>
+            <Panel data-testid="money-expense-list">
+              <div className="cabinet__panel-head">
+                <b className="panel__title">{t('Расходы по статьям')}</b>
+                <Link className="btn btn--secondary btn--sm" href={href('out')} prefetch={false}>
+                  {t('Все')}
+                </Link>
+              </div>
+              <CategoryBars view={view} t={t} />
+            </Panel>
+          </div>
+          <div className="cabinet-money__pair">
+            <Panel title={t('Ожидаем оплату, 30 дней')} data-testid="money-upcoming">
+              <DueTable rows={(sm.upcoming ?? []).map((u) => ({ ...u, late: false }))} empty={t('В ближайшие 30 дней оплат по тарифам нет')} t={t} />
+            </Panel>
+            <Panel title={t('Просрочено')} data-testid="money-overdue">
+              <DueTable rows={sm.overdue.map((o) => ({ ...o, late: true }))} empty={t('Просроченных оплат нет')} t={t} />
+            </Panel>
+          </div>
+        </>
+      )}
+      {tab === 'in' && (
+        <Panel title={t('Поступления за месяц')} data-testid="money-payments">
+          <PaymentsTable view={view} t={t} />
+        </Panel>
+      )}
+      {tab === 'out' && <ExpensesTab view={view} month={month} category={category} t={t} />}
+      {tab === 'overview' && sm.table && (
+        <Panel title={t('По месяцам')} data-testid="money-months">
+          <MonthsShort table={sm.table} t={t} monthName={(mm) => monthLabel(mm, locale).split(' ')[0]!} />
+        </Panel>
+      )}
+      {tab === 'months' && sm.table && (
         <Panel title={t('Доходы и расходы по месяцам')} data-testid="money-table">
           <MonthTable table={sm.table} t={t} monthName={shortMonth} />
         </Panel>
       )}
-      <div className="cabinet-money__pair">
-        <Panel title={t('Поступления за месяц')} data-testid="money-payments">
-          <PaymentsTable view={view} t={t} />
-        </Panel>
-        <Panel title={t('Расходы за месяц')} data-testid="money-expense-list">
-          <ExpensesTable view={view} t={t} />
-        </Panel>
-      </div>
-      <div className="cabinet-money__pair">
-        <Panel title={t('Ожидаем оплату, 30 дней')} data-testid="money-upcoming">
-          <DueTable
-            rows={(sm.upcoming ?? []).map((u) => ({ ...u, late: false }))}
-            empty={t('В ближайшие 30 дней оплат по подпискам нет')}
-            t={t}
-          />
-        </Panel>
-        <Panel title={t('Просрочено')} data-testid="money-overdue">
-          <DueTable
-            rows={sm.overdue.map((o) => ({ ...o, late: true }))}
-            empty={t('Просроченных оплат нет')}
-            t={t}
-          />
-        </Panel>
-      </div>
     </CabinetShell>
+  );
+}
+
+/** «По месяцам» в обзоре: поступило, расходы, прибыль, маржа; свежий месяц сверху, пустые месяцы не показываем */
+function MonthsShort({ table, t, monthName }: { table: NonNullable<Ready['summary']['table']>; t: Translate; monthName: (m: string) => string }) {
+  const rows = table.months
+    .map((mm, i) => {
+      const out = table.categories.reduce((n, c) => n + BigInt(c.cents[i] ?? '0'), 0n);
+      return { mm, income: table.income[i] ?? '0', out: String(out), profit: table.profit[i] ?? '0', margin: table.margin[i] ?? null };
+    })
+    .filter((r) => r.income !== '0' || r.out !== '0')
+    .reverse();
+  if (rows.length === 0) return <EmptyState title={t('Денег пока не было')} />;
+  return (
+    <Table aria-label={t('По месяцам')} className="cabinet__days">
+      <thead>
+        <tr>
+          <th>{t('Месяц')}</th>
+          <th className="num">{t('Поступило')}</th>
+          <th className="num">{t('Расходы')}</th>
+          <th className="num">{t('Прибыль')}</th>
+          <th className="num">{t('Маржа')}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr key={r.mm}>
+            <td>{monthName(r.mm)}</td>
+            <td className="num cabinet__plus">{usd(r.income)}</td>
+            <td className="num cabinet__minus">{usd(r.out)}</td>
+            <td className="num" data-negative={r.profit.startsWith('-') || undefined}>
+              <b>{usd(r.profit)}</b>
+            </td>
+            <td className="num">{r.margin === null ? '' : signedPercent(r.margin)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
+  );
+}
+
+/** Статьи расходов месяца полосками с суммой: самая крупная сверху */
+function CategoryBars({ view, t }: { view: Ready; t: Translate }) {
+  const by = new Map<string, bigint>();
+  for (const e of view.expenses) if (!e.voided) by.set(e.category, (by.get(e.category) ?? 0n) + BigInt(e.amountCents));
+  const rows = [...by].sort((a, b) => (a[1] === b[1] ? 0 : a[1] > b[1] ? -1 : 1));
+  if (rows.length === 0) return <EmptyState title={t('Расходов в этом месяце нет')} />;
+  const top = rows[0]![1];
+  return (
+    <ul className="cabinet-expenses__bars">
+      {rows.map(([c, v]) => (
+        <li key={c}>
+          <span className="cabinet-expenses__name">{t(CATEGORY_LABEL[c as PlatformExpenseCategory])}</span>
+          <span className="cabinet-expenses__sum">{usd(String(v))}</span>
+          <span className="cabinet-expenses__bar" aria-hidden="true">
+            <span style={{ inlineSize: `${Math.max(2, Number((v * 100n) / top))}%` }} /* slop-allow: inline-style ширина полосы = доля статьи */ />
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -255,8 +333,9 @@ function DueTable({
 
 type Ready = Extract<PlatformMoney, { ready: true }>;
 
-function PaymentsTable({ view, t }: { view: Ready; t: Translate }) {
+function PaymentsTable({ view, t, limit }: { view: Ready; t: Translate; limit?: number }) {
   if (view.payments.length === 0) return <EmptyState title={t('Оплат в этом месяце нет')} />;
+  const rows = limit ? view.payments.filter((p) => !p.voided).slice(0, limit) : view.payments;
   return (
     <Table aria-label={t('Оплаты клиентов')}>
       <thead>
@@ -268,44 +347,15 @@ function PaymentsTable({ view, t }: { view: Ready; t: Translate }) {
         </tr>
       </thead>
       <tbody>
-        {view.payments.map((p) => (
+        {rows.map((p) => (
           <tr key={p.id} className={p.voided ? 'cabinet__voided' : undefined}>
             <td>{dayText(p.paidOn)}</td>
             <td>
               {p.name}
               {(p.voided || p.note) && <div className="cabinet__sub muted">{p.voided ? t('отменена') : p.note}</div>}
             </td>
-            <td className="num">{usd(p.amountCents)}</td>
-            <td>{!p.voided && <VoidButton id={p.id} kind="payment" />}</td>
-          </tr>
-        ))}
-      </tbody>
-    </Table>
-  );
-}
-
-function ExpensesTable({ view, t }: { view: Ready; t: Translate }) {
-  if (view.expenses.length === 0) return <EmptyState title={t('Расходов в этом месяце нет')} />;
-  return (
-    <Table aria-label={t('Расходы компании')}>
-      <thead>
-        <tr>
-          <th>{t('Дата')}</th>
-          <th>{t('Статья')}</th>
-          <th className="num">{t('Сумма')}</th>
-          <th aria-label={t('Действия')} />
-        </tr>
-      </thead>
-      <tbody>
-        {view.expenses.map((e) => (
-          <tr key={e.id} className={e.voided ? 'cabinet__voided' : undefined}>
-            <td>{dayText(e.spentOn)}</td>
-            <td>
-              {t(CATEGORY_LABEL[e.category])}
-              {(e.voided || e.note) && <div className="cabinet__sub muted">{e.voided ? t('отменён') : e.note}</div>}
-            </td>
-            <td className="num">{usd(e.amountCents)}</td>
-            <td>{!e.voided && <VoidButton id={e.id} kind="expense" />}</td>
+            <td className="num cabinet__plus">+{usd(p.amountCents)}</td>
+            <td>{!p.voided && !limit && <VoidButton id={p.id} kind="payment" />}</td>
           </tr>
         ))}
       </tbody>

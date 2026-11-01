@@ -67,4 +67,11 @@ describe('отчёт сайта wetop.ai в кабинете', () => {
       { country: null, visitors: 1, signupDone: 0 },
     ]);
   });
+
+  it('по дням (вариант Б, владелец 01.11.2026): посетители, визиты, шаги пути и главный источник дня; пустой день нулями', () => {
+    const d2 = r.daily[1]!;
+    expect(d2).toEqual({ date: '2026-10-02', visitors: 3, sessions: 3, signupOpen: 2, signupSent: 1, signupDone: 1, mobile: 1, sources: ['DIRECT', 'google', 'instagram'] });
+    expect(r.daily[0]).toEqual({ date: '2026-10-01', visitors: 1, sessions: 1, signupOpen: 0, signupSent: 0, signupDone: 0, mobile: 1, sources: ['google'] });
+    expect(r.daily[5]).toEqual({ date: '2026-10-06', visitors: 0, sessions: 0, signupOpen: 0, signupSent: 0, signupDone: 0, mobile: 0, sources: [] });
+  });
 });

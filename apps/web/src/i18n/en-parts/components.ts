@@ -83,6 +83,7 @@ export const components: Record<string, string> = {
     'Закупка материалов': 'Materials purchase',
     'Хозяйственные расходы': 'Household expenses',
     'Прочее': 'Other',
+    'Своя статья': 'Custom category',
     'Кассовая смена, пример': 'Cash shift, example',
     'В кассе должно быть': 'Expected in the register',
     'Столько оставил(а) {name}, закрывая прошлую смену': 'Left by {name} when closing the previous shift',

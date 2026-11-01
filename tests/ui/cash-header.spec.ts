@@ -156,7 +156,7 @@ test('общая шапка: одна кнопка смены, расход, и�
       expect(chips!.y, `кнопки статей ниже подписи на ${width}px`).toBeGreaterThan(box!.y + box!.height - 1);
     }
     await page.setViewportSize({ width: 1440, height: 900 });
-    await panel.getByTestId('cash-close-chips').getByRole('button', { name: '+ Другое', exact: true }).click();
+    await panel.getByTestId('cash-close-chips').getByRole('button', { name: '+ Своя статья', exact: true }).click();
     await panel.getByLabel('Сумма', { exact: true }).fill('100');
     await panel.getByLabel('Статья', { exact: true }).fill('Вода');
     await panel.getByLabel('Комментарий (обязательно)').fill('вода для клиентов');

@@ -252,7 +252,7 @@ export function CloseShiftForm({
                 </button>
               ))}
             <button type="button" className="cash-header__chip" disabled={busy || disabled} onClick={() => onExpense()}>
-              + {t('Другое')}
+              + {t('Своя статья')}
             </button>
           </div>
         </div>

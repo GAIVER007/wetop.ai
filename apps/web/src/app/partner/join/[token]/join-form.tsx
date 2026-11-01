@@ -1,5 +1,5 @@
 'use client';
-import { useActionState } from 'react';
+import { startTransition, useActionState, type FormEvent } from 'react';
 import { Button, Field, Input } from '../../../../components/ui';
 import { useT } from '../../../../i18n/locale-provider';
 import { joinPartnerAction } from './actions';
@@ -9,7 +9,16 @@ export function JoinForm({ token, email }: { token: string; email: string | null
   const t = useT();
   const [state, action, pending] = useActionState(joinPartnerAction.bind(null, token), null);
   return (
-    <form action={action} className="stack" data-testid="partner-join-form">
+    <form
+      // поля не стираются после ошибки (React 19 сбрасывает форму после action): отправка через onSubmit
+      onSubmit={(e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        startTransition(() => action(data));
+      }}
+      className="stack"
+      data-testid="partner-join-form"
+    >
       <Field label={t('Имя и фамилия')} required>
         <Input name="name" autoComplete="name" maxLength={200} required />
       </Field>

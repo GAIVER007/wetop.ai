@@ -270,11 +270,14 @@ test('партнёр: приглашение, регистрация по ссы
   await join.getByLabel('Имя и фамилия').fill('Айдар Сериков');
   await join.getByLabel('Почта').fill('aidar.partner@example.invalid');
   await join.getByLabel('Телефон').fill('+7 701 000 00 01');
-  await join.getByLabel('Пароль', { exact: true }).fill('Партнёр-пароль-2026');
+  await join.locator('input[name="password"]').fill('Партнёр-пароль-2026');
   await join.getByLabel('Повторите пароль').fill('Другой-пароль-2026');
   await join.locator('input[name="privacyAccepted"]').check();
   await join.getByTestId('partner-join-submit').click();
   await expect(page.getByTestId('partner-join-error')).toHaveText('Пароли не совпадают');
+  // после ошибки введённое остаётся на месте
+  await expect(join.getByLabel('Имя и фамилия')).toHaveValue('Айдар Сериков');
+  await expect(join.getByLabel('Телефон')).toHaveValue('+7 701 000 00 01');
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/partner-join-1280.png` });
   await join.getByLabel('Повторите пароль').fill('Партнёр-пароль-2026');
   await join.getByTestId('partner-join-submit').click();

@@ -125,3 +125,36 @@ describe('РНП партнёров: начислено по правилу пе
     expect(buildRnp(s, '2026-09').partners.rows.find((r) => r.id === 'p1')).toMatchObject({ accruedCents: '0' });
   });
 });
+
+/** Вариант Б (владелец 01.11.2026): «Открыли регистрацию» по дням и недели месяца с итогами */
+describe('РНП: открыли регистрацию и недели', () => {
+  const withOpens = (): RnpSource => ({
+    ...src(),
+    opens: [
+      { day: '2026-10-01', visitorKey: 'v1' },
+      { day: '2026-10-01', visitorKey: 'v1' },
+      { day: '2026-10-01', visitorKey: 'v2' },
+      { day: '2026-10-09', visitorKey: 'v9' },
+    ],
+  });
+  it('по дням и за месяц посетители, открывшие окно регистрации, каждый один раз; без событий нули', () => {
+    const v = buildRnp(withOpens(), '2026-10');
+    expect(v.days[0]!.opens).toBe(2);
+    expect(v.days[1]!.opens).toBe(0);
+    expect(v.total.opens).toBe(3);
+    expect(buildRnp(src(), '2026-10').total.opens).toBe(0);
+  });
+  it('недели с понедельника, обрезаны месяцем: границы, суммы и деньги центами', () => {
+    const w = buildRnp(withOpens(), '2026-10').weeks;
+    // октябрь 2026: 1-е четверг; недели 1–4, 5–11, 12–18, 19–25, 26–31
+    expect(w.map((x) => [x.from, x.to])).toEqual([
+      ['2026-10-01', '2026-10-04'],
+      ['2026-10-05', '2026-10-11'],
+      ['2026-10-12', '2026-10-18'],
+      ['2026-10-19', '2026-10-25'],
+      ['2026-10-26', '2026-10-31'],
+    ]);
+    expect(w[0]).toMatchObject({ visitors: 3, opens: 2, leads: 2, registrations: 2, firstPayments: 1, incomeCents: '39800', expensesCents: '7000' });
+    expect(w[1]).toMatchObject({ visitors: 0, opens: 1, incomeCents: '1900', firstPayments: 0 });
+  });
+});

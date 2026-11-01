@@ -10,6 +10,8 @@ export interface RnpSource {
   visitors: Array<{ day: string; visitorKey: string }>;
   /** Отправленные формы регистрации: день и посетитель */
   leads: Array<{ day: string; visitorKey: string }>;
+  /** Открыли окно регистрации (`signup_open`, владелец 01.11.2026); нет поля: нули */
+  opens?: Array<{ day: string; visitorKey: string }>;
   organizations: Array<{ id: string; createdAt: Date }>;
   /** `kind`: `PLAN` тариф, `ADDON` доп; без отметки тариф (DATA_MODEL §63.3) */
   payments: Array<{ organizationId: string; amountCents: bigint; paidOn: string; voided: boolean; kind?: 'PLAN' | 'ADDON' }>;
@@ -23,6 +25,7 @@ export interface RnpSource {
 export interface RnpDay {
   day: string;
   visitors: number;
+  opens: number;
   leads: number;
   registrations: number;
   firstPayments: number;
@@ -54,6 +57,8 @@ export interface RnpPartnerRow {
 export interface RnpView {
   month: string;
   days: RnpDay[];
+  /** Недели с понедельника, обрезанные месяцем (вариант Б, владелец 01.11.2026) */
+  weeks: Array<Omit<RnpDay, 'day'> & { from: string; to: string }>;
   total: RnpTotal;
   partners: {
     rows: RnpPartnerRow[];
@@ -81,10 +86,22 @@ export function buildRnp(src: RnpSource, month: string): RnpView {
     new Set(rows.filter((r) => (d ? r.day === d : inMonth(r.day))).map((r) => r.visitorKey)).size;
   const sum = (xs: bigint[]) => xs.reduce((n, x) => n + x, 0n);
 
+  const uniqIn = (rows: Array<{ day: string; visitorKey: string }>, hit: (x: string) => boolean) =>
+    new Set(rows.filter((r) => hit(r.day)).map((r) => r.visitorKey)).size;
+  const range = (hit: (x: string) => boolean): Omit<RnpDay, 'day'> => ({
+    visitors: uniqIn(src.visitors, hit),
+    opens: uniqIn(src.opens ?? [], hit),
+    leads: uniqIn(src.leads, hit),
+    registrations: [...regDay.values()].filter(hit).length,
+    firstPayments: [...first.values()].filter(hit).length,
+    incomeCents: String(sum(paid.filter((p) => hit(p.paidOn)).map((p) => p.amountCents))),
+    expensesCents: String(sum(spent.filter((e) => hit(e.spentOn)).map((e) => e.amountCents))),
+  });
   const row = (d: string | null): Omit<RnpDay, 'day'> => {
     const hit = (x: string) => (d ? x === d : inMonth(x));
     return {
       visitors: uniq(src.visitors, d),
+      opens: uniq(src.opens ?? [], d),
       leads: uniq(src.leads, d),
       registrations: [...regDay.values()].filter(hit).length,
       firstPayments: [...first.values()].filter(hit).length,
@@ -140,6 +157,7 @@ export function buildRnp(src: RnpSource, month: string): RnpView {
   return {
     month,
     days: days.map((d) => ({ day: d, ...row(d) })),
+    weeks: weekRanges(days).map(([from, to]) => ({ from, to, ...range((x) => x >= from && x <= to) })),
     total: {
       ...t,
       visitorToLead: share(t.leads, t.visitors),
@@ -161,4 +179,15 @@ export function buildRnp(src: RnpSource, month: string): RnpView {
       },
     },
   };
+}
+
+/** Недели месяца с понедельника: [первый, последний] день каждой, обрезано месяцем */
+function weekRanges(days: string[]): Array<[string, string]> {
+  const out: Array<[string, string]> = [];
+  for (const d of days) {
+    const monday = new Date(`${d}T00:00:00Z`).getUTCDay() === 1;
+    if (out.length === 0 || monday) out.push([d, d]);
+    else out[out.length - 1]![1] = d;
+  }
+  return out;
 }

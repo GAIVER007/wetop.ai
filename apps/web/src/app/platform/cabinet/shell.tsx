@@ -22,12 +22,13 @@ const LINKS: Array<{
   { key: 'rnp', href: '/platform/cabinet/rnp', icon: 'chart', label: msg('РНП') },
   { key: 'countries', href: '/platform/cabinet/countries', icon: 'pin', label: msg('Страны') },
   { key: 'money', href: '/platform/cabinet/money', icon: 'chart', label: msg('Деньги') },
-  { key: 'expenses', href: '/platform/cabinet/expenses', icon: 'receipt', label: msg('Расходы') },
+  // «Расходы» вкладкой в «Деньгах» (вариант Б, владелец 01.11.2026)
   {
     key: 'subscriptions',
     href: '/platform/cabinet/subscriptions',
     icon: 'booking',
-    label: msg('Подписки'),
+    // «Тарифы, а не подписки» (владелец 01.11.2026)
+    label: msg('Тарифы'),
   },
   { key: 'team', href: '/platform/cabinet/team', icon: 'person', label: msg('Команда WETOP') },
   { key: 'partners', href: '/platform/cabinet/partners', icon: 'link', label: msg('Партнёры WETOP') },

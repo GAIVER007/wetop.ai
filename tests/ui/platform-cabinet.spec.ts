@@ -232,7 +232,7 @@ test('«Сайт wetop.ai»: посетители, путь к регистра�
   await expect(page).toHaveURL(/\/platform\/cabinet\/site$/);
   await expect(page.getByTestId('site-visitors')).toContainText('3');
   await expect(page.getByTestId('site-path-open')).toContainText('2');
-  await expect(page.getByTestId('site-path-open')).toContainText('66,6%');
+  await expect(page.getByTestId('site-path-open-box')).toContainText('66,6%');
   await expect(page.getByTestId('site-path-done')).toContainText('1');
   await expect(page.getByTestId('site-sources')).toContainText('google');
   // число и доля видны в строке источника
@@ -250,7 +250,14 @@ test('«Сайт wetop.ai»: посетители, путь к регистра�
   await expect(page.getByTestId('site-countries')).toContainText('Казахстан');
   await expect(page.getByTestId('site-countries')).toContainText('Катар');
   await expect(page.getByTestId('site-countries')).toContainText('Не определена');
-  await expect(page.getByTestId('site-daily').locator('li')).toHaveCount(new Date(Number(new Date().toISOString().slice(0, 4)), Number(new Date().toISOString().slice(5, 7)), 0).getDate());
+  // вид «Б» (владелец 01.11.2026): таблица по дням, итог месяца внизу; «Только с посетителями» прячет пустые дни
+  await expect(page.getByTestId('site-total')).toContainText('Итого за месяц');
+  await expect(page.getByTestId('site-total')).toContainText('3');
+  await page.getByTestId('site-days-busy').click();
+  await expect(page.getByTestId('site-day')).toHaveCount(2);
+  await expect(page.getByTestId('site-day').first()).toContainText('instagram');
+  const daysFit = await page.getByTestId('site-daily').evaluate((el) => (el.parentElement ?? el).scrollWidth <= (el.parentElement ?? el).clientWidth);
+  expect(daysFit).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: 'test-results/cabinet-site-1280.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -297,8 +304,11 @@ test('РНП: итоги периода, дни строкой, вкладка �
   await expect(page.getByTestId('rnp-leads')).toContainText('33,3%');
   await expect(page.getByTestId('rnp-income')).toContainText('$49');
   await expect(page.getByTestId('rnp-total')).toContainText('$20');
+  // вид «Б» (владелец 01.11.2026): недели строками, неделя раскрывается в дни
+  await expect(page.getByTestId('rnp-week').first()).toContainText('Неделя 1 по');
+  await page.getByTestId('rnp-week').first().getByRole('link').click();
   const days = page.getByTestId('rnp-day');
-  await expect(days.first()).toContainText('01.');
+  await expect(days.last()).toContainText('01.');
   const over = await page.getByTestId('rnp-days').evaluate((el) => (el.parentElement ?? el).scrollWidth - (el.parentElement ?? el).clientWidth);
   expect(over).toBeLessThanOrEqual(0);
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/rnp-1280.png` });

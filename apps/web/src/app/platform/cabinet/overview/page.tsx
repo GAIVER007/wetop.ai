@@ -108,7 +108,7 @@ async function Overview({ month }: { month: string }) {
     {
       id: 'finance',
       title: t('Финансы'),
-      href: `/platform/cabinet/expenses?month=${month}`,
+      href: `/platform/cabinet/money?tab=out&month=${month}`,
       rows: [
         { id: 'cash', label: t('Остаток денег'), value: usd(v.finance.cashBalanceCents), tone: v.finance.cashBalanceCents.startsWith('-') ? 'danger' : 'success' },
         { id: 'income', label: t('Доход месяца'), value: usd(v.finance.incomeCents) },

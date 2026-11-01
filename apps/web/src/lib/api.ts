@@ -6010,6 +6010,6 @@ export interface PartnerCabinetView {
 export const partnerApi = {
   me: () => getJson<PartnerCabinetView>('/partner/me'),
   invite: (token: string) => getJson<{ partnerName: string; email: string | null }>(`/partner/join/${encodeURIComponent(token)}`),
-  join: (token: string, body: { name: string; email: string; password: string; privacyAccepted: boolean }) =>
+  join: (token: string, body: { name: string; email: string; password: string; passwordConfirm?: string; phone?: string; privacyAccepted: boolean }) =>
     sendJson<{ pendingVerification: true; email: string; sent: boolean }>('POST', `/partner/join/${encodeURIComponent(token)}`, body),
 };

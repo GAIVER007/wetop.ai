@@ -2764,7 +2764,7 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     const code = `P${String(platformMoney.partners.indexOf(partner) + 1).padStart(3, '0')}`;
     const token = `invite-${partner.id}`;
     platformMoney.partnerInvites.set(token, partner.id);
-    return ok({ link: `http://127.0.0.1/partner/join/${token}`, email: partner.email, code }, 201);
+    return ok({ link: `http://127.0.0.1/partner/invite/${token}`, email: partner.email, code }, 201);
   }
   const joinPartner = /^\/partner\/join\/([^/]+)$/.exec(path);
   if (joinPartner) {
@@ -2773,6 +2773,8 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     if (!partner) return ok({ message: 'Приглашение недействительно или уже использовано. Попросите новое у WETOP.' }, 404);
     if (method === 'GET') return ok({ partnerName: partner.name, email: partner.email });
     if (method === 'POST') {
+      if (typeof body['passwordConfirm'] === 'string' && body['passwordConfirm'] !== body['password']) return ok({ message: 'Пароли не совпадают' }, 400);
+      if (String(body['email'] ?? '') === 'taken@example.invalid') return ok({ message: 'Эта почта уже зарегистрирована в WETOP. Войдите или укажите другую.' }, 400);
       platformMoney.partnerInvites.delete(decodeURIComponent(joinPartner[1]!));
       platformMoney.partnerUser = partner.id;
       return ok({ pendingVerification: true, email: String(body['email'] ?? ''), sent: true }, 201);
@@ -8631,6 +8633,11 @@ createServer(async (req, res) => {
         items: items.filter((b) => !fixtureArchivedLocations.has(String(b.locationId))),
         canCreate: uiRole === 'OWNER',
       });
+    }
+    // кабинет партнёра (DATA_MODEL §63.3): приглашение без входа и свой кабинет, вне проверки главного администратора
+    if (path.startsWith('/partner/')) {
+      const partner = platformMoneyFixture(path, req.method ?? 'GET', body);
+      if (partner) return send(partner.status, partner.data);
     }
     // «Платформа» (ADR-083): только вошедшему главному администратору
     if (path === '/platform/organizations' || path.startsWith('/platform/')) {

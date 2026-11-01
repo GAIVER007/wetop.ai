@@ -10,7 +10,7 @@ import { formatInt } from '../../../../lib/dashboard-format';
 import { serverT } from '../../../../i18n/server';
 import { CabinetShell, centsToInput, usd } from '../shell';
 import { FormDialog } from '../form-dialog';
-import { PartnerForm, PartnerInviteForm, PartnerPayoutForm } from '../money-forms';
+import { PartnerCreateInviteForm, PartnerForm, PartnerInviteForm, PartnerPayoutForm } from '../money-forms';
 import { percentText } from '../growth-parts';
 
 /**
@@ -64,7 +64,11 @@ async function Partners() {
       <div className="cabinet__head cabinet-money__head">
         <span />
         <div className="cabinet-money__actions">
-          <FormDialog label={t('Добавить партнёра')} title={t('Новый партнёр')} testId="partner-add-dialog">
+          {/* ТЗ 01.11.2026: партнёр и ссылка приглашения одним окном */}
+          <FormDialog label={t('Пригласить партнёра')} title={t('Пригласить партнёра')} testId="partner-create-invite-dialog">
+            <PartnerCreateInviteForm />
+          </FormDialog>
+          <FormDialog label={t('Добавить партнёра')} title={t('Новый партнёр')} tone="secondary" testId="partner-add-dialog">
             <PartnerForm partner={null} />
           </FormDialog>
         </div>

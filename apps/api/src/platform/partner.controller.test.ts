@@ -11,6 +11,8 @@ import { PLATFORM_ADMIN_ONLY } from './admin';
 import {
   PARTNER_CABINET_REPOSITORY,
   PARTNER_INVITE_INVALID,
+  PARTNER_JOIN_PASSWORD_MISMATCH,
+  PARTNER_JOIN_PHONE,
   PARTNER_NOT_PARTNER,
   PartnerController,
   type PartnerCabinetRepository,
@@ -87,12 +89,12 @@ beforeEach(() => {
 const api = () => request(app.getHttpServer());
 
 describe('приглашение партнёра', () => {
-  it('выдаёт только главный администратор; в ответе ссылка /partner/join/<токен> и Partner ID', async () => {
+  it('выдаёт только главный администратор; в ответе ссылка /partner/invite/<токен> (ТЗ 01.11.2026) и Partner ID', async () => {
     const no = await api().post(`/platform/partners/${PARTNER}/invite`).set({ 'x-wetop-session': 'session-stranger' }).expect(403);
     expect(no.body.message).toBe(PLATFORM_ADMIN_ONLY);
     const ok = await api().post(`/platform/partners/${PARTNER}/invite`).set({ 'x-wetop-session': 'session-admin' }).expect(201);
     expect(ok.body).toMatchObject({ email: 'aidar@example.invalid', code: 'P001' });
-    expect(ok.body.link).toMatch(/^https?:\/\/[^/]+\/partner\/join\/tok-123$/);
+    expect(ok.body.link).toMatch(/^https?:\/\/[^/]+\/partner\/invite\/tok-123$/);
     expect(calls[0]).toEqual(['invite', { partnerId: PARTNER, by: ADMIN }]);
   });
 
@@ -105,6 +107,28 @@ describe('приглашение партнёра', () => {
       .expect(201);
     expect(ok.body).toEqual({ pendingVerification: true, email: 'aidar@example.invalid', sent: true });
     expect((await api().post('/partner/join/bad').send({ name: 'А', email: 'a@b.c', password: 'x', privacyAccepted: true }).expect(404)).body.message).toBe(PARTNER_INVITE_INVALID);
+  });
+});
+
+describe('регистрация партнёра (ТЗ 01.11.2026): телефон и повтор пароля', () => {
+  const good = { name: 'Айдар Сериков', email: 'aidar@example.invalid', password: 'Длинный-пароль-2026', privacyAccepted: true };
+  it('пароли не совпали: 400 словами, учётка не создаётся', async () => {
+    const r = await api().post('/partner/join/tok-123').send({ ...good, passwordConfirm: 'Другой-пароль-2026' }).expect(400);
+    expect(r.body.message).toBe(PARTNER_JOIN_PASSWORD_MISMATCH);
+    expect(calls.filter((c) => c[0] === 'join')).toHaveLength(0);
+  });
+  it('телефон кривой: 400 словами; верный уходит в учётку партнёра цифрами с плюсом', async () => {
+    expect((await api().post('/partner/join/tok-123').send({ ...good, passwordConfirm: good.password, phone: 'abc' }).expect(400)).body.message).toBe(PARTNER_JOIN_PHONE);
+    await api().post('/partner/join/tok-123').send({ ...good, passwordConfirm: good.password, phone: '+7 (701) 000-00-01' }).expect(201);
+    expect(calls.find((c) => c[0] === 'join')![1]).toMatchObject({ phone: '+77010000001' });
+  });
+  it('слабый пароль: 400 «Пароль не годится»', async () => {
+    const r = await api().post('/partner/join/tok-123').send({ ...good, password: '123', passwordConfirm: '123' }).expect(400);
+    expect(r.body.message).toMatch(/^Пароль не годится/);
+  });
+  it('без телефона и повтора (старая форма) регистрация проходит', async () => {
+    await api().post('/partner/join/tok-123').send(good).expect(201);
+    expect(calls.find((c) => c[0] === 'join')![1]).toMatchObject({ phone: null });
   });
 });
 

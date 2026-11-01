@@ -245,17 +245,22 @@ test('партнёр: приглашение, регистрация по ссы
   const token = (await page.context().cookies()).find((c) => c.name === 'wetop_session')?.value;
   const asAdmin = { headers: { 'x-wetop-test-client': '1', 'x-wetop-session': token! } };
   await page.goto('/platform/cabinet/partners');
-  await page.getByTestId('partner-add-dialog-open').click();
-  const form = page.getByTestId('partner-add-dialog').getByTestId('partner-form');
-  await form.getByLabel('Имя или компания').fill('Айдар Партнёр');
-  await form.getByLabel('Процент с допов').fill('30');
-  await form.getByTestId('partner-save').click();
-  const row = page.getByTestId('partner-row').filter({ hasText: 'Айдар Партнёр' });
-  await row.getByTestId('partner-invite-dialog-open').click();
-  const invite = page.getByTestId('partner-invite-dialog').getByTestId('partner-invite-form');
-  await invite.getByTestId('partner-invite-save').click();
-  const link = await invite.getByTestId('partner-invite-link').inputValue();
-  expect(link).toMatch(/\/partner\/join\/[^/]+$/);
+  // ТЗ 01.11.2026: «Пригласить партнёра» одним окном: имя, почта, телефон, ссылка и кнопки к ней
+  await page.getByTestId('partner-create-invite-dialog-open').click();
+  const dlg = page.getByTestId('partner-create-invite-dialog');
+  const form = dlg.getByTestId('partner-create-invite-form');
+  await form.getByLabel('Имя партнёра').fill('Айдар Партнёр');
+  await form.getByLabel('Почта').fill('aidar.partner@example.invalid');
+  await form.getByLabel('Телефон').fill('+7 701 000 00 01');
+  await form.getByTestId('partner-create-invite-save').click();
+  const link = await dlg.getByTestId('partner-invite-link').inputValue();
+  expect(link).toMatch(/\/partner\/invite\/[^/]+$/);
+  await expect(dlg.getByTestId('partner-invite-open')).toHaveAttribute('href', link);
+  await expect(dlg.getByTestId('partner-invite-mail')).toHaveAttribute('href', /^mailto:aidar\.partner@example\.invalid\?/);
+  await expect(dlg.getByTestId('partner-invite-copy')).toBeVisible();
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/partner-invite-1280.png` });
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('partner-row').filter({ hasText: 'Айдар Партнёр' })).toBeVisible();
 
   // партнёр открывает приглашение без входа
   await page.context().clearCookies();
@@ -264,10 +269,23 @@ test('партнёр: приглашение, регистрация по ссы
   const join = page.getByTestId('partner-join-form');
   await join.getByLabel('Имя и фамилия').fill('Айдар Сериков');
   await join.getByLabel('Почта').fill('aidar.partner@example.invalid');
-  await join.getByLabel('Пароль').fill('Партнёр-пароль-2026');
+  await join.getByLabel('Телефон').fill('+7 701 000 00 01');
+  await join.getByLabel('Пароль', { exact: true }).fill('Партнёр-пароль-2026');
+  await join.getByLabel('Повторите пароль').fill('Другой-пароль-2026');
   await join.locator('input[name="privacyAccepted"]').check();
   await join.getByTestId('partner-join-submit').click();
+  await expect(page.getByTestId('partner-join-error')).toHaveText('Пароли не совпадают');
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/partner-join-1280.png` });
+  await join.getByLabel('Повторите пароль').fill('Партнёр-пароль-2026');
+  await join.getByTestId('partner-join-submit').click();
   await page.waitForURL(/\/login\/check-email/);
+  // ссылка одноразовая: повторное открытие без формы
+  await page.goto(new URL(link).pathname);
+  await expect(page.getByTestId('partner-join-page')).toContainText('Приглашение не открылось');
+  await expect(page.getByTestId('partner-join-form')).toHaveCount(0);
+  // старый адрес /partner/join тоже открывает страницу приглашения
+  await page.goto('/partner/join/неверный');
+  await expect(page.getByTestId('partner-join-page')).toContainText('Приглашение не открылось');
 
   // клиент партнёра оплатил доп $50: 30% = $15; выплачено $5
   await signIn(page, request);

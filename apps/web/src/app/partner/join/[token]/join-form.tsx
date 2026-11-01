@@ -4,7 +4,7 @@ import { Button, Field, Input } from '../../../../components/ui';
 import { useT } from '../../../../i18n/locale-provider';
 import { joinPartnerAction } from './actions';
 
-/** Имя, почта и пароль партнёра; одна кнопка «Создать кабинет» */
+/** Имя, почта, телефон, пароль и повтор пароля партнёра (ТЗ 01.11.2026); одна кнопка «Создать кабинет» */
 export function JoinForm({ token, email }: { token: string; email: string | null }) {
   const t = useT();
   const [state, action, pending] = useActionState(joinPartnerAction.bind(null, token), null);
@@ -16,8 +16,14 @@ export function JoinForm({ token, email }: { token: string; email: string | null
       <Field label={t('Почта')} required>
         <Input name="email" type="email" autoComplete="email" defaultValue={email ?? ''} maxLength={320} required />
       </Field>
-      <Field label={t('Пароль')} required>
+      <Field label={t('Телефон')}>
+        <Input name="phone" type="tel" autoComplete="tel" inputMode="tel" maxLength={40} placeholder="+7 701 000 00 00" />
+      </Field>
+      <Field label={t('Пароль')} required controlId="partner-join-password" hint={t('Не короче 8 знаков')}>
         <Input name="password" type="password" autoComplete="new-password" minLength={8} required />
+      </Field>
+      <Field label={t('Повторите пароль')} required>
+        <Input name="passwordConfirm" type="password" autoComplete="new-password" minLength={8} required />
       </Field>
       <label className="row">
         <input type="checkbox" name="privacyAccepted" required />

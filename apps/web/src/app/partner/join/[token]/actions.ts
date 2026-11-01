@@ -12,11 +12,15 @@ export async function joinPartnerAction(token: string, _prev: { error: string } 
   const text = (k: string) => String(form.get(k) ?? '').trim();
   let email: string;
   let sent = false;
+  // повтор пароля проверяем и здесь: ошибка видна сразу, без запроса
+  if (String(form.get('passwordConfirm') ?? '') !== String(form.get('password') ?? '')) return { error: 'Пароли не совпадают' };
   try {
     const r = await partnerApi.join(token, {
       name: text('name'),
       email: text('email'),
       password: String(form.get('password') ?? ''),
+      passwordConfirm: String(form.get('passwordConfirm') ?? ''),
+      phone: text('phone'),
       privacyAccepted: form.get('privacyAccepted') === 'on',
     });
     email = r.email;

@@ -23,6 +23,7 @@ import {
   isPersonNameShaped,
   newSessionToken,
   normalizePersonName,
+  normalizePhone,
   validEmail,
 } from '@pms/domain';
 import { Access } from '../auth/access.decorator';
@@ -54,6 +55,8 @@ export const PARTNER_NO_INVITE = 'Партнёра нет или он не ра�
 export const PARTNER_JOIN_NAME = 'Укажите имя и фамилию';
 export const PARTNER_JOIN_EMAIL = 'Проверьте почту';
 export const PARTNER_JOIN_PRIVACY = 'Нужно согласие с политикой конфиденциальности';
+export const PARTNER_JOIN_PASSWORD_MISMATCH = 'Пароли не совпадают';
+export const PARTNER_JOIN_PHONE = 'Проверьте телефон: от 10 до 15 цифр';
 export const PARTNER_JOIN_TAKEN = 'Эта почта уже зарегистрирована в WETOP. Войдите или укажите другую.';
 
 /** Приглашение действует 7 суток */
@@ -73,7 +76,7 @@ export interface PartnerCabinetRepository {
   preview(token: string): Promise<{ partnerName: string; email: string | null } | null>;
   join(
     token: string,
-    input: { name: string; email: string; passwordHash: string },
+    input: { name: string; email: string; passwordHash: string; phone: string | null },
   ): Promise<PartnerJoinResult>;
   cabinet(userId: string): Promise<PartnerCabinet | null>;
 }
@@ -95,7 +98,8 @@ export class PartnerController {
     requirePlatformAdmin();
     const made = await this.repo.invite({ partnerId: id, by: currentUserId() });
     if (!made) throw new NotFoundException(PARTNER_NO_INVITE);
-    const link = `${appUrlFromEnv()}/partner/join/${encodeURIComponent(made.token)}`;
+    // адрес из ТЗ 01.11.2026; старый `/partner/join/<токен>` тоже открывается
+    const link = `${appUrlFromEnv()}/partner/invite/${encodeURIComponent(made.token)}`;
     let sent = false;
     if (made.email && this.mailer) {
       try {
@@ -142,8 +146,13 @@ export class PartnerController {
     const password = typeof b['password'] === 'string' ? b['password'].slice(0, 200) : '';
     const strength = checkPassword(password);
     if (!strength.ok) throw new BadRequestException(`Пароль не годится: ${strength.reason}`);
+    // повтор пароля и телефон (ТЗ 01.11.2026); старая форма без полей проходит
+    if (typeof b['passwordConfirm'] === 'string' && b['passwordConfirm'] !== password) throw new BadRequestException(PARTNER_JOIN_PASSWORD_MISMATCH);
+    const rawPhone = text(b['phone'], 40);
+    const phone = rawPhone ? normalizePhone(rawPhone) : null;
+    if (rawPhone && !phone) throw new BadRequestException(PARTNER_JOIN_PHONE);
     if (b['privacyAccepted'] !== true) throw new BadRequestException(PARTNER_JOIN_PRIVACY);
-    const result = await this.repo.join(token, { name: normalizePersonName(name), email, passwordHash: await hashPasswordQueued(password) });
+    const result = await this.repo.join(token, { name: normalizePersonName(name), email, passwordHash: await hashPasswordQueued(password), phone });
     if (!result.ok) {
       if (result.reason === 'taken') throw new BadRequestException(PARTNER_JOIN_TAKEN);
       throw new NotFoundException(PARTNER_INVITE_INVALID);
@@ -222,7 +231,7 @@ export class PrismaPartnerCabinetRepository implements PartnerCabinetRepository 
     return row ? { partnerName: row.partner.name, email: row.partner.email } : null;
   }
 
-  async join(token: string, input: { name: string; email: string; passwordHash: string }): Promise<PartnerJoinResult> {
+  async join(token: string, input: { name: string; email: string; passwordHash: string; phone: string | null }): Promise<PartnerJoinResult> {
     try {
       return await this.prisma.db.$transaction(async (tx) => {
         await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`platform.partner.invite:${hashSessionToken(token)}`}, 0))::text`;
@@ -241,7 +250,7 @@ export class PrismaPartnerCabinetRepository implements PartnerCabinetRepository 
         await tx.membership.create({ data: { userId: user.id, organizationId: org.id, role: 'OWNER' } });
         await tx.platformPartner.update({
           where: { id: row.partnerId },
-          data: { userId: user.id, organizationId: org.id, updatedAt: now },
+          data: { userId: user.id, organizationId: org.id, updatedAt: now, ...(input.phone ? { phone: input.phone } : {}) },
         });
         await tx.platformPartnerInvite.update({ where: { id: row.id }, data: { acceptedAt: now, acceptedBy: user.id } });
         await tx.auditLog.create({

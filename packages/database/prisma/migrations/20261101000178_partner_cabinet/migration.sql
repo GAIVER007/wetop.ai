@@ -1,8 +1,9 @@
 -- 178 Кабинет партнёра WETOP (владелец 31.10.2026 «Да, делай этот срез»; ТЗ VTOP 01.11.2026; DATA_MODEL §63.3).
 -- Вход партнёра своей учёткой, Partner ID для ссылки, одноразовые приглашения, источник клиента (ссылка или вручную).
+-- Ссылки на users и organizations без внешних ключей, как в schema.prisma (связь держит код; гейт сверяет схему).
 -- Аддитивно, существующие строки не меняются. Права как у 172: RLS нет, wetop_app без прав, wetop_service без DELETE.
-ALTER TABLE platform_partners ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES users(id);
-ALTER TABLE platform_partners ADD COLUMN IF NOT EXISTS organization_id uuid REFERENCES organizations(id);
+ALTER TABLE platform_partners ADD COLUMN IF NOT EXISTS user_id uuid;
+ALTER TABLE platform_partners ADD COLUMN IF NOT EXISTS organization_id uuid;
 ALTER TABLE platform_partners ADD COLUMN IF NOT EXISTS code varchar(12);
 CREATE UNIQUE INDEX IF NOT EXISTS platform_partners_user ON platform_partners (user_id);
 CREATE UNIQUE INDEX IF NOT EXISTS platform_partners_organization ON platform_partners (organization_id);
@@ -14,9 +15,9 @@ CREATE TABLE IF NOT EXISTS platform_partner_invites (
   token_hash char(64) NOT NULL UNIQUE,
   expires_at timestamptz NOT NULL,
   accepted_at timestamptz,
-  accepted_by uuid REFERENCES users(id),
+  accepted_by uuid,
   created_at timestamptz NOT NULL DEFAULT now(),
-  created_by uuid REFERENCES users(id),
+  created_by uuid,
   CONSTRAINT platform_partner_invites_accepted CHECK ((accepted_at IS NULL) = (accepted_by IS NULL))
 );
 CREATE INDEX IF NOT EXISTS platform_partner_invites_partner ON platform_partner_invites (partner_id);

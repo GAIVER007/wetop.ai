@@ -7,6 +7,8 @@ import { sessionToken } from '../../../../lib/session';
 import { field, handleSiteAuth, type SiteAuthAction } from '../../../../lib/site-auth';
 import { msg, translator } from '../../../../i18n';
 import { cookieLocale } from '../../../../i18n/server';
+import { cookies } from 'next/headers';
+import { PARTNER_COOKIE, readPartnerCookie } from '../../../../lib/partner-ref';
 
 /** Отказ на языке человека: кука языка, как у остальных страниц без сессии */
 const said = async (text: string) => translator(await cookieLocale())(text);
@@ -87,6 +89,8 @@ const ACTIONS: Record<string, { method: 'GET' | 'POST'; run: SiteAuthAction }> =
           ...(Object.prototype.hasOwnProperty.call(body ?? {}, 'locale')
             ? { locale: field(body, 'locale').trim() }
             : {}),
+          // пришёл по ссылке партнёра (`/start?p=…`, DATA_MODEL §63.3): API само проверит код
+          ...(readPartnerCookie((await cookies()).get(PARTNER_COOKIE)?.value) ?? {}),
         },
         info,
       );

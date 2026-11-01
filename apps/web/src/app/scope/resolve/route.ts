@@ -37,6 +37,11 @@ export async function GET(request: Request): Promise<Response> {
   }
   // `redirect` вызывается вне `try`: он бросает служебное исключение Next
   if (items === null) redirect(publicAuthUrl());
+  // партнёр WETOP (миграция 178): филиалов у него нет, вход ведёт в его кабинет
+  if (items.length === 0) {
+    const me = await authApi.me().catch(() => null);
+    if (me?.user?.partner === true) redirect('/partner');
+  }
   const decision = decideScope(items, new URL(request.url).searchParams.get('next'), remembered, { personal });
   if (decision.kind === 'select') {
     jar.set(SCOPE_COOKIE, decision.pointer, scopeCookieOptions(process.env));

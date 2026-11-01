@@ -10,7 +10,7 @@ import { formatInt } from '../../../../lib/dashboard-format';
 import { serverT } from '../../../../i18n/server';
 import { CabinetShell, centsToInput, usd } from '../shell';
 import { FormDialog } from '../form-dialog';
-import { PartnerClientsForm, PartnerForm, PartnerPayoutForm, VoidButton } from '../money-forms';
+import { PartnerClientsForm, PartnerCreateInviteForm, PartnerForm, PartnerInviteForm, PartnerPayoutForm, VoidButton } from '../money-forms';
 import { percentText } from '../growth-parts';
 
 /**
@@ -103,7 +103,11 @@ async function Partners({ show, search }: { show: string; search: string }) {
               </Link>
             ))}
           </nav>
-          <FormDialog label={t('Добавить партнёра')} title={t('Новый партнёр')} testId="partner-add-dialog">
+          {/* ТЗ 01.11.2026: партнёр и ссылка приглашения одним окном */}
+          <FormDialog label={t('Пригласить партнёра')} title={t('Пригласить партнёра')} testId="partner-create-invite-dialog">
+            <PartnerCreateInviteForm />
+          </FormDialog>
+          <FormDialog label={t('Добавить партнёра')} title={t('Новый партнёр')} tone="secondary" testId="partner-add-dialog">
             <PartnerForm partner={null} />
           </FormDialog>
         </div>
@@ -191,6 +195,12 @@ async function Partners({ show, search }: { show: string; search: string }) {
                               <PartnerForm
                                 partner={{ id: p.id, name: p.name, phone: p.phone, email: p.email, percentInput: bpInput(p.percentBp), active: p.active }}
                               />
+                              {/* ссылка в кабинет партнёра внутри «Изменить»: строка таблицы без лишней кнопки */}
+                              {p.active && (
+                                <div className="cabinet-access-list" data-testid="partner-invite-dialog">
+                                  <PartnerInviteForm partnerId={p.id} />
+                                </div>
+                              )}
                             </FormDialog>
                           </div>
                         </td>

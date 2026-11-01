@@ -7,6 +7,9 @@ export function isPublicEntryPath(path: string): boolean {
     '/create',
     '/login',
     '/register',
+    '/start',
+    // кабинет партнёра WETOP живёт вне стойки (DATA_MODEL §63.3): вход проверяет сама страница
+    '/partner',
     '/invite',
     '/rate',
     '/reviews',

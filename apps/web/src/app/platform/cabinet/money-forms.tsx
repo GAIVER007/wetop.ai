@@ -14,6 +14,8 @@ import {
   savePartnerAction,
   payPartnerAction,
   setClientPartnerAction,
+  invitePartnerAction,
+  createAndInvitePartnerAction,
   voidExpenseAction,
   voidPaymentAction,
   type MoneyFormResult,
@@ -551,6 +553,80 @@ function PartnerClientRemove({ organizationId }: { organizationId: string }) {
         {t('Убрать')}
       </Button>
       {state?.error && <Alert>{state.error}</Alert>}
+    </form>
+  );
+}
+
+/** Готовая ссылка приглашения: «Скопировать», «Открыть», «Отправить письмо» (ТЗ 01.11.2026) */
+function InviteLinkBox({ link, email, sent }: { link: string; email: string | null; sent: boolean | undefined }) {
+  const t = useT();
+  const [copied, setCopied] = useState(false);
+  const mail = `mailto:${email ?? ''}?subject=${encodeURIComponent(t('Приглашение в кабинет партнёра WETOP'))}&body=${encodeURIComponent(
+    t('Здравствуйте! Приглашаем вас партнёром WETOP. Откройте ссылку, создайте кабинет (ссылка на 7 дней, один раз): {link}', { link }),
+  )}`;
+  return (
+    <div className="stack" data-testid="partner-invite-ready">
+      <Field label={t('Ссылка приглашения')}>
+        <Input readOnly value={link} data-testid="partner-invite-link" onFocus={(e) => e.currentTarget.select()} />
+      </Field>
+      <div className="row">
+        <Button
+          type="button"
+          data-testid="partner-invite-copy"
+          onClick={() => void navigator.clipboard?.writeText(link).then(() => setCopied(true), () => setCopied(false))}
+        >
+          {copied ? t('Скопировано') : t('Скопировать')}
+        </Button>
+        <a className="btn btn--secondary" href={link} target="_blank" rel="noreferrer" data-testid="partner-invite-open">
+          {t('Открыть')}
+        </a>
+        <a className="btn btn--secondary" href={mail} data-testid="partner-invite-mail">
+          {t('Отправить письмо')}
+        </a>
+      </div>
+      {sent === true && <Notice>{t('Письмо со ссылкой отправлено партнёру.')}</Notice>}
+    </div>
+  );
+}
+
+/** «Пригласить партнёра» одним окном: имя, почта, телефон, «Создать приглашение» */
+export function PartnerCreateInviteForm() {
+  const t = useT();
+  const [state, action, pending] = useActionState(createAndInvitePartnerAction, null);
+  const [email, setEmail] = useState('');
+  if (state?.link) return <InviteLinkBox link={state.link} email={email || null} sent={state.sent} />;
+  return (
+    <form action={action} className="cabinet__form" data-testid="partner-create-invite-form">
+      <Field label={t('Имя партнёра')} required>
+        <Input name="name" maxLength={200} required autoComplete="off" />
+      </Field>
+      <Field label={t('Почта')}>
+        <Input name="email" type="email" maxLength={320} value={email} onChange={(e) => setEmail(e.currentTarget.value)} />
+      </Field>
+      <Field label={t('Телефон')}>
+        <Input name="phone" type="tel" maxLength={40} />
+      </Field>
+      <p className="muted">{t('Партнёр получит ссылку на 7 дней, создаст кабинет и сразу увидит свой Partner ID и ссылку для клиентов.')}</p>
+      {state?.error && <Alert tone="warning" role="alert">{t(state.error)}</Alert>}
+      <Button type="submit" disabled={pending} aria-busy={pending} data-testid="partner-create-invite-save">
+        {pending ? t('Готовим…') : t('Создать приглашение')}
+      </Button>
+    </form>
+  );
+}
+
+/** «Пригласить» партнёра в его кабинет (DATA_MODEL §63.3): ссылку можно скопировать и отправить в мессенджер */
+export function PartnerInviteForm({ partnerId }: { partnerId: string }) {
+  const t = useT();
+  const [state, action, pending] = useActionState(async () => invitePartnerAction(partnerId), null as Awaited<ReturnType<typeof invitePartnerAction>> | null);
+  return (
+    <form action={action} className="cabinet__form" data-testid="partner-invite-form">
+      <p className="muted">{t('Партнёр откроет ссылку, укажет имя, почту и пароль и войдёт в свой кабинет. Ссылка одна, на 7 дней.')}</p>
+      {state?.link && <InviteLinkBox link={state.link} email={null} sent={state.sent} />}
+      {state?.error && <Alert tone="warning" role="alert">{t(state.error)}</Alert>}
+      <Button type="submit" disabled={pending} aria-busy={pending} data-testid="partner-invite-save">
+        {pending ? t('Готовим…') : state?.link ? t('Новая ссылка') : t('Получить ссылку')}
+      </Button>
     </form>
   );
 }

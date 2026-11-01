@@ -198,3 +198,40 @@ export async function setClientPartnerAction(
   const partner = field(form, 'partnerId');
   return run(prev, () => platformApi.setClientPartner(organizationId, partner || null), msg('Сохранено.'));
 }
+
+/** «Пригласить» партнёра (DATA_MODEL §63.3): одноразовая ссылка в кабинет партнёра; есть почта: и письмо */
+/**
+ * «Пригласить партнёра» одним окном (ТЗ 01.11.2026): заводит партнёра (имя, почта, телефон, процент с допов по
+ * правилу 30%) и сразу выдаёт одноразовую ссылку; почта задана: письмо со ссылкой уходит само.
+ */
+export async function createAndInvitePartnerAction(
+  _prev: { error: string | null; link?: string; sent?: boolean; code?: string } | null,
+  form: FormData,
+): Promise<{ error: string | null; link?: string; sent?: boolean; code?: string }> {
+  try {
+    const saved = (await platformApi.savePartner(null, {
+      name: field(form, 'name'),
+      phone: field(form, 'phone'),
+      email: field(form, 'email'),
+      percent: field(form, 'percent') || '30',
+      active: true,
+    })) as { id?: string };
+    if (!saved?.id) return { error: msg('Не получилось. Повторите.') };
+    const r = await platformApi.invitePartner(saved.id);
+    revalidatePath('/platform/cabinet', 'layout');
+    return { error: null, link: r.link, code: r.code, ...(r.sent !== undefined ? { sent: r.sent } : {}) };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : msg('Не получилось. Повторите.') };
+  }
+}
+
+export async function invitePartnerAction(
+  id: string,
+): Promise<{ error: string | null; link?: string; sent?: boolean; code?: string }> {
+  try {
+    const r = await platformApi.invitePartner(id);
+    return { error: null, link: r.link, code: r.code, ...(r.sent !== undefined ? { sent: r.sent } : {}) };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : msg('Не получилось. Повторите.') };
+  }
+}

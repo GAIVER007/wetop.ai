@@ -7,6 +7,7 @@ import { buildGrowth } from '../../apps/api/src/platform/growth';
 import { buildOwnerBusinesses } from '../../apps/api/src/finance/owner-businesses';
 import { buildMoney, extendPaidUntil } from '../../apps/api/src/platform/money';
 import { buildPartners, parsePercentBp, type PartnersSource } from '../../apps/api/src/platform/partners';
+import { buildPartnerCabinet } from '../../apps/api/src/platform/partner-cabinet';
 import { buildSiteReport } from '../../apps/api/src/platform/site-report';
 import { buildCountries } from '../../apps/api/src/platform/countries';
 import { buildRnp } from '../../apps/api/src/platform/rnp';
@@ -2530,6 +2531,9 @@ const platformMoney = {
   // партнёры WETOP (миграция 172): процент сотыми долями, выплаты это расходы PARTNERS с partnerId
   partners: [] as Array<{ id: string; name: string; phone: string | null; email: string | null; percentBp: number; active: boolean }>,
   clientPartners: new Map<string, string>(),
+  // кабинет партнёра (миграция 178): токены приглашений и партнёр «вошедшего» в фикстуре
+  partnerInvites: new Map<string, string>(),
+  partnerUser: null as string | null,
 };
 // Отзыв гостя после выезда на стенде (HOTEL-REVIEWS-20261031): ключ ссылки → бронь; те же отказы, что у API
 const fixtureStayReviews = new Map<string, { token: string; stars: number | null; comment: string | null; submitted: boolean }>();
@@ -2541,6 +2545,8 @@ const resetPlatformMoney = () => {
   platformMoney.team = [];
   platformMoney.partners = [];
   platformMoney.clientPartners.clear();
+  platformMoney.partnerInvites.clear();
+  platformMoney.partnerUser = null;
 };
 const usdCents = (v: unknown): string | null => {
   if (typeof v !== 'string') return null;
@@ -2754,6 +2760,48 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
     const row = { id: `exp-${platformMoney.expenses.length + 1}`, category: 'PARTNERS', partnerId, amountCents: amount, spentOn, note: (body['note'] as string) || null, voided: false };
     platformMoney.expenses.unshift(row);
     return ok(row, 201);
+  }
+  // кабинет партнёра (DATA_MODEL §63.3): приглашение, вход по приглашению, свой кабинет (тот же расчёт, что у API)
+  const invitePartner = /^\/platform\/partners\/([^/]+)\/invite$/.exec(path);
+  if (invitePartner && method === 'POST') {
+    const partner = platformMoney.partners.find((p) => p.id === decodeURIComponent(invitePartner[1]!));
+    if (!partner || !partner.active) return ok({ message: 'Партнёра нет или он не работает.' }, 404);
+    const code = `P${String(platformMoney.partners.indexOf(partner) + 1).padStart(3, '0')}`;
+    const token = `invite-${partner.id}`;
+    platformMoney.partnerInvites.set(token, partner.id);
+    return ok({ link: `http://127.0.0.1/partner/invite/${token}`, email: partner.email, code }, 201);
+  }
+  const joinPartner = /^\/partner\/join\/([^/]+)$/.exec(path);
+  if (joinPartner) {
+    const partnerId = platformMoney.partnerInvites.get(decodeURIComponent(joinPartner[1]!));
+    const partner = platformMoney.partners.find((p) => p.id === partnerId);
+    if (!partner) return ok({ message: 'Приглашение недействительно или уже использовано. Попросите новое у WETOP.' }, 404);
+    if (method === 'GET') return ok({ partnerName: partner.name, email: partner.email });
+    if (method === 'POST') {
+      if (typeof body['passwordConfirm'] === 'string' && body['passwordConfirm'] !== body['password']) return ok({ message: 'Пароли не совпадают' }, 400);
+      if (String(body['email'] ?? '') === 'taken@example.invalid') return ok({ message: 'Эта почта уже зарегистрирована в WETOP. Войдите или укажите другую.' }, 400);
+      platformMoney.partnerInvites.delete(decodeURIComponent(joinPartner[1]!));
+      platformMoney.partnerUser = partner.id;
+      return ok({ pendingVerification: true, email: String(body['email'] ?? ''), sent: true }, 201);
+    }
+  }
+  if (path === '/partner/me' && method === 'GET') {
+    const partner = platformMoney.partners.find((p) => p.id === (platformMoney.partnerUser ?? platformMoney.partners[0]?.id));
+    if (!partner) return ok({ message: 'Кабинет партнёра открыт только партнёрам WETOP.' }, 403);
+    const code = `P${String(platformMoney.partners.indexOf(partner) + 1).padStart(3, '0')}`;
+    const view = buildPartnerCabinet(
+      {
+        partner: { id: partner.id, name: partner.name, code, percentBp: partner.percentBp },
+        partners: platformMoney.partners.map((p) => ({ id: p.id, active: p.active })),
+        links: [...platformMoney.clientPartners].map(([organizationId, partnerId]) => ({ organizationId, partnerId, source: 'LINK', channel: null })),
+        organizations: [...platformMoney.clientPartners.keys()].map((id) => ({ id, name: id, status: 'TRIAL', trialEndsAt: new Date(Date.now() + 20 * 86_400_000).toISOString(), createdAt: new Date().toISOString() })),
+        payments: platformMoney.payments.map((p) => ({ organizationId: p.organizationId, amountCents: BigInt(p.amountCents), paidOn: p.paidOn, voided: p.voided, kind: (p as { kind?: 'PLAN' | 'ADDON' }).kind ?? 'PLAN' })),
+        planPayouts: [],
+        payouts: platformMoney.expenses.flatMap((e) => (e.category === 'PARTNERS' && e.partnerId ? [{ partnerId: e.partnerId, amountCents: BigInt(e.amountCents), spentOn: e.spentOn, voided: e.voided, note: e.note }] : [])),
+      },
+      new Date(),
+    );
+    return ok({ partner: { name: partner.name, code, percentBp: partner.percentBp }, links: { client: `http://127.0.0.1/start?p=${code}` }, view });
   }
   const clientPartner = /^\/platform\/clients\/([^/]+)\/partner$/.exec(path);
   if (clientPartner && method === 'PUT') {
@@ -8590,6 +8638,11 @@ createServer(async (req, res) => {
         items: items.filter((b) => !fixtureArchivedLocations.has(String(b.locationId))),
         canCreate: uiRole === 'OWNER',
       });
+    }
+    // кабинет партнёра (DATA_MODEL §63.3): приглашение без входа и свой кабинет, вне проверки главного администратора
+    if (path.startsWith('/partner/')) {
+      const partner = platformMoneyFixture(path, req.method ?? 'GET', body);
+      if (partner) return send(partner.status, partner.data);
     }
     // «Платформа» (ADR-083): только вошедшему главному администратору
     if (path === '/platform/organizations' || path.startsWith('/platform/')) {

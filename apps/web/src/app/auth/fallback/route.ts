@@ -12,6 +12,7 @@ import { sessionCookieHeader } from '../../../lib/site-auth';
 import { clearScopeCookieHeader, scopeResolvePath } from '../../../lib/scope-pointer';
 import { msg, translator, type DeskLocale, type Translate } from '../../../i18n';
 import { cookieLocale } from '../../../i18n/server';
+import { PARTNER_COOKIE, readPartnerCookie } from '../../../lib/partner-ref';
 
 /** Полный HTML-ответ: резервный вход не зависит от JS и потоковой гидратации React. */
 const escape = (value: string) =>
@@ -122,6 +123,7 @@ export async function POST(request: Request): Promise<Response> {
           phoneCountry: field('phoneCountry'),
           phone: field('phone'),
           privacyAccepted: form.get('privacyAccepted') === 'on',
+          ...(readPartnerCookie(cookieOf(request, PARTNER_COOKIE)) ?? {}),
         },
         info,
       );
@@ -152,4 +154,13 @@ export async function POST(request: Request): Promise<Response> {
       error instanceof ApiError ? error.status : 503,
     );
   }
+}
+
+/** Кука из заголовка запроса (обработчик маршрута без `cookies()`, как остальной разбор формы здесь) */
+function cookieOf(request: Request, name: string): string | undefined {
+  for (const part of (request.headers.get('cookie') ?? '').split(';')) {
+    const [k, ...v] = part.trim().split('=');
+    if (k === name) return v.join('=');
+  }
+  return undefined;
 }

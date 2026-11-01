@@ -56,6 +56,7 @@ import { PrismaService } from '../database/prisma.provider';
 import { EmailVerificationService } from './email-verification.service';
 import { hashPasswordQueued, verifyPasswordQueued } from './attempt-limits';
 import { withServiceDatabase } from './request-context';
+import { attachPartnerByCode } from '../platform/partner-attribution';
 
 /** Что знает о вошедшем весь остальной API. Ни хеша пароля, ни токена здесь нет. */
 export interface SignedInUser {
@@ -77,6 +78,8 @@ export interface SignedInUser {
    * сторонние участники (портал сотрудника, тестовые актёры) без поля считаются `false`
    */
   cabinetHome?: boolean;
+  /** Партнёр WETOP (миграция 178): стойка ведёт его в кабинет партнёра */
+  partner?: boolean;
   /**
    * Назначения по бизнесам и филиалам (DATA_MODEL §31.1). Нет поля: человек работает во всей организации. Есть:
    * только там, где назначен, а `role` это старшая из назначенных; роль в месте даёт `roleAt`.
@@ -159,6 +162,8 @@ interface Access {
   role: MembershipRole;
   platformAdmin: boolean;
   cabinetHome: boolean;
+  /** Партнёр WETOP (миграция 178): вход ведёт в кабинет партнёра `/partner` */
+  partner: boolean;
   scopes: ScopeAssignment[];
 }
 
@@ -174,6 +179,7 @@ const visible = (
   role: access.role,
   platformAdmin: access.platformAdmin,
   cabinetHome: access.cabinetHome,
+  ...(access.partner ? { partner: true } : {}),
   // назначения только когда они есть: у человека без области ответ прежний
   ...(access.scopes.length > 0 ? { scopes: access.scopes } : {}),
 });
@@ -478,6 +484,9 @@ export class AuthService {
       privacyAccepted: boolean;
       /** Язык интерфейса (Q-REG-1); пропуск означает русский */
       locale?: unknown;
+      /** Код партнёра и канал из ссылки `/start?p=P001&ch=…` (DATA_MODEL §63.3) */
+      partnerCode?: unknown;
+      partnerChannel?: unknown;
     },
     now = new Date(),
   ): Promise<RegisterResult> {
@@ -563,6 +572,9 @@ export class AuthService {
         await tx.membership.create({
           data: { userId: user.id, organizationId: org.id, role: 'OWNER' },
         });
+        // регистрация по ссылке партнёра: клиент сразу его (таблица партнёров есть с миграции 172)
+        if (input.partnerCode !== undefined)
+          await attachPartnerByCode(tx, { organizationId: org.id, userId: user.id, code: input.partnerCode, channel: input.partnerChannel });
         return { userId: user.id, organizationId: org.id };
       });
     } catch (e) {
@@ -880,7 +892,7 @@ export class AuthService {
    * ключу: читаются при каждом запросе, и отозванная отметка или сменённая роль действуют сразу, без нового входа.
    */
   private async access(userId: string, organizationId: string): Promise<Access> {
-    const [membership, admin, scopeRows] = await Promise.all([
+    const [membership, admin, scopeRows, partner] = await Promise.all([
       this.prisma.db.membership.findUnique({
         where: { userId_organizationId: { userId, organizationId } },
         select: { role: true },
@@ -891,6 +903,9 @@ export class AuthService {
         orderBy: { createdAt: 'asc' },
         select: { role: true, businessId: true, locationId: true },
       }),
+      // рабочее место партнёра (§63.3); до миграции 178 столбца нет: партнёра нет
+      (this.prisma.db.platformPartner?.findFirst({ where: { userId, organizationId, active: true }, select: { id: true } }) ??
+        Promise.resolve(null)).catch(() => null),
     ]);
     return {
       scopes: scopeRows
@@ -904,6 +919,7 @@ export class AuthService {
       role: membership?.role ?? 'STAFF',
       platformAdmin: admin !== null && admin.revokedAt === null,
       cabinetHome: admin !== null && admin.revokedAt === null && admin.cabinetHome === true,
+      partner: partner !== null && partner !== undefined,
     };
   }
 

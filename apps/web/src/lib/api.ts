@@ -576,6 +576,8 @@ export interface SignedIn {
   platformAdmin?: boolean;
   /** Вход и открытие приложения ведут в Кабинет WETOP (владелец 30.10.2026, миграция 171) */
   cabinetHome?: boolean;
+  /** Партнёр WETOP (миграция 178): вход и открытие приложения ведут в кабинет партнёра `/partner` */
+  partner?: boolean;
   /** У человека область доступа (DATA_MODEL §31.1): организационные разделы ему закрыты */
   restricted?: boolean;
 }
@@ -723,6 +725,9 @@ export const authApi = {
       phone: string;
       privacyAccepted: boolean;
       locale?: string;
+      /** Ссылка партнёра (кука `wetop_partner`, DATA_MODEL §63.3) */
+      partnerCode?: string;
+      partnerChannel?: string;
     },
     info?: AuthClientInfo,
   ) =>
@@ -3556,6 +3561,9 @@ export const platformApi = {
     body: { name: string; role: string; email: string; phone: string; kind: 'PERSON' | 'DIGITAL'; salary: string; active: boolean },
   ) => sendJson<unknown>(id ? 'PUT' : 'POST', id ? `/platform/team/${encodeURIComponent(id)}` : '/platform/team', body),
   partners: () => getJson<PlatformPartners>('/platform/partners'),
+  /** Приглашение партнёра (DATA_MODEL §63.3): одноразовая ссылка; почта задана: и письмо */
+  invitePartner: (id: string) =>
+    sendJson<{ link: string; email: string | null; code: string; sent?: boolean }>('POST', `/platform/partners/${encodeURIComponent(id)}/invite`, {}),
   savePartner: (id: string | null, body: { name: string; phone: string; email: string; percent: string; active: boolean }) =>
     sendJson<unknown>(id ? 'PUT' : 'POST', id ? `/platform/partners/${encodeURIComponent(id)}` : '/platform/partners', body),
   payPartner: (id: string, body: { amount: string; spentOn: string; note: string }) =>
@@ -5983,4 +5991,34 @@ export const staffTelegramApi = {
     sendJson<StaffTelegramStatus>('PATCH', '/profile/telegram', { siteBookings }),
   disconnect: () => sendJson<StaffTelegramStatus>('DELETE', '/profile/telegram', {}),
   test: () => sendJson<{ delivered: true }>('POST', '/profile/telegram/test', {}),
+};
+
+/** Кабинет партнёра WETOP (DATA_MODEL §63.3, миграция 178) */
+export type PartnerClientStatus = 'TRIAL' | 'TRIAL_ENDED' | 'ACTIVE' | 'PAID' | 'LOST';
+export interface PartnerCabinetView {
+  partner: { name: string; code: string; percentBp: number };
+  links: { client: string };
+  view: {
+    clients: Array<{
+      organizationId: string;
+      name: string;
+      status: PartnerClientStatus;
+      paid: boolean;
+      trialEndsAt: string | null;
+      source: string;
+      channel: string | null;
+      since: string;
+      commissionCents: string;
+    }>;
+    money: { accruedCents: string; paidCents: string; balanceCents: string };
+    payouts: Array<{ spentOn: string; amountCents: string; note: string | null }>;
+    stats: { clients: number; trial: number; paid: number; trialEnded: number; conversion: number | null };
+    rating: { place: number; of: number };
+  };
+}
+export const partnerApi = {
+  me: () => getJson<PartnerCabinetView>('/partner/me'),
+  invite: (token: string) => getJson<{ partnerName: string; email: string | null }>(`/partner/join/${encodeURIComponent(token)}`),
+  join: (token: string, body: { name: string; email: string; password: string; passwordConfirm?: string; phone?: string; privacyAccepted: boolean }) =>
+    sendJson<{ pendingVerification: true; email: string; sent: boolean }>('POST', `/partner/join/${encodeURIComponent(token)}`, body),
 };

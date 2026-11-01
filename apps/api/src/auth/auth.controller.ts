@@ -152,6 +152,9 @@ export class AuthController {
       privacyAccepted: body?.privacyAccepted === true,
       // язык проверяет сервис по списку домена; пропуск означает русский (Q-REG-1)
       ...(body && Object.prototype.hasOwnProperty.call(body, 'locale') ? { locale: body.locale } : {}),
+      // ссылка партнёра (DATA_MODEL §63.3): код и канал проверяет сервис, чужое молча игнорируется
+      ...(body?.partnerCode !== undefined ? { partnerCode: body.partnerCode } : {}),
+      ...(body?.partnerChannel !== undefined ? { partnerChannel: body.partnerChannel } : {}),
     });
   }
 

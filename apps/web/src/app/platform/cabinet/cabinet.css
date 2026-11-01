@@ -774,7 +774,7 @@
     gap: var(--space-2);
   }
   .partners-a__search {
-    flex: 1 1 calc(var(--space-16) * 4);
+    flex: 1 1 calc(var(--space-16) * 3);
     padding: calc(var(--space-1) / 2);
     border: 1px solid var(--glass-edge);
     border-radius: var(--radius-control);
@@ -846,15 +846,18 @@
   .partners-a__kpis > div[data-tone='warning'] dd {
     color: var(--warning);
   }
+  /* таблица партнёров на всю ширину (колонки не обрезаются), выплаты и «Как считается» рядом под ней */
   .partners-a__grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) calc(var(--space-16) * 6);
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
     align-items: start;
   }
   .partners-a__side {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-4);
+    align-items: start;
   }
   .partners-a__list td {
     white-space: nowrap;
@@ -934,6 +937,11 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     .partners-a__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 960px) {
+    .partners-a__side {
       grid-template-columns: minmax(0, 1fr);
     }
   }

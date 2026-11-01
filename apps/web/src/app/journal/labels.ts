@@ -227,6 +227,9 @@ export const ACTION_RU: Record<string, string> = {
   'platform.payment.added': msg('Оплата клиента записана'),
   'platform.payment.voided': msg('Оплата клиента отменена'),
   'platform.client.partner_set': msg('Партнёр клиента изменён'),
+  // кабинет партнёра WETOP (DATA_MODEL §63.3, миграция 178)
+  'platform.partner.invited': msg('Партнёр приглашён в кабинет'),
+  'platform.partner.joined': msg('Партнёр создал кабинет'),
   'platform.subscription.saved': msg('Подписка клиента изменена'),
   'seller.conversation.note': msg('Заметка к диалогу'),
   'seller.conversation.reply': msg('Ответ в диалоге'),
@@ -247,6 +250,7 @@ export const ACTION_RU: Record<string, string> = {
 
 export const ENTITY_RU: Record<string, string> = {
   CashRegister: msg('Касса'),
+  platform_partner: msg('Партнёр WETOP'),
   beauty_position: msg('Должность'),
   beauty_position_assignment: msg('Назначение должности'),
   Reservation: msg('Бронь'),

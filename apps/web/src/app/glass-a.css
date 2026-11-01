@@ -179,16 +179,17 @@
       var(--shadow-glass-a),
       inset 0 1px 0 var(--glint);
   }
-  /* компьютер: шапка парит над страницей, отступ сверху и по бокам, края скруглены */
+  /* компьютер: шапка стеклянной карточкой с отступом по бокам, нижние края скруглены */
   @media (min-width: 1280px) {
-    html div.workspace {
-      --header-h: calc(var(--space-12) + var(--space-10) + var(--space-2) + env(safe-area-inset-top, 0px));
-    }
+    /* без отступа сверху и без рамки: высота шапки прежняя (88 px), экраны «в один экран» помещаются, как до стекла;
+       кромка карточки кольцом тени внутри, она места не занимает */
     .workspace > .workspace-header {
-      top: var(--space-2);
-      margin: var(--space-2) var(--space-2) 0;
-      border: 1px solid var(--glass-a-line);
-      border-radius: var(--radius-lg);
+      margin-inline: var(--space-2);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      box-shadow:
+        var(--shadow-glass-a),
+        inset 0 0 0 1px var(--glass-a-line),
+        inset 0 1px 0 var(--glint);
     }
     /* внутри карточки отступ меньше: часы, смена и филиал помещаются, как до стекла */
     .workspace .workspace-header .workspace-header__row {
@@ -205,6 +206,8 @@
       box-shadow: inset 0 1px 0 var(--glint);
     }
     .tabnav .tabnav__tab {
+      /* на стеклянной подложке --muted в тёмной теме ниже 4,5:1 (axe); --text-2 держит контраст */
+      color: var(--text-2);
       border-radius: var(--radius-full);
       border-bottom-width: 0;
       border-top-width: 0;

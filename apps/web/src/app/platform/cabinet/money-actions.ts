@@ -202,7 +202,6 @@ export async function setClientPartnerAction(
 /** «Пригласить» партнёра (DATA_MODEL §63.3): одноразовая ссылка в кабинет партнёра; есть почта: и письмо */
 export async function invitePartnerAction(
   id: string,
-  _prev: { error: string | null; link?: string; sent?: boolean } | null,
 ): Promise<{ error: string | null; link?: string; sent?: boolean; code?: string }> {
   try {
     const r = await platformApi.invitePartner(id);

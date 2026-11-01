@@ -488,7 +488,7 @@ export function ClientPartnerForm({
 /** «Пригласить» партнёра в его кабинет (DATA_MODEL §63.3): ссылку можно скопировать и отправить в мессенджер */
 export function PartnerInviteForm({ partnerId }: { partnerId: string }) {
   const t = useT();
-  const [state, action, pending] = useActionState(invitePartnerAction.bind(null, partnerId), null);
+  const [state, action, pending] = useActionState(async () => invitePartnerAction(partnerId), null as Awaited<ReturnType<typeof invitePartnerAction>> | null);
   return (
     <form action={action} className="cabinet__form" data-testid="partner-invite-form">
       <p className="muted">{t('Партнёр откроет ссылку, укажет имя, почту и пароль и войдёт в свой кабинет. Ссылка одна, на 7 дней.')}</p>

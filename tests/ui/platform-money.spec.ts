@@ -52,6 +52,10 @@ test('оплата и расход: доход, расходы и прибыль
   await expect(page.getByRole('main')).toContainText('Hetzner, Счёт 17, каждый месяц');
   await page.goto('/platform/cabinet/money');
   await expect(page.getByTestId('money-months')).toContainText('$79,50');
+  // один экран (владелец 01.11.2026): обзор «Денег» на 1440×900 без прокрутки вниз
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.getByTestId('money-months')).toBeInViewport({ ratio: 1 });
+  expect(await page.evaluate(() => document.documentElement.scrollHeight - innerHeight)).toBeLessThanOrEqual(0);
   // таблица по месяцам (вкладка «По месяцам», вариант Б): доход, статья «Сервер», прибыль
   await page.getByTestId('money-tab-months').click();
   const table = page.getByTestId('money-table');

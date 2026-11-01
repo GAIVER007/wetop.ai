@@ -86,7 +86,7 @@ async function Card({ id }: { id: string }) {
     return <LoadError testId="cabinet-error" {...loadErrorProps(error)} />;
   }
   return (
-    <CabinetShell active="clients" t={t}>
+    <CabinetShell active="clients" t={t} className="cabinet-card-page">
       <Panel className="cabinet__client-head" data-testid="client-card">
         <div className="cabinet__client-title">
           <Link className="cabinet__back" href="/platform/cabinet/clients" prefetch={false}>
@@ -154,7 +154,7 @@ async function Card({ id }: { id: string }) {
           )}
         </Panel>
       </div>
-      <Panel title={t('Журнал действий')}>
+      <Panel title={t('Журнал действий')} className="cabinet__journal">
         {c.journal.length === 0 ? (
           <EmptyState title={t('Действий пока нет.')} />
         ) : (

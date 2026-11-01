@@ -22,4 +22,7 @@ export const learn: Record<string, string> = {
   'Владелец': 'Owner',
   'Все инструкции WETOP: краткое описание и вся инструкция по нажатию.': 'All WETOP guides: a short description and the full guide on click.',
   'Открыть инструкции': 'Open guides',
+  'Гостиница: все разделы': 'Hotel: all sections',
+  'Журнал и брони, заселение и выезд, клиенты, номера, персонал и зарплата, статистика, финансы и касса, склад, настройки, каналы и продвижение.': 'Calendar and bookings, check-in and check-out, clients, rooms, staff and payroll, statistics, finance and cash desk, stock, settings, channels and promotion.',
+  'Гостиница': 'Hotel',
 };

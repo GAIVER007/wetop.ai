@@ -8,6 +8,7 @@ import { intlLocale, translator, type DeskLocale, type Translate } from '../../i
 import { Icon } from '../../components/icon';
 import type { BeautyOwnerHome, VerticalOwnerHome } from '../../lib/api';
 import { OwnerHomeB } from './owner-home-b';
+import { attentionLine } from './owner-attention-text';
 /** «сентябрь 2026 г.» → «Сентябрь 2026»: заглавная и без «г.» */
 import { dateFormat } from '../../i18n/dates';
 
@@ -189,12 +190,16 @@ export function OwnerSummaryView({
             <h2 id="owner-attention-title">{t('Требуют решения')}</h2>
             <ul className="owner-todo">
               {attention.length ? (
-                attention.map((item) => (
-                  <li key={item.id} data-state={item.tone} data-testid={`owner-attention-${item.id}`}>
-                    <span title={item.text}>{item.text}</span>
-                    <a href={withPeriod(item.href)}>{item.action}</a>
-                  </li>
-                ))
+                attention.map((item) => {
+                  // строка на языке человека: API шлёт её по-русски (инструкция гостиницы 01.11.2026)
+                  const line = attentionLine(item, t, locale);
+                  return (
+                    <li key={item.id} data-state={item.tone} data-testid={`owner-attention-${item.id}`}>
+                      <span title={line.text}>{line.text}</span>
+                      <a href={withPeriod(item.href)}>{line.action}</a>
+                    </li>
+                  );
+                })
               ) : (
                 <li data-state="ok" data-testid="owner-attention-unavailable">
                   <span>{t('Дела дня не загрузились, откройте рабочий день')}</span>

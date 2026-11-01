@@ -83,6 +83,7 @@ export const components: Record<string, string> = {
     'Закупка материалов': 'Materials purchase',
     'Хозяйственные расходы': 'Household expenses',
     'Прочее': 'Other',
+    'Своя статья': 'Custom category',
     "{guest}: без гражданства заселение невозможно, гостя нужно зарегистрировать в eQonaq. Страна сохранится в карточке гостя.": "{guest}: check-in is not possible without citizenship, the guest must be registered in eQonaq. The country will be saved in the guest card.",
     "Не сейчас": "Not now",
     "Сохранить и заселить": "Save and check in",

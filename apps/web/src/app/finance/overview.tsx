@@ -299,6 +299,7 @@ export async function AttentionCard({
     loadPeriod(date, end),
   ]);
   const t = await serverT();
+  const loc = intlLocale(await currentLocale());
   const lowDays =
     outlook instanceof ApiError ? [] : outlook.current.daily.filter((d) => d.percent < 40);
   const rows: Array<{
@@ -343,7 +344,7 @@ export async function AttentionCard({
       key: 'low-load',
       count: lowDays.length,
       title: t('Низкая загрузка'),
-      caption: t('{date} и дальше: ниже 40 %', { date: displayDate(lowDays[0]!.date) }),
+      caption: t('{date} и дальше: ниже 40 %', { date: displayDate(lowDays[0]!.date, 'short', loc) }),
       href: `/chessboard?from=${lowDays[0]!.date}&to=${lowDays[0]!.date}`,
       tone: 'info',
     });
@@ -413,6 +414,7 @@ export async function RecentOperations({
   period: string;
 }) {
   const t = await serverT();
+  const loc = intlLocale(await currentLocale());
   return (
     <section className="biz-recent" aria-labelledby="biz-recent-title" data-testid="recent-ops">
       <header className="biz-card__head">
@@ -445,7 +447,7 @@ export async function RecentOperations({
                 <tr key={`${o.kind}-${o.id}`} data-testid="recent-op-row">
                   <td data-label={t('Дата и время')}>
                     <time dateTime={o.at}>
-                      {displayDate(opDay)}, {time}
+                      {displayDate(opDay, 'short', loc)}, {time}
                     </time>
                   </td>
                   <td data-label={t('Тип')}>{t(operationKind(o.kind))}</td>

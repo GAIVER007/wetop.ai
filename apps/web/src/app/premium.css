@@ -110,8 +110,9 @@
   .header-owner-link {
     white-space: nowrap;
   }
-  @media (max-width: 600px) {
-    .header-owner-link > span {
+  /* до 1280 px шапка тесная (часы, смена, филиал): кнопка уходит, «Все бизнесы» остаётся в меню профиля */
+  @media (max-width: 1279px) {
+    .header-owner-link {
       display: none;
     }
   }

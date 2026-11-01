@@ -1116,3 +1116,166 @@
 @media (max-width: 600px) {
   .ceo-overview { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Главная «C» (владелец 01.11.2026): деньги и пробный сверху, воронка одной строкой, два графика; один экран 1440×900 */
+@layer sections {
+  .cabinet-c {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .cabinet-c__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+  .cabinet-c__kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
+  }
+  .cabinet-c__kpis > div {
+    display: grid;
+    gap: calc(var(--space-1) / 2);
+    min-width: 0;
+  }
+  .cabinet-c__kpis dt a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .cabinet-c__kpis dd {
+    margin: 0;
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .cabinet-c__kpis .cabinet__sub {
+    margin: 0;
+  }
+  .cabinet-c__kpis .cabinet__sub[data-tone='up'] {
+    color: var(--success);
+  }
+  .cabinet-c__rows {
+    display: grid;
+    margin: 0;
+  }
+  .cabinet-c__rows > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-4);
+    padding-block: var(--space-2);
+  }
+  .cabinet-c__rows > div + div {
+    border-top: 1px solid var(--border-soft);
+  }
+  .cabinet-c__rows dt {
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .cabinet-c__rows dd {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+    text-align: end;
+  }
+  .cabinet-c__rows dd > b {
+    font-size: var(--text-lg);
+    white-space: nowrap;
+  }
+  .cabinet-c__rows dd > b[data-tone='danger'] {
+    color: var(--danger);
+  }
+  .cabinet-c__rows dd > .muted {
+    font-size: var(--text-xs);
+  }
+  .cabinet-c__charts {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+  .cabinet-home-page .cabinet-c__charts .cabinet__bars {
+    block-size: calc(var(--space-16) * 5 / 2);
+  }
+  .cabinet-home-page .cabinet-c__charts .cabinet-rates > svg {
+    max-block-size: calc(var(--space-16) * 5 / 2);
+  }
+  .cabinet-steps {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cabinet-steps__step {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  .cabinet-steps__label {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cabinet-steps__line {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+  .cabinet-steps__value {
+    font-size: var(--text-xl);
+    font-variant-numeric: tabular-nums;
+  }
+  .cabinet-steps__step[data-tone='paid'] .cabinet__meter > span {
+    background: var(--success);
+  }
+  @media (max-width: 1279px) {
+    .cabinet-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 960px) {
+    .cabinet-c__top,
+    .cabinet-c__charts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .cabinet-steps,
+    .cabinet-c__kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+/* Обзор WETOP «A» (владелец 01.11.2026): пять цифр, график и два блока, внизу три блока; цифра один раз, один экран */
+.ceo-a { display: grid; gap: var(--space-4); }
+.ceo-a__kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-4); margin: 0; }
+.ceo-a__kpis > div { display: grid; gap: calc(var(--space-1) / 2); min-width: 0; padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-solid); }
+.ceo-a__kpis dd { margin: 0; font-size: var(--text-2xl); font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ceo-a__kpis dd[data-tone='success'] { color: var(--success); }
+.ceo-a__kpis dd[data-tone='danger'] { color: var(--danger); }
+.ceo-a__kpis .cabinet__sub { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ceo-a__mid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); align-items: stretch; }
+.ceo-a__bottom { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); align-items: stretch; }
+.ceo-a__chart .cabinet__bars { block-size: calc(var(--space-16) * 3); }
+.ceo-a .ceo-overview__title a { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); }
+.ceo-a .ceo-overview__title .cabinet__sub { font-weight: 500; }
+.ceo-a__block, .ceo-a__chart { display: flex; flex-direction: column; justify-content: flex-start; }
+.ceo-a__block > .ceo-overview__rows { flex: 0 0 auto; }
+@media (max-width: 1279px) {
+  .ceo-a__kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ceo-a__mid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ceo-a__chart { grid-column: 1 / -1; }
+}
+@media (max-width: 960px) {
+  .ceo-a__bottom { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .ceo-a__kpis, .ceo-a__mid { grid-template-columns: minmax(0, 1fr); }
+}

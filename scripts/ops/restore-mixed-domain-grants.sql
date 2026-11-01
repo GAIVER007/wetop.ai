@@ -194,4 +194,9 @@ BEGIN
     GRANT SELECT ON TABLE hotel_stay_reviews TO wetop_app;
     GRANT SELECT, INSERT, UPDATE ON TABLE hotel_stay_reviews TO wetop_service;
   END IF;
+  -- 178_partner_cabinet: приглашения партнёров WETOP, как 172: только сервисная роль, DELETE ни у кого
+  IF to_regclass('platform_partner_invites') IS NOT NULL THEN
+    REVOKE ALL ON TABLE platform_partner_invites FROM wetop_app, wetop_service;
+    GRANT SELECT, INSERT, UPDATE ON TABLE platform_partner_invites TO wetop_service;
+  END IF;
 END $restore_acl$;

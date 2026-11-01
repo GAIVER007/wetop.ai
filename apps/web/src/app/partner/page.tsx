@@ -3,7 +3,7 @@ import { redirect, unstable_rethrow } from 'next/navigation';
 import { Badge, EmptyState, Panel, Stat, Stats, Table, type BadgeTone } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { ApiError } from '../../lib/api-error';
-import { partnerApi, type PartnerCabinetView, type PartnerClientStatus } from '../../lib/api';
+import { partnerApi, type PartnerCabinetView, type PartnerClientStatus, type PartnerLevel } from '../../lib/api';
 import { publicAuthUrl } from '../../lib/auth-entry';
 import { formatInt } from '../../lib/dashboard-format';
 import { msg, type Translate } from '../../i18n';
@@ -11,18 +11,25 @@ import { serverT } from '../../i18n/server';
 import { usd } from '../platform/cabinet/shell';
 import { signOut } from '../login/actions';
 import { CopyLink } from './copy-link';
+import { PartnerProfileForm } from './profile-form';
 import '../platform/cabinet/cabinet.css';
 import './partner.css';
 
 export const dynamic = 'force-dynamic';
 
-type Tab = 'home' | 'clients' | 'link' | 'money';
-const TABS: Array<{ key: Tab; label: string; icon: 'today' | 'guests' | 'link' | 'money' }> = [
+type Tab = 'home' | 'clients' | 'link' | 'money' | 'profile';
+const TABS: Array<{ key: Tab; label: string; icon: 'today' | 'guests' | 'link' | 'money' | 'person' }> = [
   { key: 'home', label: msg('Главная'), icon: 'today' },
   { key: 'clients', label: msg('Клиенты'), icon: 'guests' },
   { key: 'link', label: msg('Ссылка'), icon: 'link' },
   { key: 'money', label: msg('Деньги'), icon: 'money' },
+  { key: 'profile', label: msg('Профиль'), icon: 'person' },
 ];
+const LEVEL: Record<PartnerLevel, { label: string; tone: BadgeTone }> = {
+  NEW: { label: msg('Новый'), tone: 'neutral' },
+  ACTIVE: { label: msg('Активный'), tone: 'info' },
+  TOP: { label: msg('Топ'), tone: 'ok' },
+};
 const STATUS: Record<PartnerClientStatus, { label: string; tone: BadgeTone }> = {
   TRIAL: { label: msg('Пробный'), tone: 'info' },
   TRIAL_ENDED: { label: msg('Пробный закончился'), tone: 'warn' },
@@ -75,6 +82,7 @@ export default async function PartnerPage({ searchParams }: { searchParams: Prom
       {tab === 'clients' && <Clients cab={cab} t={t} />}
       {tab === 'link' && <LinkTab cab={cab} t={t} />}
       {tab === 'money' && <Money cab={cab} t={t} />}
+      {tab === 'profile' && <Profile cab={cab} t={t} />}
     </main>
   );
 }
@@ -214,5 +222,46 @@ function Money({ cab, t }: { cab: PartnerCabinetView; t: Translate }) {
         )}
       </Panel>
     </>
+  );
+}
+
+/** «Профиль»: карточка партнёра VTOP и «Мой профиль» (ТЗ 01.11.2026 п. 5, 7, 8; DATA_MODEL §63.4) */
+function Profile({ cab, t }: { cab: PartnerCabinetView; t: Translate }) {
+  const p = cab.profile;
+  if (!p) return <EmptyState title={t('Профиль скоро появится: сервер обновится сам.')} />;
+  const initials = cab.partner.name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join('');
+  const facts = [p.specialization, p.city, p.experienceYears === null ? null : t('опыт {n} лет', { n: String(p.experienceYears) })].filter(Boolean);
+  return (
+    <div className="partner__profile">
+      <Panel title={t('Карточка партнёра VTOP')} data-testid="partner-card">
+        <div className="partner__card-head">
+          <span className="partner__avatar" aria-hidden="true">{initials}</span>
+          <div>
+            <b className="partner__card-name">{cab.partner.name}</b>
+            <div className="muted">
+              {t('ID партнёра')} {cab.partner.code}
+              {facts.length > 0 && `, ${facts.join(', ')}`}
+            </div>
+          </div>
+          <Badge tone={LEVEL[p.level].tone}>{t(LEVEL[p.level].label)}</Badge>
+        </div>
+        {p.about && <p className="partner__card-about">{p.about}</p>}
+        <Stats min={140}>
+          <Stat label={t('Partner Score')} value={`${p.score} / 100`} icon={<Icon name="analytics" />} testId="partner-score" />
+          <Stat label={t('Рейтинг')} value={`${cab.view.rating.place} / ${cab.view.rating.of}`} icon={<Icon name="chart" />} />
+          <Stat label={t('Клиентов')} value={formatInt(cab.view.stats.clients)} icon={<Icon name="guests" />} />
+          <Stat label={t('Успешных подключений')} value={formatInt(cab.view.stats.paid)} tone="success" icon={<Icon name="money" />} testId="partner-success" />
+          <Stat label={t('С нами с')} value={p.since} icon={<Icon name="today" />} />
+        </Stats>
+      </Panel>
+      <Panel title={t('Мой профиль')}>
+        <PartnerProfileForm profile={p} />
+      </Panel>
+    </div>
   );
 }

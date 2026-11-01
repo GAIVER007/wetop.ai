@@ -722,6 +722,7 @@ const EXPECTED: Record<string, RouteAccess | 'public'> = {
   'GET /partner/join/:token': 'public',
   'POST /partner/join/:token': 'public',
   'GET /partner/me': 'self',
+  'PUT /partner/me/profile': 'self',
   'PUT /platform/clients/:organizationId/partner': 'platform',
   'PUT /platform/organizations/:id/extensions/ai-seller': 'platform',
   // оплата получена / «только чтение» (ADR-102): решает главный администратор

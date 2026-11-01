@@ -5995,8 +5995,21 @@ export const staffTelegramApi = {
 
 /** Кабинет партнёра WETOP (DATA_MODEL §63.3, миграция 178) */
 export type PartnerClientStatus = 'TRIAL' | 'TRIAL_ENDED' | 'ACTIVE' | 'PAID' | 'LOST';
+export type PartnerLevel = 'NEW' | 'ACTIVE' | 'TOP';
+export interface PartnerProfile {
+  specialization: string | null;
+  city: string | null;
+  experienceYears: number | null;
+  about: string | null;
+  phone: string | null;
+  since: string;
+  score: number;
+  level: PartnerLevel;
+}
 export interface PartnerCabinetView {
   partner: { name: string; code: string; percentBp: number };
+  /** Профиль и карточка VTOP (§63.4) */
+  profile?: PartnerProfile;
   links: { client: string };
   view: {
     clients: Array<{
@@ -6018,6 +6031,8 @@ export interface PartnerCabinetView {
 }
 export const partnerApi = {
   me: () => getJson<PartnerCabinetView>('/partner/me'),
+  saveProfile: (body: { specialization: string; city: string; experienceYears: string; about: string; phone: string }) =>
+    sendJson<{ ok: true }>('PUT', '/partner/me/profile', body),
   invite: (token: string) => getJson<{ partnerName: string; email: string | null }>(`/partner/join/${encodeURIComponent(token)}`),
   join: (token: string, body: { name: string; email: string; password: string; passwordConfirm?: string; phone?: string; privacyAccepted: boolean }) =>
     sendJson<{ pendingVerification: true; email: string; sent: boolean }>('POST', `/partner/join/${encodeURIComponent(token)}`, body),

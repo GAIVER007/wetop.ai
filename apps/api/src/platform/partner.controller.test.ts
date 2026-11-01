@@ -36,6 +36,10 @@ const repo: PartnerCabinetRepository = {
     if (token !== 'tok-123') return { ok: false, reason: 'invalid' };
     return { ok: true, email: input.email, sent: true };
   },
+  saveProfile: async (userId, input) => {
+    calls.push(['profile', { userId, ...input }]);
+    return userId === PARTNER_USER;
+  },
   cabinet: async (userId) =>
     userId === PARTNER_USER
       ? {
@@ -129,6 +133,25 @@ describe('регистрация партнёра (ТЗ 01.11.2026): телеф�
   it('без телефона и повтора (старая форма) регистрация проходит', async () => {
     await api().post('/partner/join/tok-123').send(good).expect(201);
     expect(calls.find((c) => c[0] === 'join')![1]).toMatchObject({ phone: null });
+  });
+});
+
+describe('профиль партнёра (§63.4)', () => {
+  it('только свой профиль по сессии: поля проверяются, имя и процент из запроса игнорируются', async () => {
+    await api().put('/partner/me/profile').send({ city: 'Алматы' }).expect(401);
+    const no = await api().put('/partner/me/profile').set({ 'x-wetop-session': 'session-stranger' }).send({ city: 'Алматы' }).expect(403);
+    expect(no.body.message).toBe(PARTNER_NOT_PARTNER);
+    const bad = await api().put('/partner/me/profile').set({ 'x-wetop-session': 'session-partner' }).send({ experienceYears: '99' }).expect(400);
+    expect(bad.body.message).toBe('Опыт: целое число лет от 0 до 60');
+    calls.length = 0;
+    await api()
+      .put('/partner/me/profile')
+      .set({ 'x-wetop-session': 'session-partner' })
+      .send({ specialization: 'Маркетолог', city: 'Алматы', experienceYears: '5', about: 'Салоны', phone: '87010000001', name: 'Чужое', percentBp: 9000 })
+      .expect(200);
+    expect(calls).toEqual([
+      ['profile', { userId: PARTNER_USER, specialization: 'Маркетолог', city: 'Алматы', experienceYears: 5, about: 'Салоны', phone: '+77010000001' }],
+    ]);
   });
 });
 

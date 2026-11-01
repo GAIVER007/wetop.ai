@@ -47,7 +47,8 @@ test('все бизнесы: итог по валютам, строки WETOP и
   await expect(other.locator('input[name="organizationId"]')).toHaveValue('ui-org-2');
   await expect(other.locator('input[name="locationId"]')).toHaveValue('44444444-4444-4444-8444-444444444444');
   await expect(page.getByTestId('owner-chart-QAR')).toBeVisible();
-  await expect(page.getByTestId('owner-todo')).toContainText('Luxx Aparts 1');
+  // «Требуют решения» отдельным блоком снят (владелец 01.11.2026, один экран): дела филиала в строке таблицы
+  await expect(page.getByRole('main')).toContainText('бизнесов: 3, филиалов: 2');
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(wide).toBeLessThanOrEqual(0);
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/owner-1280.png`, fullPage: true });

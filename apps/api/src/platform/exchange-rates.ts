@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Inject, Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from '@nestjs/common';
-import { parseNbkRates, type DailyRates } from '@pms/domain';
+import { parseNbkRates, PLATFORM_TIMEZONE, type DailyRates } from '@pms/domain';
 import { withServiceDatabase } from '../auth/request-context';
 import { PrismaService } from '../database/prisma.provider';
 
@@ -23,8 +23,9 @@ export type NbkFetch = (date: string) => Promise<string>;
 
 const nbkDate = (iso: string) => `${iso.slice(8, 10)}.${iso.slice(5, 7)}.${iso.slice(0, 4)}`;
 const isoDay = (at: Date) => at.toISOString().slice(0, 10);
+/** День публикации курсов Нацбанка РК: пояс платформы (Алматы), не пояс объекта. */
 const almatyDay = (at: Date) =>
-  new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty', year: 'numeric', month: '2-digit', day: '2-digit' }).format(at);
+  new Intl.DateTimeFormat('en-CA', { timeZone: PLATFORM_TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(at);
 
 export const fetchNbk: NbkFetch = async (date) => {
   const res = await fetch(`${NBK_URL}?fdate=${nbkDate(date)}`, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });

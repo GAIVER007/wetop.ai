@@ -1,3 +1,4 @@
+import { readPartnersSource } from './money.repository';
 import 'reflect-metadata';
 import { Controller, Get, Header, Inject, Injectable, Query, UseInterceptors } from '@nestjs/common';
 import { Prisma, type OrganizationStatus } from '@pms/database';
@@ -84,18 +85,13 @@ export class PrismaGrowthRepository implements GrowthRepository {
     ]);
     let partners = null;
     if (ready[0]?.ok === true) {
-      const [rows, links, payouts] = await Promise.all([
-        db.platformPartner.findMany({ select: { id: true, name: true, phone: true, email: true, percentBp: true, active: true, createdAt: true } }),
-        db.platformClientPartner.findMany({ select: { organizationId: true, partnerId: true } }),
-        db.platformExpense.findMany({ where: { category: 'PARTNERS' }, select: { partnerId: true, amountCents: true, voidedAt: true } }),
+      const [rows, source] = await Promise.all([
+        db.platformPartner.findMany({ select: { active: true, createdAt: true } }),
+        // тот же расчёт данных, что у «Партнёров»: разовая выплата за тариф, вид и дата оплаты (сквозной тест 01.11.2026)
+        readPartnersSource(db),
       ]);
       partners = {
-        source: {
-          partners: rows.map((p) => ({ id: p.id, name: p.name, phone: p.phone, email: p.email, percentBp: p.percentBp, active: p.active })),
-          links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId }] : [])),
-          payments: payments.map((p) => ({ organizationId: p.organizationId, amountCents: p.amountCents, voided: p.voidedAt !== null })),
-          payouts: payouts.flatMap((p) => (p.partnerId ? [{ partnerId: p.partnerId, amountCents: p.amountCents, voided: p.voidedAt !== null }] : [])),
-        },
+        source,
         created: rows.map((p) => ({ active: p.active, createdAt: iso(p.createdAt) })),
       };
     }

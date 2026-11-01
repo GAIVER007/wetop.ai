@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@pms/database';
 import { PrismaService } from '../database/prisma.provider';
-import type { ExpenseCategory, MoneySource } from './money';
+import { extendPaidUntil, type ExpenseCategory, type MoneySource } from './money';
 
 export const MONEY_REPOSITORY = Symbol('MONEY_REPOSITORY');
 
@@ -101,14 +101,35 @@ const monthRange = (month: string) => {
   return { gte: from, lt: to };
 };
 
-/** «Оплачено до» после оплаты: от большего из прежнего срока и дня оплаты, плюс месяцы тарифа */
-export function extendPaidUntil(before: string | null, paidOn: string, months: number): string {
-  const base = before && before > paidOn ? before : paidOn;
-  const d = dateOf(base);
-  const y = d.getUTCFullYear();
-  const m = d.getUTCMonth() + months;
-  const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
-  return new Date(Date.UTC(y, m, Math.min(d.getUTCDate(), last))).toISOString().slice(0, 10);
+export { extendPaidUntil } from './money';
+
+/**
+ * Данные партнёров одним чтением для «Партнёров» и «Обзора WETOP»: оплаты с видом (тариф/доп) и датой, разовая выплата
+ * за тариф подписки клиента. Раньше «Обзор» собирал свою копию без них и показывал комиссии и долг партнёрам нулём
+ * (сквозной тест кабинета владельцев 01.11.2026).
+ */
+export async function readPartnersSource(db: PrismaService['db']): Promise<PartnersSource> {
+  const [partners, links, payments, payouts, subs] = await Promise.all([
+    db.platformPartner.findMany({ orderBy: { createdAt: 'asc' } }),
+    db.platformClientPartner.findMany({ select: { organizationId: true, partnerId: true } }),
+    db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, voidedAt: true, kind: true, paidOn: true } }),
+    db.platformExpense.findMany({ where: { category: 'PARTNERS' }, select: { partnerId: true, amountCents: true, voidedAt: true } }),
+    // разовая выплата партнёру за тариф подписки клиента (DATA_MODEL §63.2)
+    db.platformSubscription.findMany({ select: { organizationId: true, plan: { select: { partnerPayoutCents: true } } } }),
+  ]);
+  return {
+    partners: partners.map((p) => ({ id: p.id, name: p.name, phone: p.phone, email: p.email, percentBp: p.percentBp, active: p.active })),
+    links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId }] : [])),
+    payments: payments.map((p) => ({
+      organizationId: p.organizationId,
+      amountCents: p.amountCents,
+      voided: p.voidedAt !== null,
+      kind: p.kind === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const),
+      paidOn: day(p.paidOn)!,
+    })),
+    planPayouts: subs.flatMap((x) => (x.plan?.partnerPayoutCents != null ? [{ organizationId: x.organizationId, payoutCents: x.plan.partnerPayoutCents }] : [])),
+    payouts: payouts.flatMap((p) => (p.partnerId ? [{ partnerId: p.partnerId, amountCents: p.amountCents, voided: p.voidedAt !== null }] : [])),
+  };
 }
 
 @Injectable()
@@ -284,16 +305,38 @@ export class PrismaMoneyRepository implements MoneyRepository {
           createdBy: input.by,
         },
       });
-      // оплата продлевает «оплачено до» подписки, если подписка есть
+      // оплата продлевает «оплачено до» подписки, если подписка есть; прежний срок пишется в журнал оплаты, чтобы отмена
+      // ошибочной оплаты вернула его (сквозной тест кабинета владельцев 01.11.2026)
+      let extended: { before: string | null; after: string } | null = null;
       if (input.extendMonths > 0) {
         const sub = await tx.platformSubscription.findUnique({ where: { organizationId: input.organizationId } });
-        if (sub)
+        if (sub) {
+          const after = extendPaidUntil(day(sub.paidUntil), input.paidOn, input.extendMonths);
+          extended = { before: day(sub.paidUntil), after };
           await tx.platformSubscription.update({
             where: { organizationId: input.organizationId },
             data: {
-              paidUntil: dateOf(extendPaidUntil(day(sub.paidUntil), input.paidOn, input.extendMonths)),
+              paidUntil: dateOf(after),
               updatedAt: new Date(),
               updatedBy: input.by,
+            },
+          });
+        }
+      }
+      // оплата тарифа переводит клиента с пробного в «работает» (сквозной тест кабинета владельцев 01.11.2026): иначе
+      // заплативший оставался «на пробном», и «Обзор WETOP» не считал его платящим. Доп статус не меняет; «только
+      // чтение» после неоплаты снимает ночная проверка (subscription-nightly), архив не трогаем.
+      if ((input.kind ?? 'PLAN') === 'PLAN') {
+        const { count } = await tx.organization.updateMany({ where: { id: input.organizationId, status: 'TRIAL' }, data: { status: 'ACTIVE' } });
+        if (count === 1)
+          await tx.auditLog.create({
+            data: {
+              userId: input.by,
+              entityType: 'organization',
+              entityId: input.organizationId,
+              action: 'organization.status_changed',
+              before: { status: 'TRIAL' },
+              after: { status: 'ACTIVE', note: 'Оплата тарифа' },
             },
           });
       }
@@ -303,7 +346,13 @@ export class PrismaMoneyRepository implements MoneyRepository {
           entityType: 'organization',
           entityId: input.organizationId,
           action: 'platform.payment.added',
-          after: { paymentId: row.id, amountCents: String(input.amountCents), paidOn: input.paidOn, kind: input.kind ?? 'PLAN' },
+          after: {
+            paymentId: row.id,
+            amountCents: String(input.amountCents),
+            paidOn: input.paidOn,
+            kind: input.kind ?? 'PLAN',
+            ...(extended ? { paidUntilBefore: extended.before, paidUntilAfter: extended.after } : {}),
+          },
         },
       });
       return {
@@ -318,11 +367,43 @@ export class PrismaMoneyRepository implements MoneyRepository {
   }
 
   async voidPayment(input: { id: string; by: string | null }): Promise<boolean> {
-    const { count } = await this.prisma.db.platformPayment.updateMany({
-      where: { id: input.id, voidedAt: null },
-      data: { voidedAt: new Date(), voidedBy: input.by },
+    return this.prisma.db.$transaction(async (tx) => {
+      const { count } = await tx.platformPayment.updateMany({
+        where: { id: input.id, voidedAt: null },
+        data: { voidedAt: new Date(), voidedBy: input.by },
+      });
+      if (count !== 1) return false;
+      const payment = await tx.platformPayment.findUniqueOrThrow({ where: { id: input.id }, select: { organizationId: true } });
+      // отмена возвращает срок «оплачено до», который продлила эта оплата (сквозной тест 01.11.2026): иначе отменённая
+      // оплата оставалась в MRR, ARR и активных подписках. Только если срок с тех пор никто не менял (другая оплата,
+      // правка подписки): тогда отмена срок не трогает, его правит руководитель.
+      const added = await tx.auditLog.findFirst({
+        where: { entityType: 'organization', entityId: payment.organizationId, action: 'platform.payment.added', after: { path: ['paymentId'], equals: input.id } },
+        select: { after: true },
+      });
+      const a = (added?.after ?? null) as { paidUntilBefore?: string | null; paidUntilAfter?: string } | null;
+      let restored: string | null | undefined;
+      if (a && a.paidUntilAfter !== undefined) {
+        const sub = await tx.platformSubscription.findUnique({ where: { organizationId: payment.organizationId }, select: { paidUntil: true } });
+        if (sub && day(sub.paidUntil) === a.paidUntilAfter) {
+          restored = a.paidUntilBefore ?? null;
+          await tx.platformSubscription.update({
+            where: { organizationId: payment.organizationId },
+            data: { paidUntil: restored ? dateOf(restored) : null, updatedAt: new Date(), updatedBy: input.by },
+          });
+        }
+      }
+      await tx.auditLog.create({
+        data: {
+          userId: input.by,
+          entityType: 'organization',
+          entityId: payment.organizationId,
+          action: 'platform.payment.voided',
+          after: { paymentId: input.id, ...(restored !== undefined ? { paidUntil: restored } : {}) },
+        },
+      });
+      return true;
     });
-    return count === 1;
   }
 
   async addExpense(input: {
@@ -394,28 +475,7 @@ export class PrismaMoneyRepository implements MoneyRepository {
   }
 
   async partnersSource(): Promise<PartnersSource> {
-    const db = this.prisma.db;
-    const [partners, links, payments, payouts, subs] = await Promise.all([
-      db.platformPartner.findMany({ orderBy: { createdAt: 'asc' } }),
-      db.platformClientPartner.findMany({ select: { organizationId: true, partnerId: true } }),
-      db.platformPayment.findMany({ select: { organizationId: true, amountCents: true, voidedAt: true, kind: true, paidOn: true } }),
-      db.platformExpense.findMany({ where: { category: 'PARTNERS' }, select: { partnerId: true, amountCents: true, voidedAt: true } }),
-      // разовая выплата партнёру за тариф подписки клиента (DATA_MODEL §63.2)
-      db.platformSubscription.findMany({ select: { organizationId: true, plan: { select: { partnerPayoutCents: true } } } }),
-    ]);
-    return {
-      partners: partners.map((p) => ({ id: p.id, name: p.name, phone: p.phone, email: p.email, percentBp: p.percentBp, active: p.active })),
-      links: links.flatMap((l) => (l.partnerId ? [{ organizationId: l.organizationId, partnerId: l.partnerId }] : [])),
-      payments: payments.map((p) => ({
-        organizationId: p.organizationId,
-        amountCents: p.amountCents,
-        voided: p.voidedAt !== null,
-        kind: p.kind === 'ADDON' ? ('ADDON' as const) : ('PLAN' as const),
-        paidOn: day(p.paidOn)!,
-      })),
-      planPayouts: subs.flatMap((x) => (x.plan?.partnerPayoutCents != null ? [{ organizationId: x.organizationId, payoutCents: x.plan.partnerPayoutCents }] : [])),
-      payouts: payouts.flatMap((p) => (p.partnerId ? [{ partnerId: p.partnerId, amountCents: p.amountCents, voided: p.voidedAt !== null }] : [])),
-    };
+    return readPartnersSource(this.prisma.db);
   }
 
   async savePartner(input: Omit<PartnerRow, 'id'> & { id: string | null }): Promise<PartnerRow | null> {

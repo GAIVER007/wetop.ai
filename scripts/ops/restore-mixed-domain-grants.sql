@@ -188,4 +188,10 @@ BEGIN
     REVOKE ALL ON platform_partners,platform_client_partners FROM wetop_app,wetop_service;
     GRANT SELECT,INSERT,UPDATE ON platform_partners,platform_client_partners TO wetop_service;
   END IF;
+  -- 175_hotel_stay_reviews: отзыв гостя после выезда, как отзывы салона: читает организация, пишет сервис
+  IF to_regclass('hotel_stay_reviews') IS NOT NULL THEN
+    REVOKE ALL ON TABLE hotel_stay_reviews FROM wetop_app, wetop_service;
+    GRANT SELECT ON TABLE hotel_stay_reviews TO wetop_app;
+    GRANT SELECT, INSERT, UPDATE ON TABLE hotel_stay_reviews TO wetop_service;
+  END IF;
 END $restore_acl$;

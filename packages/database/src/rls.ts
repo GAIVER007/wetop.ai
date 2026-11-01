@@ -89,6 +89,8 @@ export const RLS_TENANT_TABLES: readonly string[] = [
   'employee_service_prices',
   'beauty_appointment_reviews',
   'beauty_review_invitations',
+  // Гостиница, миграция 175 (HOTEL-REVIEWS-20261031): отзыв гостя после выезда
+  'hotel_stay_reviews',
   'beauty_service_materials',
   'beauty_service_material_revisions',
   'beauty_positions',

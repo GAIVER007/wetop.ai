@@ -23,8 +23,10 @@ test('РНП салона: дни месяца, сегодняшняя выру�
   await page.goto('/rnp');
   const rnp = page.getByTestId('business-rnp');
   await expect(rnp).toBeVisible();
-  const day = Number(new Date().toISOString().slice(8, 10));
-  // строк не меньше, чем прошло дней по UTC минус один (часовой пояс филиала может отставать на сутки)
+  // день месяца в поясе филиала (Asia/Almaty): с 00:00 до 05:00 по Алматы UTC ещё во вчерашнем дне, а 1-го числа
+  // в прошлом месяце (гейт main 31.10.2026 ждал 30 строк октября при ноябре у филиала)
+  const day = Number(new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date()).slice(8, 10));
+  // строк не меньше, чем прошло дней месяца филиала минус один
   expect(await rnp.getByTestId('rnp-day').count()).toBeGreaterThanOrEqual(Math.max(1, day - 1));
   await expect(rnp.getByTestId('rnp-revenue')).toContainText('12 000');
   await expect(rnp.getByTestId('rnp-total')).toContainText('12 000');

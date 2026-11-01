@@ -57,7 +57,10 @@ test('F1: заголовок и период в подзаголовке, пер
   const main = page.getByRole('main');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Финансы');
   // один контрол периода (Q-DES-1, ADR-180): подпись «1–31 октября 2026» на кнопке
-  await expect(main.getByTestId('finance-period')).toContainText(/\d+–\d+ [а-яё]+ \d{4}/);
+  // неделя на стыке месяцев подписана «27 окт – 1 ноя» (гейт main 1.11.2026), иначе «1–31 октября 2026»
+  await expect(main.getByTestId('finance-period')).toContainText(
+    /\d+–\d+ [а-яё]+ \d{4}|\d+ [а-яё]+\.? [–-] \d+ [а-яё]+/,
+  );
   // в действиях страницы контрол периода и «Экспорт»; поиска броней и «Новой брони» нет (ADR-180)
   await expect(
     page.locator('.page__actions').getByRole('link', { name: 'Экспорт', exact: true }),

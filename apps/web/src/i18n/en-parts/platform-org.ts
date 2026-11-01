@@ -1030,4 +1030,11 @@ export const platformOrg: Record<string, string> = {
   "Кабинет партнёра: {name}": "Partner dashboard: {name}",
   "Клиент по ссылке партнёра становится его сам; вручную клиента назначают в карточке клиента. Начислено: за тариф разово с первой оплаты, с допов процент с первой оплаты допа.": "A client who signs up with a partner link becomes theirs automatically; manually, assign the client in the client card. Accrued: once for the plan from the first payment, plus a percentage of the first add-on payment.",
   "Кабинет партнёра открыт только партнёрам WETOP.": "The partner dashboard is open to WETOP partners only.",
+  "Отзыв гостя": "Guest review",
+  "Отзыв о проживании": "Stay review",
+  "Оцените проживание": "Rate your stay",
+  "Оценка проживания": "Stay rating",
+  "Поставьте оценку от 1 до 5.": "Give a rating from 1 to 5.",
+  "Спасибо, что были у нас! Оцените, пожалуйста, проживание: {url}": "Thank you for staying with us! Please rate your stay: {url}",
+  "Ссылка уже выдана. Новая заменит прежнюю.": "A link has already been issued. A new one replaces it.",
 };

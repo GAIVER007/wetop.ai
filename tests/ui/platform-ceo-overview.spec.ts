@@ -47,6 +47,62 @@ test('Обзор WETOP: оплата и расход из «Денег» в вы
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/ceo-overview-1440.png`, fullPage: true });
 });
 
+test('сквозная цепочка: тариф, партнёр, оплата клиента → Обзор (MRR, ARR, комиссия, долг, платит), отмена всё возвращает', async ({
+  page,
+  request,
+}) => {
+  // ТЗ владельца 01.11.2026 (Task 1): Client → Subscription → Payment → Revenue → MRR/ARR → Commission → Finance → Dashboard
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await signIn(page, request);
+  // те же адреса API, что у форм кабинета, от имени вошедшего главного администратора
+  const token = (await page.context().cookies()).find((cookie) => cookie.name === 'wetop_session')?.value ?? '';
+  const headers = { 'x-wetop-test-client': '1', 'x-wetop-session': token };
+  const api = async (method: 'post' | 'put', path: string, data: unknown) => {
+    const r = await request[method](`${FIXTURE_API}${path}`, { data, headers });
+    expect(r.ok(), `${method} ${path}: ${r.status()} ${(await r.text()).slice(0, 200)}`).toBe(true);
+    return r;
+  };
+  const plan = await (await api('post', '/platform/plans', { name: 'Pro E2E', price: '100', periodMonths: 1, partnerPayout: '50' })).json();
+  const partner = await (await api('post', '/platform/partners', { name: 'Партнёр E2E', percent: '20' })).json();
+  // клиент на пробном: «Хостел «Пример»»
+  await api('put', '/platform/clients/ui-org-2/partner', { partnerId: partner.id });
+  await api('put', '/platform/subscriptions/ui-org-2', { planId: plan.id, monthly: '100' });
+
+  await page.goto('/platform/cabinet/overview');
+  const o = page.getByTestId('ceo-overview');
+  await expect(o.getByTestId('ceo-revenue-mrr')).toContainText('$0');
+  const payingBefore = Number((await o.getByTestId('ceo-clients-active').innerText()).replace(/\D/g, ''));
+
+  // оплата клиента формой в «Деньгах»
+  await page.goto('/platform/cabinet/money');
+  await page.getByTestId('money-payment-dialog-open').click();
+  const pay = page.getByTestId('money-payment-dialog').getByTestId('money-payment-form');
+  await pay.getByLabel('Клиент').selectOption('ui-org-2');
+  await pay.getByLabel('Сумма, $').fill('100');
+  await pay.getByTestId('money-payment-save').click();
+  await expect(page.getByTestId('money-income')).toHaveText('$100');
+
+  await page.goto('/platform/cabinet/overview');
+  await expect(o.getByTestId('ceo-revenue-mrr')).toContainText('$100');
+  await expect(o.getByTestId('ceo-revenue-arr')).toContainText('$1 200');
+  await expect(o.getByTestId('ceo-subscriptions-active')).toContainText('1');
+  await expect(o.getByTestId('ceo-partners-commissions')).toContainText('$50');
+  await expect(o.getByTestId('ceo-finance-payable')).toContainText('$50');
+  await expect(o.getByTestId('ceo-finance-cash')).toContainText('$100');
+  await expect(o.getByTestId('ceo-clients-active')).toContainText(String(payingBefore + 1));
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/ceo-overview-chain.png` });
+
+  // отмена ошибочной оплаты: выручка, MRR, ARR и комиссия возвращаются
+  const money = await (await request.get(`${FIXTURE_API}/platform/money`, { headers })).json();
+  const paid = (money.payments as Array<{ id: string; organizationId: string }>).find((p) => p.organizationId === 'ui-org-2')!;
+  await api('post', `/platform/payments/${paid.id}/void`, {});
+  await page.reload();
+  await expect(o.getByTestId('ceo-revenue-mrr')).toContainText('$0');
+  await expect(o.getByTestId('ceo-revenue-arr')).toContainText('$0');
+  await expect(o.getByTestId('ceo-partners-commissions')).toContainText('$0');
+  await expect(o.getByTestId('ceo-finance-cash')).toContainText('$0');
+});
+
 test('клиент бизнеса не видит Обзор WETOP', async ({ page, request }) => {
   await page.goto('/auth/fallback');
   await page.getByLabel('Email', { exact: true }).fill('admin@wetop.test');

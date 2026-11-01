@@ -70,7 +70,7 @@ describe('ownerAttention', () => {
       vertical: 'HOSPITALITY', today: '2026-10-21', arrivals: 4, dirtyRooms: 2, noPrepay: 3,
     });
     expect(items).toEqual([
-      { id: 'arrivals', tone: 'warn', count: 4, text: '4 заезда, не убрано: 2 номера', href: '/inventory?housekeeping=DIRTY', action: 'Номера' },
+      { id: 'arrivals', tone: 'warn', count: 4, detail: { dirty: 2, beds: false }, text: '4 заезда, не убрано: 2 номера', href: '/inventory?housekeeping=DIRTY', action: 'Номера' },
       {
         id: 'no-prepayment', tone: 'warn', count: 3, text: '3 брони без предоплаты',
         href: '/reservations?from=2026-10-21&to=2026-10-28&date=arrival&payment=unpaid', action: 'Брони',

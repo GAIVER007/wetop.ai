@@ -73,7 +73,7 @@ export const GUIDES: readonly Guide[] = [
     ),
     audience: msg('Гостиница'),
     updated: '2026-11-01',
-    files: files('hotel', 23, 23),
+    files: files('hotel', 25, 25),
   },
   // guides:end — новые инструкции добавляет сюда скрипт публикации (каждая новая инструкция сразу в «Обучении»)
 ];

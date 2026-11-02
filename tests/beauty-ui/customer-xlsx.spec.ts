@@ -38,6 +38,8 @@ test('customers: real XLSX preview, import, duplicate detection and filtered exp
   await expect(dialog.getByRole('heading', { name: 'Последний импорт: Завершён' })).toBeVisible({ timeout: 20000 });
   await expect(dialog.getByText('Созданы').locator('..')).toContainText('2');
   await dialog.getByRole('button', { name: /^Закрыть:/ }).click();
+  // импортированные без визита в «Пока без визита» (владелец 02.11.2026, #1029: «Клиенты» = пришли и оплатили)
+  await page.getByRole('combobox', { name: 'Сегмент' }).selectOption('pending');
   await expect(page.locator('.beauty-customers-table')).toContainText('Тестовый Первый');
   await expect(page.locator('.beauty-customers-table')).toContainText('Тестовый Второй');
   // тот же файл ещё раз: сервер узнаёт клиентов по телефону и не создаёт вторые карточки

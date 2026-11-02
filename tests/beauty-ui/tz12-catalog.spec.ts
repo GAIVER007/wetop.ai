@@ -10,6 +10,8 @@ test('catalog customers mobile contact cards retain secondary existing metrics',
   await f.book('10:00', 0, 0, 'Тест Александра-Вероника Длинное синтетическое имя клиента');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/customers');
+  // «Клиенты» салона = пришли и оплатили (владелец 02.11.2026, #1029): записанный, но ещё не пришедший в «Пока без визита»
+  await page.getByRole('combobox', { name: 'Сегмент' }).selectOption('pending');
   const table = page.locator('.beauty-customers-table');
   await expect(table.locator('thead')).not.toBeVisible();
   await expect(table.locator('[data-label="Последний визит"]')).toBeVisible();

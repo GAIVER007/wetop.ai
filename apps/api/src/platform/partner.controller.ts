@@ -14,6 +14,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   UseInterceptors,
 } from '@nestjs/common';
 import { Prisma } from '@pms/database';
@@ -38,8 +39,12 @@ import { PLATFORM_MAILER } from './organization-creation';
 import {
   buildPartnerCabinet,
   nextPartnerCode,
+  parsePartnerProfile,
   partnerLinks,
+  partnerScore,
   type PartnerCabinetView,
+  type PartnerLevel,
+  type PartnerProfileInput,
 } from './partner-cabinet';
 
 /**
@@ -64,6 +69,17 @@ const INVITE_DAYS = 7;
 
 export interface PartnerCabinet {
   partner: { name: string; code: string; percentBp: number };
+  /** Профиль и карточка VTOP (§63.4); старый ответ без поля тоже читается */
+  profile?: {
+    specialization: string | null;
+    city: string | null;
+    experienceYears: number | null;
+    about: string | null;
+    phone: string | null;
+    since: string;
+    score: number;
+    level: PartnerLevel;
+  };
   links: { client: string };
   view: PartnerCabinetView;
 }
@@ -79,6 +95,8 @@ export interface PartnerCabinetRepository {
     input: { name: string; email: string; passwordHash: string; phone: string | null },
   ): Promise<PartnerJoinResult>;
   cabinet(userId: string): Promise<PartnerCabinet | null>;
+  /** Профиль своего партнёра (§63.4); false: пользователь не партнёр */
+  saveProfile(userId: string, input: PartnerProfileInput): Promise<boolean>;
 }
 
 const text = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -158,6 +176,18 @@ export class PartnerController {
       throw new NotFoundException(PARTNER_INVITE_INVALID);
     }
     return { pendingVerification: true, email: result.email, sent: result.sent };
+  }
+
+  /** «Мой профиль» (§63.4): только поля, которые партнёр меняет сам; партнёр по сессии, не по запросу */
+  @Access('self')
+  @Put('partner/me/profile')
+  async saveProfile(@Body() body: unknown) {
+    const userId = currentUserId();
+    if (!userId) throw new ForbiddenException(PARTNER_NOT_PARTNER);
+    const parsed = parsePartnerProfile(body);
+    if (!parsed.ok) throw new BadRequestException(parsed.error);
+    if (!(await this.repo.saveProfile(userId, parsed.value))) throw new ForbiddenException(PARTNER_NOT_PARTNER);
+    return { ok: true };
   }
 
   /** Кабинет: только партнёр пользователя этой сессии */
@@ -293,6 +323,36 @@ export class PrismaPartnerCabinetRepository implements PartnerCabinetRepository 
       },
       new Date(),
     );
-    return { partner: { name: me.name, code, percentBp: me.percentBp }, links: partnerLinks(appUrlFromEnv(), code), view };
+    const alive = view.clients.filter((c) => c.status === 'TRIAL' || c.paid).length;
+    const sc = partnerScore({ clients: view.stats.clients, paid: view.stats.paid, alive });
+    return {
+      partner: { name: me.name, code, percentBp: me.percentBp },
+      profile: {
+        specialization: me.specialization,
+        city: me.city,
+        experienceYears: me.experienceYears,
+        about: me.about,
+        phone: me.phone,
+        since: me.createdAt.toISOString().slice(0, 10),
+        score: sc.score,
+        level: sc.level,
+      },
+      links: partnerLinks(appUrlFromEnv(), code),
+      view,
+    };
+  }
+
+  async saveProfile(userId: string, input: PartnerProfileInput): Promise<boolean> {
+    return this.prisma.db.$transaction(async (tx) => {
+      const me = await tx.platformPartner.findFirst({ where: { userId, active: true } });
+      if (!me) return false;
+      const before = { specialization: me.specialization, city: me.city, experienceYears: me.experienceYears, about: me.about, phone: me.phone };
+      await tx.platformPartner.update({ where: { id: me.id }, data: { ...input, updatedAt: new Date() } });
+      // История (антикража): было → стало
+      await tx.auditLog.create({
+        data: { userId, entityType: 'platform_partner', entityId: me.id, action: 'platform.partner.profile', before, after: { ...input } },
+      });
+      return true;
+    });
   }
 }

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { parsePartnerProfile, partnerScore } from './partner-cabinet';
 import { buildPartnerCabinet, clientStatus, nextPartnerCode, partnerLinks, type PartnerCabinetSource } from './partner-cabinet';
 
 /**
@@ -93,5 +94,25 @@ describe('Partner ID и ссылки', () => {
   });
   it('ссылка клиента и ссылка приглашения разные', () => {
     expect(partnerLinks('https://app.wetop.ai', 'P007')).toEqual({ client: 'https://app.wetop.ai/start?p=P007' });
+  });
+});
+
+describe('Partner Score и профиль (DATA_MODEL §63.4)', () => {
+  it('Score 0..100: конверсия 50, оплатившие до 10 штук 30, живые клиенты 20; клиентов нет: 0 «Новый»', () => {
+    expect(partnerScore({ clients: 0, paid: 0, alive: 0 })).toEqual({ score: 0, level: 'NEW' });
+    // 4 клиента, 2 оплатили, 3 живых: 25 + 6 + 15 = 46
+    expect(partnerScore({ clients: 4, paid: 2, alive: 3 })).toEqual({ score: 46, level: 'ACTIVE' });
+    expect(partnerScore({ clients: 10, paid: 10, alive: 10 })).toEqual({ score: 100, level: 'TOP' });
+    expect(partnerScore({ clients: 3, paid: 1, alive: 1 }).score).toBe(26);
+  });
+  it('профиль: обрезка, пустое в null, опыт целым 0..60, телефон нормализуется; кривое: ошибка словами', () => {
+    expect(
+      parsePartnerProfile({ specialization: '  Маркетолог ', city: 'Алматы', experienceYears: '5', about: '', phone: '+7 (701) 000-00-01' }),
+    ).toEqual({ ok: true, value: { specialization: 'Маркетолог', city: 'Алматы', experienceYears: 5, about: null, phone: '+77010000001' } });
+    expect(parsePartnerProfile({ experienceYears: '61' })).toEqual({ ok: false, error: 'Опыт: целое число лет от 0 до 60' });
+    expect(parsePartnerProfile({ experienceYears: '2.5' })).toEqual({ ok: false, error: 'Опыт: целое число лет от 0 до 60' });
+    expect(parsePartnerProfile({ phone: 'abc' })).toEqual({ ok: false, error: 'Проверьте телефон: от 10 до 15 цифр' });
+    expect(parsePartnerProfile({ about: 'я'.repeat(1001) })).toEqual({ ok: false, error: 'Описание: до 1000 знаков' });
+    expect(parsePartnerProfile({})).toEqual({ ok: true, value: { specialization: null, city: null, experienceYears: null, about: null, phone: null } });
   });
 });

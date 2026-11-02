@@ -398,6 +398,25 @@ test('партнёр: приглашение, регистрация по ссы
   await expect(page.getByTestId('partner-client-row')).toContainText('$15');
   await page.getByRole('link', { name: 'Ссылка' }).click();
   await expect(page.getByTestId('partner-link-value')).toHaveValue(/\/start\?p=P001$/);
+
+  // «Профиль» (ТЗ 01.11.2026 п. 5, 7, 8): карточка VTOP и «Мой профиль»
+  await page.getByRole('link', { name: 'Профиль' }).click();
+  await expect(page.getByTestId('partner-card')).toContainText('P001');
+  await expect(page.getByTestId('partner-success')).toContainText('0');
+  const prof = page.getByTestId('partner-profile-form');
+  await prof.getByLabel('Опыт, лет').fill('99');
+  await prof.getByTestId('partner-profile-save').click();
+  await expect(page.getByTestId('partner-profile-error')).toHaveText('Опыт: целое число лет от 0 до 60');
+  await prof.getByLabel('Специализация').fill('Маркетолог салонов');
+  await prof.getByLabel('Город').fill('Алматы');
+  await prof.getByLabel('Опыт, лет').fill('5');
+  await prof.getByLabel('О себе').fill('Подключаю салоны красоты к WETOP.');
+  await prof.getByTestId('partner-profile-save').click();
+  await expect(page.getByTestId('partner-profile-saved')).toBeVisible();
+  await page.reload();
+  await expect(page.getByTestId('partner-card')).toContainText('Маркетолог салонов, Алматы, опыт 5 лет');
+  await expect(page.getByTestId('partner-card')).toContainText('Подключаю салоны красоты к WETOP.');
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/partner-profile-1280.png` });
   await page.getByRole('link', { name: 'Деньги' }).click();
   await expect(page.getByTestId('partner-money-accrued')).toContainText('$15');
   await expect(page.getByTestId('partner-payout-row')).toContainText('Kaspi');

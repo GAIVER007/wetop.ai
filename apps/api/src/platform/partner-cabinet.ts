@@ -6,6 +6,8 @@
  * первого неотменённого чека допа; повторные чеки ничего не дают. Баланс = начислено − выплачено, не меньше нуля.
  * Деньги центами bigint, наружу строкой (AGENTS §12).
  */
+import { normalizePhone } from '@pms/domain';
+
 export type PartnerClientStatus = 'TRIAL' | 'TRIAL_ENDED' | 'ACTIVE' | 'PAID' | 'LOST';
 
 export interface PartnerCabinetSource {
@@ -158,4 +160,49 @@ export function parseChannel(input: unknown): string | null {
   if (typeof input !== 'string') return null;
   const v = input.trim().toLowerCase();
   return /^[a-z0-9_-]{1,30}$/.test(v) ? v : null;
+}
+
+export type PartnerLevel = 'NEW' | 'ACTIVE' | 'TOP';
+
+/**
+ * Partner Score 0..100 (DATA_MODEL §63.4): 50 × оплатили/клиентов + 30 × min(оплатили, 10)/10 + 20 × живые/клиентов,
+ * вниз до целого. Живые: на пробном или оплатили. Считается на сервере, не хранится. До 40 «Новый», до 70 «Активный».
+ */
+export function partnerScore(input: { clients: number; paid: number; alive: number }): { score: number; level: PartnerLevel } {
+  const { clients, paid, alive } = input;
+  if (clients <= 0) return { score: 0, level: 'NEW' };
+  // целыми: общий знаменатель 10 × клиентов
+  const num = 50 * paid * 10 + 30 * Math.min(paid, 10) * clients + 20 * alive * 10;
+  const score = Math.min(100, Math.floor(num / (10 * clients)));
+  return { score, level: score >= 70 ? 'TOP' : score >= 40 ? 'ACTIVE' : 'NEW' };
+}
+
+export interface PartnerProfileInput {
+  specialization: string | null;
+  city: string | null;
+  experienceYears: number | null;
+  about: string | null;
+  phone: string | null;
+}
+
+/** Поля, которые партнёр меняет сам (§63.4); имя, почта, процент и код меняет только WETOP */
+export function parsePartnerProfile(raw: unknown): { ok: true; value: PartnerProfileInput } | { ok: false; error: string } {
+  const b = (raw ?? {}) as Record<string, unknown>;
+  const str = (k: string) => (typeof b[k] === 'string' ? (b[k] as string).trim() : '');
+  const specialization = str('specialization');
+  if (specialization.length > 120) return { ok: false, error: 'Специализация: до 120 знаков' };
+  const city = str('city');
+  if (city.length > 80) return { ok: false, error: 'Город: до 80 знаков' };
+  const about = str('about');
+  if (about.length > 1000) return { ok: false, error: 'Описание: до 1000 знаков' };
+  const expRaw = typeof b['experienceYears'] === 'number' ? String(b['experienceYears']) : str('experienceYears');
+  let experienceYears: number | null = null;
+  if (expRaw) {
+    if (!/^\d{1,2}$/.test(expRaw) || Number(expRaw) > 60) return { ok: false, error: 'Опыт: целое число лет от 0 до 60' };
+    experienceYears = Number(expRaw);
+  }
+  const phoneRaw = str('phone');
+  const phone = phoneRaw ? normalizePhone(phoneRaw) : null;
+  if (phoneRaw && !phone) return { ok: false, error: 'Проверьте телефон: от 10 до 15 цифр' };
+  return { ok: true, value: { specialization: specialization || null, city: city || null, experienceYears, about: about || null, phone } };
 }

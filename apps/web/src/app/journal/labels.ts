@@ -230,6 +230,7 @@ export const ACTION_RU: Record<string, string> = {
   // кабинет партнёра WETOP (DATA_MODEL §63.3, миграция 178)
   'platform.partner.invited': msg('Партнёр приглашён в кабинет'),
   'platform.partner.joined': msg('Партнёр создал кабинет'),
+  'platform.partner.profile': msg('Партнёр изменил профиль'),
   'platform.subscription.saved': msg('Подписка клиента изменена'),
   'seller.conversation.note': msg('Заметка к диалогу'),
   'seller.conversation.reply': msg('Ответ в диалоге'),

@@ -7,7 +7,7 @@ import { buildGrowth } from '../../apps/api/src/platform/growth';
 import { buildOwnerBusinesses } from '../../apps/api/src/finance/owner-businesses';
 import { buildMoney, extendPaidUntil } from '../../apps/api/src/platform/money';
 import { buildPartners, parsePercentBp, type PartnersSource } from '../../apps/api/src/platform/partners';
-import { buildPartnerCabinet } from '../../apps/api/src/platform/partner-cabinet';
+import { buildPartnerCabinet, parsePartnerProfile, partnerScore } from '../../apps/api/src/platform/partner-cabinet';
 import { buildSiteReport } from '../../apps/api/src/platform/site-report';
 import { buildCountries } from '../../apps/api/src/platform/countries';
 import { buildRnp } from '../../apps/api/src/platform/rnp';
@@ -2533,6 +2533,7 @@ const platformMoney = {
   clientPartners: new Map<string, string>(),
   // кабинет партнёра (миграция 178): токены приглашений и партнёр «вошедшего» в фикстуре
   partnerInvites: new Map<string, string>(),
+  partnerProfiles: new Map<string, { specialization: string | null; city: string | null; experienceYears: number | null; about: string | null; phone: string | null }>(),
   partnerUser: null as string | null,
 };
 // Отзыв гостя после выезда на стенде (HOTEL-REVIEWS-20261031): ключ ссылки → бронь; те же отказы, что у API
@@ -2546,6 +2547,7 @@ const resetPlatformMoney = () => {
   platformMoney.partners = [];
   platformMoney.clientPartners.clear();
   platformMoney.partnerInvites.clear();
+  platformMoney.partnerProfiles.clear();
   platformMoney.partnerUser = null;
 };
 const usdCents = (v: unknown): string | null => {
@@ -2801,7 +2803,23 @@ function platformMoneyFixture(path: string, method: string, body: Record<string,
       },
       new Date(),
     );
-    return ok({ partner: { name: partner.name, code, percentBp: partner.percentBp }, links: { client: `http://127.0.0.1/start?p=${code}` }, view });
+    const prof = platformMoney.partnerProfiles.get(partner.id) ?? { specialization: null, city: null, experienceYears: null, about: null, phone: partner.phone ?? null };
+    const alive = view.clients.filter((c) => c.status === 'TRIAL' || c.paid).length;
+    const sc = partnerScore({ clients: view.stats.clients, paid: view.stats.paid, alive });
+    return ok({
+      partner: { name: partner.name, code, percentBp: partner.percentBp },
+      profile: { ...prof, since: new Date().toISOString().slice(0, 10), score: sc.score, level: sc.level },
+      links: { client: `http://127.0.0.1/start?p=${code}` },
+      view,
+    });
+  }
+  if (path === '/partner/me/profile' && method === 'PUT') {
+    const partner = platformMoney.partners.find((p) => p.id === (platformMoney.partnerUser ?? platformMoney.partners[0]?.id));
+    if (!partner) return ok({ message: 'Кабинет партнёра открыт только партнёрам WETOP.' }, 403);
+    const parsed = parsePartnerProfile(body);
+    if (!parsed.ok) return ok({ message: parsed.error }, 400);
+    platformMoney.partnerProfiles.set(partner.id, parsed.value);
+    return ok({ ok: true });
   }
   const clientPartner = /^\/platform\/clients\/([^/]+)\/partner$/.exec(path);
   if (clientPartner && method === 'PUT') {

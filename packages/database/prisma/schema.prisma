@@ -5352,6 +5352,11 @@ model PlatformPartner {
   userId         String? @unique(map: "platform_partners_user") @map("user_id") @db.Uuid
   organizationId String? @unique(map: "platform_partners_organization") @map("organization_id") @db.Uuid
   code           String? @unique(map: "platform_partners_code") @db.VarChar(12)
+  /// Профиль партнёра (миграция 179, DATA_MODEL §63.4): меняет сам партнёр
+  specialization  String? @db.VarChar(120)
+  city            String? @db.VarChar(80)
+  experienceYears Int?    @map("experience_years") @db.SmallInt
+  about           String? @db.VarChar(1000)
 
   clients PlatformClientPartner[]
   payouts PlatformExpense[]

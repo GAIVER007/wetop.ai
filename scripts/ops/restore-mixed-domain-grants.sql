@@ -199,4 +199,10 @@ BEGIN
     REVOKE ALL ON TABLE platform_partner_invites FROM wetop_app, wetop_service;
     GRANT SELECT, INSERT, UPDATE ON TABLE platform_partner_invites TO wetop_service;
   END IF;
+  -- 180_nbk_exchange_rates: курсы Нацбанка РК, как в миграции: стойка только читает, сервис читает и добавляет
+  IF to_regclass('exchange_rates') IS NOT NULL THEN
+    REVOKE ALL ON TABLE exchange_rates FROM wetop_app, wetop_service;
+    GRANT SELECT ON TABLE exchange_rates TO wetop_app;
+    GRANT SELECT, INSERT ON TABLE exchange_rates TO wetop_service;
+  END IF;
 END $restore_acl$;

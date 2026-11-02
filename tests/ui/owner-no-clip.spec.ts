@@ -43,5 +43,5 @@ for (const [width, height] of [[1440, 900], [1280, 720]] as const)
     expect(fit.overflow).toBeLessThanOrEqual(0);
     expect(fit.lastRow).toBeLessThanOrEqual(height);
     // выручка за полгода осталась: в карточке итога своей валюты
-    await expect(page.getByTestId('owner-total-QAR').getByTestId('owner-chart-QAR')).toBeVisible();
+    await expect(page.getByTestId('owner-total-KZT').getByTestId('owner-chart-KZT')).toBeVisible();
   });

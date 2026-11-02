@@ -147,10 +147,11 @@ test('детализация: по неделям столбиков столь�
 test('кольца долей: по категориям и источникам, список держит смысл, доли в сумме дают 100 %', async ({
   page,
 }) => {
-  // «Этот месяц» 1-го числа — один день, и у стенда в нём одна категория (гейт main 1.11.2026): тогда последние 7 дней
+  // всегда последние 7 дней: «Этот месяц» в первые дни месяца короче недели, и у стенда в нём одна категория
+  // (гейты main 1.11 и 2.11.2026 по Алматы); семь дней стенда держат обе категории и несколько источников
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Almaty' }).format(new Date());
   const weekAgo = new Date(Date.parse(`${today}T00:00:00Z`) - 6 * 86_400_000).toISOString().slice(0, 10);
-  await page.goto(today.endsWith('-01') ? `/reports/overview?from=${weekAgo}&to=${today}` : '/reports/overview');
+  await page.goto(`/reports/overview?from=${weekAgo}&to=${today}`);
   for (const id of ['pa-donut-categories', 'pa-donut-sources']) {
     const donut = page.getByTestId(id);
     await expect(donut).toBeVisible();

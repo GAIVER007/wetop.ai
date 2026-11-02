@@ -14,6 +14,8 @@ test('customer card: linked history, mobile layout and tenant isolation', async 
   expect(appointment?.customer?.id).toBeTruthy();
 
   await page.goto('/customers');
+  // «Клиенты» салона = пришли и оплатили (владелец 02.11.2026, #1029): записанный, но ещё не пришедший в «Пока без визита»
+  await page.getByRole('combobox', { name: 'Сегмент' }).selectOption('pending');
   const link = page.getByRole('link', { name: 'Тест Карточка Клиента', exact: true });
   await expect(link).toHaveAttribute('href', `/customers/${appointment.customer.id}`);
   await link.click();

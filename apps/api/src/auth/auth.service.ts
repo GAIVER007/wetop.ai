@@ -926,8 +926,9 @@ export class AuthService {
           businessId: r.businessId,
           locationId: r.locationId,
         })),
-      // без членства сессии не бывает (§13.5); если его сняли — прав владельца точно нет
-      role: membership?.role ?? 'STAFF',
+      // без членства сессии не бывает (§13.5); если его сняли — прав владельца точно нет. Рабочее место партнёра
+      // (§63.3) не бизнес: партнёр там никогда не владелец, только «Личный кабинет», и у ранее принятых тоже
+      role: partner ? 'EMPLOYEE' : (membership?.role ?? 'STAFF'),
       platformAdmin: admin !== null && admin.revokedAt === null,
       cabinetHome: admin !== null && admin.revokedAt === null && admin.cabinetHome === true,
       partner: partner !== null && partner !== undefined,

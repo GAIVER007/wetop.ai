@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildPartners, parsePercentBp, type PartnersSource } from './partners';
+import { buildPartners, parsePercentBp, type PartnersSource, planPayoutsOf } from './partners';
 
 /**
  * Партнёры WETOP (владелец 30.10.2026, PARTNERS-20261030): у клиента может быть партнёр, который его привёл. По
@@ -116,6 +116,46 @@ describe('выплата партнёру: разово за тариф с пе�
   it('у тарифа клиента нет суммы выплаты: за тариф 0, допы по проценту', () => {
     const src = { ...rule(), planPayouts: [] };
     expect(buildPartners(src).partners[0]).toMatchObject({ accruedCents: '2499' });
+  });
+});
+
+describe('выплата за тариф по тарифу первого чека, не по нынешней подписке (аудит 01.11.2026)', () => {
+  const plans = [
+    { priceCents: 1900n, partnerPayoutCents: 1000n },
+    { priceCents: 19900n, partnerPayoutCents: 10000n },
+  ];
+  it('клиент начал с месячного $19 и перешёл на годовой: партнёру $10, а не $100', () => {
+    const out = planPayoutsOf(
+      [
+        { organizationId: 'o1', amountCents: 1900n, paidOn: '2026-10-01', voided: false, kind: 'PLAN' },
+        { organizationId: 'o1', amountCents: 19900n, paidOn: '2026-11-01', voided: false, kind: 'PLAN' },
+      ],
+      plans,
+      [{ organizationId: 'o1', payoutCents: 10000n }],
+    );
+    expect(out).toEqual([{ organizationId: 'o1', payoutCents: 1000n }]);
+  });
+  it('подписки нет: выплата по сумме первого чека; сумма не совпала с тарифом: по подписке; отменённый чек не первый', () => {
+    const out = planPayoutsOf(
+      [
+        { organizationId: 'nosub', amountCents: 19900n, paidOn: '2026-10-01', voided: false, kind: 'PLAN' },
+        { organizationId: 'odd', amountCents: 1500n, paidOn: '2026-10-01', voided: false, kind: 'PLAN' },
+        { organizationId: 'void', amountCents: 19900n, paidOn: '2026-09-01', voided: true, kind: 'PLAN' },
+        { organizationId: 'void', amountCents: 1900n, paidOn: '2026-10-01', voided: false, kind: 'PLAN' },
+        { organizationId: 'addon', amountCents: 1900n, paidOn: '2026-10-01', voided: false, kind: 'ADDON' },
+      ],
+      plans,
+      [
+        { organizationId: 'odd', payoutCents: 1000n },
+        { organizationId: 'addon', payoutCents: 1000n },
+      ],
+    );
+    expect(out).toEqual([
+      { organizationId: 'nosub', payoutCents: 10000n },
+      { organizationId: 'odd', payoutCents: 1000n },
+      { organizationId: 'void', payoutCents: 1000n },
+      { organizationId: 'addon', payoutCents: 1000n },
+    ]);
   });
 });
 

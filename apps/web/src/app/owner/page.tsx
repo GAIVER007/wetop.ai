@@ -107,10 +107,24 @@ async function Businesses({ month }: { month: string }) {
               </small>
               </div>
               {chartOf(x.currency)}
+              {view.fx && x.currency === view.fx.currency && view.fx.converted.length > 0 && (
+                <small className="muted owner__fx" data-testid="owner-fx">
+                  {t('{currencies} переведены в {currency} по курсу Нацбанка РК на день операции', {
+                    currencies: view.fx.converted.join(', '),
+                    currency: view.fx.currency,
+                  })}
+                  {view.fx.approximate ? t(', в выходные по последнему курсу') : ''}
+                </small>
+              )}
             </div>
           );
         })}
       </section>
+      {view.fx && view.fx.missing.length > 0 && (
+        <p className="muted" role="status" data-testid="owner-fx-missing">
+          {t('Курса Нацбанка для {currencies} пока нет: эти суммы показаны в своей валюте.', { currencies: view.fx.missing.join(', ') })}
+        </p>
+      )}
       {/* число бизнесов и филиалов в заголовке таблицы; «Требуют решения» снят: дела каждого филиала в колонке «Сегодня» */}
       <Panel className="owner__table-panel">
         <PanelTitle>
@@ -143,10 +157,18 @@ async function Businesses({ month }: { month: string }) {
                           .join(', ')}
                   </span>
                 </td>
-                <td className="num" data-label={t('Выручка')}>{money(r.revenueMinor, r.currency)}</td>
-                <td className="num" data-label={t('Расходы')}>{money(r.expensesMinor, r.currency)}</td>
+                <td className="num" data-label={t('Выручка')}>
+                  {money(r.revenueMinor, r.currency)}
+                  {/* сумма в валюте филиала подписью: перевод по курсу дня виден и проверяем */}
+                  {r.source && <span className="muted owner__sub">{money(r.source.revenueMinor, r.source.currency)}</span>}
+                </td>
+                <td className="num" data-label={t('Расходы')}>
+                  {money(r.expensesMinor, r.currency)}
+                  {r.source && <span className="muted owner__sub">{money(r.source.expensesMinor, r.source.currency)}</span>}
+                </td>
                 <td className="num" data-label={t('Прибыль')}>
                   <b className={BigInt(r.profitMinor) < 0n ? 'owner__down' : undefined}>{money(r.profitMinor, r.currency)}</b>
+                  {r.source && <span className="muted owner__sub">{money(r.source.profitMinor, r.source.currency)}</span>}
                 </td>
                 <td data-label={t('Сегодня')}>
                   {r.attention > 0 ? (

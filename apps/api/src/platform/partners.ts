@@ -40,6 +40,34 @@ export interface PartnersView {
   totals: { partners: number; trials: number; connected: number; incomeCents: string; accruedCents: string; paidCents: string; dueCents: string };
 }
 
+/**
+ * Разовая выплата за тариф по тарифу ПЕРВОГО чека клиента (аудит 01.11.2026): переход с месячного на годовой не
+ * превращает $10 в $100, пропавшая подписка не обнуляет. Тариф первого чека ищется по сумме среди тарифов с выплатой;
+ * сумма не совпала ни с одним (скидка, ручная цена): выплата по тарифу нынешней подписки, как раньше.
+ */
+export function planPayoutsOf(
+  payments: Array<{ organizationId: string; amountCents: bigint; paidOn?: string; voided: boolean; kind?: 'PLAN' | 'ADDON' }>,
+  plans: Array<{ priceCents: bigint; partnerPayoutCents: bigint | null }>,
+  bySubscription: Array<{ organizationId: string; payoutCents: bigint }>,
+): Array<{ organizationId: string; payoutCents: bigint }> {
+  const firstPlan = new Map<string, bigint>();
+  payments
+    .map((p, i) => ({ p, i }))
+    .filter(({ p }) => !p.voided && (p.kind ?? 'PLAN') === 'PLAN')
+    .sort((a, b) => (a.p.paidOn ?? '').localeCompare(b.p.paidOn ?? '') || a.i - b.i)
+    .forEach(({ p }) => {
+      if (!firstPlan.has(p.organizationId)) firstPlan.set(p.organizationId, p.amountCents);
+    });
+  const sub = new Map(bySubscription.map((x) => [x.organizationId, x.payoutCents]));
+  const ids = [...new Set([...firstPlan.keys(), ...sub.keys()])];
+  return ids.flatMap((organizationId) => {
+    const amount = firstPlan.get(organizationId);
+    const plan = amount === undefined ? undefined : plans.find((x) => x.priceCents === amount && x.partnerPayoutCents != null);
+    const payoutCents = plan?.partnerPayoutCents ?? sub.get(organizationId);
+    return payoutCents === undefined || payoutCents === null ? [] : [{ organizationId, payoutCents }];
+  });
+}
+
 export function buildPartners(src: PartnersSource): PartnersView {
   const income = new Map<string, bigint>();
   for (const p of src.payments) if (!p.voided) income.set(p.organizationId, (income.get(p.organizationId) ?? 0n) + p.amountCents);

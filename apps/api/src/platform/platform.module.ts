@@ -11,6 +11,7 @@ import { CabinetController } from './cabinet.controller';
 import { CABINET_REPOSITORY, PrismaCabinetRepository } from './cabinet.repository';
 import { MoneyController } from './money.controller';
 import { OwnerBusinessesController } from './owner-businesses.controller';
+import { EXCHANGE_FETCH, ExchangeRatesService, fetchNbk } from './exchange-rates';
 import { GROWTH_REPOSITORY, GrowthController, PrismaGrowthRepository } from './growth.controller';
 import { CLIENT_CARD_REPOSITORY, ClientCardController, PrismaClientCardRepository } from './client-card.controller';
 import { MONEY_REPOSITORY, PrismaMoneyRepository } from './money.repository';
@@ -50,6 +51,9 @@ import {
     // ночная проверка подписок (срез 4 кабинета руководителя, 29.10.2026)
     { provide: SUBSCRIPTION_NIGHTLY_REPOSITORY, useClass: PrismaSubscriptionNightlyRepository },
     SubscriptionNightlyService,
+    // курсы Нацбанка РК по дням для «Все бизнесы» в валюте компании (владелец 01.11.2026, миграция 180)
+    { provide: EXCHANGE_FETCH, useValue: fetchNbk },
+    ExchangeRatesService,
     // создание организации (ORG2): письмо владельцу уходит тем же отправителем и на тот же адрес стойки, что сброс пароля
     OrganizationCreation,
     {

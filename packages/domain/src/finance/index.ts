@@ -5,3 +5,4 @@ export * from './fiscal-receipt';
 export * from './form910';
 export * from './payment-methods';
 export * from './cashflow';
+export * from './exchange';

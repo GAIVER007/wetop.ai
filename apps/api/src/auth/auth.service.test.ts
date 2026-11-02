@@ -298,6 +298,14 @@ describe('AuthService.whoami', () => {
     await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { platformAdmin: false } });
   });
 
+  it('партнёр WETOP в своём рабочем месте никогда не владелец: роль «Личный кабинет» (§63.3, аудит 01.11.2026)', async () => {
+    const { auth, platformPartners } = service();
+    const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { role: 'OWNER' } });
+    platformPartners.push({ id: 'p-1', userId: 'u-1', organizationId: FAKE_ORG, active: true });
+    await expect(auth.whoami(token, NOW)).resolves.toMatchObject({ user: { role: 'EMPLOYEE', partner: true } });
+  });
+
   it('главный администратор с отметкой «открывать кабинет» (владелец 30.10.2026): cabinetHome только у него', async () => {
     const { auth, platformAdmins } = service();
     const { token } = await auth.login({ email: 'admin@example.invalid', password: PASSWORD }, NOW);

@@ -34,7 +34,7 @@ describe('Дата последнего визита клиента салона
     const html = renderToStaticMarkup(createElement(BeautyCustomersTable, {
       items: [{
         id: 'synthetic-customer', firstName: 'Тестовый клиент', lastName: null,
-        phone: null, status: 'ACTIVE', visits: 1,
+        phone: null, status: 'ACTIVE', visits: 1, paidVisits: 1, noShows: 0,
         lastVisitAt: '2026-10-11T19:30:00.000Z',
         lastVisitLocalDate: '2026-10-12',
         avgCheckMinor: '800000', avgCheckCurrency: 'KZT', isVip: false, birthDate: null, birthdayInDays: null,

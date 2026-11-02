@@ -145,8 +145,11 @@ test('клиенты по макету: визиты, средний чек, п�
   await expect(aigul).toContainText('2');
   await expect(aigul).toContainText('8 000');
   await expect(aigul.locator('time')).toHaveAttribute('datetime', DAY);
+  // «Клиенты» это пришли и оплатили (владелец 01.11.2026): Сауле только записана, она в «Пока без визита»
+  await expect(main.getByRole('row').filter({ hasText: 'Сауле' })).toHaveCount(0);
+  await main.getByLabel('Сегмент').selectOption({ label: 'Пока без визита' });
   const saule = main.getByRole('row').filter({ hasText: 'Сауле' });
-  await expect(saule).toContainText('Новый');
+  await expect(saule).toContainText('Пока без визита');
   await expect(saule).toContainText('Визитов не было');
   await expect(saule).toContainText('Нет данных');
 });
@@ -158,17 +161,20 @@ test('поиск и сегмент отбирают строки, итог го�
   await seededCustomers(page, request);
   await page.goto('/customers');
   const main = page.getByRole('main');
+  // в «Все клиенты» только пришедшие и оплатившие: Айгуль одна из двух
+  await expect(main.getByRole('row').filter({ hasText: 'Сауле' })).toHaveCount(0);
+  await expect(main.getByRole('status')).toContainText('Показано 1 из 2');
+  await main.getByLabel('Сегмент').selectOption({ label: 'Пока без визита' });
   await main.getByLabel('Поиск по имени или телефону').fill('Сау');
   await expect(main.getByRole('row').filter({ hasText: 'Айгуль' })).toHaveCount(0);
   await expect(main.getByRole('row').filter({ hasText: 'Сауле' })).toHaveCount(1);
-  await expect(main.getByRole('status')).toContainText('Показано 1 из 2');
   await main.getByLabel('Поиск по имени или телефону').fill('');
   await main.getByLabel('Сегмент').selectOption({ label: 'Постоянные' });
   await expect(main.getByRole('row').filter({ hasText: 'Сауле' })).toHaveCount(0);
   await expect(main.getByRole('row').filter({ hasText: 'Айгуль' })).toHaveCount(1);
   await main.getByLabel('Сегмент').selectOption({ label: 'Новые' });
   await expect(main.getByRole('row').filter({ hasText: 'Айгуль' })).toHaveCount(0);
-  await expect(main.getByRole('row').filter({ hasText: 'Сауле' })).toHaveCount(1);
+  await expect(main.getByRole('row').filter({ hasText: 'Сауле' })).toHaveCount(0);
   // пустой отбор говорит словами, а не пустой таблицей
   await main.getByLabel('Поиск по имени или телефону').fill('Нет такого');
   await expect(main.getByText('Никого не нашли')).toBeVisible();

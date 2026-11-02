@@ -4311,6 +4311,10 @@ export interface BeautyCustomerRow {
   status: string;
   /** завершённые записи (DONE) бизнеса; деньги это снимки цен записей (Q-252) */
   visits: number;
+  /** завершённые и оплаченные записи: «Клиенты» это пришли и оплатили (владелец 01.11.2026) */
+  paidVisits: number;
+  /** записи «Не пришла»: такие люди в отборе «Не дошли» */
+  noShows: number;
   lastVisitAt: string | null;
   /** День последнего визита в поясе филиала, где он состоялся. */
   lastVisitLocalDate?: string | null;
@@ -5737,10 +5741,14 @@ export interface OwnerBusinesses {
     revenueMinor: string;
     expensesMinor: string;
     profitMinor: string;
+    /** Суммы в валюте филиала, если строка переведена в валюту компании; своя валюта: null */
+    source?: { currency: string; revenueMinor: string; expensesMinor: string; profitMinor: string } | null;
     attention: number;
     current: boolean;
   }>;
   chart: Array<{ currency: string; revenueMinor: string[] }>;
+  /** Перевод в валюту компании по курсу Нацбанка РК на день операции (владелец 01.11.2026); курсов нет: null */
+  fx?: { currency: string; source: 'NBK'; converted: string[]; approximate: boolean; missing: string[] } | null;
 }
 /** РНП бизнеса по дням (`GET /business-rnp`, владелец 30.10.2026): деньги минорными единицами строкой */
 export interface BusinessRnpRow {

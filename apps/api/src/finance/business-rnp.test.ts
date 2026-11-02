@@ -42,6 +42,8 @@ describe('РНП бизнеса', () => {
       bookings: 2,
       visits: 2,
       noShows: 0,
+      cancelled: 0,
+      pending: 0,
       revenueMinor: '15050',
       receiptsMinor: '15050',
       expensesMinor: '0',
@@ -70,6 +72,8 @@ describe('РНП бизнеса', () => {
       // заявки / посетители 3 / 2 = 150%; пришли / (пришли + не пришли) 3 / 4 = 75%
       visitorToLead: 150,
       cameRate: 75,
+      cancelled: 0,
+      pending: 0,
     });
   });
 
@@ -80,6 +84,23 @@ describe('РНП бизнеса', () => {
     const empty = buildBusinessRnp({ month: '2026-02', today: '2026-10-03', visitors: [], leads: [], bookings: [], visits: [], noShows: [], receipts: [], expenses: [] });
     expect(empty.days).toHaveLength(28);
     expect(empty.total).toMatchObject({ averageMinor: null, visitorToLead: null, cameRate: null });
+  });
+
+  it('записи сходятся (владелец 02.11.2026: «записей 14, пришли 10, не пришли 0, а где 4?»): записи дня = пришли + не пришли + отменены + не отмечены', () => {
+    const v = buildBusinessRnp({
+      ...src(),
+      // 14 записей на 01.10: 10 пришли, 2 отменены, 2 ещё не отмечены (пришёл / не пришёл не нажали)
+      bookings: Array.from({ length: 14 }, () => '2026-10-01'),
+      visits: Array.from({ length: 10 }, () => ({ day: '2026-10-01', amountMinor: 46800n })),
+      noShows: [],
+      cancelled: ['2026-10-01', '2026-10-01'],
+      pending: ['2026-10-01', '2026-10-01'],
+    });
+    const d = v.days[0]!;
+    expect(d).toMatchObject({ bookings: 14, visits: 10, noShows: 0, cancelled: 2, pending: 2 });
+    expect(d.visits + d.noShows + d.cancelled + d.pending).toBe(d.bookings);
+    // пришли из записей без отменённых: 10 из 12, а не «100%»
+    expect(v.total).toMatchObject({ bookings: 14, cancelled: 2, pending: 2, cameRate: 83 });
   });
 
   it('гостиница: выручка дня без заезда (проживание) в выручке и прибыли дня и итога, средний чек по заездам', () => {

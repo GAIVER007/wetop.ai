@@ -12,7 +12,8 @@ import { ScopeAware } from '../auth/scope-aware.decorator';
  * базы, сами каждый день, ничего вносить руками не нужно:
  *
  * - посетители и заявки: сайт филиала (счётчик WETOP, заявки с сайта);
- * - новые брони: записи салона, брони столов, брони гостиницы, созданные в этот день;
+ * - новые брони: брони столов и гостиницы, созданные в этот день; салон: записи НА этот день (02.11.2026), которые
+ *   раскладываются без остатка: пришли + не пришли + отменены + не отмечены;
  * - пришли и выручка: салон выполненные записи, ресторан закрытые чеки и бар, гостиница заезды и начисления по дню;
  * - не пришли: неявки дня; поступления: оплаты дня; расходы: оплаченные расходы кассы; прибыль = выручка − расходы;
  * - средний чек = выручка / пришли, целыми, половина вверх.
@@ -27,6 +28,9 @@ export interface BusinessRnpSource {
   bookings: string[];
   visits: Array<{ day: string; amountMinor: bigint }>;
   noShows: string[];
+  /** Салон (владелец 02.11.2026 «а где 4?»): записи дня отменены и ещё не отмечены, чтобы записи сходились */
+  cancelled?: string[];
+  pending?: string[];
   receipts: Array<{ day: string; amountMinor: bigint }>;
   expenses: Array<{ day: string; amountMinor: bigint }>;
 }
@@ -54,6 +58,8 @@ export function buildBusinessRnp(src: BusinessRnpSource) {
       bookings: src.bookings.filter(pick).length,
       visits: visits.length,
       noShows: src.noShows.filter(pick).length,
+      cancelled: (src.cancelled ?? []).filter(pick).length,
+      pending: (src.pending ?? []).filter(pick).length,
       revenueMinor: String(revenue),
       receiptsMinor: String(sum(src.receipts.filter((r) => pick(r.day)))),
       expensesMinor: String(spent),
@@ -65,7 +71,14 @@ export function buildBusinessRnp(src: BusinessRnpSource) {
   return {
     month: src.month,
     days: days.map((day) => ({ day, ...row((d) => d === day) })),
-    total: { ...total, visitorToLead: pct(total.leads, total.visitors), cameRate: pct(total.visits, total.visits + total.noShows) },
+    // пришли из записей без отменённых (салон); где отмен и «не отмечены» нет: из пришли + не пришли, как раньше
+    total: {
+      ...total,
+      visitorToLead: pct(total.leads, total.visitors),
+      cameRate: src.cancelled
+        ? pct(total.visits, total.bookings - total.cancelled)
+        : pct(total.visits, total.visits + total.noShows),
+    },
   };
 }
 
@@ -117,10 +130,11 @@ export class BusinessRnpService {
 
     let source: BusinessRnpSource;
     if (vertical === 'BEAUTY') {
-      const [created, done, noShow, paid, expenses] = await Promise.all([
-        db.appointment.findMany({ where: { locationId, createdAt: at }, select: { createdAt: true } }),
+      // владелец 02.11.2026 («записей 14, пришли 10, не пришли 0, а где 4?»): все записи дня по времени визита и
+      // каждая в одной колонке: пришли (выполнена) + не пришли + отменены + не отмечены (ждут, в работе) = записи
+      const [booked, done, paid, expenses] = await Promise.all([
+        db.appointment.findMany({ where: { locationId, startsAt: at }, select: { startsAt: true, status: true } }),
         db.appointment.findMany({ where: { locationId, status: 'DONE', startsAt: at }, select: { startsAt: true, price: true } }),
-        db.appointment.findMany({ where: { locationId, status: 'NO_SHOW', startsAt: at }, select: { startsAt: true } }),
         db.restaurantCashOperation.findMany({
           where: { locationId, kind: 'INCOME', status: 'COMPLETED', appointmentId: { not: null }, occurredAt: at },
           select: { amount: true, occurredAt: true },
@@ -129,9 +143,11 @@ export class BusinessRnpService {
       ]);
       source = {
         ...base,
-        bookings: created.map((a) => day(a.createdAt)),
+        bookings: booked.map((a) => day(a.startsAt)),
         visits: done.map((a) => ({ day: day(a.startsAt), amountMinor: a.price })),
-        noShows: noShow.map((a) => day(a.startsAt)),
+        noShows: booked.filter((a) => a.status === 'NO_SHOW').map((a) => day(a.startsAt)),
+        cancelled: booked.filter((a) => a.status === 'CANCELLED').map((a) => day(a.startsAt)),
+        pending: booked.filter((a) => a.status === 'BOOKED' || a.status === 'CONFIRMED' || a.status === 'IN_PROGRESS').map((a) => day(a.startsAt)),
         receipts: paid.map((p) => ({ day: day(p.occurredAt), amountMinor: p.amount })),
         expenses,
       };

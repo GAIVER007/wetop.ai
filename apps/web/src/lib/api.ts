@@ -5757,6 +5757,9 @@ export interface BusinessRnpRow {
   bookings: number;
   visits: number;
   noShows: number;
+  /** Салон: записи дня отменены и ещё не отмечены (записи = пришли + не пришли + отменены + не отмечены) */
+  cancelled?: number;
+  pending?: number;
   revenueMinor: string;
   receiptsMinor: string;
   expensesMinor: string;

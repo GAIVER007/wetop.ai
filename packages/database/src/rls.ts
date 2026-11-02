@@ -255,6 +255,8 @@ export const RLS_NO_TENANT_TABLES: readonly string[] = [
   'external_events',
   'channel_outbox',
   'system_incidents',
+  // курсы Нацбанка РК по дням (миграция 180, NBK-FX-20261101): официальный курс один на всех, данных организаций нет
+  'exchange_rates',
 ];
 
 /** Кто делает запрос: организация — строка uuid; служебный путь — `null` */

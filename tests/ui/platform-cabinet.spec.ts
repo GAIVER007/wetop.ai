@@ -93,8 +93,8 @@ test('главная «B»: 4 цифры, воронка продаж из 6 ш�
   await expect(first.getByTestId('client-risk')).toHaveText('под риском');
   await expect(first).toContainText('1/7');
   // владелец 30.10.2026: «Клиенты» без цифр Главной; сверху «с кем говорить», в строке «Принёс денег» и страна
-  await expect(page.getByTestId('clients-tasks')).toBeVisible();
-  await expect(page.getByTestId('task-risk')).toContainText('1');
+  await expect(page.getByTestId('clients-strip')).toBeVisible();
+  await expect(page.getByTestId('clients-risk')).toHaveText('1');
   await expect(page.getByText('Люди у клиентов')).toHaveCount(0);
   await expect(page.getByText('MRR, в месяц')).toHaveCount(0);
   await expect(table.getByRole('columnheader', { name: 'Принёс денег' })).toBeVisible();
@@ -156,6 +156,12 @@ test('карточка клиента: доступ, люди, филиалы, �
   await expect(page.getByTestId('client-journal')).toContainText('admin@wetop.test');
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(wide).toBeLessThanOrEqual(0);
+  // один экран (владелец 01.11.2026): карточка клиента на 1440×900 без прокрутки вниз, журнал виден
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.getByTestId('client-journal')).toBeInViewport();
+  if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/client-card-1440x900.png`, fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollHeight - innerHeight)).toBeLessThanOrEqual(0);
+  await page.setViewportSize({ width: 1280, height: 900 });
   // оплата получена: статус «платит», продлевать пробный больше нечего
   await page.getByTestId('client-access-paid').click();
   await expect(page.getByTestId('client-access-result')).toContainText('Оплата подтверждена');
@@ -291,8 +297,8 @@ test('«Страны»: посетители, новые клиенты, опл�
   await expect(page.getByTestId('countries-total')).toContainText('162');
   await expect(page.getByTestId('countries-total')).toContainText('$78');
   await expect(page.getByTestId('countries-top-income')).toContainText('Казахстан');
-  // в плитке: страна крупно, число посетителей подписью
-  await expect(page.getByTestId('countries-top-visitors').locator('..')).toContainText('120');
+  // в полосе: страна крупно, число посетителей рядом
+  await expect(page.getByTestId('countries-top-visitors-box')).toContainText('120');
   const fits = await page.getByTestId('countries-table').evaluate((t) => t.parentElement!.scrollWidth <= t.parentElement!.clientWidth);
   expect(fits).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

@@ -502,12 +502,21 @@ export class PrismaSellerOrgsRepository implements SellerOrgsRepository {
   }
 
   async withExtension(): Promise<SellerOrganizationRow[]> {
-    const rows = await this.prisma.db.organizationExtension.findMany({
-      where: { extension: 'AI_SELLER' },
-      select: { organizationId: true, organization: { select: { name: true } } },
-      orderBy: { organizationId: 'asc' },
-    });
-    return rows.map((r) => ({ organizationId: r.organizationId, name: r.organization.name }));
+    const [rows, trials] = await Promise.all([
+      this.prisma.db.organizationExtension.findMany({
+        where: { extension: 'AI_SELLER' },
+        select: { organizationId: true, organization: { select: { name: true } } },
+        orderBy: { organizationId: 'asc' },
+      }),
+      // пробный месяц: ИИ-продавец открыт всем на действующем пробном (владелец 01.11.2026)
+      this.prisma.db.organization.findMany({
+        where: { status: 'TRIAL', trialEndsAt: { gt: new Date() } },
+        select: { id: true, name: true },
+      }),
+    ]);
+    const out = new Map(rows.map((r) => [r.organizationId, { organizationId: r.organizationId, name: r.organization.name }]));
+    for (const o of trials) if (!out.has(o.id)) out.set(o.id, { organizationId: o.id, name: o.name });
+    return [...out.values()].sort((a, b) => a.organizationId.localeCompare(b.organizationId));
   }
 
   async one(organizationId: string): Promise<SellerOrganizationRow | null> {

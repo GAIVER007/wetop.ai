@@ -152,10 +152,10 @@ async function Rnp({ month, tab, weekParam }: { month: string; tab: Tab; weekPar
                 <th className="num">{t('Открыли рег.')}</th>
                 <th className="num">{t('Отправили')}</th>
                 <th className="num">{t('Регистрации')}</th>
-                <th className="num">{t('Первые оплаты')}</th>
+                <th className="num">{t('Оплатили')}</th>
                 <th className="num">{t('Оплаты')}</th>
                 <th className="num">{t('Расходы')}</th>
-                <th className="num">{t('Посетитель в клиента')}</th>
+                <th className="num">{t('Конверсия')}</th>
               </tr>
             </thead>
             <tbody>

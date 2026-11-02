@@ -6,6 +6,7 @@ import {
   isExtensionActive,
   parseExtensionChange,
 } from './extensions';
+import { effectiveExtension } from './extensions';
 
 /** Платные расширения организации (DATA_MODEL §16.3, ADR-083, Q-183) */
 describe('расширение действует или нет', () => {
@@ -91,5 +92,31 @@ describe('доступ к разделу по расширению (Q-183, ва�
     expect(extensionAccess({ status: 'TRIAL', activeUntil: new Date(now.getTime() - day) }, now)).toBe('expired');
     expect(extensionAccess({ status: 'OFF', activeUntil: null }, now)).toBe('off');
     expect(extensionAccess(null, now)).toBe('off');
+  });
+});
+
+describe('пробный месяц: все платные функции открыты (владелец 01.11.2026)', () => {
+  const now = new Date('2026-11-10T10:00:00Z');
+  const trial = { status: 'TRIAL' as const, trialEndsAt: new Date('2026-12-01T00:00:00Z') };
+  it('организация на пробном: ИИ-продавец и конструктор сайта действуют до конца пробного, даже не подключённые', () => {
+    expect(effectiveExtension(null, trial, now)).toEqual({ status: 'TRIAL', activeUntil: trial.trialEndsAt });
+    expect(effectiveExtension({ status: 'OFF', activeUntil: null }, trial, now)).toEqual({ status: 'TRIAL', activeUntil: trial.trialEndsAt });
+    expect(effectiveExtension({ status: 'TRIAL', activeUntil: new Date('2026-11-05T00:00:00Z') }, trial, now)).toEqual({
+      status: 'TRIAL',
+      activeUntil: trial.trialEndsAt,
+    });
+  });
+  it('своё действующее расширение не меняется: оплаченное бессрочное и оплаченное дольше пробного', () => {
+    const paid = { status: 'ACTIVE' as const, activeUntil: null };
+    expect(effectiveExtension(paid, trial, now)).toBe(paid);
+    const long = { status: 'ACTIVE' as const, activeUntil: new Date('2027-01-01T00:00:00Z') };
+    expect(effectiveExtension(long, trial, now)).toBe(long);
+  });
+  it('пробный кончился, организация платит или только чтение: только своё расширение', () => {
+    const ended = { status: 'TRIAL' as const, trialEndsAt: new Date('2026-11-01T00:00:00Z') };
+    expect(effectiveExtension(null, ended, now)).toBeNull();
+    expect(effectiveExtension(null, { status: 'ACTIVE', trialEndsAt: null }, now)).toBeNull();
+    expect(effectiveExtension(null, { status: 'READ_ONLY', trialEndsAt: trial.trialEndsAt }, now)).toBeNull();
+    expect(effectiveExtension(null, null, now)).toBeNull();
   });
 });

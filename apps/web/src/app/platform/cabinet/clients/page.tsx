@@ -9,6 +9,7 @@ import { formatInt } from '../../../../lib/dashboard-format';
 import { currentLocale, serverT } from '../../../../i18n/server';
 import type { Translate } from '../../../../i18n';
 import { unstable_rethrow } from 'next/navigation';
+import { KpiStrip } from '../kpi-strip';
 import { CabinetShell, usd } from '../shell';
 import { ClientStatus } from '../growth-parts';
 import { countryName, flag } from '../country';
@@ -113,29 +114,16 @@ async function Clients({ filter, country, vertical, search }: { filter: Filter; 
   };
   return (
     <CabinetShell active="clients" t={t} clients={view.totals.clients}>
-      {/* «Клиенты» C (владелец 30.10.2026): без цифр Главной (MRR, LTV, люди у клиентов), только с кем говорить */}
-      <div className="cabinet-tasks" data-testid="clients-tasks">
-        <Link className="cabinet-task" data-tone="warning" href={keep({ show: 'trial' })} prefetch={false} data-testid="task-ending">
-          <span className="muted">{t('Кончается пробный')}</span>
-          <b>{formatInt(tasks.ending)}</b>
-          <span className="cabinet__sub">{t('за 7 дней, позвонить')}</span>
-        </Link>
-        <Link className="cabinet-task" data-tone="danger" href={keep({ show: 'risk' })} prefetch={false} data-testid="task-risk">
-          <span className="muted">{t('Под риском')}</span>
-          <b>{formatInt(tasks.risk)}</b>
-          <span className="cabinet__sub">{t('работали меньше 3 дн. из 7')}</span>
-        </Link>
-        <div className="cabinet-task" data-tone="info" data-testid="task-idle">
-          <span className="muted">{t('Долго не входили')}</span>
-          <b>{formatInt(tasks.idle)}</b>
-          <span className="cabinet__sub">{t('больше 7 дней')}</span>
-        </div>
-        <Link className="cabinet-task" data-tone="success" href={keep({ show: 'paying' })} prefetch={false} data-testid="task-payment">
-          <span className="muted">{t('Скоро оплата')}</span>
-          <b>{formatInt(tasks.payment)}</b>
-          <span className="cabinet__sub">{t('срок в 14 дней')}</span>
-        </Link>
-      </div>
+      {/* полоса цифр как «Сайт wetop.ai» (владелец 01.11.2026): 4 «с кем говорить», нажатие открывает список */}
+      <KpiStrip
+        testId="clients-strip"
+        items={[
+          { id: 'ending', label: t('Кончается пробный'), value: formatInt(tasks.ending), hint: t('за 7 дней'), tone: tasks.ending ? 'warning' : undefined, href: keep({ show: 'trial' }) },
+          { id: 'risk', label: t('Под риском'), value: formatInt(tasks.risk), hint: t('меньше 3 дн. из 7'), tone: tasks.risk ? 'danger' : undefined, href: keep({ show: 'risk' }) },
+          { id: 'idle', label: t('Долго не входили'), value: formatInt(tasks.idle), hint: t('больше 7 дней') },
+          { id: 'payment', label: t('Скоро оплата'), value: formatInt(tasks.payment), hint: t('за 14 дней'), tone: tasks.payment ? 'success' : undefined, href: keep({ show: 'paying' }) },
+        ]}
+      />
       <Panel title={t('Клиенты')} className="cabinet__clients">
         <nav className="cabinet__filters" aria-label={t('Показать')}>
           {FILTERS.map((f) => (

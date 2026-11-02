@@ -231,8 +231,9 @@ test('§10, §41: поиск подсвечивает, приглушает, р�
   ).toContainText(near);
   await page.keyboard.press('Escape');
 
-  // 30 дней: найденная далеко справа бронь прокручена в видимую часть сетки
-  await page.goto(`/chessboard?from=${add(today, -1)}&to=${add(today, 28)}`);
+  // 32 дня: найденная далеко справа бронь прокручена в видимую часть сетки. Период длиннее любого месяца: ровно
+  // календарный месяц (2-го числа «вчера..+28» = 1..30) календарь вписывает в экран целиком (гейт main 1.11.2026)
+  await page.goto(`/chessboard?from=${add(today, -1)}&to=${add(today, 30)}`);
   const far1 = main.locator(`[data-testid="stay-cell"][data-number="${far}"]`).first();
   await expect(far1).not.toBeInViewport();
   await main.getByLabel('Поиск в календаре').fill('Далекова');

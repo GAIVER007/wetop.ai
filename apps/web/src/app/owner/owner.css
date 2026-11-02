@@ -4,12 +4,6 @@
   gap: var(--space-4);
   min-width: 0;
 }
-.owner__head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-}
 .owner__totals {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
@@ -17,11 +11,26 @@
 }
 .owner__total {
   display: grid;
+  /* суммы строкой, под ними выручка за полгода: одна карточка вместо двух блоков друг под другом (01.11.2026) */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-16) * 8)), 1fr));
+  align-items: end;
   gap: var(--space-2);
   padding: var(--space-4);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
+}
+.owner__total-sums {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.owner__count {
+  font-size: var(--text-sm);
+  font-weight: 400;
+}
+.owner__table-panel {
+  padding: var(--space-4);
 }
 .owner__total h2 {
   margin: 0;
@@ -32,8 +41,8 @@
 .owner__total dl {
   display: grid;
   /* суммы целиком (владелец 31.10.2026: «текст обрезается»): узкая карточка переносит сумму на новую строку */
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: var(--space-2);
   margin: 0;
 }
 .owner__total dt {
@@ -71,17 +80,6 @@
   inline-size: 1%;
   white-space: nowrap;
 }
-.owner__pair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
-  align-items: start;
-}
-.owner__charts {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-16) * 3)), 1fr));
-  gap: var(--space-4);
-}
 .owner__chart-block h3 {
   margin: 0;
   font-size: var(--text-xs);
@@ -91,8 +89,8 @@
   display: flex;
   align-items: flex-end;
   gap: var(--space-2);
-  block-size: calc(var(--space-16) * 1.5);
-  padding-block: var(--space-2);
+  block-size: calc(var(--space-16) * 0.75);
+  padding-block: var(--space-1);
 }
 .owner__chart > div {
   flex: 1;
@@ -116,28 +114,7 @@
   font-size: var(--text-xs);
   color: var(--muted);
 }
-.owner__todo {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-2);
-}
-.owner__todo li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-@media (max-width: 960px) {
-  .owner__pair {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 @media (max-width: 600px) {
-  .owner__charts {
-    grid-template-columns: minmax(0, 1fr);
-  }
   .owner__total dl {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -180,8 +157,5 @@
   }
   .owner__go {
     inline-size: 100%;
-  }
-  .owner__pair {
-    grid-template-columns: minmax(0, 1fr);
   }
 }

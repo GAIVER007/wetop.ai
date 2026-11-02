@@ -606,11 +606,14 @@ export interface SignedInOrganization {
 export interface AuthClientInfo {
   ip: string | null;
   userAgent: string | null;
+  /** Страна адреса входа (CF-IPCountry): API ставит её клиенту без страны */
+  country?: string | null;
 }
 function authHeaders(info: AuthClientInfo, token?: string | null): Record<string, string> {
   return {
     'content-type': 'application/json',
     ...(info.ip ? { 'cf-connecting-ip': info.ip } : {}),
+    ...(info.country ? { 'cf-ipcountry': info.country } : {}),
     ...(info.userAgent ? { 'user-agent': info.userAgent } : {}),
     ...(token ? { authorization: `Bearer ${token}` } : {}),
   };

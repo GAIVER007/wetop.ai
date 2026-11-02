@@ -16,6 +16,12 @@ const cssFiles = (dir: string): string[] =>
   });
 const strip = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '');
 const all = cssFiles(src).map((f) => ({ f, css: strip(readFileSync(f, 'utf8')) }));
+/*
+ * Стекло «A» (владелец 01.11.2026, образец кнопки Apple): плитки цифр, вкладки и кнопки стеклом с бликом в одном
+ * файле `app/glass-a.css` (ADR docs/decisions/2026-11-01-feat-glass-ui-a-20261101.md). Сторож «плоских блоков» его
+ * не считает: решение владельца отменяет плоский вид у перечисленных там классов, остальное правило держит.
+ */
+const flat = all.filter(({ f }) => !f.endsWith('/app/glass-a.css'));
 
 const documented = (() => {
   const design = readFileSync(resolve(root, 'docs/design/desk-rules.md'), 'utf8');
@@ -43,7 +49,7 @@ const GLASS_PANEL_DS1 = new Set([
 
 /** тела правил, в списке селекторов которых есть ровно этот класс */
 const bodiesOf = (cls: string) =>
-  all.flatMap(({ css }) =>
+  flat.flatMap(({ css }) =>
     [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
       .filter((m) => m[1]!.split(',').some((s) => s.trim() === cls))
       .map((m) => m[2]!),

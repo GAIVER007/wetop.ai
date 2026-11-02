@@ -35,6 +35,7 @@ export async function clientInfo(): Promise<AuthClientInfo> {
     return {
       ip: h.get('cf-connecting-ip')?.trim() || null,
       userAgent: h.get('user-agent')?.trim() || null,
+      country: h.get('cf-ipcountry')?.trim() || null,
     };
   } catch {
     return { ip: null, userAgent: null };

@@ -69,6 +69,8 @@ export interface OwnerAttentionItem {
   href: string;
   action: string;
   count?: number;
+  /** данные строки для экрана на другом языке: `text` приходит по-русски */
+  detail?: { since?: string; dirty?: number; beds?: boolean; clean?: boolean };
 }
 export interface OwnerSummaryDto {
   sourceVersion: 'owner-cash-foundation-v1';

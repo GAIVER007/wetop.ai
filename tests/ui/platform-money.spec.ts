@@ -52,6 +52,10 @@ test('оплата и расход: доход, расходы и прибыль
   await expect(page.getByRole('main')).toContainText('Hetzner, Счёт 17, каждый месяц');
   await page.goto('/platform/cabinet/money');
   await expect(page.getByTestId('money-months')).toContainText('$79,50');
+  // один экран (владелец 01.11.2026): обзор «Денег» на 1440×900 без прокрутки вниз
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.getByTestId('money-months')).toBeInViewport({ ratio: 1 });
+  expect(await page.evaluate(() => document.documentElement.scrollHeight - innerHeight)).toBeLessThanOrEqual(0);
   // таблица по месяцам (вкладка «По месяцам», вариант Б): доход, статья «Сервер», прибыль
   await page.getByTestId('money-tab-months').click();
   const table = page.getByTestId('money-table');
@@ -117,12 +121,19 @@ test('тариф, подписка клиента, команда с цифро�
   await digital.getByTestId('money-team-save').click();
   await expect(page.getByTestId('team-row').filter({ hasText: 'ИИ-продавец' })).toContainText('цифровой сотрудник');
   await expect(page.getByTestId('team-payroll')).toHaveText('$830');
+  await expect(page.getByTestId('team-filter-digital')).toContainText('1');
+  await expect(page.getByTestId('team-row').filter({ hasText: 'Айдар Тестов' }).getByTestId('team-row-left')).toHaveText('$800');
   await page.getByTestId('team-row').filter({ hasText: 'Айдар Тестов' }).getByTestId('team-pay-dialog-open').click();
   const payout = page.getByTestId('team-pay-dialog').getByTestId('money-expense-form');
   await expect(payout.getByLabel('Сумма, $')).toHaveValue('800');
   await payout.getByTestId('money-expense-save').click();
   await expect(page.getByTestId('team-paid')).toHaveText('$800');
   await expect(page.getByTestId('team-left')).toHaveText('$30');
+  await expect(page.getByTestId('team-row').filter({ hasText: 'Айдар Тестов' }).getByTestId('team-row-left')).toHaveText('выплачено');
+  // подписи полосы в одну строку и таблица без прокрутки вбок
+  expect(await page.getByTestId('team-list').locator('table').evaluate((t) => t.parentElement!.scrollWidth <= t.parentElement!.clientWidth + 1)).toBe(true);
+  for (const dt of await page.getByTestId('team-strip').locator('dt').all())
+    expect(await dt.evaluate((e) => e.scrollWidth <= e.clientWidth + 1 && e.getBoundingClientRect().height < 30)).toBe(true);
   await expect(page.getByTestId('team-payouts')).toContainText('Айдар Тестов');
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/team-1280.png`, fullPage: true });
   await page.goto('/platform/cabinet/money?tab=months');
@@ -407,7 +418,7 @@ test('партнёр: приглашение, регистрация по ссы
   await expect(page.getByTestId('partner-card')).toContainText('Подключаю салоны красоты к WETOP.');
   if (process.env.CABINET_SHOTS) await page.screenshot({ path: `${process.env.CABINET_SHOTS}/partner-profile-1280.png` });
   await page.getByRole('link', { name: 'Деньги' }).click();
-  await expect(page.getByTestId('partner-accrued')).toContainText('$15');
+  await expect(page.getByTestId('partner-money-accrued')).toContainText('$15');
   await expect(page.getByTestId('partner-payout-row')).toContainText('Kaspi');
   const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(wide).toBeLessThanOrEqual(0);

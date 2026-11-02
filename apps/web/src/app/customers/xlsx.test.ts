@@ -18,6 +18,8 @@ const customer = (overrides: Partial<BeautyCustomerRow> = {}): BeautyCustomerRow
   phone: '+77000000001',
   status: 'ACTIVE',
   visits: 2,
+  paidVisits: 2,
+  noShows: 0,
   lastVisitAt: '2026-10-17T10:00:00.000Z',
   lastVisitLocalDate: '2026-10-17',
   avgCheckMinor: '125000',

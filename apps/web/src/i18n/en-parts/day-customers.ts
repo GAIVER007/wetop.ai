@@ -398,4 +398,7 @@ export const dayCustomers: Record<string, string> = {
   "Открыты дольше 2 ч: {count}": "Open longer than 2 h: {count}",
   "мастеров": "specialists",
   "счетов": "invoices",
+  "Не дошли": "Didn't show up",
+  "Пока без визита": "No visit yet",
+  "Не дошёл": "Didn't show up",
 };

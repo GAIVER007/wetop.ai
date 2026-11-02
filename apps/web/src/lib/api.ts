@@ -4311,6 +4311,10 @@ export interface BeautyCustomerRow {
   status: string;
   /** завершённые записи (DONE) бизнеса; деньги это снимки цен записей (Q-252) */
   visits: number;
+  /** завершённые и оплаченные записи: «Клиенты» это пришли и оплатили (владелец 01.11.2026) */
+  paidVisits: number;
+  /** записи «Не пришла»: такие люди в отборе «Не дошли» */
+  noShows: number;
   lastVisitAt: string | null;
   /** День последнего визита в поясе филиала, где он состоялся. */
   lastVisitLocalDate?: string | null;

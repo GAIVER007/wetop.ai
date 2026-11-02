@@ -1,12 +1,12 @@
 import { Buffer } from 'node:buffer';
 import { ApiError, beautyApi } from '../../../lib/api';
 import { deskShell } from '../../../lib/desk-shell';
-import { filterBeautyCustomers, type BeautyCustomerSegmentFilter } from '../customer-filter';
+import { BEAUTY_CUSTOMER_SEGMENTS, filterBeautyCustomers, type BeautyCustomerSegmentFilter } from '../customer-filter';
 import { exportBeautyCustomersXlsx } from '../xlsx';
 import { serverT } from '../../../i18n/server';
 
 const MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-const SEGMENTS = new Set<BeautyCustomerSegmentFilter>(['all', 'new', 'regular', 'vip', 'archived']);
+const SEGMENTS = new Set<BeautyCustomerSegmentFilter>(BEAUTY_CUSTOMER_SEGMENTS);
 
 const text = (status: number, body: string) =>
   new Response(body, { status, headers: { 'content-type': 'text/plain; charset=utf-8' } });

@@ -103,9 +103,14 @@ export function BeautyCustomersTable({
       setExporting(false);
     }
   };
+  // новый клиент ещё без оплаченного визита: показываем его отбор, иначе карточка пропала бы из «Все клиенты»
   useEffect(() => {
-    if (saved) document.getElementById(`customer-${saved.id}`)?.focus();
-  }, [saved, items]);
+    if (!saved) return;
+    const row = items.find((item) => item.id === saved.id);
+    if (row && !filterBeautyCustomers([row], { query: '', segment: filter }).length)
+      setFilter(row.status !== 'ACTIVE' ? 'archived' : row.paidVisits > 0 ? 'all' : row.noShows > 0 ? 'no-show' : 'pending');
+    document.getElementById(`customer-${saved.id}`)?.focus();
+  }, [saved, items, filter]);
   return (
     <>
       <div className="beauty-customers-bar beauty-customers-controls">
@@ -127,6 +132,8 @@ export function BeautyCustomersTable({
             <option value="new">{t('Новые')}</option>
             <option value="regular">{t('Постоянные')}</option>
             <option value="vip">VIP</option>
+            <option value="no-show">{t('Не дошли')}</option>
+            <option value="pending">{t('Пока без визита')}</option>
             <option value="archived">{t('В архиве')}</option>
           </Select>
         </div>

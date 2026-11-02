@@ -8310,6 +8310,9 @@ createServer(async (req, res) => {
           return {
             ...c,
             visits: done.length,
+            // «Клиенты» это пришли и оплатили (владелец 01.11.2026): оплаченные визиты и неявки, как у API
+            paidVisits: done.length, // у подставного салона касса записей не ведётся: завершённая запись считается оплаченной
+            noShows: mine.filter((a) => a.customer.id === c.id && a.status === 'NO_SHOW').length,
             lastVisitAt: last ? `${last}T12:00:00.000Z` : null,
             lastVisitLocalDate: last,
             avgCheckMinor: done.length ? (sum / BigInt(done.length)).toString() : null,

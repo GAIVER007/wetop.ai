@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect, unstable_rethrow } from 'next/navigation';
-import { Badge, EmptyState, Panel, Table, type BadgeTone } from '../../components/ui';
+import { Badge, EmptyState, Panel, Stat, Stats, Table, type BadgeTone } from '../../components/ui';
 import { Icon } from '../../components/icon';
 import { ApiError } from '../../lib/api-error';
 import { partnerApi, type PartnerCabinetView, type PartnerClientStatus, type PartnerLevel } from '../../lib/api';

@@ -31,6 +31,8 @@ test('M4-B2: владелец импортирует CSV, восстанавли
   await expect(panel.getByText('Созданы').locator('..')).toContainText('1');
   await expect(panel.getByText('Уже были в салоне').locator('..')).toContainText('1');
   await expect(panel.getByText('Пропущены').locator('..')).toContainText('1');
+  // загруженные без визитов: «Все клиенты» это пришли и оплатили (владелец 01.11.2026), они в «Пока без визита»
+  await main.getByLabel('Сегмент').selectOption({ label: 'Пока без визита' });
   await expect(customerTable.getByRole('row').filter({ hasText: 'Импорт Тест Первый' })).toHaveCount(1);
   await expect(customerTable.getByRole('row').filter({ hasText: 'Повтор не заменяет' })).toHaveCount(0);
   // Повтор той же команды с тем же clientRequestId возвращает завершённый job и не открывает upload заново.
@@ -57,6 +59,8 @@ test('M4-B2: владелец импортирует CSV, восстанавли
   const confirm = page.getByRole('dialog', { name: 'Отменить импорт клиентов?' });
   await confirm.getByRole('button', { name: 'Отменить импорт', exact: true }).click();
   await expect(panel.getByRole('heading', { name: 'Последний импорт: Отменён' })).toBeVisible();
+  // после перезагрузки отбор снова «Все клиенты»: проверяем там же, где клиент был виден
+  await main.getByLabel('Сегмент').selectOption({ label: 'Пока без визита' });
   await expect(customerTable.getByRole('row').filter({ hasText: 'Импорт Тест Первый' })).toHaveCount(0);
 });
 
@@ -117,6 +121,7 @@ test('M4-B2: незавершённая загрузка после reload пр�
   await selectAndCheck(panel, originalCsv, 'resume-original.csv');
   await panel.getByRole('button', { name: 'Импортировать 3 строк', exact: true }).click();
   await expect(panel.getByRole('heading', { name: 'Последний импорт: Завершён' })).toBeVisible();
+  await main.getByLabel('Сегмент').selectOption({ label: 'Пока без визита' });
   await expect(customerTable.getByRole('row').filter({ hasText: 'Восстановление Один' })).toHaveCount(1);
   // Если бы UI создал новый job, первым снова пришёл бы startAction. Успешный replay uploadAction
   // одновременно доказывает, что сервер получил тот же job и receipt пакета с offset 0 совпал.

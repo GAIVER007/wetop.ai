@@ -260,6 +260,25 @@ export class BeautyCatalogService {
     const visitDates = new Map(latest.map((visit) => [
       visit.customerId, localDate(visit.startsAt, visit.location.timezone),
     ]));
+    // «Клиенты» это пришли и оплатили (владелец 01.11.2026): оплаченные визиты и неявки для отбора списка
+    const [paidRows, noShowRows] = await Promise.all([
+      this.prisma.db.appointment.groupBy({
+        by: ['customerId'],
+        where: {
+          status: 'DONE',
+          location: { businessId: scope.businessId },
+          payments: { some: { kind: 'INCOME', status: 'COMPLETED' } },
+        },
+        _count: { _all: true },
+      }),
+      this.prisma.db.appointment.groupBy({
+        by: ['customerId'],
+        where: { status: 'NO_SHOW', location: { businessId: scope.businessId } },
+        _count: { _all: true },
+      }),
+    ]);
+    const paidVisits = new Map(paidRows.map((r) => [r.customerId, r._count._all]));
+    const noShows = new Map(noShowRows.map((r) => [r.customerId, r._count._all]));
     const byCustomer = new Map<
       string,
       { visits: number; lastVisitAt: Date; top: { count: number; sum: bigint; currency: string } }
@@ -290,6 +309,8 @@ export class BeautyCatalogService {
           birthDate,
           birthdayInDays: birthDate ? birthdayInDays(birthDate, today) : null,
           visits: s?.visits ?? 0,
+          paidVisits: paidVisits.get(c.id) ?? 0,
+          noShows: noShows.get(c.id) ?? 0,
           lastVisitAt: s ? s.lastVisitAt.toISOString() : null,
           lastVisitLocalDate: visitDates.get(c.id) ?? null,
           // целочисленное деление в тиынах: остаток отбрасывается, float не появляется (ADR-008)

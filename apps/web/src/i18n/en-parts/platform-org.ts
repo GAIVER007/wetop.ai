@@ -947,6 +947,7 @@ export const platformOrg: Record<string, string> = {
   "Посетители сайта": "Website visitors",
   "пришли {percent}%": "came {percent}%",
   "Заполняется само каждый день: сайт, брони, приходы, оплаты и расходы кассы филиала.": "Filled in automatically every day: website, bookings, visits, payments and branch cash expenses.",
+  "Записи на день: пришли + не пришли + отменены + не отмечены. «Не отмечены»: запись прошла, но в журнале не нажали «Пришёл» или «Не пришёл».": "Appointments of the day: came + no-show + canceled + not marked. \"Not marked\": the visit time has passed, but nobody pressed \"Came\" or \"No-show\" in the journal.",
   "Доп: ИИ-продавец, таргет, контент": "Add-on: AI seller, ads, content",
   "Партнёру за первый чек, $": "Partner payout for first check, $",
   "партнёру {sum}": "partner {sum}",

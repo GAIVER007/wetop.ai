@@ -16,7 +16,7 @@ import './rnp.css';
 
 /** Подписи столбцов по направлению: одна таблица для салона, ресторана и гостиницы */
 const WORDS = {
-  BEAUTY: { bookings: msg('Новые записи'), visits: msg('Пришли') },
+  BEAUTY: { bookings: msg('Записи'), visits: msg('Пришли') },
   FOOD_SERVICE: { bookings: msg('Брони столов'), visits: msg('Чеки') },
   HOSPITALITY: { bookings: msg('Новые брони'), visits: msg('Заезды') },
 } as const;
@@ -52,6 +52,8 @@ async function Rnp({ month }: { month: string }) {
     return <LoadError testId="rnp-error" {...loadErrorProps(error)} />;
   }
   const w = WORDS[view.vertical];
+  // салон: записи дня раскладываются без остатка, видно отменённые и ещё не отмеченные (владелец 02.11.2026)
+  const split = view.vertical === 'BEAUTY';
   const money = (v: string | null) => (v === null ? '' : formatOwnerMoney(v, view.currency));
   const k = view.total;
   const strip = [
@@ -90,6 +92,8 @@ async function Rnp({ month }: { month: string }) {
               <th className="num">{t(w.bookings)}</th>
               <th className="num">{t(w.visits)}</th>
               <th className="num">{t('Не пришли')}</th>
+              {split && <th className="num">{t('Отменены')}</th>}
+              {split && <th className="num">{t('Не отмечены')}</th>}
               <th className="num">{t('Выручка')}</th>
               <th className="num">{t('Поступило')}</th>
               <th className="num">{t('Расходы')}</th>
@@ -106,6 +110,8 @@ async function Rnp({ month }: { month: string }) {
                 <td className="num">{formatInt(d.bookings)}</td>
                 <td className="num">{formatInt(d.visits)}</td>
                 <td className="num">{formatInt(d.noShows)}</td>
+                {split && <td className="num">{formatInt(d.cancelled ?? 0)}</td>}
+                {split && <td className="num">{formatInt(d.pending ?? 0)}</td>}
                 <td className="num">{money(d.revenueMinor)}</td>
                 <td className="num">{money(d.receiptsMinor)}</td>
                 <td className="num">{money(d.expensesMinor)}</td>
@@ -124,6 +130,8 @@ async function Rnp({ month }: { month: string }) {
               <td className="num">{formatInt(k.bookings)}</td>
               <td className="num">{formatInt(k.visits)}</td>
               <td className="num">{formatInt(k.noShows)}</td>
+              {split && <td className="num">{formatInt(k.cancelled ?? 0)}</td>}
+              {split && <td className="num">{formatInt(k.pending ?? 0)}</td>}
               <td className="num">{money(k.revenueMinor)}</td>
               <td className="num">{money(k.receiptsMinor)}</td>
               <td className="num">{money(k.expensesMinor)}</td>
@@ -132,6 +140,11 @@ async function Rnp({ month }: { month: string }) {
             </tr>
           </tfoot>
         </Table>
+        {split && (
+          <p className="muted rnp__note">
+            {t('Записи на день: пришли + не пришли + отменены + не отмечены. «Не отмечены»: запись прошла, но в журнале не нажали «Пришёл» или «Не пришёл».')}
+          </p>
+        )}
         <p className="muted rnp__note">{t('Заполняется само каждый день: сайт, брони, приходы, оплаты и расходы кассы филиала.')}</p>
       </Panel>
     </div>
